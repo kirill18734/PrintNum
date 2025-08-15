@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link id="theme-style" rel="stylesheet" href="light.css" />
+    <title>Tauri App</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <div class="main_container">
+      <header>
+        <div class="container_change_mode">
+          <label for="" id="extension">Расширение<br />(рекомендуется)</label>
+          <input type="checkbox" id="switch" /><label
+            for="switch"
+            id="checkout"
+          ></label
+          ><label for="" id="AI">Нейросеть</label>
+        </div>
+        <input type="button" value="🌙" id="change_theme" />
+      </header>
+      <main>
+        <h2>Принтер</h2>
+        <p class="no_printer_text"></p>
+        <div class="container_select_printer">
+          <h3 class="text_select_printer">Выбор принтера</h3>
+          <select name="printer" id="select_printer"></select>
+        </div>
+        <h2 class="screen_area">Область экрана</h2>
+        <div class="container_screen">
+          <input
+            type="button"
+            value="🔍 Показать текущую область"
+            id="Show_current_area"
+          />
+          <input
+            type="button"
+            value="✏ Изменить область отслеживания"
+            id="Change_tracking_area"
+          />
+        </div>
+        <p class="state_run" id="state_run_text">Приложение остановлено</p>
+        <input type="button" value="Запустить" id="run" />
+      </main>
+      <footer>
+        <input type="button" id="github" />
+        <p id="server_not_running"></p>
+      </footer>
+    </div>
+  </body>
+</html>

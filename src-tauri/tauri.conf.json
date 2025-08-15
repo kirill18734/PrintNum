@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "printnum",
+  "version": "0.1.0",
+  "identifier": "com.azerty.printnum",
+  "build": {
+    "frontendDist": "../src",
+    "removeUnusedCommands": true
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Печать ячеек",
+        "fullscreen": false,
+        "resizable": false,
+        "maximizable": false,
+        "width": 450,
+        "height": 270
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/tauri_main.ico"],
+    "externalBin": ["../backend/output/backend"]
+  }
+}

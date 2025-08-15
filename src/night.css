@@ -1,0 +1,227 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: center;
+}
+body{
+background-color: #2b2d30; /* светлый фон */
+}
+/* Основные настройки всего контейнера */
+.main_container {
+  color: white; /* тёмный текст */
+  font-size: 12px;
+  font-family: Arial;
+  box-sizing: border-box;
+  padding: 10px;
+  min-width: 450px;
+}
+
+/* Шапка всего приложения */
+header,
+.container_select_printer,
+.container_change_mode ,
+.container_screen,
+footer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  top: 0;
+}
+
+/* Текст: Расширение (рекомендуется) */
+#extension {
+  margin-right: 5px;
+}
+
+
+/* Переключатель */
+input[type="checkbox"] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+#select_printer{
+  color: black;
+}
+label#checkout {
+  cursor: pointer;
+  text-indent: -9999px;
+  min-width: 60px;
+  min-height: 30px;
+  background: green; /* светло-серый */
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+label#checkout:hover {
+  cursor: pointer;
+  text-indent: -9999px;
+  min-width: 60px;
+  min-height: 30px;
+  background: rgb(0, 104, 0); /* темно-серый */
+  display: block;
+  border-radius: 100px;
+  position: relative;
+}
+
+label#checkout:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border-radius: 90px;
+  transition: 0.3s;
+}
+
+input:checked + label#checkout {
+  background: #4e89ff;
+}
+input:checked + label#checkout:hover {
+  background: #3965bb;
+}
+input:checked + label#checkout:after {
+  left: calc(100% - 3px);
+  transform: translateX(-100%);
+}
+
+/* Текст: Нейросеть */
+#AI {
+  margin-left: 5px;
+}
+
+/* Переключение темы */
+#change_theme {
+  font-size: 20px;
+  min-width: 43px;
+  min-height: 43px;
+  border-radius: 20px;
+  background-color: transparent;
+}
+#change_theme:hover {
+    background-color: #4E89FF;  /* немного серее при наведении */
+}
+#change_theme:active {
+    background-color: white;  /* немного серее при наведении */
+}
+
+/*Заголовки*/
+h2{
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.no_printer_text{
+  text-align: end;
+  margin-right: 80px;
+}
+/* Текст выбор принтера */
+.text_select_printer {
+  width: 50%;
+  text-align: center;
+}
+
+/* Выбор принтера */
+#select_printer {
+  width: 50%;
+  height: 35px;
+  margin-left: 20px;
+  border-radius: 10px;
+}
+
+/* Кнопки выбора области */
+#Show_current_area,#Change_tracking_area{
+  background-color: #676767 ;
+  color: white;
+  height: 100px;
+  width: 49%;
+  text-align: center;
+  border-radius:10px;
+}
+#Show_current_area:hover,#Change_tracking_area:hover{
+  background-color: #4f4f4f;
+}
+#Show_current_area:active,#Change_tracking_area:active{
+  background-color: #676767 ;
+}
+#run{
+  background: green;
+  font-size: 2.5ch;
+  color: white;
+  width: 100%;
+  height: 40px;
+  border-radius: 15px;
+}
+
+/* Кнопки выбора области */
+#Show_current_area,
+#Change_tracking_area {
+  background-color: #676767 ;;
+  color: white;
+  height: 100px;
+  width: 50%;
+  text-align: center;
+  border-radius: 15px;
+}
+#Change_tracking_area{
+  margin-left: 10px;
+}
+#Show_current_area{
+  margin-right: 10px;
+}
+#Show_current_area:hover,
+#Change_tracking_area:hover {
+  background-color: #4f4f4f;
+}
+#Show_current_area:active,
+#Change_tracking_area:active {
+  background-color: #676767 ;;
+}
+
+
+/* Кнопка запуска */
+#run {
+  background: green;
+  color: white;
+  width: 100%;
+  height: 40px;
+  border-radius: 15px;
+}
+#run:hover {
+  background: darkgreen;
+}
+#run:active {
+  background: green;
+}
+
+.state_run {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 3px;
+  font-size: x-small;
+}
+footer{
+  margin-top: 15px;
+}
+
+/* GitHub кнопка */
+#github {
+  width: 30px;
+  height: 30px;
+  background-image: url("assets/github_white.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: transparent;
+  cursor: pointer;
+}
+#github:hover{
+  background-image: url("assets/github_blue.svg");
+}
+#github:active {
+  background-image: url("assets/github_white.svg");
+}
