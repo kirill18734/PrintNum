@@ -6,12 +6,19 @@ from data import load_config
 def status_printer():
     """Return True if printer is offline, False if ready,
     or None if printer name is invalid."""
+    printer_name = load_config().get('printer', '')
+
+    # Если принтер не задан в конфиге, считаем его оффлайн
+    if printer_name.strip() == '':
+        return False
+
     try:
-        handle = win32print.OpenPrinter(load_config()['printer'])
+        handle = win32print.OpenPrinter(printer_name)
     except pywintypes.error as e:
         if e.winerror == 1801:  # printer not found
             return None
         raise
+
     info = win32print.GetPrinter(handle, 2)
     attrs = info['Attributes']
 
@@ -19,6 +26,7 @@ def status_printer():
     PRINTER_ATTRIBUTE_WORK_OFFLINE = 0x00000400
     is_offline = bool(attrs & PRINTER_ATTRIBUTE_WORK_OFFLINE)
     return is_offline
+
 
 def print_text(text):
     if load_config()["printer"] != '' and text:

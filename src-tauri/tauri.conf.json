@@ -4,8 +4,7 @@
   "version": "0.1.0",
   "identifier": "com.azerty.printnum",
   "build": {
-    "frontendDist": "../src",
-    "removeUnusedCommands": true
+    "frontendDist": "../src"
   },
   "app": {
     "withGlobalTauri": true,
@@ -28,6 +27,6 @@
     "targets": "all",
     "icon": ["icons/tauri_main.ico"],
     "externalBin": ["../backend/output/backend"],
-    "resources": ["../backend/extensions"]
+    "resources": { "../backend/output/_internal": "_internal" }
   }
 }

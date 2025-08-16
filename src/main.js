@@ -6,10 +6,9 @@ const { Command } = window.__TAURI__.shell;
 const { open } = window.__TAURI__.shell;
 
 async function run_backend() {
-  const command = Command.sidecar("../backend/output/backend");
-  const output = await command.execute();
+  await Command.sidecar("../backend/output/backend").command.execute();
 }
-
+run_backend();
 const them_style = "theme-style";
 let btn_change_theme = "change_theme";
 let title_screen_area = "screen_area";
@@ -231,7 +230,6 @@ function animateDots(isRunning) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  run_backend();
   // загрузка конфига
   if (!isFirstRequestSent) {
     sendDataRun("run");

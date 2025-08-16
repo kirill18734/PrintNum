@@ -2,7 +2,7 @@ import threading
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Импортируем CORS
-from data import load_config, save_config
+from data import load_config, save_config, PORT, format_number
 import win32print
 
 from print_text import print_text, status_printer
@@ -12,7 +12,6 @@ from screen_find_text_neiro import select_area, show_area, main_neiro
 def list_printers():
     flags = win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS
     printers = win32print.EnumPrinters(flags)
-
     # В каждом кортеже третий элемент — это имя принтера
     printer_names = [p[2] for p in printers]
     return printer_names
@@ -96,10 +95,21 @@ def set_run_app():
 
 @app.route('/print_number', methods=['POST'])
 def print_number():
-    new_number = request.data.decode("utf-8").strip()
-    if load_config()['is_running']:
-        print_text(new_number)
-    return 'OK'
+    try:
+        data = request.get_json()
+        print("📥 Пришли данные:", data)
+        text = data.get('text', '').strip()
+        if not text:
+            return {'status': 'error', 'message': 'Empty text'}, 400
+        clean_text = format_number(text)
+        print(f'Отправил на распечатку: \'{clean_text}.\' ')
+        print_text(clean_text)
+        return {'status': 'success', 'message': f'Printed: {text}'}
+
+    except Exception as e:
+        print("❌ Ошибка во Flask-приложении:", e)
+        return {'status': 'error', 'message': str(e)}, 500
+
 @app.route('/show_area', methods=['POST'])
 def showarea():
     show_area()
@@ -112,11 +122,13 @@ def set_area():
 
 @app.route('/check_state_printer', methods=['POST'])
 def state_printer():
-    print(jsonify({"status": "success", "body": status_printer()}))
+    config = load_config()
+    config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
+    save_config(config)
     return jsonify({"status": "success", "body": status_printer()}), 200  # Возвращаем ответ
 
 def run_flask():
-    app.run(host='127.0.0.1', port=load_config()['port'])
+    app.run(host='127.0.0.1', port=PORT)
 
 if __name__ == '__main__':
     # Создаем поток для Flask
