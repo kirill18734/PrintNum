@@ -3,22 +3,12 @@ const { getCurrentWindow } = window.__TAURI__.window;
 const { WebviewWindow } = window.__TAURI__.window;
 const { PhysicalSize, LogicalSize } = window.__TAURI__.dpi;
 const { Command } = window.__TAURI__.shell;
-//выполниться всегда
-// async function startFlaskServer() {
-//   const command = new Command(
-//     "../backend/output/backend-x86_64-pc-windows-msvc.exe"
-//   );
+const { open } = window.__TAURI__.shell;
 
-//   try {
-//     await command.execute();
-//     console.log("Сервер Flask запущен");
-//   } catch (error) {
-//     console.error("Ошибка при запуске сервера:", error);
-//   }
-// }
-// выполниться, если скомпилировать
-const command = Command.sidecar("backend");
-const output = await command.execute();
+async function run_backend() {
+  const command = Command.sidecar("../backend/output/backend");
+  const output = await command.execute();
+}
 
 const them_style = "theme-style";
 let btn_change_theme = "change_theme";
@@ -241,6 +231,7 @@ function animateDots(isRunning) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  run_backend();
   // загрузка конфига
   if (!isFirstRequestSent) {
     sendDataRun("run");
@@ -289,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   const open_github = document.getElementById(btn_github);
   open_github.addEventListener("click", () => {
-    shell.open("https://github.com/kirill18734/Ozon"); // откроется в браузере по умолчанию
+    open("https://github.com/kirill18734/PrintNum"); // откроется в браузере по умолчанию
   });
   // Запускаем проверку состояния принтера каждую секунду
   setInterval(() => {

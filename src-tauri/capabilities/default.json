@@ -8,6 +8,16 @@
     "opener:default",
     "core:window:allow-set-size",
     "shell:allow-open",
-    "shell:allow-execute"
+    "shell:allow-execute",
+    "fs:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "../backend/output/backend",
+          "sidecar": true
+        }
+      ]
+    }
   ]
 }
