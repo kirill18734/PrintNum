@@ -6,7 +6,8 @@ const { Command } = window.__TAURI__.shell;
 const { open } = window.__TAURI__.shell;
 
 async function run_backend() {
-  await Command.sidecar("../backend/output/backend").command.execute();
+  const command = Command.sidecar("../backend/output/backend");
+  await command.execute();
 }
 run_backend();
 const them_style = "theme-style";
