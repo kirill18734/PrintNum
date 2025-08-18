@@ -1,12 +1,13 @@
-import time
 from time import sleep
 from PIL import Image, ImageGrab
 import pytesseract
 import os
-from data import load_config, OUTPUT_IMAGE, CONFIG_PATH, Tesseract_FILE_PATH, Tesseract_DIR_PATH, \
-    CONFIG_CHECK_INTERVAL, INTERVAL, Neiro_lang, format_number,save_config
-from print_text import print_text
+
+from data import load_config, save_config, Tesseract_FILE_PATH, Tesseract_DIR_PATH, OUTPUT_IMAGE, Neiro_lang, \
+    CONFIG_PATH, CONFIG_CHECK_INTERVAL, INTERVAL
 import tkinter as tk
+
+from print_text import format_number, print_text
 
 
 def select_area():
@@ -130,7 +131,6 @@ def main_neiro():
                 last_coords = config.get("area")
                 is_running = config.get("is_running", False)
                 mode = config.get("mode")
-                print(f"[INFO] Конфиг обновлён: is_running={is_running}, area={last_coords}")
 
                 if not is_running or mode != 'neiro':
                     continue
@@ -162,4 +162,4 @@ def main_neiro():
             sleep(INTERVAL)
 
         except Exception as e:
-            continue
+            print('Ошибка в main_neiro: ',e)

@@ -10,14 +10,16 @@
     "shell:allow-open",
     "shell:allow-execute",
     {
-      "identifier": "shell:allow-execute",
+     "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "../backend/output/backend",
-          "sidecar": true
+          "name": "run_backend",
+          "cmd": "powershell.exe",
+          "args": ["../backend/output/backend-x86_64-pc-windows-msvc.exe"]
         }
       ]
     },
+     
     "shell:default"
   ]
 }

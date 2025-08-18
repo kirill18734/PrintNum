@@ -1,15 +1,24 @@
 const { invoke } = window.__TAURI__.core;
-const { getCurrentWindow } = window.__TAURI__.window;
-const { WebviewWindow } = window.__TAURI__.window;
+const { getCurrentWindow,WebviewWindow } = window.__TAURI__.window;
 const { PhysicalSize, LogicalSize } = window.__TAURI__.dpi;
-const { Command } = window.__TAURI__.shell;
-const { open } = window.__TAURI__.shell;
-
+const { open} = window.__TAURI__.shell;
+const {Command} =  window.__TAURI__.shell;
 async function run_backend() {
-  const command = Command.sidecar("../backend/output/backend");
-  await command.execute();
+  const command = new Command('run_backend', 'powershell.exe', {
+    args: [
+      '"../backend/output/backend-x86_64-pc-windows-msvc.exe"'
+    ]
+  });
+
+  await command.spawn();
 }
+// async function run_backend() {
+//   const command = Command.sidecar("../backend/output/backend");
+//   console.log(command);
+//   await command.execute();
+// }
 run_backend();
+
 const them_style = "theme-style";
 let btn_change_theme = "change_theme";
 let title_screen_area = "screen_area";
@@ -156,7 +165,7 @@ function state_printer(is_offline) {
 }
 
 function sendDataRun(endpoint, data = "") {
-  fetch(`http://127.0.0.1:4025/${endpoint}`, {
+  fetch(`http://127.0.0.1:5000/${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
