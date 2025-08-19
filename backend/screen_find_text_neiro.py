@@ -109,12 +109,14 @@ def ImageText():
     text = pytesseract.image_to_string(img, lang=Neiro_lang)
     return text
 
+
 # Функция для получения DPI экрана
 def get_dpi():
     hdc = ctypes.windll.user32.GetDC(0)
     dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 - LOGPIXELSX
     ctypes.windll.user32.ReleaseDC(0, hdc)
     return dpi
+
 
 def main_neiro():
     print("[INFO] main_neiro запущен")
@@ -164,8 +166,10 @@ def main_neiro():
                 width_scaled = int(w * scale_factor)
                 height_scaled = int(h * scale_factor)
 
+                # Делаем скриншот
                 screenshot = pyautogui.screenshot(region=(x_scaled, y_scaled, width_scaled, height_scaled))
-                screenshot.save("screenshot.png")
+                # Сохранить скриншот
+                screenshot.save(OUTPUT_IMAGE)
 
                 text = format_number(ImageText())
                 print("Найденный текст:", text, "| Длина:", len(text))
@@ -182,4 +186,4 @@ def main_neiro():
             sleep(INTERVAL)
 
         except Exception as e:
-            print('Ошибка в main_neiro: ',e)
+            print('Ошибка в main_neiro: ', e)
