@@ -5,7 +5,7 @@
   "identifier": "com.azerty.printnum",
   "build": {
     "frontendDist": "../src",
-    "removeUnusedCommands": false
+    "removeUnusedCommands": true
   },
   "app": {
     "withGlobalTauri": true,

@@ -9,7 +9,7 @@ async function run_backend() {
       "-Command",
       "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './output/backend.exe' -WindowStyle Hidden }",
     ],
-  });
+  }); 
   await command.spawn();
 }
 
