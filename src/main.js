@@ -9,7 +9,7 @@ async function run_backend() {
       "-Command",
       "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './output/backend.exe' -WindowStyle Hidden }",
     ],
-  }); 
+  });
   await command.spawn();
 }
 
@@ -42,6 +42,9 @@ let show_cur_area = "Show_current_area";
 let change_tracking_area = "Change_tracking_area";
 let stateprinter = "no_printer_text";
 let btn_github = "github";
+let height_win;
+let width_win;
+let height_error = 7;
 let dotsInterval = null; // глобальная переменная для setInterval
 let isFirstRequestSent = false;
 let response;
@@ -124,7 +127,9 @@ async function change_mode(mode) {
     for (let i = 0; i < containerElements.length; i++) {
       containerElements[i].style.display = "flex";
     }
-    setWindowSize(460, 425);
+    width_win = 460;
+    height_win = 425;
+    setWindowSize(width_win, height_win);
   } else {
     const titleElements = document.getElementsByClassName(title_screen_area);
     for (let i = 0; i < titleElements.length; i++) {
@@ -135,7 +140,9 @@ async function change_mode(mode) {
     for (let i = 0; i < containerElements.length; i++) {
       containerElements[i].style.display = "none";
     }
-    setWindowSize(450, 275);
+    width_win = 450;
+    height_win = 275;
+    setWindowSize(width_win, height_win);
   }
 }
 function show_area(btn) {
@@ -169,9 +176,15 @@ function state_printer(is_offline) {
     if (is_offline) {
       el.style.color = "red";
       el.textContent = "Принтер отключен";
+      if (height_win == 275 || height_win == 425) {
+        setWindowSize(width_win, height_win + height_error);
+      }
     } else {
       el.style.color = "";
       el.textContent = "";
+      if (height_win != 275 || height_win != 425) {
+        setWindowSize(width_win, height_win - height_error);
+      }
     }
   }
 }
