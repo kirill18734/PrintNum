@@ -27,6 +27,6 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/tauri_main.ico"],
-    "resources": { "../backend/output/_internal": "_internal" }
+    "resources": { "../backend/output": "output" }
   }
 }

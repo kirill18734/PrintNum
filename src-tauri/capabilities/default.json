@@ -7,6 +7,7 @@
     "core:default",
     "opener:default",
     "core:window:allow-set-size",
+    "core:window:allow-destroy",
     "shell:allow-open",
     {
       "identifier": "shell:allow-spawn",
@@ -15,11 +16,21 @@
           "name": "run_backend",
           "cmd": "powershell.exe",
           "args": [
-            "Start-Process",
-            "-FilePath",
-            "../backend/output/backend.exe",
-            "-WindowStyle",
-            "Hidden"
+            "-Command",
+            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden"
+          ]
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "kill_backend",
+          "cmd": "powershell.exe",
+          "args": [
+            "-Command",
+            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue"
           ]
         }
       ]

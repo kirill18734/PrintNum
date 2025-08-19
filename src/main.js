@@ -7,7 +7,23 @@ async function run_backend() {
   const command = new Command("run_backend", "../backend/output/backend.exe");
   await command.spawn();
 }
-run_backend();
+
+const window1 = getCurrentWindow();
+
+async function killBackend() {
+  const cmd = new Command("kill_backend", "powershell.exe", {
+    args: [
+      "-Command",
+      "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue",
+    ],
+  });
+  await cmd.execute();
+}
+
+window1.onCloseRequested(async (event) => {
+  // 2. Останавливаем backend.exe
+  await killBackend();
+});
 
 const them_style = "theme-style";
 let btn_change_theme = "change_theme";
@@ -31,6 +47,7 @@ async function setWindowSize(width, height) {
 }
 
 function run_app(isRunning) {
+  console.log("Запущен?", isRunning);
   const element = document.getElementById(is_running);
 
   if (isRunning) {
@@ -233,6 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // загрузка конфига
   if (!isFirstRequestSent) {
     sendDataRun("run");
+    run_backend();
     isFirstRequestSent = true;
   }
   // изменение темы

@@ -111,7 +111,7 @@ def set_run_app():
     data = {
         "is_running": config['is_running']
     }
-    if load_config()['is_running'] and load_config()['mode'] == 'extension':
+    if load_config()['is_running'] and load_config()['mode'] == 'neiro':
         # Создаем поток для другой функции
         other_thread = threading.Thread(target=main_neiro)
         other_thread.start()
