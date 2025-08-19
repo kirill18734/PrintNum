@@ -1,16 +1,21 @@
 from time import sleep
-
-import pyautogui
 from PIL import Image, ImageGrab
 import ctypes
 import pytesseract
 import os
+import tkinter as tk
 
 from data import load_config, save_config, Tesseract_FILE_PATH, Tesseract_DIR_PATH, OUTPUT_IMAGE, Neiro_lang, \
     CONFIG_PATH, CONFIG_CHECK_INTERVAL, INTERVAL
-import tkinter as tk
-
 from print_text import format_number, print_text
+
+
+# Функция для получения DPI экрана
+def get_dpi():
+    hdc = ctypes.windll.user32.GetDC(0)
+    dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 - LOGPIXELSX
+    ctypes.windll.user32.ReleaseDC(0, hdc)
+    return dpi
 
 
 def select_area():
@@ -31,6 +36,14 @@ def select_area():
         y = int(min(y1, y2))
         width = int(abs(x2 - x1))
         height = int(abs(y2 - y1))
+
+        # Учитываем DPI при сохранении (физические пиксели)
+        dpi = get_dpi()
+        scale_factor = dpi / 96
+        x = int(x * scale_factor)
+        y = int(y * scale_factor)
+        width = int(width * scale_factor)
+        height = int(height * scale_factor)
 
         # Полупрозрачный оверлей
         canvas.delete("overlay")
@@ -72,10 +85,14 @@ def show_area():
         print("Сначала нужно выбрать область!")
         return
 
-    x = config["area"]["x"]
-    y = config["area"]["y"]
-    width = config["area"]["width"]
-    height = config["area"]["height"]
+    dpi = get_dpi()
+    scale_factor = dpi / 96
+
+    # Переводим обратно в логические координаты для Tkinter
+    x = int(config["area"]["x"] / scale_factor)
+    y = int(config["area"]["y"] / scale_factor)
+    width = int(config["area"]["width"] / scale_factor)
+    height = int(config["area"]["height"] / scale_factor)
 
     root = tk.Tk()
     root.attributes("-fullscreen", True)
@@ -92,30 +109,17 @@ def show_area():
     canvas.create_rectangle(0, 0, screen_width, screen_height, fill="black", stipple="gray50", tags="overlay")
     canvas.create_rectangle(x, y, x + width, y + height, fill=root['bg'], outline="red", width=2)
 
-    # Закрытие через 3 секунды для демонстрации
+    # Закрытие через 1 секунду для демонстрации
     root.after(1000, root.destroy)
     root.mainloop()
 
 
 def ImageText():
     pytesseract.pytesseract.tesseract_cmd = Tesseract_FILE_PATH
-
-    # Укажи путь к tessdata
     os.environ['TESSDATA_PREFIX'] = Tesseract_DIR_PATH
-    # Загрузи изображение
     img = Image.open(OUTPUT_IMAGE)
-
-    # Распознай текст
     text = pytesseract.image_to_string(img, lang=Neiro_lang)
     return text
-
-
-# Функция для получения DPI экрана
-def get_dpi():
-    hdc = ctypes.windll.user32.GetDC(0)
-    dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 - LOGPIXELSX
-    ctypes.windll.user32.ReleaseDC(0, hdc)
-    return dpi
 
 
 def main_neiro():
@@ -150,25 +154,14 @@ def main_neiro():
                 last_config_mtime = current_mtime
 
             # Если координаты есть → делаем OCR
-            # Получаем DPI
-            dpi = get_dpi()
-            # Если координаты есть → делаем OCR
             if last_coords:
                 x = last_coords.get("x", 0)
                 y = last_coords.get("y", 0)
                 w = last_coords.get("width", 0)
                 h = last_coords.get("height", 0)
 
-                # Преобразуем координаты и размеры в зависимости от DPI
-                scale_factor = dpi / 96  # 96 - стандартный DPI для экранов
-                x_scaled = int(x * scale_factor)
-                y_scaled = int(y * scale_factor)
-                width_scaled = int(w * scale_factor)
-                height_scaled = int(h * scale_factor)
-
-                # Делаем скриншот
-                screenshot = pyautogui.screenshot(region=(x_scaled, y_scaled, width_scaled, height_scaled))
-                # Сохранить скриншот
+                # Делаем скриншот через ImageGrab
+                screenshot = ImageGrab.grab(bbox=(x, y, x + w, y + h))
                 screenshot.save(OUTPUT_IMAGE)
 
                 text = format_number(ImageText())
