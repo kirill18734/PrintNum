@@ -1,22 +1,12 @@
 const { invoke } = window.__TAURI__.core;
-const { getCurrentWindow,WebviewWindow } = window.__TAURI__.window;
+const { getCurrentWindow, WebviewWindow } = window.__TAURI__.window;
 const { PhysicalSize, LogicalSize } = window.__TAURI__.dpi;
-const { open} = window.__TAURI__.shell;
-const {Command} =  window.__TAURI__.shell;
-async function run_backend() {
-  const command = new Command('run_backend', 'powershell.exe', {
-    args: [
-      '"../backend/output/backend-x86_64-pc-windows-msvc.exe"'
-    ]
-  });
+const { open, Command } = window.__TAURI__.shell;
 
+async function run_backend() {
+  const command = new Command("run_backend", "../backend/output/backend.exe");
   await command.spawn();
 }
-// async function run_backend() {
-//   const command = Command.sidecar("../backend/output/backend");
-//   console.log(command);
-//   await command.execute();
-// }
 run_backend();
 
 const them_style = "theme-style";

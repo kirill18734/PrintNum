@@ -3,14 +3,18 @@ import threading
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Импортируем CORS
 from data import load_config, save_config, list_printers
-import win32print
 
 from print_text import print_text, status_printer
 from screen_find_text_neiro import select_area, show_area, main_neiro
 
-
 app = Flask(__name__)
 CORS(app)  # Включаем CORS для всего приложения
+
+
+@app.route('/', methods=["GET"])
+def runserver():
+    return "Сервер запущен"
+
 
 @app.route('/run', methods=['POST'])
 def receive_data():
@@ -28,6 +32,7 @@ def receive_data():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500  # Обработка ошибок
 
+
 @app.route('/change_them', methods=['POST'])
 def receive_data_them():
     config = load_config()
@@ -38,6 +43,7 @@ def receive_data_them():
     }
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
+
 @app.route('/change_mode', methods=['POST'])
 def receive_data_mode():
     config = load_config()
@@ -47,6 +53,7 @@ def receive_data_mode():
         "mode": config['mode'],
     }
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
+
 
 @app.route('/get_list_printers', methods=['POST'])
 def receive_data_get_list_printers():
@@ -76,6 +83,26 @@ def set_printer():
     }
     return jsonify({"status": "success", "body": data}), 200
 
+
+@app.route('/print_number', methods=['POST'])
+def print_from_data():
+    try:
+        new_number = request.data.decode("utf-8").strip()
+        config = load_config()
+        if config['is_running'] and config['mode'] == 'extension':
+            print("📥 Пришли данные:", new_number)
+            if not new_number:
+                return jsonify({'status': 'error', 'message': 'Empty text'}), 400
+            print_text(new_number)
+            return jsonify({'status': 'success', 'message': f'Printed: {new_number}'})
+        else:
+            # Возвращаем ответ, если условие не выполнено
+            return jsonify({'status': 'error', 'message': 'Service is not running or wrong mode'}), 400
+    except Exception as e:
+        print("❌ Ошибка во Flask-приложении:", e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 @app.route('/run_app', methods=['POST'])
 def set_run_app():
     config = load_config()
@@ -92,37 +119,17 @@ def set_run_app():
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
 
-@app.route('/print_number', methods=['POST'])
-def print_from_data():
-    try:
-        config = load_config()
-        print(config)
-        if config['is_running'] and config['mode'] == 'extension':
-            data = request.get_json()
-            print("📥 Пришли данные:", data)
-            text = data.get('text', '').strip()
-            if not text:
-                return {'status': 'error', 'message': 'Empty text'}, 400
-            print_text(text)
-            return {'status': 'success', 'message': f'Printed: {text}'}
-        else:
-
-            # Возвращаем ответ, если условие не выполнено
-            return {'status': 'error', 'message': 'Service is not running or wrong mode'}, 400
-
-    except Exception as e:
-        print("❌ Ошибка во Flask-приложении:", e)
-        return {'status': 'error', 'message': str(e)}, 500
-
 @app.route('/show_area', methods=['POST'])
 def showarea():
     show_area()
     return 'OK'
 
+
 @app.route('/set_area', methods=['POST'])
 def set_area():
     select_area()
     return 'OK'
+
 
 @app.route('/check_state_printer', methods=['POST'])
 def state_printer():
@@ -131,8 +138,10 @@ def state_printer():
     save_config(config)
     return jsonify({"status": "success", "body": status_printer()}), 200  # Возвращаем ответ
 
+
 def run_flask():
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
+
 
 if __name__ == '__main__':
     # Создаем поток для Flask
@@ -140,4 +149,3 @@ if __name__ == '__main__':
     flask_thread.start()
     # При желании можно ждать завершения потоков
     flask_thread.join()
-

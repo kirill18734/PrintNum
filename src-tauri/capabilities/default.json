@@ -8,18 +8,21 @@
     "opener:default",
     "core:window:allow-set-size",
     "shell:allow-open",
-    "shell:allow-execute",
     {
-     "identifier": "shell:allow-spawn",
+      "identifier": "shell:allow-spawn",
       "allow": [
         {
           "name": "run_backend",
           "cmd": "powershell.exe",
-          "args": ["../backend/output/backend-x86_64-pc-windows-msvc.exe"]
+          "args": [
+            "Start-Process",
+            "-FilePath",
+            "../backend/output/backend.exe",
+            "-WindowStyle",
+            "Hidden"
+          ]
         }
       ]
-    },
-     
-    "shell:default"
+    }
   ]
 }

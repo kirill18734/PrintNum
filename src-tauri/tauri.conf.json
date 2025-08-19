@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.azerty.printnum",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../src",
+    "removeUnusedCommands": false
   },
   "app": {
     "withGlobalTauri": true,
