@@ -4,7 +4,12 @@ const { PhysicalSize, LogicalSize } = window.__TAURI__.dpi;
 const { open, Command } = window.__TAURI__.shell;
 
 async function run_backend() {
-  const command = new Command("run_backend", "../backend/output/backend.exe");
+  const command = new Command("run_backend", "powershell.exe", {
+    args: [
+      "-Command",
+      "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './output/backend.exe' -WindowStyle Hidden }",
+    ],
+  });
   await command.spawn();
 }
 
@@ -249,8 +254,8 @@ function animateDots(isRunning) {
 document.addEventListener("DOMContentLoaded", function () {
   // загрузка конфига
   if (!isFirstRequestSent) {
-    sendDataRun("run");
     run_backend();
+    sendDataRun("run");
     isFirstRequestSent = true;
   }
   // изменение темы

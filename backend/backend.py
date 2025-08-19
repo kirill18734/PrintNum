@@ -140,7 +140,7 @@ def state_printer():
 
 
 def run_flask():
-    app.run(host='0.0.0.0', port=5000)
+    app.run()
 
 
 if __name__ == '__main__':

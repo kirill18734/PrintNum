@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "SendNumbersToLocalServer",
+  "version": "1.0",
+  "description": "Отслеживает отсканированные номера и отправляет их на сервер",
+  "permissions": [],
+  "host_permissions": [
+    "http://localhost:*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.ozon.ru/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
