@@ -1,5 +1,8 @@
 from time import sleep
+
+import pyautogui
 from PIL import Image, ImageGrab
+import ctypes
 import pytesseract
 import os
 
@@ -106,6 +109,13 @@ def ImageText():
     text = pytesseract.image_to_string(img, lang=Neiro_lang)
     return text
 
+# Функция для получения DPI экрана
+def get_dpi():
+    hdc = ctypes.windll.user32.GetDC(0)
+    dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 - LOGPIXELSX
+    ctypes.windll.user32.ReleaseDC(0, hdc)
+    return dpi
+
 def main_neiro():
     print("[INFO] main_neiro запущен")
     last_coords = None
@@ -133,10 +143,13 @@ def main_neiro():
                 mode = config.get("mode")
 
                 if not is_running or mode != 'neiro':
-                    continue
+                    break
 
                 last_config_mtime = current_mtime
 
+            # Если координаты есть → делаем OCR
+            # Получаем DPI
+            dpi = get_dpi()
             # Если координаты есть → делаем OCR
             if last_coords:
                 x = last_coords.get("x", 0)
@@ -144,8 +157,15 @@ def main_neiro():
                 w = last_coords.get("width", 0)
                 h = last_coords.get("height", 0)
 
-                screenshot = ImageGrab.grab(bbox=(x, y, x + w, y + h))
-                screenshot.save(OUTPUT_IMAGE, "PNG")
+                # Преобразуем координаты и размеры в зависимости от DPI
+                scale_factor = dpi / 96  # 96 - стандартный DPI для экранов
+                x_scaled = int(x * scale_factor)
+                y_scaled = int(y * scale_factor)
+                width_scaled = int(w * scale_factor)
+                height_scaled = int(h * scale_factor)
+
+                screenshot = pyautogui.screenshot(region=(x_scaled, y_scaled, width_scaled, height_scaled))
+                screenshot.save("screenshot.png")
 
                 text = format_number(ImageText())
                 print("Найденный текст:", text, "| Длина:", len(text))

@@ -28,6 +28,10 @@ def receive_data():
             "printer": config['printer'],
             "is_running": config["is_running"]
         }
+        if load_config()['is_running'] and load_config()['mode'] == 'neiro':
+            # Создаем поток для другой функции
+            other_thread2 = threading.Thread(target=main_neiro)
+            other_thread2.start()
         return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500  # Обработка ошибок
@@ -52,6 +56,10 @@ def receive_data_mode():
     data = {
         "mode": config['mode'],
     }
+    if load_config()['is_running'] and load_config()['mode'] == 'neiro':
+        # Создаем поток для другой функции
+        other_thread2 = threading.Thread(target=main_neiro)
+        other_thread2.start()
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
 
@@ -111,11 +119,6 @@ def set_run_app():
     data = {
         "is_running": config['is_running']
     }
-    if load_config()['is_running'] and load_config()['mode'] == 'neiro':
-        # Создаем поток для другой функции
-        other_thread = threading.Thread(target=main_neiro)
-        other_thread.start()
-        other_thread.join()
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
 
@@ -148,4 +151,3 @@ if __name__ == '__main__':
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
     # При желании можно ждать завершения потоков
-    flask_thread.join()

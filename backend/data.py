@@ -9,13 +9,18 @@ import win32print
 # Пути к файлам и папкам
 # ---------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_IMAGE = os.path.join(os.path.dirname(__file__), "screenshot.png")
+
 Tesseract_DIR_PATH = os.path.join(os.path.dirname(__file__),"Tesseract-OCR","tessdata")
 Tesseract_FILE_PATH = os.path.join(os.path.dirname(__file__),"Tesseract-OCR","tesseract.exe")
 # Папка для конфигурации в AppData (чтобы изменения сохранялись)
 APP_DIR = os.path.join(os.environ['LOCALAPPDATA'], "PrintNum")
 os.makedirs(APP_DIR, exist_ok=True)
 CONFIG_PATH = os.path.join(APP_DIR, "config.json")
+OUTPUT_IMAGE = os.path.join(APP_DIR, "screenshot.png")
+# Проверяем, существует ли файл, и создаем его, если нет
+if not os.path.exists(OUTPUT_IMAGE):
+    with open(OUTPUT_IMAGE, 'w') as f:
+        pass  # Создаем пустой файл
 
 Neiro_lang = 'eng+rus'
 pattern = r'\d+-\d+'
