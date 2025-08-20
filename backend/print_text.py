@@ -7,9 +7,8 @@ from data import load_config, FONT as f, pattern
 
 
 def format_number(text):
-    if pattern:
-        text = re.search(pattern, text).group() if re.search(pattern, text) else ''
-        return str(text)
+    text = re.search(pattern, text).group() if re.search(pattern, text) else ''
+    return str(text)
 
 
 def status_printer():

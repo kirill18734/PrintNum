@@ -3,7 +3,6 @@ import threading
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Импортируем CORS
 from data import load_config, save_config, list_printers
-
 from print_text import print_text, status_printer
 from screen_find_text_neiro import select_area, show_area, main_neiro
 

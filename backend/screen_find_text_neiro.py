@@ -1,21 +1,12 @@
 from time import sleep
 from PIL import Image, ImageGrab
-import ctypes
 import pytesseract
 import os
-import tkinter as tk
 
 from data import load_config, save_config, Tesseract_FILE_PATH, Tesseract_DIR_PATH, OUTPUT_IMAGE, Neiro_lang, \
     CONFIG_PATH, CONFIG_CHECK_INTERVAL, INTERVAL
-from print_text import format_number, print_text
-
-
-# Функция для получения DPI экрана
-def get_dpi():
-    hdc = ctypes.windll.user32.GetDC(0)
-    dpi = ctypes.windll.gdi32.GetDeviceCaps(hdc, 88)  # 88 - LOGPIXELSX
-    ctypes.windll.user32.ReleaseDC(0, hdc)
-    return dpi
+from print_text import print_text, format_number
+import tkinter as tk
 
 
 def select_area():
@@ -36,14 +27,6 @@ def select_area():
         y = int(min(y1, y2))
         width = int(abs(x2 - x1))
         height = int(abs(y2 - y1))
-
-        # Учитываем DPI при сохранении (физические пиксели)
-        dpi = get_dpi()
-        scale_factor = dpi / 96
-        x = int(x * scale_factor)
-        y = int(y * scale_factor)
-        width = int(width * scale_factor)
-        height = int(height * scale_factor)
 
         # Полупрозрачный оверлей
         canvas.delete("overlay")
@@ -85,14 +68,10 @@ def show_area():
         print("Сначала нужно выбрать область!")
         return
 
-    dpi = get_dpi()
-    scale_factor = dpi / 96
-
-    # Переводим обратно в логические координаты для Tkinter
-    x = int(config["area"]["x"] / scale_factor)
-    y = int(config["area"]["y"] / scale_factor)
-    width = int(config["area"]["width"] / scale_factor)
-    height = int(config["area"]["height"] / scale_factor)
+    x = config["area"]["x"]
+    y = config["area"]["y"]
+    width = config["area"]["width"]
+    height = config["area"]["height"]
 
     root = tk.Tk()
     root.attributes("-fullscreen", True)
@@ -109,15 +88,20 @@ def show_area():
     canvas.create_rectangle(0, 0, screen_width, screen_height, fill="black", stipple="gray50", tags="overlay")
     canvas.create_rectangle(x, y, x + width, y + height, fill=root['bg'], outline="red", width=2)
 
-    # Закрытие через 1 секунду для демонстрации
+    # Закрытие через 3 секунды для демонстрации
     root.after(1000, root.destroy)
     root.mainloop()
 
 
 def ImageText():
     pytesseract.pytesseract.tesseract_cmd = Tesseract_FILE_PATH
+
+    # Укажи путь к tessdata
     os.environ['TESSDATA_PREFIX'] = Tesseract_DIR_PATH
+    # Загрузи изображение
     img = Image.open(OUTPUT_IMAGE)
+
+    # Распознай текст
     text = pytesseract.image_to_string(img, lang=Neiro_lang)
     return text
 
@@ -149,20 +133,41 @@ def main_neiro():
                 mode = config.get("mode")
 
                 if not is_running or mode != 'neiro':
-                    break
+                    continue
 
                 last_config_mtime = current_mtime
 
             # Если координаты есть → делаем OCR
             if last_coords:
-                x = last_coords.get("x", 0)
-                y = last_coords.get("y", 0)
-                w = last_coords.get("width", 0)
-                h = last_coords.get("height", 0)
 
-                # Делаем скриншот через ImageGrab
-                screenshot = ImageGrab.grab(bbox=(x, y, x + w, y + h))
-                screenshot.save(OUTPUT_IMAGE)
+                x = last_coords.get("x")
+                y = last_coords.get("y")
+                w = last_coords.get("width")
+                h = last_coords.get("height")
+
+                # Tkinter разрешение
+                root = tk.Tk()
+                tk_width = root.winfo_screenwidth()
+                tk_height = root.winfo_screenheight()
+                root.destroy()
+
+                # Физическое разрешение через ImageGrab
+                full_img = ImageGrab.grab()
+                ig_width, ig_height = full_img.size
+
+                # Масштаб
+                scale_x = ig_width / tk_width
+                scale_y = ig_height / tk_height
+
+                # Применяем масштаб к координатам
+                x_phys = int(x * scale_x)
+                y_phys = int(y * scale_y)
+                w_phys = int(w * scale_x)
+                h_phys = int(h * scale_y)
+
+                # Делаем скриншот нужной области
+                screenshot = ImageGrab.grab(bbox=(x_phys, y_phys, x_phys + w_phys, y_phys + h_phys))
+                screenshot.save(OUTPUT_IMAGE, "PNG")
 
                 text = format_number(ImageText())
                 print("Найденный текст:", text, "| Длина:", len(text))
@@ -180,3 +185,4 @@ def main_neiro():
 
         except Exception as e:
             print('Ошибка в main_neiro: ', e)
+
