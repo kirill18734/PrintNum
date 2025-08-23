@@ -17,15 +17,11 @@ APP_DIR = os.path.join(os.environ['LOCALAPPDATA'], "PrintNum")
 os.makedirs(APP_DIR, exist_ok=True)
 CONFIG_PATH = os.path.join(APP_DIR, "config.json")
 OUTPUT_IMAGE = os.path.join(APP_DIR, "screenshot.png")
-# Проверяем, существует ли файл, и создаем его, если нет
-if not os.path.exists(OUTPUT_IMAGE):
-    with open(OUTPUT_IMAGE, 'w') as f:
-        pass  # Создаем пустой файл
 
-Neiro_lang = 'eng+rus'
+Neiro_lang = 'rus'
 pattern = r'\d+-\d+'
 
-INTERVAL = 0.5  # интервал скриншота
+INTERVAL = 1  # интервал скриншота
 CONFIG_CHECK_INTERVAL = 0.3  # интервал проверки изменения конфига
 FONT = {
 "name": "Arial",

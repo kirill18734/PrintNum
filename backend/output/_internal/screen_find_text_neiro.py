@@ -106,36 +106,16 @@ def ImageText():
     return text
 
 
-def main_neiro():
+def main_neiro(is_running, stop_event):
     print("[INFO] main_neiro запущен")
-    last_coords = None
-    last_config_mtime = 0
     last_text = None
     first_valid_skipped = False
-    while True:
+    while not stop_event.is_set() and is_running:
         try:
-            # Проверяем только дату изменения конфига
-            try:
-                current_mtime = os.path.getmtime(CONFIG_PATH)
-            except FileNotFoundError:
-                sleep(CONFIG_CHECK_INTERVAL)
-                continue
+            # Конфиг реально изменился → читаем
+            config = load_config()
 
-            if current_mtime != last_config_mtime:
-                # Конфиг реально изменился → читаем
-                config = load_config()
-                if not config:
-                    sleep(CONFIG_CHECK_INTERVAL)
-                    continue
-
-                last_coords = config.get("area")
-                is_running = config.get("is_running", False)
-                mode = config.get("mode")
-
-                if not is_running or mode != 'neiro':
-                    continue
-
-                last_config_mtime = current_mtime
+            last_coords = config.get("area")
 
             # Если координаты есть → делаем OCR
             if last_coords:
@@ -169,7 +149,7 @@ def main_neiro():
                 screenshot = ImageGrab.grab(bbox=(x_phys, y_phys, x_phys + w_phys, y_phys + h_phys))
                 screenshot.save(OUTPUT_IMAGE, "PNG")
 
-                text = format_number(ImageText())
+                text = format_number(ImageText()).strip().replace("\n", " ").replace("\r", "").lower()
                 print("Найденный текст:", text, "| Длина:", len(text))
 
                 if text != last_text and text:

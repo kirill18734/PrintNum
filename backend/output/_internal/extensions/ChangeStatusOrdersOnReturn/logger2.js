@@ -92,7 +92,7 @@ async function return_order() {
     for (let i = 0; i < 2; i++) {
         simulateKeyPress(input, 'ArrowUp', 38);
         await new Promise(resolve => setTimeout(resolve, 100));
-        console.log(`Нажатие стрелки вверх ${i + 1}/2`);
+//        console.log(`Нажатие стрелки вверх ${i + 1}/2`);
     }
     simulateKeyPress(input, 'Enter', 13);
 
@@ -134,13 +134,13 @@ document.addEventListener('keydown', async function (event) {
         if (last_number.trim() != '') {
             if (last_number.length <= 15) {
                 number_order = convertCyrillicToLatin(last_number);
-                console.log('Получен штрих код', number_order);
+//                console.log('Получен штрих код', number_order);
                 allTrs = document.querySelectorAll('tr[data-testid^="posting-"]');
                 if (number_order.includes('ii')) {
                     for (const tr of allTrs) {
                         if (tr.textContent.includes(number_order)) {
                             trElement = tr;
-                            console.log('Найден tr по textContent');
+//                            console.log('Найден tr по textContent');
                             break;
                         }
                     }
@@ -149,7 +149,7 @@ document.addEventListener('keydown', async function (event) {
                         const testId = tr.getAttribute('data-testid');
                         if (testId == `posting-${number_order}`) {
                             trElement = tr;
-                            console.log('Найден tr по data-testid:', testId);
+//                            console.log('Найден tr по data-testid:', testId);
                             break;
                         }
                     }
@@ -159,7 +159,7 @@ document.addEventListener('keydown', async function (event) {
                 processingReturn = true; // блокируем повторный запуск
                 await return_order();
                 processingReturn = false; // снимаем блокировку
-                console.log("Введен штрих код для оформления возврата");
+//                console.log("Введен штрих код для оформления возврата");
             }
             last_number = '';
         }

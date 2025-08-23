@@ -20,7 +20,7 @@ function waitAndClick(target, timeout = 3000) {
 
             if (btn) {
                 btn.click();
-                console.log(`Нажата кнопка: ${target}`);
+                //console.log(`Нажата кнопка: ${target}`);
                 resolve(true);
             } else if (Date.now() - startTime >= timeout) {
                 console.warn(`Кнопка не найдена за ${timeout} мс: ${target}`);
@@ -46,7 +46,7 @@ function elementWithTextExists(text) {
 async function handleCombination(matchText, actions, actionName) {
     if (!buffer.includes(matchText)) return;
 
-    console.log(`Комбинация найдена: ${actionName}`);
+    //console.log(`Комбинация найдена: ${actionName}`);
     buffer = "";
 
     for (const action of actions) {
@@ -54,7 +54,7 @@ async function handleCombination(matchText, actions, actionName) {
             await waitAndClick(action);
             await new Promise(r => setTimeout(r, 500));
         } catch {
-            console.log(`Прекращаем выполнение оставшихся кликов (${actionName})`);
+            //console.log(`Прекращаем выполнение оставшихся кликов (${actionName})`);
             break;
         }
     }
@@ -65,7 +65,7 @@ async function startToIssueLoopGeneric(actions) {
     if (isRunning) return;
     isRunning = true;
 
-    console.log("Запуск цикла обработки 'К выдаче'");
+    //console.log("Запуск цикла обработки 'К выдаче'");
     try {
         while (elementWithTextExists("К выдаче")) {
             await waitAndClick("text:К выдаче");
@@ -80,7 +80,7 @@ async function startToIssueLoopGeneric(actions) {
         console.warn("Ошибка в процессе цикла");
     }
 
-    console.log("Цикл 'К выдаче' завершён");
+    //console.log("Цикл 'К выдаче' завершён");
     isRunning = false;
 }
 

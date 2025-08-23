@@ -9,6 +9,25 @@ from screen_find_text_neiro import select_area, show_area, main_neiro
 app = Flask(__name__)
 CORS(app)  # Включаем CORS для всего приложения
 
+stop_event = threading.Event()
+other_thread2 = None
+
+
+def run_neiro(config):
+    global other_thread2
+    if config["is_running"] and config["mode"] == "neiro":
+        if not other_thread2 or not other_thread2.is_alive():
+            stop_event.clear()
+            other_thread2 = threading.Thread(
+                target=main_neiro,
+                args=(config["is_running"], stop_event)
+            )
+            other_thread2.start()
+    else:
+        if other_thread2 and other_thread2.is_alive():
+            stop_event.set()
+            other_thread2.join()
+
 
 @app.route('/', methods=["GET"])
 def runserver():
@@ -17,6 +36,7 @@ def runserver():
 
 @app.route('/run', methods=['POST'])
 def receive_data():
+    global other_thread2
     try:
         config = load_config()
         config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
@@ -27,10 +47,7 @@ def receive_data():
             "printer": config['printer'],
             "is_running": config["is_running"]
         }
-        if load_config()['is_running'] and load_config()['mode'] == 'neiro':
-            # Создаем поток для другой функции
-            other_thread2 = threading.Thread(target=main_neiro)
-            other_thread2.start()
+        run_neiro(config)
         return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500  # Обработка ошибок
@@ -49,16 +66,14 @@ def receive_data_them():
 
 @app.route('/change_mode', methods=['POST'])
 def receive_data_mode():
+    global other_thread2
     config = load_config()
     config['mode'] = 'neiro' if config['mode'] == 'extension' else 'extension'
     save_config(config)
     data = {
         "mode": config['mode'],
     }
-    if load_config()['is_running'] and load_config()['mode'] == 'neiro':
-        # Создаем поток для другой функции
-        other_thread2 = threading.Thread(target=main_neiro)
-        other_thread2.start()
+    run_neiro(config)
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
 
@@ -118,6 +133,7 @@ def set_run_app():
     data = {
         "is_running": config['is_running']
     }
+    run_neiro(config)
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
 
