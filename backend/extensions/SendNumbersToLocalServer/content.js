@@ -35,7 +35,7 @@ function scanAndCompare() {
 function start() {
     const targetNode = document.querySelector(find_selector);
     if (!targetNode) {
-        console.warn(`❌ Не удалось найти элемент ${find_selector}. Попробую снова...`);
+//        console.warn(`❌ Не удалось найти элемент ${find_selector}. Попробую снова...`);
         setTimeout(start, timeout_sec);
     } else {
         //console.log(`✅ Элемент ${find_selector} найден. Скрипт на мониторинг номеров запущен.`);

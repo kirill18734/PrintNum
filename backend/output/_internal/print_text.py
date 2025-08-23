@@ -12,10 +12,11 @@ def format_number(text):
 
 
 def status_printer():
+    config = load_config()
     """Return True if printer is offline, False if ready,
     or None if printer name is invalid."""
     try:
-        handle = win32print.OpenPrinter(load_config()['printer'])
+        handle = win32print.OpenPrinter(config['printer'])
     except pywintypes.error as e:
         if e.winerror == 1801:  # printer not found
             return None
@@ -31,11 +32,12 @@ def status_printer():
 
 
 def print_text(text):
-    if load_config()["printer"] != '' and text:
+    config = load_config()
+    if config["printer"] != '' and text:
         try:
             # Создаем контекст принтера
             printer_dc = win32ui.CreateDC()
-            printer_dc.CreatePrinterDC(load_config()["printer"])
+            printer_dc.CreatePrinterDC(config["printer"])
 
             # Получаем размер printable area
             horz_res = printer_dc.GetDeviceCaps(8)  # HORZRES

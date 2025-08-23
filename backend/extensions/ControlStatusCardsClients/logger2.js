@@ -23,7 +23,7 @@ function waitAndClick(target, timeout = 3000) {
                 //console.log(`Нажата кнопка: ${target}`);
                 resolve(true);
             } else if (Date.now() - startTime >= timeout) {
-                console.warn(`Кнопка не найдена за ${timeout} мс: ${target}`);
+//                console.warn(`Кнопка не найдена за ${timeout} мс: ${target}`);
                 reject(false);
             } else {
                 requestAnimationFrame(tryClick);

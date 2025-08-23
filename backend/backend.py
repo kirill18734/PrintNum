@@ -36,7 +36,6 @@ def runserver():
 
 @app.route('/run', methods=['POST'])
 def receive_data():
-    global other_thread2
     try:
         config = load_config()
         config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
@@ -66,7 +65,6 @@ def receive_data_them():
 
 @app.route('/change_mode', methods=['POST'])
 def receive_data_mode():
-    global other_thread2
     config = load_config()
     config['mode'] = 'neiro' if config['mode'] == 'extension' else 'extension'
     save_config(config)
@@ -91,10 +89,9 @@ def receive_data_get_list_printers():
 
 @app.route('/set_printer', methods=['POST'])
 def set_printer():
+    config = load_config()
     # получаем тело запроса как строку
     new_printer = request.data.decode("utf-8").strip()
-
-    config = load_config()
     config['printer'] = new_printer
     save_config(config)
 
@@ -109,8 +106,8 @@ def set_printer():
 @app.route('/print_number', methods=['POST'])
 def print_from_data():
     try:
-        new_number = request.data.decode("utf-8").strip()
         config = load_config()
+        new_number = request.data.decode("utf-8").strip()
         if config['is_running'] and config['mode'] == 'extension':
             print("📥 Пришли данные:", new_number)
             if not new_number:

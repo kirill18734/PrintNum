@@ -112,9 +112,7 @@ def main_neiro(is_running, stop_event):
     first_valid_skipped = False
     while not stop_event.is_set() and is_running:
         try:
-            # Конфиг реально изменился → читаем
             config = load_config()
-
             last_coords = config.get("area")
 
             # Если координаты есть → делаем OCR
