@@ -7,7 +7,7 @@ async function run_backend() {
   const command = new Command("run_backend", "powershell.exe", {
     args: [
       "-Command",
-      "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './output/backend.exe' -WindowStyle Hidden }",
+      "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './output/backend/backend.exe' -WindowStyle Hidden }",
     ],
   });
   await command.spawn();
