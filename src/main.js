@@ -26,7 +26,6 @@ async function killBackend() {
 }
 
 window1.onCloseRequested(async (event) => {
-  // 2. Останавливаем backend.exe
   await killBackend();
 });
 
@@ -45,7 +44,7 @@ let btn_github = "github";
 let height_win;
 let width_win;
 let height_error = 7;
-let dotsInterval = null; // глобальная переменная для setInterval
+let dotsInterval = null;
 let isFirstRequestSent = false;
 let response;
 
@@ -66,7 +65,6 @@ function run_app(isRunning) {
     element.style.backgroundColor = "green";
   }
 
-  // mouseover/mouseout обработчики
   element.addEventListener("mouseover", function () {
     element.style.backgroundColor = isRunning ? "darkred" : "darkgreen";
   });
@@ -74,13 +72,12 @@ function run_app(isRunning) {
     element.style.backgroundColor = isRunning ? "red" : "green";
   });
 
-  // запуск анимации
   animateDots(isRunning);
 }
 
 async function get_printers(printer) {
   const select = document.getElementById(list_printers);
-  select.innerHTML = ""; // очищаем старые опции
+  select.innerHTML = "";
   let printers = [];
   let defaultPrinter = "";
 
@@ -104,7 +101,6 @@ async function get_printers(printer) {
   });
 }
 
-// изменение темы
 async function setTheme(theme) {
   if (theme == "night") {
     document.getElementById(them_style).href = "night.css";
@@ -145,33 +141,30 @@ async function change_mode(mode) {
     setWindowSize(width_win, height_win);
   }
 }
+
 function show_area(btn) {
   const button = document.getElementById(btn);
-  let originalValue = button.value; // сохраняем оригинальное значение
+  let originalValue = button.value;
   let countdown = 3;
 
   const interval = setInterval(() => {
-    button.value = countdown; // меняем значение кнопки
+    button.value = countdown;
     countdown--;
 
     if (countdown < 0) {
       clearInterval(interval);
-      button.value = originalValue; // возвращаем исходное значение
+      button.value = originalValue;
     }
-  }, 1000); // интервал 1 секунда
+  }, 1000);
 }
 
 function state_printer(is_offline) {
-  // Находим все элементы с классом "stateprinter"
   const elements = document.getElementsByClassName(stateprinter);
-
-  // Если элементов нет, выходим
   if (elements.length === 0) {
     console.warn("Элементы с классом 'stateprinter' не найдены");
     return;
   }
 
-  // Меняем стили у всех найденных элементов
   for (let el of elements) {
     if (is_offline) {
       el.style.color = "red";
@@ -190,7 +183,7 @@ function state_printer(is_offline) {
 }
 
 function sendDataRun(endpoint, data = "") {
-  fetch(`http://127.0.0.1:5000/${endpoint}`, {
+  return fetch(`http://127.0.0.1:5000/${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -205,7 +198,6 @@ function sendDataRun(endpoint, data = "") {
         setTheme(response.theme);
         change_mode(response.mode);
         run_app(response.is_running);
-        // получаем список принтеров
         get_printers(response.printer);
       }
       if (endpoint == "change_them") {
@@ -226,9 +218,11 @@ function sendDataRun(endpoint, data = "") {
       if (endpoint == "check_state_printer") {
         state_printer(response);
       }
+      return data; // возвращаем чтобы можно было ждать await
     })
     .catch((error) => {
       console.error("Ошибка при отправке данных:", error);
+      throw error;
     });
 }
 
@@ -236,7 +230,6 @@ function animateDots(isRunning) {
   const stateTextElement = document.getElementById(state_run);
   if (!stateTextElement) return;
 
-  // Останавливаем предыдущую анимацию, если есть
   if (dotsInterval) {
     clearInterval(dotsInterval);
     dotsInterval = null;
@@ -259,65 +252,85 @@ function animateDots(isRunning) {
 
     dotsInterval = setInterval(updateDots, 1000);
   } else {
-    // если false — показываем текст "Отключено"
     stateTextElement.textContent = "Приложение отключено";
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // загрузка конфига
+function waitForResponse(promise, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("Timeout"));
+    }, timeoutMs);
+
+    promise
+      .then((res) => {
+        clearTimeout(timer);
+        resolve(res);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
   if (!isFirstRequestSent) {
     run_backend();
-    sendDataRun("run");
-    isFirstRequestSent = true;
+
+    try {
+      await waitForResponse(sendDataRun("run"), 10000);
+      isFirstRequestSent = true;
+      console.log("Ответ получен, isFirstRequestSent = true");
+    } catch (err) {
+      console.warn("Не удалось получить ответ за 10 секунд:", err);
+    }
   }
-  // изменение темы
+
   const change_theme = document.getElementById(btn_change_theme);
   change_theme.addEventListener("click", function () {
     sendDataRun("change_them");
   });
-  // изменение режима
+
   const mode = document.getElementById(checkbox_mode);
   mode.addEventListener("click", function () {
     sendDataRun("change_mode");
   });
-  // получаем список приентеров и устанавливаем дефолтный из конфига
+
   const get_list_printers = document.getElementById(list_printers);
   get_list_printers.addEventListener("click", function () {
     sendDataRun("get_list_printers");
   });
-  // изменяем основной принтер и добавляем в конфиг
+
   const select_printer = document.getElementById(list_printers);
   get_list_printers.addEventListener("change", function () {
     sendDataRun("set_printer", select_printer.value);
   });
-  // запуск приложения
-  const run_app = document.getElementById(is_running);
-  run_app.addEventListener("click", function () {
+
+  const run_app_btn = document.getElementById(is_running);
+  run_app_btn.addEventListener("click", function () {
     sendDataRun("run_app");
   });
 
   const show_current_area = document.getElementById(show_cur_area);
   show_current_area.addEventListener("click", function () {
-    // show_area(show_cur_area);
-    // вызываем sendDataRun через 3 секунды
     sendDataRun("show_area");
   });
 
   const change_area = document.getElementById(change_tracking_area);
   change_area.addEventListener("click", function () {
     show_area(change_tracking_area);
-    // вызываем sendDataRun через 3 секунды
     setTimeout(() => {
       sendDataRun("set_area");
     }, 4000);
   });
+
   const open_github = document.getElementById(btn_github);
   open_github.addEventListener("click", () => {
-    open("https://github.com/kirill18734/PrintNum"); // откроется в браузере по умолчанию
+    open("https://github.com/kirill18734/PrintNum");
   });
-  // Запускаем проверку состояния принтера каждую секунду
+
   setInterval(() => {
     sendDataRun("check_state_printer");
-  }, 1000); // 1000 миллисекунд = 1 секунда
+  }, 1000);
 });
