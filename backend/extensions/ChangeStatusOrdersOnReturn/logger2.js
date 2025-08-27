@@ -56,7 +56,7 @@ function waitAndGet(selectorOrCallback, timeout = 3000, interval = 100) {
 }
 async function return_order() {
   if (!trElement) {
-    console.warn("⚠ return_order вызван, но trElement = null");
+    //console.warn("⚠ return_order вызван, но trElement = null");
     return;
   }
 
@@ -141,13 +141,13 @@ async function return_order() {
       focusableElements[index - 1].focus();
     }
   } catch (err) {
-    console.error("Ошибка внутри return_order:", err);
+    //console.error("Ошибка внутри return_order:", err);
   } finally {
     // ✅ всегда очищаем после завершения
     trElement = null;
     number_order = "";
     clearTimeout(resetTimer);
-    console.log("Очистка после return_order()");
+    //console.log("Очистка после return_order()");
   }
 }
 
@@ -185,7 +185,7 @@ document.addEventListener("keydown", async function (event) {
           resetTimer = setTimeout(() => {
             trElement = null;
             number_order = "";
-            console.log("trElement сброшен из-за отсутствия команды");
+            //console.log("trElement сброшен из-за отсутствия команды");
           }, 3000);
         }
       } else if (last_number == commandToRun) {
