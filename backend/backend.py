@@ -13,8 +13,9 @@ stop_event = threading.Event()
 other_thread2 = None
 
 
-def run_neiro(config):
+def run_neiro():
     global other_thread2
+    config = load_config()
     if config["is_running"] and config["mode"] == "neiro":
         if not other_thread2 or not other_thread2.is_alive():
             stop_event.clear()
@@ -26,82 +27,18 @@ def run_neiro(config):
     else:
         if other_thread2 and other_thread2.is_alive():
             stop_event.set()
-            other_thread2.join()
 
-
-@app.route('/', methods=["GET"])
-def runserver():
-    return "Сервер запущен"
-
-
-@app.route('/run', methods=['POST'])
-def receive_data():
-    try:
-        config = load_config()
-        config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
-        save_config(config)
-        data = {
-            "theme": config["theme"],
-            "mode": config["mode"],
-            "printer": config['printer'],
-            "is_running": config["is_running"]
-        }
-        run_neiro(config)
-        return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500  # Обработка ошибок
-
-
-@app.route('/change_them', methods=['POST'])
-def receive_data_them():
-    config = load_config()
-    config['theme'] = 'light' if config['theme'] == 'night' else 'night'
-    save_config(config)
-    data = {
-        "theme": config['theme'],
-    }
-    return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
-
-
-@app.route('/change_mode', methods=['POST'])
+@app.route('/run_neiro', methods=['POST'])
 def receive_data_mode():
-    config = load_config()
-    config['mode'] = 'neiro' if config['mode'] == 'extension' else 'extension'
-    save_config(config)
-    data = {
-        "mode": config['mode'],
-    }
-    run_neiro(config)
-    return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
-
+    run_neiro()
+    return "OK"
 
 @app.route('/get_list_printers', methods=['POST'])
 def receive_data_get_list_printers():
-    config = load_config()
-    config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
-    save_config(config)
     data = {
-        "default": config['printer'],
         "printers": list_printers(),
     }
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
-
-
-@app.route('/set_printer', methods=['POST'])
-def set_printer():
-    config = load_config()
-    # получаем тело запроса как строку
-    new_printer = request.data.decode("utf-8").strip()
-    config['printer'] = new_printer
-    save_config(config)
-
-    # возвращаем обновлённый список с дефолтным принтером
-    data = {
-        "default": new_printer,
-        "printers": list_printers()
-    }
-    return jsonify({"status": "success", "body": data}), 200
-
 
 @app.route('/print_number', methods=['POST'])
 def print_from_data():
@@ -121,42 +58,23 @@ def print_from_data():
         print("❌ Ошибка во Flask-приложении:", e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
-@app.route('/run_app', methods=['POST'])
-def set_run_app():
-    config = load_config()
-    config['is_running'] = False if config['is_running'] else True
-    save_config(config)
-    data = {
-        "is_running": config['is_running']
-    }
-    run_neiro(config)
-    return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
-
-
 @app.route('/show_area', methods=['POST'])
 def showarea():
     show_area()
     return 'OK'
-
 
 @app.route('/set_area', methods=['POST'])
 def set_area():
     select_area()
     return 'OK'
 
-
 @app.route('/check_state_printer', methods=['POST'])
 def state_printer():
-    config = load_config()
-    config['printer'] = config['printer'] if config['printer'] in list_printers() else ''
-    save_config(config)
     return jsonify({"status": "success", "body": status_printer()}), 200  # Возвращаем ответ
 
-
 def run_flask():
+    run_neiro()
     app.run()
-
 
 if __name__ == '__main__':
     # Создаем поток для Flask

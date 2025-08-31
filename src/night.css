@@ -134,7 +134,7 @@ h2{
 }
 
 /* Кнопки выбора области */
-#Show_current_area,#Change_tracking_area{
+#show_current_area,#change_tracking_area{
   background-color: #676767 ;
   color: white;
   height: 100px;
@@ -142,10 +142,10 @@ h2{
   text-align: center;
   border-radius:10px;
 }
-#Show_current_area:hover,#Change_tracking_area:hover{
+#show_current_area:hover,#change_tracking_area:hover{
   background-color: #4f4f4f;
 }
-#Show_current_area:active,#Change_tracking_area:active{
+#show_current_area:active,#change_tracking_area:active{
   background-color: #676767 ;
 }
 #run{
@@ -158,8 +158,8 @@ h2{
 }
 
 /* Кнопки выбора области */
-#Show_current_area,
-#Change_tracking_area {
+#show_current_area,
+#change_tracking_area {
   background-color: #676767 ;;
   color: white;
   height: 100px;
@@ -167,18 +167,18 @@ h2{
   text-align: center;
   border-radius: 15px;
 }
-#Change_tracking_area{
+#change_tracking_area{
   margin-left: 10px;
 }
-#Show_current_area{
+#show_current_area{
   margin-right: 10px;
 }
-#Show_current_area:hover,
-#Change_tracking_area:hover {
+#show_current_area:hover,
+#change_tracking_area:hover {
   background-color: #4f4f4f;
 }
-#Show_current_area:active,
-#Change_tracking_area:active {
+#show_current_area:active,
+#change_tracking_area:active {
   background-color: #676767 ;;
 }
 

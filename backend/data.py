@@ -1,12 +1,9 @@
 import os
 import json
 from threading import Lock
-import re
-
 import win32print
 
-# ---------------------------
-# Пути к файлам и папкам
+# ---------------------------# Пути к файлам и папкам
 # ---------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,33 +19,11 @@ Neiro_lang = 'rus'
 pattern = r'\d+-\d+'
 
 INTERVAL = 1  # интервал скриншота
-CONFIG_CHECK_INTERVAL = 0.3  # интервал проверки изменения конфига
 FONT = {
 "name": "Arial",
-"height": 130 ,# if addres["Чонграский, 9"] else  80,
+"height": 130,
 "weight": 400,  # ширина
 }
-
-# ---------------------------
-# Конфигурация по умолчанию
-# ---------------------------
-DEFAULT_CONFIG = {
-  "mode": "extension",
-  "theme": "dark",
-  "printer": "",
-  "area": {
-    "x": 674,
-    "y": 432,
-    "width": 475,
-    "height": 157
-  },
-  "is_running": False,
-  "address": {
-    "Чонграский, 9": False,
-    "3, Павелецкий проезд, 4": True
-  }
-}
-
 def list_printers():
     flags = win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS
     printers = win32print.EnumPrinters(flags)
@@ -56,26 +31,18 @@ def list_printers():
     printer_names = [p[2] for p in printers]
     return printer_names
 
-
 config_lock = Lock()  # глобальный замок для синхронизации доступа
 
 # Загрузка конфигурации из файла
 def load_config():
-    """Загрузка конфигурации из файла. Не перезаписывает файл без необходимости."""
-    config = DEFAULT_CONFIG.copy()
-    if os.path.exists(CONFIG_PATH):
-        try:
-            with config_lock:
-                if os.path.getsize(CONFIG_PATH) == 0:
-                    raise ValueError("Файл пустой")
-                with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-                    return json.load(f)
-        except Exception as e:
-            print(f"[Ошибка чтения конфига]: {e}")
-    else:
-        print('Не нешел конфиг, создаю новый')
-        save_config(config)
-    return config
+    try:
+        with config_lock:
+            if os.path.getsize(CONFIG_PATH) == 0:
+                raise ValueError("Файл пустой")
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"[Ошибка чтения конфига]: {e}")
 
 # Сохранение данных в конфигурационный файл
 def save_config(config):

@@ -27,7 +27,7 @@
 * Сохранение настроек области экрана в `config.json` по пути:
 
   ```
-  %LocalAppData%\\printnum
+  %LocalAppData%\\PrintNum
   ```
 
 ---
@@ -60,7 +60,7 @@
 4. Указать путь:
 
    ```
-   C:\Program Files\printnum\output\_internal\extensions\SendNumbersToLocalServer
+   C:\Program Files\PrintNum\output\extensions\SendNumbersToLocalServer
    ```
 5. Обновить вкладки браузера (если они были открыты до установки расширения).
 

@@ -3,8 +3,7 @@ from PIL import Image, ImageGrab
 import pytesseract
 import os
 
-from data import load_config, save_config, Tesseract_FILE_PATH, Tesseract_DIR_PATH, OUTPUT_IMAGE, Neiro_lang, \
-    CONFIG_PATH, CONFIG_CHECK_INTERVAL, INTERVAL
+from data import load_config, save_config, Tesseract_FILE_PATH, Tesseract_DIR_PATH, OUTPUT_IMAGE, Neiro_lang, INTERVAL
 from print_text import print_text, format_number
 import tkinter as tk
 

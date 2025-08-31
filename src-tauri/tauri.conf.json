@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "printnum",
+  "productName": "PrintNum",
   "version": "0.1.0",
-  "identifier": "com.azerty.printnum",
+  "identifier": "PrintNum",
   "build": {
     "frontendDist": "../src",
     "removeUnusedCommands": true
@@ -27,6 +27,6 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/tauri_main.ico"],
-    "resources": { "../backend/output": "output" }
+    "resources": { "../backend/output": "output", "../extensions":"output" , "../driver_printer":"output"}
   }
 }

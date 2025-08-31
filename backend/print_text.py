@@ -23,7 +23,6 @@ def status_printer():
         raise
     info = win32print.GetPrinter(handle, 2)
     attrs = info['Attributes']
-
     # Проверка: принтер в офлайне?
     PRINTER_ATTRIBUTE_WORK_OFFLINE = 0x00000400
     is_offline = bool(attrs & PRINTER_ATTRIBUTE_WORK_OFFLINE)
@@ -46,7 +45,7 @@ def print_text(text):
             FONT = copy(f)
             new_text = format_number(text)
             text = f"{str(new_text).split('-')[0]}."
-            if int(new_text.replace('.', '').split('-')[0]) > 450:
+            if int(new_text.replace('.', '').split('-')[0]) > config['expand_number_after']:
                 # Создаем шрифт
                 FONT['height'] = 75
                 FONT['weight'] = 500
