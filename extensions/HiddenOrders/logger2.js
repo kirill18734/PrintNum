@@ -20,14 +20,18 @@
       const text = div.textContent;
       if (matchesAnyGroup(text)) {
         div.remove();
-        // console.log("Удалён элемент, содержащий все слова из одной из групп:", div);
+        console.error("❌ Удалён элемент, содержащий все слова из одной из групп:", div); // Лог ошибки, если элемент удалён
       }
     });
   }
 
   // Наблюдение за изменениями в DOM
   const observer = new MutationObserver(() => {
-    removeTargetDivs();
+    try {
+      removeTargetDivs();
+    } catch (err) {
+      console.error("❌ Ошибка при удалении элементов из DOM:", err); // Лог ошибки при наблюдении за DOM
+    }
   });
 
   observer.observe(document.body, {
@@ -38,12 +42,20 @@
   // Отслеживание изменений URL
   let lastUrl = location.href;
   setInterval(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
-      removeTargetDivs();
+    try {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href;
+        removeTargetDivs();
+      }
+    } catch (err) {
+      console.error("❌ Ошибка при отслеживании изменений URL:", err); // Лог ошибки при отслеживании URL
     }
   }, 1000);
 
   // Первоначальный запуск
-  removeTargetDivs();
+  try {
+    removeTargetDivs();
+  } catch (err) {
+    console.error("❌ Ошибка при первоначальном запуске:", err); // Лог ошибки при первоначальном запуске
+  }
 })();
