@@ -112,9 +112,11 @@ printnum
 
    или собрать в `.exe` через **auto-py-to-exe**:
 
-   * В качестве запускающего файла выбрать `backend.py`.
-   * Указать `icon.ico`, добавить папки `Tesseract-OCR`, `extensions` и файлы `data.py`, `print_text.py`, `screen_find_text_neiro.py`.
-   * После компиляции долждна создаться папка output со следующей структурой:
+   * Script Location: `backend.py`.
+   * Icon: `icon.ico`
+   * Additional Files: Add-Folder - `Tesseract-OCR`,Add Files -  `data.py`, `print_text.py`, `screen_find_text_neiro.py`.
+   
+   После компиляции долждна создаться папка output со следующей структурой:
 
      ```
      output/
