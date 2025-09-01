@@ -60,7 +60,7 @@
 4. Указать путь:
 
    ```
-   C:\Program Files\PrintNum\output\extensions\SendNumbersToLocalServer
+   C:\Program Files\PrintNum\extensions\SendNumbersToLocalServer
    ```
 5. Обновить вкладки браузера (если они были открыты до установки расширения).
 

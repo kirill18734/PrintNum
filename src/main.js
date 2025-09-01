@@ -132,7 +132,7 @@ function sendDataRun(endpoint, data = "") {
 async function get_printers(printers) {
   const select = document.getElementById(list_printers);
   select.innerHTML = "";
-
+  
   // Загружаем текущий конфиг
   let cfg = await loadConfig();
   let defaultPrinter = cfg.printer || "";
@@ -163,6 +163,30 @@ async function get_printers(printers) {
   });
 }
 
+// ---------- Статус принтера ----------
+  function state_printer(is_offline) {
+  const elements = document.getElementsByClassName(stateprinter);
+  if (elements.length === 0) {
+    console.warn("Элементы с классом 'stateprinter' не найдены");
+    return;
+  }
+
+  for (let el of elements) {
+    if (is_offline) {
+      el.style.color = "red";
+      el.textContent = "Принтер отключен";
+      if (height_win == 275 || height_win == 425) {
+        setWindowSize(width_win, height_win + height_error);
+      }
+    } else {
+      el.style.color = "";
+      el.textContent = "";
+      if (height_win != 275 || height_win != 425) {
+        setWindowSize(width_win, height_win - height_error);
+      }
+    }
+  }
+}
 
 // ---------- Тема ----------
 function setTheme(theme) {
@@ -340,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     set_area(change_tracking_area);
     setTimeout(() => {
       sendDataRun("set_area");
-    }, 3000);
+    }, 4000);
   };
   // открыть github
   document.getElementById(btn_github).onclick = () => {
@@ -348,5 +372,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   setInterval(() => {
     sendDataRun("check_state_printer");
-  }, 1000);
+  }, 3000);
 });

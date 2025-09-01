@@ -7,7 +7,7 @@
     "frontendDist": "../src",
     "removeUnusedCommands": true
   },
-  "app": {
+  "app": {  
     "withGlobalTauri": true,
     "windows": [
       {
@@ -15,7 +15,7 @@
         "fullscreen": false,
         "resizable": false,
         "maximizable": false,
-        "width": 450,
+        "width": 460,
         "height": 275
       }
     ],
@@ -27,6 +27,6 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/tauri_main.ico"],
-    "resources": { "../backend/output": "output", "../extensions":"output" , "../driver_printer":"output"}
+    "resources": { "../backend/output": "output", "../extensions":"extensions" , "../driver_printer":"driver_printer"}
   }
 }

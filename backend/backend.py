@@ -27,12 +27,13 @@ def run_neiro():
     else:
         if other_thread2 and other_thread2.is_alive():
             stop_event.set()
+# статус принтера
+@app.route('/check_state_printer', methods=['POST'])
+def state_printer():
+    return jsonify({"status": "success", "body": status_printer()}), 200  # Возвращаем ответ
 
-@app.route('/run_neiro', methods=['POST'])
-def receive_data_mode():
-    run_neiro()
-    return "OK"
 
+# список принтеров
 @app.route('/get_list_printers', methods=['POST'])
 def receive_data_get_list_printers():
     data = {
@@ -40,6 +41,29 @@ def receive_data_get_list_printers():
     }
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 
+
+# показать область отслеживания
+@app.route('/show_area', methods=['POST'])
+def showarea():
+    show_area()
+    return 'OK'
+
+
+# изменить область отслеживания
+@app.route('/set_area', methods=['POST'])
+def set_area():
+    select_area()
+    return 'OK'
+
+
+# запуск нейронки
+@app.route('/run_neiro', methods=['POST'])
+def receive_data_mode():
+    run_neiro()
+    return "OK"
+
+
+# печать
 @app.route('/print_number', methods=['POST'])
 def print_from_data():
     try:
@@ -58,26 +82,15 @@ def print_from_data():
         print("❌ Ошибка во Flask-приложении:", e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@app.route('/show_area', methods=['POST'])
-def showarea():
-    show_area()
-    return 'OK'
-
-@app.route('/set_area', methods=['POST'])
-def set_area():
-    select_area()
-    return 'OK'
-
-@app.route('/check_state_printer', methods=['POST'])
-def state_printer():
-    return jsonify({"status": "success", "body": status_printer()}), 200  # Возвращаем ответ
 
 def run_flask():
     run_neiro()
     app.run()
+
 
 if __name__ == '__main__':
     # Создаем поток для Flask
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
     # При желании можно ждать завершения потоков
+    flask_thread.join()

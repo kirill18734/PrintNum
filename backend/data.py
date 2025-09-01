@@ -18,7 +18,7 @@ OUTPUT_IMAGE = os.path.join(APP_DIR, "screenshot.png")
 Neiro_lang = 'rus'
 pattern = r'\d+-\d+'
 
-INTERVAL = 1  # интервал скриншота
+INTERVAL = 0.5  # интервал скриншота
 FONT = {
 "name": "Arial",
 "height": 130,
