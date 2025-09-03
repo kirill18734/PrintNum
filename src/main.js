@@ -136,7 +136,7 @@ async function get_printers(printers) {
   // Загружаем текущий конфиг
   let cfg = await loadConfig();
   let defaultPrinter = cfg.printer || "";
-
+  console.log(defaultPrinter)
   // Если список пустой → вставляем пустой option и очищаем config.printer
   if (!Array.isArray(printers) || printers.length === 0) {
     const option = document.createElement("option");
@@ -224,6 +224,38 @@ function change_mode(mode) {
     setWindowSize(width_win, height_win);
   }
 }
+// Обёртка для повторных попыток
+function sendDataRunWithRetry(endpoint, data = "", interval = 1000, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    let finished = false;
+
+    // Стоп через timeout
+    const stopTimer = setTimeout(() => {
+      if (!finished) {
+        finished = true;
+        clearInterval(intervalId);
+        reject(new Error(`Не удалось связаться с backend (${endpoint}) за ${timeout / 1000} сек.`));
+      }
+    }, timeout);
+
+    // Запускаем попытки
+    const intervalId = setInterval(async () => {
+      if (finished) return;
+      try {
+        const result = await sendDataRun(endpoint, data);
+        if (result) {
+          finished = true;
+          clearTimeout(stopTimer);
+          clearInterval(intervalId);
+          resolve(result);
+        }
+      } catch (err) {
+        // если ошибка, просто ждём следующую попытку
+        console.warn(`Попытка запроса ${endpoint} не удалась:`, err.message);
+      }
+    }, interval);
+  });
+}
 
 // ---------- Таймер для изменения области отслеживания ----------
 function set_area(btn) {
@@ -301,12 +333,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!isFirstRequestSent) {
     await initConfig();
     config = await loadConfig();
-    // // применяем настройки
     setTheme(config.theme);
     change_mode(config.mode);
     run_app(config.is_running);
     run_backend();
-    sendDataRun("get_list_printers");
+
+    try {
+      await sendDataRunWithRetry("get_list_printers");
+      console.log("Связь с backend установлена ✅");
+    } catch (err) {
+      console.error("Не удалось подключиться к backend ❌", err.message);
+    }
+    isFirstRequestSent = true
   }
   // режим
   document.getElementById(checkbox_mode).onclick = async () => {

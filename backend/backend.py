@@ -37,7 +37,7 @@ def state_printer():
 @app.route('/get_list_printers', methods=['POST'])
 def receive_data_get_list_printers():
     data = {
-        "printers": list_printers(),
+        "printers": [""]+list_printers(),
     }
     return jsonify({"status": "success", "body": data}), 200  # Возвращаем ответ
 

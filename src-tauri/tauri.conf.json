@@ -25,7 +25,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": "msi",
     "icon": ["icons/tauri_main.ico"],
     "resources": { "../backend/output": "output", "../extensions":"extensions" , "../driver_printer":"driver_printer"}
   }
