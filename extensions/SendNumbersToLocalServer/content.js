@@ -1,7 +1,7 @@
 const previousCodes = new Set();
 const local_url_send_to_server = "http://127.0.0.1:5000/print_number";
 const find_selector = "._list_1bq3x_12"; // контейнер со всеми логами
-const timeout_sec = 100; // 300 мс между проверками
+const timeout_sec = 300; // 300 мс между проверками
 
 function isValidCode(code) {
   const valid = /^\d{1,}-\d+$/.test(code); // Пример: 422-4352
