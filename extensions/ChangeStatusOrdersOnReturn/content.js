@@ -5,6 +5,7 @@ let trElement;
 let processingReturn = false;
 let resetTimer; // <<< добавлена эта строка
 
+const work_url = ["https://turbo-pvz.ozon.ru/orders"];
 const commandToRun = "82634791520368417952631";
 const bnt_return_check = "Проверка";
 
@@ -153,51 +154,54 @@ async function return_order() {
 }
 
 document.addEventListener("keydown", async function (event) {
-  if (!event.isTrusted) return;
+  const currUrl = window.location.href;
+  if (work_url.includes(currUrl)) {
+    if (!event.isTrusted) return;
 
-  if (event.key.length === 1) {
-    last_number += event.key;
-  } else if (event.key === "Enter") {
-    if (last_number.trim() != "") {
-      if (last_number.length <= 15) {
-        number_order = convertCyrillicToLatin(last_number);
+    if (event.key.length === 1) {
+      last_number += event.key;
+    } else if (event.key === "Enter") {
+      if (last_number.trim() != "") {
+        if (last_number.length <= 15) {
+          number_order = convertCyrillicToLatin(last_number);
 
-        allTrs = document.querySelectorAll('tr[data-testid^="posting-"]');
-        if (number_order.includes("ii")) {
-          for (const tr of allTrs) {
-            if (tr.textContent.includes(number_order)) {
-              trElement = tr;
-              break;
+          allTrs = document.querySelectorAll('tr[data-testid^="posting-"]');
+          if (number_order.includes("ii")) {
+            for (const tr of allTrs) {
+              if (tr.textContent.includes(number_order)) {
+                trElement = tr;
+                break;
+              }
+            }
+          } else {
+            for (const tr of allTrs) {
+              const testId = tr.getAttribute("data-testid");
+              if (testId == `posting-${number_order}`) {
+                trElement = tr;
+                break;
+              }
             }
           }
-        } else {
-          for (const tr of allTrs) {
-            const testId = tr.getAttribute("data-testid");
-            if (testId == `posting-${number_order}`) {
-              trElement = tr;
-              break;
-            }
+
+          // Если найден trElement — запускаем таймер на сброс
+          if (trElement) {
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+              trElement = null;
+              number_order = "";
+            }, 3000);
+          }
+        } else if (last_number == commandToRun) {
+          clearTimeout(resetTimer); // Если пришла команда — отменяем сброс
+          if (!processingReturn) {
+            processingReturn = true;
+            await return_order();
+            processingReturn = false;
           }
         }
 
-        // Если найден trElement — запускаем таймер на сброс
-        if (trElement) {
-          clearTimeout(resetTimer);
-          resetTimer = setTimeout(() => {
-            trElement = null;
-            number_order = "";
-          }, 3000);
-        }
-      } else if (last_number == commandToRun) {
-        clearTimeout(resetTimer); // Если пришла команда — отменяем сброс
-        if (!processingReturn) {
-          processingReturn = true;
-          await return_order();
-          processingReturn = false;
-        }
+        last_number = "";
       }
-
-      last_number = "";
     }
   }
 });

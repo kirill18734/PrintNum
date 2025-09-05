@@ -1,8 +1,70 @@
 let buffer = "";
-let isRunning = false;
+
+const timeout = 3000;
+const work_url = [
+  "https://turbo-pvz.ozon.ru/orders",
+  "https://turbo-pvz.ozon.ru/receiving-v2/main",
+];
+
+const list_commands = {
+  command1: {
+    name: "Выдать заказ (без пакета)",
+    code: "37",
+    search_btn: [
+      "text:Продолжить",
+      "text:Не выдавать пакеты",
+      "text:Выдать",
+      "text:На главную",
+    ],
+  },
+  command2: {
+    name: "Выдать заказ (+1 пакет)",
+    code: "60418273951624830975261",
+    search_btn: [
+      "text:Продолжить",
+      'button[class*="increment"]',
+      "text:Выдать 1 пакет",
+      "text:Выдать",
+      "text:На главную",
+    ],
+  },
+  command3: {
+    name: "Автораспределение",
+    code: "920374615208431975286391",
+    search_btn: ["input.ozi__toggle__toggle__2ImSG"],
+  },
+  command4: {
+    name: "Выдать все (+1 пакет)",
+    code: "91347265019832476015342",
+    search_btn: [
+      "text:К выдаче",
+      "text:Продолжить",
+      'button[class*="increment"]',
+      "text:Выдать 1 пакет",
+      "text:Выдать",
+      "text:На главную",
+    ],
+  },
+  command5: {
+    name: "Выдать все (без пакета)",
+    code: "74892015376184239061527",
+    search_btn: [
+      "text:К выдаче",
+      "text:Продолжить",
+      "text:Не выдавать пакеты",
+      "text:Выдать",
+      "text:На главную",
+    ],
+  },
+  command6: {
+    name: "Оплатить заказ (без пакета)",
+    code: "70983625147892016354712",
+    search_btn: ["text:Продолжить", "text:Не выдавать пакеты", "text:Оплатить"],
+  },
+};
 
 // Универсальная функция ожидания и клика
-function waitAndClick(target, timeout = 3000) {
+async function btn_click(target) {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
 
@@ -32,128 +94,50 @@ function waitAndClick(target, timeout = 3000) {
   });
 }
 
-// Проверка существования элемента по тексту
-function elementWithTextExists(text) {
-  const lowerText = text.toLowerCase();
-  const exists = [...document.querySelectorAll("button, [role='button']")].some(
-    (el) => el.textContent.toLowerCase().includes(lowerText)
-  );
-  return exists;
-}
-
-// Обработка комбинации
-async function handleCombination(matchText, actions, actionName) {
-  if (!buffer.includes(matchText)) return;
-
-  buffer = "";
-
-  for (const action of actions) {
+//основная функция по запуску
+async function run(list_btn) {
+  for (let btn of list_btn) {
     try {
-      await waitAndClick(action);
+      await btn_click(btn);
     } catch (err) {
-      console.error(`❌ Ошибка при выполнении действия: ${action}`, err); // Лог ошибки при выполнении действия
       break;
     }
   }
 }
 
-// Универсальный цикл "К выдаче"
-async function startToIssueLoopGeneric(actions) {
-  if (isRunning) return;
-  isRunning = true;
+// Проверка существования элемента по тексту
+function elementWithTextExists(text) {
+  return [...document.querySelectorAll("button, [role='button']")].some((el) =>
+    el.textContent.toLowerCase().includes(text.slice(5).trim().toLowerCase())
+  );
+}
 
-  try {
-    while (elementWithTextExists("К выдаче")) {
-      await waitAndClick("text:К выдаче");
-      await new Promise((r) => setTimeout(r, 500));
+// Обработка комбинации
+async function handleCombination(list_btn) {
+  if (list_btn) {
+    if (list_btn.includes("text:К выдаче")) {
+      while (elementWithTextExists(list_btn[0])) {
+        await run(list_btn);
+      }
+      return;
+    }
+    await run(list_btn);
+  } else console.log("Переданный список пустой");
+}
 
-      for (const action of actions) {
-        try {
-          await waitAndClick(action);
-          await new Promise((r) => setTimeout(r, 500));
-        } catch (err) {
-          console.error(
-            `❌ Ошибка в цикле при выполнении действия: ${action}`,
-            err
-          ); // Лог ошибки в цикле
+document.addEventListener("keydown", async (num) => {
+  const currUrl = window.location.href;
+  if (work_url.includes(currUrl)) {
+    if (num.key.length === 1) {
+      buffer += num.key;
+    } else if (num.key === "Enter" && buffer) {
+      for (const val of Object.values(list_commands)) {
+        if (buffer == val.code) {
+          await handleCombination(val.search_btn);
           break;
         }
       }
-    }
-  } catch (err) {
-    console.error("❌ Ошибка в процессе цикла 'К выдаче':", err); // Лог ошибки в процессе цикла
-  }
-
-  isRunning = false;
-}
-
-// Обработка ввода
-document.addEventListener("keydown", async function (e) {
-  if (e.key.length === 1) {
-    buffer += e.key;
-    if (buffer.length > 50) buffer = buffer.slice(-50);
-
-    try {
-      await handleCombination(
-        "37821563489167429583100",
-        [
-          "text:Продолжить",
-          "text:Не выдавать пакеты",
-          "text:Выдать",
-          "text:На главную",
-        ],
-        "Выдать заказ (без пакета)"
-      );
-
-      await handleCombination(
-        "60418273951624830975261",
-        [
-          "text:Продолжить",
-          'button[class*="increment"]',
-          "text:Выдать 1 пакет",
-          "text:Выдать",
-          "text:На главную",
-        ],
-        "Выдать заказ (+1 пакет)"
-      );
-
-      await handleCombination(
-        "920374615208431975286391",
-        ["input.ozi__toggle__toggle__2ImSG"],
-        "Автораспределение"
-      );
-
-      if (buffer.includes("91347265019832476015342")) {
-        buffer = "";
-        await startToIssueLoopGeneric([
-          "text:Продолжить",
-          'button[class*="increment"]',
-          "text:Выдать 1 пакет",
-          "text:Выдать",
-          "text:На главную",
-        ]);
-      }
-
-      if (buffer.includes("74892015376184239061527")) {
-        buffer = "";
-        await startToIssueLoopGeneric([
-          "text:Продолжить",
-          "text:Не выдавать пакеты",
-          "text:Выдать",
-          "text:На главную",
-        ]);
-      }
-
-      if (buffer.includes("70983625147892016354712")) {
-        buffer = "";
-        await startToIssueLoopGeneric([
-          "text:Продолжить",
-          "text:Не выдавать пакеты",
-          "text:Оплатить",
-        ]);
-      }
-    } catch (err) {
-      console.error("❌ Ошибка при обработке ввода:", err); // Лог ошибки при обработке ввода
+      buffer = "";
     }
   }
 });
