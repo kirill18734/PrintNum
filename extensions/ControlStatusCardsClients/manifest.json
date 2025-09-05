@@ -3,15 +3,12 @@
   "name": "ControlStatusCardsClients",
   "version": "1.0",
   "description": "Управляет статусом карточек клиентов",
+  "permissions": [],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["logger2.js"],
+      "matches": ["*://*.ozon.ru/*"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
-  ],
-  "permissions": [],
-  "host_permissions": [
-    "<all_urls>"
   ]
 }
