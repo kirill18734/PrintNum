@@ -9,7 +9,7 @@ const work_url = [
 const list_commands = {
   command1: {
     name: "Выдать заказ (без пакета)",
-    code: "37",
+    code: "37821563489167429583100",
     search_btn: [
       "text:Продолжить",
       "text:Не выдавать пакеты",
