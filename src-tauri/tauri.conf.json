@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PrintNum",
+  "version": "0.1.0",
+  "identifier": "PrintNum",
+  "build": {
+    "removeUnusedCommands": true,
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Печать ячеек",
+        "fullscreen": false,
+        "resizable": false,
+        "maximizable": false,
+        "decorations": false,
+        "visible": false,
+        "width": 420,
+        "height": 150
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "nsis",
+    "icon": ["icons/icon.ico"],
+    "resources": {
+      "../backend/output/backend": "backend",
+      "../extension": "extension",
+      "../DriverPrinter_CHITENG-CT221B.exe": "./DriverPrinter_CHITENG-CT221B.exe",
+      "../qrcodeOzon.docx": "./qrcodeOzon.docx"
+    },
+    "windows": {
+      "nsis": {
+        "languages": ["Russian", "English"],
+        "installerIcon": "icons/icon.ico"
+      }
+    }
+  }
+}

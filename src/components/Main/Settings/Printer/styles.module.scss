@@ -1,0 +1,10 @@
+.printer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  max-width: 50%;
+  select {
+    max-width: 95%;
+  }
+}

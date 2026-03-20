@@ -1,0 +1,8 @@
+@use "./variables" as *;
+
+body {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  background-color: light-dark($bright-snow, $carbon-black);
+  color: light-dark($carbon-black, $bright-snow);
+  font-size: 1em;
+}

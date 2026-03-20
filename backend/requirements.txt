@@ -1,0 +1,4 @@
+auto-py-to-exe
+Flask
+flask-cors
+pywin32

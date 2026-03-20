@@ -1,0 +1,40 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "core:window:allow-set-size",
+    "core:window:allow-destroy",
+    "shell:allow-open",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-show",
+    {
+      "identifier": "core:window:allow-start-dragging",
+      "windows": ["*"],
+      "permissions": ["core:window:allow-start-dragging"]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "start_backend",
+          "cmd": "powershell.exe",
+          "args": [
+            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './backend/backend.exe' -WindowStyle Hidden }"
+          ]
+        },
+        {
+          "name": "stop_backend",
+          "cmd": "powershell",
+          "args": [
+            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue"
+          ]
+        }
+      ]
+    }
+  ]
+}

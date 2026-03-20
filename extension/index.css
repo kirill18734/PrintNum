@@ -1,0 +1,39 @@
+/* главный контейнер */
+.container_97cef389 * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently  supported by Chrome, Edge, Opera and Firefox */
+  outline: none;
+}
+
+.container_97cef389 {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 100000;
+}
+
+.topIcon {
+  font-size: 2em;
+  cursor: pointer;
+}
+
+main {
+  display: none;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.main--flex {
+  display: flex;
+}

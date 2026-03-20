@@ -1,0 +1,40 @@
+@use "/src/variables" as *;
+
+.home {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0.7em;
+
+  label {
+    font-size: 0.7em;
+  }
+
+  div {
+    background-color: $turf-green;
+    color: light-dark($bright-snow, $bright-snow);
+    &:hover {
+      background-color: $dark-emerald;
+    }
+    &:active {
+      background-color: $black-forest;
+    }
+    text-align: center;
+    cursor: pointer;
+    width: 90%;
+    padding: 0.2em;
+    border-radius: 1em;
+    font-size: 1.5em;
+
+    &.active {
+      background-color: $flag-red;
+      &:hover {
+        background-color: $brick-red-2;
+      }
+      &:active {
+        background-color: $brick-red;
+      }
+    }
+  }
+}

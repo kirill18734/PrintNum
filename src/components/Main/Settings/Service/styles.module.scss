@@ -1,0 +1,11 @@
+@use "/src/variables" as *;
+
+.service {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  border-bottom: 1px solid light-dark($bright-snow, $carbon-black);
+  padding: 0.3em 0;
+}
