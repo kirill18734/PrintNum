@@ -122,11 +122,13 @@ function removeBanners(currUrl) {
   }
 }
 
-new MutationObserver(() => {
-  const curUrlNotification = location.href;
-  if (curUrlNotification !== lastUrlNotification) {
-    lastUrlNotification = curUrlNotification;
-    show_list_notifications();
-    handleRouteChange(curUrlNotification);
-  }
-}).observe(document.body, { subtree: true, childList: true });
+if (ENABLE_FEATURE) {
+  new MutationObserver(() => {
+    const curUrlNotification = location.href;
+    if (curUrlNotification !== lastUrlNotification) {
+      lastUrlNotification = curUrlNotification;
+      show_list_notifications();
+      handleRouteChange(curUrlNotification);
+    }
+  }).observe(document.body, { subtree: true, childList: true });
+}

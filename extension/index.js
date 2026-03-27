@@ -1,8 +1,13 @@
 // html
+const ENABLE_FEATURE = false;
 // главный контейнер
 const container = new_tag({ tag: "div", class: ["container_97cef389"] });
 // главная иконка
-const topIcon = new_tag({ tag: "div", class: ["topIcon"], textContent: "🎁" });
+const topIcon = new_tag({
+  tag: "div",
+  class: ["topIcon"],
+  textContent: ENABLE_FEATURE ? "🎁" : "",
+});
 // содержимое
 const main = new_tag({ tag: "main" });
 
@@ -122,9 +127,11 @@ function rightTriangleIcon() {
     `;
 }
 
-// первый запуск
-if (!get_local_storage("hide")) {
-  set_local_storage("hide", { menu: [], notifications: [], returns: [] });
+if (ENABLE_FEATURE) {
+  // первый запуск
+  if (!get_local_storage("hide")) {
+    set_local_storage("hide", { menu: [], notifications: [], returns: [] });
+  }
 }
 
 // прослушиватели событий

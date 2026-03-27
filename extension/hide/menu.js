@@ -86,14 +86,17 @@ menu_header.onclick = () => {
   menu_container.classList.toggle("wrapper__container--flex");
 };
 let lastURLMenu;
-// отслеживание изменения URL
-new MutationObserver(() => {
-  const curURLMenu = location.href;
-  if (lastURLMenu !== curURLMenu) {
-    lastURLMenu = curURLMenu;
-    show_list_menu();
-  }
-}).observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+
+if (ENABLE_FEATURE) {
+  // отслеживание изменения URL
+  new MutationObserver(() => {
+    const curURLMenu = location.href;
+    if (lastURLMenu !== curURLMenu) {
+      lastURLMenu = curURLMenu;
+      show_list_menu();
+    }
+  }).observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}

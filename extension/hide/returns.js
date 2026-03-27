@@ -99,9 +99,11 @@ returns_header.onclick = () => {
   returns_container.classList.toggle("wrapper__container--flex");
 };
 
-setInterval(() => {
-  const currentUrlReturn = location.href;
-  if (currentUrlReturn.startsWith(workUrlReturn)) {
-    show_list_returns();
-  }
-}, 500);
+if (ENABLE_FEATURE) {
+  setInterval(() => {
+    const currentUrlReturn = location.href;
+    if (currentUrlReturn.startsWith(workUrlReturn)) {
+      show_list_returns();
+    }
+  }, 500);
+}

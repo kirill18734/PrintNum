@@ -24,10 +24,12 @@ function tempautomation() {
   }
 }
 
-const workUrlReturn1 = "https://turbo-pvz.ozon.ru/outbound";
-new MutationObserver(() => {
-  const currentUrlReturn = location.href;
-  if (currentUrlReturn.startsWith(workUrlReturn1)) {
-    tempautomation();
-  }
-}).observe(document.body, { subtree: true, childList: true });
+if (ENABLE_FEATURE) {
+  const workUrlReturn1 = "https://turbo-pvz.ozon.ru/outbound";
+  new MutationObserver(() => {
+    const currentUrlReturn = location.href;
+    if (currentUrlReturn.startsWith(workUrlReturn1)) {
+      tempautomation();
+    }
+  }).observe(document.body, { subtree: true, childList: true });
+}
