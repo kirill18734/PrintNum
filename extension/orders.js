@@ -22,6 +22,8 @@ const TEXT = {
   PAY_REPEAT: "Попробовать ещё",
   HOME: "На главную",
   READY: "К выдаче",
+  CHECK: "Проверить",
+  ONCHECK: "На проверке",
   RETURN_REASON_1: "Изменил решение о покупке/Товар не подошёл",
   RETURN_REASON_2: "Отказ получателя при вручении",
 };
@@ -96,7 +98,7 @@ const COMMANDS = {
   "82634791520368417952631": {
     name: "Возврат товара",
     repeat: false,
-    actions: [TEXT.READY, TEXT.RETURN_REASON_1],
+    actions: [TEXT.CHECK, TEXT.ONCHECK, TEXT.READY, TEXT.RETURN_REASON_1],
   },
 };
 
@@ -133,12 +135,13 @@ async function runCommand(command) {
     for (const action of command.actions) {
       const isSelector = Object.values(SELECTOR).includes(action);
       const success = await clickByElem(action, command.name, isSelector);
-      // необходиомо, чтобы при повторном сканировании код не повторялся
-      state.lastOrder = null;
-
-      if (!success) return false;
+      if (!success) {
+        state.lastOrder = null;
+        return false;
+      }
     }
 
+    state.lastOrder = null;
     if (!command.repeat) break;
   } while (true);
 
@@ -163,14 +166,10 @@ document.addEventListener("keydown", async (e) => {
   state.lastNumber = "";
   // если команда не найдена — считаем это сканом заказа
   if (!command) {
+    state.lastOrder = null;
     waitLoadElement(SELECTOR.scanAnimate).then((el) => {
-      const listOrders = document.querySelectorAll(SELECTOR.scanAnimate);
-      // если в течении 3 сек отсканировали еще второй элемент
-      if (listOrders.length > 1) {
-        state.lastOrder = null;
-        return;
-      }
       state.lastOrder = el;
+
       state.resetTimer = setTimeout(() => {
         state.lastOrder = null;
       }, 3000);

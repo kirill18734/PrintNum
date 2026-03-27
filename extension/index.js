@@ -42,20 +42,29 @@ function searchSelector(selector) {
 function searchText(text, name) {
   let element;
   // для оформления возврата
-  const container = state.lastOrder || document;
-  const isReturn =
-    text == TEXT.RETURN_REASON_1 ? ".tippy-content div" : "button";
+
+  const container =
+    name == "Возврат товара" && text !== TEXT.RETURN_REASON_1
+      ? state.lastOrder
+      : document;
+  let isReturn;
+  switch (text) {
+    case TEXT.RETURN_REASON_1:
+      isReturn = ".tippy-content div";
+      break;
+    case TEXT.ONCHECK:
+    case TEXT.CHECK:
+      isReturn = "div";
+      break;
+    default:
+      isReturn = "button";
+      break;
+  }
 
   const elements = [...container.querySelectorAll(`${isReturn}`)];
 
   element = elements.find((e) => e.textContent?.trim() === text);
   if (!element) {
-    // если причина возврата не найдена, то указываем другую
-    if (text == TEXT.RETURN_REASON_1) {
-      element = elements.find(
-        (e) => e.textContent?.trim() === TEXT.RETURN_REASON_2,
-      );
-    }
     // для повторной попытки оплатить
     if (name.startsWith("Оплатить")) {
       if (text == TEXT.CONTINUE) {
