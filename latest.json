@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "note": "1. Добавлен сервис для обновлений и обновлено расширение",
+  "note": "",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVozYnFOOHJQK0ZkaXVZR1JpYTZ3UjBHb3ZGbEQ5QWtDdXp6T0w4YmxJeFU4c20vaENRdG9RczljTkhndHZLVjJuWHFGY0M4U1FwTGN4ZzY1UWtMWVFZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0Njk0MTk3CWZpbGU6UHJpbnROdW1fMS4wLjBfeDY0LXNldHVwLmV4ZQpFMndRWGVkMnJmaTd1QmpkWGY4ZGFOWXJBdFhHQkNYQjgvNkp4MlNUaXN6OWpXRmJISUwxVTM2Q002bEZFWDRaaUtXaXVkRXA0bURiQldRQ1g1Q21BZz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWR3aFVXd0FCc2xhR2tYcXNaVE1nellzczBoQm5LbWRqTFh3RUUyQlhYU21NSGxMOU9rZUhwTmxLT2FlVU1temJ0NXNsOFpNaEpDZ2Z2NG5DOVpoeEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0ODY0MTc2CWZpbGU6UHJpbnROdW1fMS4wLjBfeDY0LXNldHVwLmV4ZQpBOEZkeFMwQXllK3BqZHVVU3l6V21jZDRoV1pCb0IzUGFucjd5NmhCOXpOOTl1WE9iVjRxbENxYU1JYnFzY2lLVC9RTzkvN2FqN0hmYitMRHFOZC9EZz09Cg==",
       "url": "https://github.com/kirill18734/PrintNum/releases/download/v1.0.0/PrintNum_1.0.0_x64-setup.exe"
     }
   }

@@ -5,4 +5,10 @@ body {
   background-color: light-dark($bright-snow, $carbon-black);
   color: light-dark($carbon-black, $bright-snow);
   font-size: 1em;
+  #root {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
 }

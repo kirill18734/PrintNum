@@ -5,9 +5,7 @@ import Settings from "./Settings";
 function Main() {
   const { activeTab }: any = useAppContext();
   return (
-    <main data-tauri-drag-region className="main">
-      {activeTab ? <Settings /> : <Home />}
-    </main>
+    <main data-tauri-drag-region>{activeTab ? <Settings /> : <Home />}</main>
   );
 }
 
