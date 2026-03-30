@@ -1,10 +1,10 @@
 {
-  "version": "1.0.1",
-  "note": "- Добавлено логирование",
+  "version": "1.0.2",
+  "note": "- Добавлено окно загрузки",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWE3dVJxejdCSCtDYkxKTVB3c2tDOGUveTgyczJBUlZJa01ha1NTRGlha3E2NFZMbEZscDFUcmhYbStkSmhQZXpvbnNpbU5oUUZWM2treUt4Z2tCQXdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0ODc3MjY3CWZpbGU6UHJpbnROdW1fMS4wLjFfeDY0LXNldHVwLmV4ZQpRSDRnRWNJZ3RxS3p6TEV4aGV6ZFRuWmo2dWt0MFNnd3hqYjlmOWp5ZENwYUFLMEpySHR0QWN6QjJweGQxaGh3NXNSMWMvTnh1Y1BjM3o4eE42Y1FBUT09Cg==",
-      "url": "https://github.com/kirill18734/PrintNum/releases/download/v1.0.1/PrintNum_1.0.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVUzNy9VQ3FJWWRhYkh3MDVJK1UwdUhuY2oyMndXNXR1MFAzd2xwb00xNHloQnlDUE5FdTVWM3BXTkpLNnE3MXNNSm93QTBHbXpYcmFiaU5tWjZHNndjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0ODkxMTE2CWZpbGU6UHJpbnROdW1fMS4wLjJfeDY0LXNldHVwLmV4ZQp0Z3VZV1E1cjFqZXIzdkhEdDZLbW5tb29FUHVIZ2xtZWpVK29pVVhrclVmTm5MU1hpZi9aMGJiOHg4b203ek1XaXo0c0xoNmxNZEZXWmExemtHMGNCQT09Cg==",
+      "url": "https://github.com/kirill18734/PrintNum/releases/download/v1.0.2/PrintNum_1.0.2_x64-setup.exe"
     }
   }
 }

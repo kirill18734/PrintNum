@@ -1,5 +1,4 @@
 use tauri::Manager;
-use tauri_plugin_shell::ShellExt;
 
 #[tauri::command]
 fn get_version(app_handle: tauri::AppHandle) -> String {
@@ -41,20 +40,6 @@ pub fn run() {
     .default_version_comparator(|current, update| {
     update.version != current
     }).build())
-    //запуск backend
-    .setup(|app| {
-        let handle = app.handle().clone();
-        tauri::async_runtime::spawn(async move {
-        handle
-            .shell()
-            .command("powershell.exe")
-            .args(["Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend/backend.exe' -WindowStyle Hidden } else { Start-Process -FilePath './backend/backend.exe' -WindowStyle Hidden }"])
-            .spawn()
-            .expect("Failed to spawn scargo");
-
-        });
-        Ok(())
-    })
     .invoke_handler(tauri::generate_handler![get_version])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
