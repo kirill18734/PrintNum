@@ -12,6 +12,7 @@
     "core:window:allow-close",
     "core:window:allow-minimize",
     "core:window:allow-show",
+    "log:allow-log",
     {
       "identifier": "core:window:allow-start-dragging",
       "windows": ["*"],

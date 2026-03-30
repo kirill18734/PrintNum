@@ -12,7 +12,14 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default().plugin(
+        tauri_plugin_log::Builder::new()      
+            .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
+            .level(log::LevelFilter::Trace)
+            .max_file_size(10_485_760)
+            .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
+            .build(),
+    );
     // проверка на существующий запущенный экземпляр приложения
     #[cfg(desktop)]
     {
