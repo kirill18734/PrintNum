@@ -13,7 +13,7 @@ export async function checkForAppUpdates() {
   const startBackend = () => Command.create("start_backend").execute();
 
   if (!update) {
-    await startBackend();
+    startBackend();
     console.log("No update available");
   } else {
     console.log("Update available!", update.version, update.body);
@@ -30,7 +30,7 @@ export async function checkForAppUpdates() {
       await update.downloadAndInstall();
       await relaunch();
     } else {
-      await startBackend();
+      startBackend();
     }
   }
 }
@@ -39,10 +39,7 @@ function Load() {
   const [dots, setDots] = useState(".");
 
   useEffect(() => {
-    const checkUpdates = async () => {
-      await checkForAppUpdates();
-    };
-    checkUpdates();
+    checkForAppUpdates();
   }, []);
 
   useEffect(() => {

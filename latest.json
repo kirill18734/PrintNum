@@ -1,9 +1,9 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.2",
   "note": "- Добавлено окно загрузки",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVUzNy9VQ3FJWWRhYkh3MDVJK1UwdUhuY2oyMndXNXR1MFAzd2xwb00xNHloQnlDUE5FdTVWM3BXTkpLNnE3MXNNSm93QTBHbXpYcmFiaU5tWjZHNndjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0ODkxMTE2CWZpbGU6UHJpbnROdW1fMS4wLjJfeDY0LXNldHVwLmV4ZQp0Z3VZV1E1cjFqZXIzdkhEdDZLbW5tb29FUHVIZ2xtZWpVK29pVVhrclVmTm5MU1hpZi9aMGJiOHg4b203ek1XaXo0c0xoNmxNZEZXWmExemtHMGNCQT09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVJDL1k4NXBteU1Jc3l1M2ltQ3RNdmE0RmFQUmo3akYvT3NrSWUxZkRiakN3bDdzeEJaeFE2VElnVi9UVkF5WEt4U0hXb3dia1pNcFRRdGdndlNJT2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0ODkyNzIyCWZpbGU6UHJpbnROdW1fMS4wLjJfeDY0LXNldHVwLmV4ZQp2L0FwUVA0bXhaOWUxNmt6NEdGd1EzdkZNVStqZlUyeWw2M1NHZ1kyMHFyYTgzNTYyVE52SEJxa0NQTDJ3VXA5WitTbDBhYjlUTWJNODFUaEZlQ3ZDdz09Cg==",
       "url": "https://github.com/kirill18734/PrintNum/releases/download/v1.0.2/PrintNum_1.0.2_x64-setup.exe"
     }
   }
