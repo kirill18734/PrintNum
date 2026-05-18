@@ -1,77 +1,178 @@
 import win32ui
-import win32print
-import win32timezone  # модуль для компиляции, нужен для очистки очереди
+import win32con
+from data import load_config
+from utils import clear_printer_queue
 
-
-def clear_printer_queue(printer_name):
+def prepare_label_data(text, config):
     """
-    Очищает очередь печати выбранного принтера.
+    Бизнес-логика: парсинг, рокировка (swap) текстов и форматирование строк.
+    Не зависит от win32ui, легко покрывается юнит-тестами.
     """
-    try:
-        printer = win32print.OpenPrinter(printer_name)
-        jobs = win32print.EnumJobs(printer, 0, -1, 1)
-        print(jobs)
-        if jobs:
-            print(f"Очистка очереди принтера '{printer_name}', найдено задач: {len(jobs)}")
+    end_line = config.get('endLine', False)
+    id_num = config.get('idNum', True)
+    hybrid = config.get('hybrid', False)
+    expand = config.get('expand', 0)
+    
+    text_split = text.split('-')
+    raw_main = text_split[0] if len(text_split) > 0 else ''
+    raw_header = text_split[1] if len(text_split) > 1 else ''
+    
+    is_numeric = raw_main.isdigit()
+    main_text_val = int(raw_main) if is_numeric else 0
+    
+    # Триггер рокировки
+    is_swapped = hybrid and is_numeric and (main_text_val >= expand)
+    
+    if is_swapped:
+        header_text = raw_main
+        main_text = raw_header
+        force_left_header = True  
+        show_header = True        
+    else:
+        main_text = raw_main
+        show_header = bool(raw_header) and id_num
+        header_text = raw_header if show_header else ''
+        force_left_header = False
 
-        for job in jobs:
-            try:
-                win32print.SetJob(printer, job['JobId'], 0, None, win32print.JOB_CONTROL_DELETE)
-            except Exception as e:
-                print(f"Не удалось удалить задание {job['JobId']}: {e}")
+    # Добавление дефисов к header
+    if show_header and header_text:
+        header_text = f"{header_text}-" if force_left_header else f"-{header_text}"
 
-        win32print.ClosePrinter(printer)
+    # Модификация main по условию endLine
+    is_underlined = False
+    if end_line:
+        is_underlined = True
+    else:
+        main_text += '.'
 
-    except Exception as e:
-        print(f"Ошибка при очистке очереди: {e}")
+    return {
+        "main_text": main_text,
+        "header_text": header_text,
+        "show_header": show_header,
+        "force_left_header": force_left_header,
+        "is_underlined": is_underlined
+    }
 
+def calculate_dimensions(hdc, paper_size_str):
+    """Инфраструктурный слой: перевод физических размеров (мм) в пиксели принтера."""
+    width_mm, height_mm = map(int, paper_size_str.split('*'))
+    
+    dpi_x = hdc.GetDeviceCaps(win32con.LOGPIXELSX)
+    dpi_y = hdc.GetDeviceCaps(win32con.LOGPIXELSY)
+    
+    width_px = int((width_mm / 25.4) * dpi_x)
+    height_px = int((height_mm / 25.4) * dpi_y)
+    
+    margin_x = int(width_px * 0.05)
+    margin_y = int(height_px * 0.05)
+    
+    return {
+        "width_px": width_px,
+        "height_px": height_px,
+        "margin_x": margin_x,
+        "margin_y": margin_y,
+        "max_allowed_w": width_px - (margin_x * 2)
+    }
 
-def print_text(text, config):
-    try:
-        printer = config['printer']['default']
+def draw_header(hdc, text, sizes, force_left):
+    """Рендеринг верхнего колонтитула (Header)."""
+    font_top = win32ui.CreateFont({
+        "name": "Arial",
+        "height": int(sizes["height_px"] * 0.20),
+        "weight": win32con.FW_NORMAL,
+    })
+    hdc.SelectObject(font_top)
+    text_w, text_h = hdc.GetTextExtent(text)
+    
+    x = sizes["margin_x"] if force_left else sizes["width_px"] - text_w - sizes["margin_x"]
+    y = sizes["margin_y"]
+    
+    hdc.TextOut(x, y, text)
+    return y + text_h  # Возвращаем Y-координату, под которой начнется основной текст
 
-        # --- ОЧИСТКА ОЧЕРЕДИ ПЕРЕД ПЕЧАТЬЮ ---
-        clear_printer_queue(printer)
-
-        # Создаем контекст принтера
-        printer_dc = win32ui.CreateDC()
-        printer_dc.CreatePrinterDC(printer)
-
-        horz_res = int(config["paper"]["width"]) * 8
-        vert_res = int(config["paper"]["height"]) * 8
-
-        text = f"{text}."
-        max_char_width = 80
-        max_chars = int(horz_res / max_char_width)
-        text_length = len(text)
-
-        if text_length <= max_chars:
-            height = vert_res
-        else:
-            scale = max_chars / text_length
-            height = int(vert_res * scale)
-
-        FONT = {
+def draw_main_text(hdc, text, sizes, y_start, is_underlined):
+    """Рендеринг и автоматический подбор размера для центрального текста (Main)."""
+    available_h = sizes["height_px"] - y_start - sizes["margin_y"]
+    optimal_height = 10
+    
+    # Цикл подбора максимального размера шрифта
+    while True:
+        test_font = win32ui.CreateFont({
             "name": "Arial",
-            "height": height,
-        }
+            "height": optimal_height,
+            "weight": win32con.FW_BOLD,
+            "underline": 1 if is_underlined else 0,
+        })
+        hdc.SelectObject(test_font)
+        w, h = hdc.GetTextExtent(text)
+        
+        if w > sizes["max_allowed_w"] or h > available_h:
+            optimal_height -= 1
+            break
+        optimal_height += 1
+        
+    final_font = win32ui.CreateFont({
+        "name": "Arial",
+        "height": optimal_height,
+        "weight": win32con.FW_BOLD,
+        "underline": 1 if is_underlined else 0,
+    })
+    hdc.SelectObject(final_font)
+    text_w, text_h = hdc.GetTextExtent(text)
+    
+    x = (sizes["width_px"] - text_w) // 2
+    y = y_start + (available_h - text_h) // 2
+    
+    hdc.TextOut(x, y, text)
+    return optimal_height
 
-        font = win32ui.CreateFont(FONT)
-        printer_dc.SelectObject(font)
-
-        text_width, text_height = printer_dc.GetTextExtent(text)
-
-        x = (horz_res - text_width) // 2
-        y = (vert_res - text_height) // 2
-
-        print(f"Отправил на распечатку: '{text}'")
-
-        printer_dc.StartDoc(f"Ячейка {text}")
-        printer_dc.StartPage()
-        printer_dc.TextOut(x, y, text)
-        printer_dc.EndPage()
-        printer_dc.EndDoc()
-        printer_dc.DeleteDC()
-
+def print_text(text):
+    """Главная управляющая функция (Оркестратор)."""
+    config = load_config()
+    
+    clear_printer_queue()
+    # 1. Слой подготовки данных
+    data = prepare_label_data(text, config)
+    
+    hdc = win32ui.CreateDC()
+    hdc.CreatePrinterDC(config.get('printer'))
+    
+    hdc.StartDoc(f"Ячейка: {text}")
+    hdc.StartPage()
+    
+    try:
+        hdc.SetBkMode(win32con.TRANSPARENT)
+        
+        # 2. Слой расчета метрик
+        sizes = calculate_dimensions(hdc, config.get('paper', '30*20'))
+        
+        # Переменная сдвига по вертикали для центрального текста
+        y_start_center = sizes["margin_y"]
+        
+        # 3. Слой отрисовки элементов
+        if data["show_header"] and data["header_text"]:
+            y_start_center = draw_header(
+                hdc, 
+                text=data["header_text"], 
+                sizes=sizes, 
+                force_left=data["force_left_header"]
+            )
+            
+        opt_h = draw_main_text(
+            hdc, 
+            text=data["main_text"], 
+            sizes=sizes, 
+            y_start=y_start_center, 
+            is_underlined=data["is_underlined"]
+        )
+        
+        hdc.EndPage()
+        hdc.EndDoc()
+        print(f"Отправлено. Шрифт: {opt_h}px. Текст хедера: '{data['header_text']}'")
+        
     except Exception as e:
-        print('Ошибка при печати:', e)
+        print(f"Ошибка при печати: {e}")
+        hdc.AbortDoc()
+    finally:
+        hdc.DeleteDC()
+

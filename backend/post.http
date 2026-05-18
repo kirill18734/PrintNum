@@ -1,0 +1,73 @@
+@hostname = 127.0.0.1
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+@setConfig  = {{host}}/set-config
+@printNumber = {{host}}/print-number
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "100-1"
+}
+
+###
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "printer": "test1"
+}
+
+### 
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "running": true
+}
+
+
+### 
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "hybrid": true
+}
+
+### 
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "idNum": true
+}
+
+
+### 
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "endLine": false
+}
+
+### 
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "paper": "100*100"
+}
+
+###
+POST {{setConfig}}
+content-type: application/json
+
+{
+    "expand": 100
+}
+

@@ -2,65 +2,29 @@ import os
 import json
 from threading import Lock
 
-# ---------------------------# Пути к файлам и папкам # ---------------------------
+# # ---------------------------# Пути к файлам и папкам # ---------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 APP_DIR = os.path.join(os.environ['LOCALAPPDATA'], "PrintNum")
 os.makedirs(APP_DIR, exist_ok=True)
-CONFIG_PATH = os.path.join(APP_DIR, "config.json")
+CONFIG_PATH = os.path.join(APP_DIR, "config2.json")
 
 lastUpdateConfig = 0
 config = None
 
-num = r"\d+"
-fullNum = r"\d+-\d+"
-text = r"\w+"
-textNum = r"\w+-\d+"
-
-dataPattarn = {
-    "Неполные номера (123)": num,
-    "Полные номера (123-123)": fullNum,
-    "Неполные номера/текст (123, Возврат)": f"{text}|{num}",
-    "Полные номера/текст (123-123, Возврат-1)": f"{fullNum}|{textNum}",
-    "Другое (1–499: 123/Возврат, 500+: 500-1)": f"{text}|{num}"
-}
+listPapers = ["30*20", "40*30", "43*25", "50*70", "58*40", "75*120", "100*150"]
 
 DEFAULT_CONFIG = {
-    "service": {
-        "default": "Ozon",
-        "data": ["Ozon"]
-    },
-    "mode": {
-        "default": "extension",
-        "data": ["extension", "neiro"]
-    },
-    "theme": {
-        "default": "auto",
-        "data": ["auto", "light", "dark"]
-    },
-    "printer": {
-        "default": "",
-        "data": []
-    },
-    "running": {
-        "default": False,
-        "data": [True, False]
-    },
-    "search": {
-        "default": "Неполные номера (123)",
-        "expand": "500",
-        "data": list(dataPattarn),
-    },
-    "paper": {
-        "default": "30*20",
-        "width": "30",
-        "height": "20",
-        "data": ["30*20", "40*30", "43*25", "50*70", "58*40", "75*120", "100*150", "Ручной ввод"]  # единица ширины и высоты = 8
-    }
+    "printer": "",
+    "running": True,
+    "hybrid": False,
+    "idNum": False,
+    "endLine": False,
+    "paper": "30*20",
+    "expand": 500,
 }
 
 config_lock = Lock()  # глобальный замок для синхронизации доступа
-
 
 # Загрузка конфигурации из файла
 def load_config():

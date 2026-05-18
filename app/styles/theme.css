@@ -1,0 +1,52 @@
+/* Import individual theme files */
+@import "./themes/claude.css";
+@import "./themes/neobrutualism.css";
+@import "./themes/supabase.css";
+@import "./themes/vercel.css";
+@import "./themes/mono.css";
+@import "./themes/notebook.css";
+@import "./themes/light-green.css";
+@import "./themes/zen.css";
+@import "./themes/astro-vista.css";
+@import "./themes/whatsapp.css";
+@import "./themes/terminal.css";
+@import "./themes/cyberpunk.css";
+@import "./themes/astra.css";
+
+body {
+  @apply overscroll-none;
+}
+
+:root {
+  --header-height: calc(var(--spacing, 0.25rem) * 12 + 1px);
+}
+
+/* Apply theme fonts to body for all themes */
+/* This ensures theme-specific fonts override Next.js font variables */
+/* Font variables are defined on [theme-style] (html element) */
+/* We need to override Next.js font variables on body to use html's values */
+/* Using initial removes the property, allowing parent (html) values to cascade */
+[theme-style] body {
+  /* Remove Next.js font variables to allow theme variables from html to cascade */
+  --font-sans: initial;
+  --font-mono: initial;
+  --font-serif: initial;
+  /* Apply font-family - will now resolve from html's [theme-style] variables */
+  font-family: var(--font-sans);
+}
+
+@theme {
+  @keyframes pulse-soft {
+    from {
+      color: var(--color-background);
+    }
+    to {
+      color: var(--color-foreground);
+    }
+  }
+
+  /* alternate заставляет анимацию идти туда-обратно */
+  --animate-pulse-1: pulse-soft 1.5s ease-in-out 0.3s infinite alternate;
+  --animate-pulse-2: pulse-soft 1.5s ease-in-out 0.6s infinite alternate;
+  --animate-pulse-3: pulse-soft 1.5s ease-in-out 0.9s infinite alternate;
+}

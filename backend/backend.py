@@ -1,66 +1,96 @@
+import os
+import time
+import threading
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from data import load_config, save_config
+from data import  listPapers, save_config,load_config
+from utils import listPrinters,status_printer
 from print_text import print_text
-from utils import status_printer, list_printers, format_number
 
 app = Flask(__name__)
 CORS(app)  # Включаем CORS для всего приложения
 
-@app.route('/firstRun', methods=['POST'])
-def start():
+# Время последнего запроса
+last_request_time = time.time()
+
+# Через сколько секунд убивать сервер
+TIMEOUT = 15
+
+printerOnline = False
+
+@app.before_request
+def update_activity():
+    """
+    Обновляем время активности
+    перед каждым запросом
+    """
+    global last_request_time
+
+    last_request_time = time.time()
+
+def watchdog():
+    """
+    Следит за неактивностью
+    """
+    global last_request_time
+
+    while True:
+        inactive_time = time.time() - last_request_time
+
+        if inactive_time > TIMEOUT:
+            print(f"Нет запросов {TIMEOUT} секунд")
+            print("Flask сервер завершен")
+        
+            os._exit(0)
+
+        time.sleep(1)
+
+@app.get("/")
+def hello_world():
+      return jsonify({"status": True})
+
+@app.get("/get-config")
+@app.get("/get-config/<config_key>")
+def getConfig(config_key=None):
+    config = load_config()
+    if not config_key:
+        return  jsonify({
+            **config,
+            "listPrinters": listPrinters(),
+            "listPapers": listPapers
+        })
+    return  jsonify({config_key: config.get(config_key)})
+
+@app.get('/status-printer')
+def statusPrinter():
+    global printerOnline
+    printerOnline = status_printer()
+    return jsonify({'printerOnline': printerOnline})
+
+@app.post("/set-config")
+def setConfig():
+    body = request.get_json()  
     config = load_config().copy()
-
-    config['printer']['data'] = list_printers()
-
-    return jsonify({"config": config}), 200
-
-
-# статус принтера
-@app.route('/statePrinter', methods=['POST'])
-def state_printer():
-    return jsonify({"state": status_printer()}), 200  # Возвращаем ответ
-
-
-@app.route('/set_config', methods=['POST'])
-def set_config():
-    config = load_config().copy()
-    body = request.get_json()
     new_config = {**config, **body}
+    save_config(new_config)
+    return "OK"
 
-    if config != new_config:
-        save_config(new_config)
-    return jsonify({"update_config": "OK"}), 200
-
-
-# печать
-@app.route('/print_number', methods=['POST'])
-def print_number():
-    try:
-        config = load_config()
-        mode = config['mode']['default']
-        width = config['paper']['width']
-        height = config['paper']['height']
-        search = config['search']
-
-        if config['running']["default"] and mode == 'extension' and width and height:
-            new_number = request.data.decode("utf-8").strip()
-            new_number = format_number(new_number, search)
-
-            print(f"📥 Пришли данные: '{new_number}'")
-            if not new_number:
-                return jsonify({'status': 'error', 'message': f'Получено некорректное значение: "{new_number}"'}), 400
-            print_text(new_number, config)
-            return jsonify({'status': 'success', 'message': f'Распечатано: "{new_number}"'})
-        else:
-            # Возвращаем ответ, если условие не выполнено
-            return jsonify({'status': 'error', 'message': 'Сервис не запущен или не выбран режим расширения'}), 400
-
-    except Exception as e:
-        print("❌ Ошибка во Flask-приложении:", e)
-        return jsonify({'status': 'error', 'message': f'Ошибка во Flask-приложении: {str(e)}'}), 500
+@app.post('/print-number')
+def printNumber():
+    body = request.get_json()
+    config = load_config().copy()
+    text = body.get("text").strip()
+    if (text) and config.get('running') and config.get('printer') and printerOnline:
+        print_text(text)
+    return "OK"
 
 
+if __name__ == "__main__":
+    # Запускаем watchdog
+    threading.Thread(
+        target=watchdog,
+        daemon=True
+    ).start()
 
-if __name__ == '__main__':
     app.run()
