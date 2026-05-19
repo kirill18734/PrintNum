@@ -60,6 +60,7 @@ export default function Layout() {
               : "text-muted-foreground hover:text-foreground",
           )}
           size="icon-lg"
+          title="Настройки"
           asChild
         >
           <Link to={isSettings ? "/" : "/settings"}>
@@ -76,6 +77,7 @@ export default function Layout() {
             variant="ghost"
             className="rounded-none p-6 border-0"
             size="icon-lg"
+            title="Свернуть"
             onClick={() => getCurrentWindow().minimize()}
           >
             <IconMinus className="size-10" />
@@ -84,6 +86,7 @@ export default function Layout() {
             variant="ghost"
             className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0"
             size="icon-lg"
+            title="Закрыть"
             onClick={() => {
               // // ---------- Остановка backend ----------
               getCurrentWindow().onCloseRequested(() => {

@@ -8,7 +8,7 @@ import {
 export default [
   layout("routes/layout.tsx", [
     index("routes/home.tsx"),
-    route("settings", "routes/settings.tsx"),
+    route("settings", "routes/settings/index.tsx"),
   ]),
   route("action/set-theme", "routes/action.set-theme.tsx"),
   route("action/set-theme-style", "routes/action.set-theme-style.tsx"),

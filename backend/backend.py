@@ -62,12 +62,6 @@ def getConfig(config_key=None):
         })
     return  jsonify({config_key: config.get(config_key)})
 
-@app.get('/status-printer')
-def statusPrinter():
-    global printerOnline
-    printerOnline = status_printer()
-    return jsonify({'printerOnline': printerOnline})
-
 @app.post("/set-config")
 def setConfig():
     body = request.get_json()  
@@ -75,6 +69,12 @@ def setConfig():
     new_config = {**config, **body}
     save_config(new_config)
     return "OK"
+
+@app.get('/status-printer')
+def statusPrinter():
+    global printerOnline
+    printerOnline = status_printer()
+    return jsonify({'printerOnline': printerOnline})
 
 @app.post('/print-number')
 def printNumber():
@@ -84,7 +84,6 @@ def printNumber():
     if (text) and config.get('running') and config.get('printer') and printerOnline:
         print_text(text)
     return "OK"
-
 
 if __name__ == "__main__":
     # Запускаем watchdog

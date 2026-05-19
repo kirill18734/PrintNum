@@ -1,6 +1,6 @@
 import { themeStyleCookieStorage } from "@/.server/theme-style.sessions";
 
-export async function action({ request }) {
+export async function action({ request }: any) {
   const cookieHeader = request.headers.get("Cookie");
 
   const cookieThemeStyle = (await themeStyleCookieStorage.parse(cookieHeader))

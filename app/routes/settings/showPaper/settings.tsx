@@ -1,0 +1,118 @@
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
+export default function Settings({ config, sendChange }: any) {
+  return (
+    <div
+      data-tauri-drag-region
+      className="flex flex-col items-end justify-end gap-2 w-full"
+    >
+      <div data-tauri-drag-region className="flex flex-col items-start ">
+        {/* Показывать ID */}
+        <Field orientation="horizontal" className="p-1 w-auto">
+          <Checkbox
+            id="checkbox-idNum"
+            checked={config.idNum}
+            onCheckedChange={(e) => sendChange({ idNum: e })}
+          />
+          <FieldLabel htmlFor="checkbox-idNum">Показывать ID</FieldLabel>
+        </Field>
+
+        {/* Нижняя линия */}
+        <Field orientation="horizontal" className="p-1 w-auto">
+          <Checkbox
+            id="checkbox-line"
+            checked={config.endLine}
+            onCheckedChange={(e) => sendChange({ endLine: e })}
+          />
+          <FieldLabel htmlFor="checkbox-line">Нижняя линия</FieldLabel>
+        </Field>
+        {/* Гибридный формат */}
+        <div
+          data-tauri-drag-region
+          className={`flex flex-col items-center justify-center rounded-lg p-1  ${
+            config.hybrid ? "border border-border bg-muted/30" : ""
+          }`}
+        >
+          <Field orientation="horizontal">
+            <Checkbox
+              id="checkbox-hybrid"
+              checked={config.hybrid}
+              onCheckedChange={(e) => sendChange({ hybrid: e })}
+            />
+            <FieldLabel htmlFor="checkbox-hybrid">Гибридный формат</FieldLabel>
+          </Field>
+          {config.hybrid && (
+            <div className="flex flex-col gap-1 pl-6">
+              <label
+                htmlFor="expand-value"
+                className="text-xs text-muted-foreground"
+              >
+                Начиная с номера
+              </label>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() =>
+                    sendChange({ expand: Math.max(1, config.expand - 1) })
+                  }
+                >
+                  −
+                </Button>
+
+                <Input
+                  id="expand-value"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={config.expand}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // разрешаем пустое поле во время ввода
+                    if (value === "") {
+                      sendChange({ expand: "" });
+                    }
+
+                    // только целые числа
+                    if (/^\d+$/.test(value)) {
+                      sendChange({ expand: Number(value) });
+                    }
+                  }}
+                  onBlur={() => {
+                    if (
+                      !Number.isInteger(Number(config.expand)) ||
+                      Number(config.expand) < 1
+                    )
+                      sendChange({ expand: 1 });
+                  }}
+                  className="
+      h-8 w-16 text-center
+      [appearance:textfield]
+      [&::-webkit-outer-spin-button]:appearance-none
+      [&::-webkit-inner-spin-button]:appearance-none
+    "
+                />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => sendChange({ expand: config.expand + 1 })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="en" theme-style="vercel" class=""><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="color-scheme" content="dark light"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="modulepreload" href="/assets/entry.client-lkNIpdRf.js"/><link rel="modulepreload" href="/assets/chunk-4N6VE7H7-CImIXm7K.js"/><link rel="modulepreload" href="/assets/index-DMp09unQ.js"/><link rel="modulepreload" href="/assets/root-BZNF9TRJ.js"/><link rel="modulepreload" href="/assets/createLucideIcon-wr_Si1vO.js"/><link rel="modulepreload" href="/assets/utils-DCADjnpI.js"/><link rel="modulepreload" href="/assets/window-DG4Ed1X6.js"/><link rel="modulepreload" href="/assets/core-Cn4yfEqx.js"/><link rel="modulepreload" href="/assets/layout-BnKRZLma.js"/><link rel="modulepreload" href="/assets/button-CpGikGd1.js"/><link rel="modulepreload" href="/assets/createReactComponent-Bu73Xg9E.js"/><link rel="modulepreload" href="/assets/home-7_HeUVbA.js"/><script>
+(() => {
+  const theme = window.matchMedia("(prefers-color-scheme: light)").matches
+    ? 'light'
+    : 'dark';
+  
+  const cl = document.documentElement.classList;
+  const dataAttr = document.documentElement.dataset.theme;
+
+  if (dataAttr != null) {
+    const themeAlreadyApplied = dataAttr === 'light' || dataAttr === 'dark';
+    if (!themeAlreadyApplied) {
+      document.documentElement.dataset.theme = theme;
+    }
+  } else {
+    const themeAlreadyApplied = cl.contains('light') || cl.contains('dark');
+    if (!themeAlreadyApplied) {
+      cl.add(theme);
+    }
+  }
+  
+  const meta = document.querySelector('meta[name=color-scheme]');
+  if (meta) {
+    if (theme === 'dark') {
+      meta.content = 'dark light';
+    } else if (theme === 'light') {
+      meta.content = 'light dark';
+    }
+  }
+})();
+</script><link rel="stylesheet" href="/assets/root-B0UiWORF.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&amp;display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap"/></head><body class="bg-background overflow-visible overscroll-none font-sans antialiased min-h-screen flex flex-col"><div data-tauri-drag-region="true" class="flex flex-1 flex-col items-center justify-center gap-6 p-4 text-center"><div data-tauri-drag-region="true" class="flex flex-col items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet" class="size-20">s<g transform="translate(0.000000,1024) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M3274 9290 c-154 -49 -288 -181 -346 -341 -23 -64 -23 -68 -28 -684
+l-5 -620 -340 -1 c-331 -1 -343 -2 -436 -27 -313 -83 -539 -306 -631 -624
+l-23 -78 0 -1010 0 -1010 23 -78 c86 -297 318 -515 620 -583 57 -13 125 -18
+259 -18 l182 -1 -6 -25 c-3 -14 -13 -59 -23 -100 -25 -100 -277 -1174 -334
+-1420 -25 -107 -89 -379 -142 -605 -92 -385 -98 -416 -98 -515 0 -88 5 -117
+27 -179 69 -192 223 -339 427 -408 53 -17 158 -18 2670 -21 1898 -2 2637 0
+2695 8 304 43 539 312 538 615 0 65 -16 146 -81 420 -125 523 -251 1057 -392
+1655 -70 300 -130 551 -132 558 -2 11 22 13 117 13 264 -3 437 35 584 126 188
+117 308 283 364 502 22 86 22 90 22 1066 0 1088 3 1041 -67 1203 -115 265
+-350 457 -636 519 -63 14 -135 17 -409 18 l-333 0 0 600 c0 662 -1 673 -63
+788 -64 121 -172 212 -304 256 -62 21 -63 21 -1850 20 -1735 0 -1790 -1 -1849
+-19z m3626 -332 c71 -37 100 -82 111 -174 5 -44 8 -316 7 -607 l-3 -527 -1893
+-3 -1892 -2 0 588 c0 508 2 593 15 625 21 49 52 81 100 103 38 18 110 19 1775
+19 l1736 0 44 -22z m1170 -1666 c169 -61 290 -179 358 -349 l27 -68 3 -937 c3
+-1037 4 -1009 -61 -1132 -41 -78 -129 -166 -199 -200 -100 -49 -146 -56 -375
+-56 -196 0 -213 1 -213 18 0 9 -31 141 -68 294 l-68 276 77 4 c86 3 116 19
+157 79 23 33 23 38 20 239 -3 203 -3 206 -31 258 -38 72 -106 138 -175 170
+l-57 27 -2340 0 -2340 0 -67 -33 c-112 -55 -180 -149 -199 -277 -17 -105 -8
+-332 15 -377 26 -54 76 -81 161 -88 l71 -5 -63 -270 c-34 -148 -65 -280 -68
+-292 -5 -23 -6 -23 -213 -23 -152 0 -223 4 -265 15 -190 49 -337 214 -367 410
+-7 47 -10 370 -8 975 l3 905 22 65 c71 206 239 354 443 390 25 4 1330 7 2900
+6 l2855 -1 65 -23z m-978 -1912 c39 -164 425 -1811 519 -2215 55 -236 161
+-689 235 -1005 146 -617 145 -614 105 -705 -25 -57 -93 -124 -156 -155 l-50
+-25 -2605 -3 c-2972 -3 -2672 -12 -2775 91 -68 69 -95 127 -95 208 0 26 23
+144 51 261 28 117 147 625 264 1128 118 503 275 1174 349 1490 74 316 153 656
+176 755 22 99 45 197 51 218 l10 37 1951 -2 1952 -3 18 -75z"></path><path d="M7595 6901 c-174 -80 -183 -325 -15 -411 117 -59 264 -11 319 105 54
+116 -2 260 -121 309 -50 21 -134 20 -183 -3z"></path><path d="M4460 4859 c-167 -33 -301 -177 -335 -362 l-7 -37 145 0 144 0 7 42
+c10 60 66 114 129 123 163 25 208 -152 86 -332 -42 -62 -282 -306 -426 -435
+l-113 -100 0 -109 0 -109 454 0 453 0 6 118 c3 64 2 121 -2 125 -4 4 -121 6
+-259 5 -139 -2 -252 -2 -252 0 0 1 80 82 178 180 182 181 234 246 280 355 24
+55 27 75 27 177 0 105 -2 119 -27 165 -81 155 -281 235 -488 194z"></path><path d="M5445 4856 c-163 -39 -287 -168 -302 -310 l-5 -51 38 2 c22 1 85 2
+140 2 l102 1 6 34 c4 21 20 46 40 64 97 85 256 12 256 -118 0 -93 -78 -157
+-205 -168 l-65 -5 0 -108 0 -109 53 0 c179 0 291 -120 230 -247 -59 -126 -288
+-117 -335 12 l-12 35 -139 0 -140 0 6 -45 c7 -68 60 -167 114 -214 95 -84 232
+-127 378 -117 150 9 253 53 335 143 95 104 116 272 49 403 -22 45 -93 112
+-143 138 l-40 19 37 18 c52 24 113 97 133 157 39 119 -6 282 -100 365 -110 97
+-280 136 -431 99z"></path><path d="M3538 4723 l-177 -128 0 -127 -1 -127 146 95 c80 52 148 93 150 91 2
+-2 -14 -221 -36 -487 -22 -267 -40 -488 -40 -492 0 -4 67 -8 149 -8 l149 0 6
+83 c7 90 42 758 51 982 3 77 8 164 11 193 l5 52 -118 0 -118 0 -177 -127z"></path><path d="M6516 4828 c-46 -73 -295 -525 -356 -647 l-72 -144 9 -131 8 -131
+278 -3 277 -2 0 -54 c0 -29 3 -81 6 -115 l7 -61 145 0 144 0 -5 33 c-3 17 -9
+70 -12 117 l-7 85 66 -3 c36 -2 66 -2 66 0 0 2 -7 58 -15 123 -8 66 -15 121
+-15 123 0 1 -28 2 -63 2 l-62 0 -23 303 c-13 166 -26 353 -29 415 l-6 112
+-163 0 c-159 0 -164 -1 -178 -22z m117 -596 c7 -112 10 -205 8 -208 -2 -2 -71
+-4 -152 -4 l-147 0 85 158 c47 86 108 202 136 257 l52 100 3 -50 c2 -27 9
+-141 15 -253z"></path><path d="M3090 3058 c-50 -26 -90 -89 -90 -143 0 -47 40 -117 80 -140 35 -20
+46 -20 2045 -20 1999 0 2010 0 2045 20 51 30 83 96 76 160 -7 62 -29 93 -86
+123 l-44 22 -1991 0 -1991 0 -44 -22z"></path><path d="M2974 2371 c-109 -49 -120 -211 -21 -285 l28 -21 2133 -3 2133 -2 34
+23 c105 70 108 206 6 281 l-28 21 -2122 2 c-2052 3 -2123 2 -2163 -16z"></path></g></svg><h1 class="text-3xl font-bold tracking-tight ">Печать ячеек</h1></div><div data-tauri-drag-region="true" class="flex items-center gap-2.5 text-neutral-500 animate-pulse"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle size-5 animate-spin" role="status" aria-label="Loading"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg><p class="text-sm font-medium">Приложение запускается...</p></div></div><script>((storageKey2, restoreKey) => {
+    if (!window.history.state || !window.history.state.key) {
+      let key = Math.random().toString(32).slice(2);
+      window.history.replaceState({ key }, "");
+    }
+    try {
+      let positions = JSON.parse(sessionStorage.getItem(storageKey2) || "{}");
+      let storedY = positions[restoreKey || window.history.state.key];
+      if (typeof storedY === "number") {
+        window.scrollTo(0, storedY);
+      }
+    } catch (error) {
+      console.error(error);
+      sessionStorage.removeItem(storageKey2);
+    }
+  })("react-router-scroll-positions", null)</script><script>window.__reactRouterContext = {"basename":"/","future":{"unstable_optimizeDeps":false,"v8_passThroughRequests":false,"unstable_trailingSlashAwareDataRequests":false,"unstable_previewServerPrerendering":false,"v8_middleware":false,"v8_splitRouteModules":false,"v8_viteEnvironmentApi":false},"routeDiscovery":{"mode":"lazy","manifestPath":"/__manifest"},"ssr":true,"isSpaMode":false};window.__reactRouterContext.stream = new ReadableStream({start(controller){window.__reactRouterContext.streamController = controller;}}).pipeThrough(new TextEncoderStream());</script><script type="module" async="">;
+import * as route0 from "/assets/root-BZNF9TRJ.js";
+import * as route1 from "/assets/layout-BnKRZLma.js";
+import * as route2 from "/assets/home-7_HeUVbA.js";
+  window.__reactRouterManifest = {
+  "entry": {
+    "module": "/assets/entry.client-lkNIpdRf.js",
+    "imports": [
+      "/assets/chunk-4N6VE7H7-CImIXm7K.js",
+      "/assets/index-DMp09unQ.js"
+    ],
+    "css": []
+  },
+  "routes": {
+    "root": {
+      "id": "root",
+      "path": "",
+      "hasAction": false,
+      "hasLoader": true,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": true,
+      "module": "/assets/root-BZNF9TRJ.js",
+      "imports": [
+        "/assets/chunk-4N6VE7H7-CImIXm7K.js",
+        "/assets/index-DMp09unQ.js",
+        "/assets/createLucideIcon-wr_Si1vO.js",
+        "/assets/utils-DCADjnpI.js",
+        "/assets/window-DG4Ed1X6.js",
+        "/assets/core-Cn4yfEqx.js"
+      ],
+      "css": [
+        "/assets/root-B0UiWORF.css"
+      ]
+    },
+    "routes/layout": {
+      "id": "routes/layout",
+      "parentId": "root",
+      "hasAction": false,
+      "hasLoader": false,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": false,
+      "module": "/assets/layout-BnKRZLma.js",
+      "imports": [
+        "/assets/chunk-4N6VE7H7-CImIXm7K.js",
+        "/assets/window-DG4Ed1X6.js",
+        "/assets/button-CpGikGd1.js",
+        "/assets/utils-DCADjnpI.js",
+        "/assets/createReactComponent-Bu73Xg9E.js",
+        "/assets/core-Cn4yfEqx.js"
+      ],
+      "css": []
+    },
+    "routes/home": {
+      "id": "routes/home",
+      "parentId": "routes/layout",
+      "index": true,
+      "hasAction": false,
+      "hasLoader": true,
+      "hasClientAction": false,
+      "hasClientLoader": false,
+      "hasClientMiddleware": false,
+      "hasDefaultExport": true,
+      "hasErrorBoundary": false,
+      "module": "/assets/home-7_HeUVbA.js",
+      "imports": [
+        "/assets/chunk-4N6VE7H7-CImIXm7K.js",
+        "/assets/button-CpGikGd1.js",
+        "/assets/utils-DCADjnpI.js",
+        "/assets/createReactComponent-Bu73Xg9E.js"
+      ],
+      "css": []
+    }
+  },
+  "url": "/assets/manifest-ad39328b.js",
+  "version": "ad39328b"
+};
+  window.__reactRouterRouteModules = {"root":route0,"routes/layout":route1,"routes/home":route2};
+
+import("/assets/entry.client-lkNIpdRf.js");</script><!--$?--><template id="B:0"></template><!--/$--><script id="_R_">requestAnimationFrame(function(){$RT=performance.now()});</script><div hidden id="S:0"><script>window.__reactRouterContext.streamController.enqueue("[{\"_1\":2,\"_3\":-5,\"_4\":-5},\"loaderData\",{\"_5\":6,\"_7\":8},\"actionData\",\"errors\",\"root\",{\"_11\":12,\"_13\":-5},\"routes/home\",{\"_9\":10},\"isRunning\",true,\"themeStyle\",\"vercel\",\"themeColor\"]\n");</script><!--$?--><template id="B:1"></template><!--/$--></div><script>$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if("/$"===d||"/&"===d)if(0===h)break;else h--;else"$"!==d&&"$?"!==d&&"$~"!==d&&"$!"!==d&&"&"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data="$";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};
+$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data="$~",$RB.push(a,b),2===$RB.length&&("number"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};$RC("B:0","S:0")</script><div hidden id="S:1"><script>window.__reactRouterContext.streamController.close();</script></div><script>$RC("B:1","S:1")</script></body></html>

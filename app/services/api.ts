@@ -2,7 +2,7 @@ const API_BASE = "http://127.0.0.1:5000";
 
 export const sendServer = {
   get: async (endpoint = "") => await fetch(`${API_BASE}/${endpoint}`),
-  post: async (endpoint, body) =>
+  post: async (endpoint: string, body: Object) =>
     await fetch(`${API_BASE}/${endpoint}`, {
       method: "POST",
       headers: {

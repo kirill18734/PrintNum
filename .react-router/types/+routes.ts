@@ -41,8 +41,8 @@ type RouteFiles = {
     id: "routes/home";
     page: "/";
   };
-  "routes/settings.tsx": {
-    id: "routes/settings";
+  "routes/settings/index.tsx": {
+    id: "routes/settings/index";
     page: "/settings";
   };
   "routes/action.set-theme.tsx": {
@@ -63,7 +63,7 @@ type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/layout": typeof import("./app/routes/layout.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
-  "routes/settings": typeof import("./app/routes/settings.tsx");
+  "routes/settings/index": typeof import("./app/routes/settings/index.tsx");
   "routes/action.set-theme": typeof import("./app/routes/action.set-theme.tsx");
   "routes/action.set-theme-style": typeof import("./app/routes/action.set-theme-style.tsx");
   "routes/action.set-config": typeof import("./app/routes/action.set-config.tsx");

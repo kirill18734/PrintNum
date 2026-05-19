@@ -9,10 +9,10 @@ import {
 } from "./ui/select";
 import { useFetcher } from "react-router";
 
-export default function ThemeStyle({ defaultThemeStyle }) {
+export default function ThemeStyle({ defaultThemeStyle }: any) {
   const fetcher = useFetcher();
 
-  const sendChange = (e) => {
+  const sendChange = (e: any) => {
     fetcher.submit(
       { themeStyle: e },
       { method: "post", action: "/action/set-theme-style" },

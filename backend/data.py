@@ -7,12 +7,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 APP_DIR = os.path.join(os.environ['LOCALAPPDATA'], "PrintNum")
 os.makedirs(APP_DIR, exist_ok=True)
-CONFIG_PATH = os.path.join(APP_DIR, "config2.json")
+CONFIG_PATH = os.path.join(APP_DIR, "config.json")
 
 lastUpdateConfig = 0
 config = None
 
-listPapers = ["30*20", "40*30", "43*25", "50*70", "58*40", "75*120", "100*150"]
+listPapers = ["30*20", "40*30", "43*25", "50*70", "58*40","60*40", "75*120", "100*150"]
 
 DEFAULT_CONFIG = {
     "printer": "",

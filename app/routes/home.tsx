@@ -38,7 +38,7 @@ export default function Home() {
     : "Приложение остановлено";
   const classRun = isRunning ? "bg-red-600" : "bg-green-600";
 
-  const sendChange = (data) => {
+  const sendChange = (data: any) => {
     // Отправляем на сервер с указанием типа шифрования JSON
     fetcher.submit(data, {
       method: "POST",
