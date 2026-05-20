@@ -1,4 +1,5 @@
 import {
+  HashRouter,
   isRouteErrorResponse,
   Links,
   Outlet,
@@ -200,7 +201,7 @@ export function App() {
         <Links />
       </head>
       <body className="bg-background overflow-visible overscroll-none font-sans antialiased min-h-screen flex flex-col">
-        {statusServer ? <Outlet /> : <LoadApp />}
+        <HashRouter>{statusServer ? <Outlet /> : <LoadApp />}</HashRouter>
 
         <ScrollRestoration />
         <Scripts />
