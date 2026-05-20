@@ -8,7 +8,7 @@
     "beforeDevCommand": "react-router dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "react-router build",
-    "frontendDist": "../build"
+    "frontendDist": "../build/client"
   },
   "app": {
     "withGlobalTauri": true,
