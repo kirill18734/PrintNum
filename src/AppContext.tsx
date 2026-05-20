@@ -4,7 +4,7 @@ import { sendServer } from "./services/api";
 const AppContext = createContext({});
 
 export const MainContext = ({ children }: { children: React.ReactNode }) => {
-  const [statusServer, setStatusServer] = useState(false);
+  const [serverOnline, setServerOnline] = useState(true);
   const [running, setRunning] = useState(false);
   const [tab, setTab] = useState(false);
   const [printerOnline, setPrinterOnline] = useState(false);
@@ -17,28 +17,29 @@ export const MainContext = ({ children }: { children: React.ReactNode }) => {
   const [endLine, setEndLine] = useState(false);
   const [hybrid, setHybrid] = useState(false);
   const [expandNum, setExpandNum] = useState(500);
+  const [theme, setTheme] = useState("light");
 
-  const checkServerStatus = async () => {
-    await sendServer
-      .get()
-      .then((response) => {
-        console.log("Server status:", response);
-        if (!statusServer) setStatusServer(true);
-      })
-      .catch(() => {
-        if (statusServer) setStatusServer(false);
-      });
-  };
+  // const checkServerStatus = async () => {
+  //   await sendServer
+  //     .get()
+  //     .then((response) => {
+  //       console.log("Server status:", response);
+  //       if (!serverOnline) setServerOnline(true);
+  //     })
+  //     .catch(() => {
+  //       if (serverOnline) setServerOnline(false);
+  //     });
+  // };
 
-  useEffect(() => {
-    const interval = setInterval(checkServerStatus, 1000);
-    return () => clearInterval(interval);
-  }, [statusServer]);
+  // useEffect(() => {
+  //   const interval = setInterval(checkServerStatus, 1000);
+  //   return () => clearInterval(interval);
+  // }, [serverOnline]);
 
   return (
     <AppContext
       value={{
-        statusServer,
+        serverOnline,
         running,
         setRunning,
         tab,
@@ -63,6 +64,8 @@ export const MainContext = ({ children }: { children: React.ReactNode }) => {
         setHybrid,
         expandNum,
         setExpandNum,
+        theme,
+        setTheme,
       }}
     >
       {children}

@@ -1,10 +1,25 @@
 import { useAppContext } from "@/AppContext";
 import Paper from "@/components/paper";
 import Printer from "@/components/printer";
+import ShowPaper from "@/components/showPaper";
+import ThemeSelect from "@/components/theme";
+import Theme from "@/components/theme";
+import ThemeStyle from "@/components/theme-style";
 import { Separator } from "@/components/ui/separator";
 
 export default function Settings() {
-  const { printer, listPrinters, paper, listPapers }: any = useAppContext();
+  const {
+    printer,
+    listPrinters,
+    paper,
+    listPapers,
+    idNum,
+    endLine,
+    hybrid,
+    expand,
+    theme,
+    themeStyle,
+  }: any = useAppContext();
 
   return (
     <div
@@ -24,7 +39,20 @@ export default function Settings() {
         <Paper paper={paper} listPapers={listPapers} />
       </div>
       <Separator />
-      
+      <ShowPaper
+        idNum={idNum}
+        endLine={endLine}
+        hybrid={hybrid}
+        expand={expand}
+      />
+      <Separator />
+      <div
+        data-tauri-drag-region
+        className="flex items-center justify-center gap-10"
+      >
+        <Theme defaultTheme={theme} />
+        <ThemeStyle themeStyle={themeStyle} />
+      </div>
     </div>
   );
 }

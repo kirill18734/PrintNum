@@ -8,11 +8,11 @@ import Loading from "./pages/loading";
 import Settings from "./pages/settings";
 
 export default function Layout() {
-  const { statusServer, tabs, setTabs, printerOnline }: any = useAppContext();
+  const { serverOnline, tab, setTab, printerOnline }: any = useAppContext();
 
   return (
     <>
-      {statusServer ? (
+      {serverOnline ? (
         <>
           <header
             data-tauri-drag-region
@@ -32,19 +32,18 @@ export default function Layout() {
               className={cn(
                 "rounded-none p-6 h-full border-0 transition-all",
                 // При активности применяем переменные акцента текущей темы tweakcn
-                tabs
+                tab
                   ? "bg-accent text-accent-foreground shadow-inner font-medium"
                   : "text-muted-foreground hover:text-foreground",
               )}
               size="icon-lg"
               title="Настройки"
-              onClick={() => setTabs(!tabs)}
-              asChild
+              onClick={() => setTab(!tab)}
             >
               <IconSettings
                 className={cn(
                   "size-10 transition-transform duration-300",
-                  tabs && "rotate-45",
+                  tab && "rotate-45",
                 )}
               />
             </Button>
@@ -71,7 +70,7 @@ export default function Layout() {
             data-tauri-drag-region
             className="flex flex-col flex-1 justify-center"
           >
-            {tabs ? <Settings /> : <Home />}
+            {tab ? <Settings /> : <Home />}
           </main>
           <footer
             data-tauri-drag-region

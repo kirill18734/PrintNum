@@ -8,11 +8,11 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function ThemeStyle({ defaultThemeStyle }: any) {
+export default function ThemeStyle({ themeStyle }: any) {
   return (
     <div className="flex  items-center gap-2">
       <span>Стиль</span>
-      <Select defaultValue={defaultThemeStyle}>
+      <Select defaultValue={themeStyle}>
         <SelectTrigger className="w-full max-w-48">
           <SelectValue placeholder="Стиль темы" />
         </SelectTrigger>

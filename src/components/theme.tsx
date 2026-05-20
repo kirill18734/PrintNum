@@ -7,9 +7,9 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function ThemeSelect({ theme }: string) {
+export default function Theme({ defaultTheme }: any) {
   return (
-    <Select defaultValue={theme}>
+    <Select defaultValue={defaultTheme}>
       <SelectTrigger>
         <SelectValue placeholder="Тема" />
       </SelectTrigger>
