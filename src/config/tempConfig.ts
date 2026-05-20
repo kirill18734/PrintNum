@@ -9,4 +9,6 @@ export const tempConfig = {
   paper: "30*20",
   expand: 500,
   printerOnline: false,
+  theme: 'system',
+  themeStyle: 'versel',
 };

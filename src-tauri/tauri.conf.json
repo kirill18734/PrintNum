@@ -5,10 +5,10 @@
   "identifier": "PrintNum",
   "build": {
     "removeUnusedCommands": true,
-    "beforeDevCommand": "react-router dev",
+    "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "react-router build",
-    "frontendDist": "../build/client"
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
   },
   "app": {
     "withGlobalTauri": true,
