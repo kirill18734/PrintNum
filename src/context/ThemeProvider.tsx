@@ -2,38 +2,38 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext({});
 
-export default function ThemeProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [activeTheme, setActiveTheme] = useState("system");
+function usePersistedState(key: string, defaultValue: any) {
+  const [state, setState] = useState(() => {
+    const value = tempConfig[key] || defaultValue;
+    return value;
+  });
 
+  // сохранение в конфиге
   useEffect(() => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    if (currentTheme !== activeTheme) {
-      // Remove existing data-theme attribute
-      document.documentElement.removeAttribute("data-theme");
-
-      // Remove any theme classes from body (cleanup)
-      Array.from(document.body.classList)
-        .filter((className) => className.startsWith("theme-"))
-        .forEach((className) => {
-          document.body.classList.remove(className);
-        });
+    const confValue = tempConfig[key];
+    if (confValue !== state) {
+      tempConfig[key] = state;
     }
+  }, [state]);
 
-    // Set data-theme on html element
-    if (activeTheme) {
-      document.documentElement.setAttribute("data-theme", activeTheme);
-    }
-  }, [activeTheme]);
-
-  return (
-    <ThemeContext value={{ activeTheme, setActiveTheme }}>
-      {children}
-    </ThemeContext>
-  );
+  return [state, setState];
 }
 
-export const useAppContext = () => useContext(ThemeContext);
+export default function ThemeProvider({ children }) {
+  const [theme, setTheme] = usePersistedState("theme", "system");
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    root.classList.toggle("dark", isDark);
+  }, [theme]);
+
+  return <ThemeContext value={{ theme, setTheme }}>{children}</ThemeContext>;
+}
+
+export const useThemeContext = () => useContext(ThemeContext);

@@ -7,19 +7,22 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function Theme({ defaultTheme }: any) {
+export default function Theme({ defaultTheme, setDefaultTheme }: any) {
   return (
-    <Select defaultValue={defaultTheme}>
-      <SelectTrigger>
-        <SelectValue placeholder="Тема" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem value="light">Light</SelectItem>
-          <SelectItem value="dark">Dark</SelectItem>
-          <SelectItem value="system">System</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <div className="flex items-center gap-2">
+      <span>Тема</span>
+      <Select defaultValue={defaultTheme} onValueChange={setDefaultTheme}>
+        <SelectTrigger>
+          <SelectValue placeholder="Тема" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="light">Light</SelectItem>
+            <SelectItem value="dark">Dark</SelectItem>
+            <SelectItem value="system">System</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

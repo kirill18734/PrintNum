@@ -3,7 +3,16 @@ import { Checkbox } from "./ui/checkbox";
 import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 
-export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
+export default function SettingsPaper({
+  idNum,
+  setIdNum,
+  endLine,
+  setEndLine,
+  hybrid,
+  setHybrid,
+  expand,
+  setExpand,
+}: any) {
   return (
     <div
       data-tauri-drag-region
@@ -12,13 +21,21 @@ export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
       <div data-tauri-drag-region className="flex flex-col items-start ">
         {/* Показывать ID */}
         <Field orientation="horizontal" className="p-1 w-auto">
-          <Checkbox id="checkbox-idNum" checked={idNum} />
+          <Checkbox
+            id="checkbox-idNum"
+            checked={idNum}
+            onCheckedChange={setIdNum}
+          />
           <FieldLabel htmlFor="checkbox-idNum">Показывать ID</FieldLabel>
         </Field>
 
         {/* Нижняя линия */}
         <Field orientation="horizontal" className="p-1 w-auto">
-          <Checkbox id="checkbox-line" checked={endLine} />
+          <Checkbox
+            id="checkbox-line"
+            checked={endLine}
+            onCheckedChange={setEndLine}
+          />
           <FieldLabel htmlFor="checkbox-line">Нижняя линия</FieldLabel>
         </Field>
         {/* Гибридный формат */}
@@ -29,7 +46,11 @@ export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
           }`}
         >
           <Field orientation="horizontal">
-            <Checkbox id="checkbox-hybrid" checked={hybrid} />
+            <Checkbox
+              id="checkbox-hybrid"
+              checked={hybrid}
+              onCheckedChange={setHybrid}
+            />
             <FieldLabel htmlFor="checkbox-hybrid">Гибридный формат</FieldLabel>
           </Field>
           {hybrid && (
@@ -47,6 +68,7 @@ export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
                   variant="outline"
                   size="icon"
                   className="h-8 w-8"
+                  onClick={() => setExpand((num) => Math.max(1, num - 1))}
                 >
                   −
                 </Button>
@@ -61,18 +83,17 @@ export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
                     const value = e.target.value;
                     // разрешаем пустое поле во время ввода
                     if (value === "") {
-                      //   sendChange({ expand: "" });
+                      setExpand("");
                     }
 
                     // только целые числа
                     if (/^\d+$/.test(value)) {
-                      //   sendChange({ expand: Number(value) });
+                      setExpand(Number(value));
                     }
                   }}
                   onBlur={() => {
                     if (!Number.isInteger(Number(expand)) || Number(expand) < 1)
-                      //   sendChange({ expand: 1 });
-                      console.log("blur", expand);
+                      setExpand(1);
                   }}
                   className="
       h-8 w-16 text-center
@@ -87,7 +108,7 @@ export default function SettingsPaper({ idNum, endLine, hybrid, expand }: any) {
                   variant="outline"
                   size="icon"
                   className="h-8 w-8"
-                  //   onClick={() => sendChange({ expand: expand + 1 })}
+                  onClick={() => setExpand((e) => ++e)}
                 >
                   +
                 </Button>

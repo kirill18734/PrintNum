@@ -1,6 +1,6 @@
-import { useAppContext } from "@/AppContext";
 import { Button } from "@/components/ui/button";
 import { Item, ItemActions, ItemFooter } from "@/components/ui/item";
+import { useRunningContext } from "@/context/RunningProvider";
 
 import {
   IconPlayerPlayFilled,
@@ -8,27 +8,35 @@ import {
 } from "@tabler/icons-react";
 
 export default function Home() {
-  const { running, setRunning } = useAppContext();
+  const { running, setRunning } = useRunningContext();
 
-  const IconRun = running ? <IconPlayerStopFilled /> : <IconPlayerPlayFilled />;
-  const TextRun = running ? "Остановить" : "Запустить";
-  const TextDescriptionRun = running
-    ? "Приложение запущено"
-    : "Приложение остановлено";
-  const classRun = running ? "bg-red-600" : "bg-green-600";
+  const confRunning = running
+    ? {
+        icon: <IconPlayerStopFilled />,
+        text: "Остановить",
+        description: "Приложение запущено",
+        classN: "bg-red-600",
+      }
+    : {
+        icon: <IconPlayerPlayFilled />,
+        text: "Запустить",
+        description: "Приложение остановлено",
+        classN: "bg-green-600",
+      };
 
   return (
     <Item data-tauri-drag-region className="flex justify-center items-center">
       <ItemActions>
         <Button
-          className={`rounded-full w-35 h-35 text-lg text-white shadow-xl/30 ${classRun}`}
+          className={`rounded-full w-35 h-35 text-lg text-white shadow-xl/30 ${confRunning.classN}`}
+          onClick={() => setRunning((e) => !e)}
         >
-          {IconRun}
-          {TextRun}
+          {confRunning.icon}
+          {confRunning.text}
         </Button>
       </ItemActions>
       <ItemFooter className="flex justify-center items-center text-xs text-muted-foreground gap-1">
-        {TextDescriptionRun}
+        {confRunning.description}
         {running && (
           <>
             <span className="animate-pulse-1 text-xs text-muted-foreground">

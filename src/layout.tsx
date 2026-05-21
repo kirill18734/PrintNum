@@ -1,14 +1,22 @@
 import { IconHelp, IconMinus, IconSettings, IconX } from "@tabler/icons-react";
-import { useAppContext } from "./AppContext";
 import IconApp from "./assets/App";
 import { Button } from "./components/ui/button";
 import { cn } from "./lib/utils";
 import Home from "./pages/home";
 import Loading from "./pages/loading";
 import Settings from "./pages/settings";
+import { useAppContext } from "./context/AppProvider";
 
 export default function Layout() {
-  const { serverOnline, tab, setTab, printerOnline }: any = useAppContext();
+  const {
+    serverOnline,
+    tab,
+    setTab,
+    printerOnline,
+    closeWindow,
+    hideWindow,
+    openHelp,
+  }: any = useAppContext();
 
   return (
     <>
@@ -53,6 +61,7 @@ export default function Layout() {
                 className="rounded-none p-6 border-0"
                 size="icon-lg"
                 title="Свернуть"
+                onClick={() => hideWindow()}
               >
                 <IconMinus className="size-10" />
               </Button>
@@ -61,6 +70,7 @@ export default function Layout() {
                 className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0"
                 size="icon-lg"
                 title="Закрыть"
+                onClick={() => closeWindow()}
               >
                 <IconX className="size-10" />
               </Button>
@@ -76,7 +86,7 @@ export default function Layout() {
             data-tauri-drag-region
             className="flex justify-between items-center h-(--header-height) border-0 px-2"
           >
-            <Button variant="ghost">
+            <Button variant="ghost" onClick={() => openHelp}>
               <IconHelp />
               Помощь
             </Button>
