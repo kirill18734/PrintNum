@@ -2,7 +2,10 @@
   "manifest_version": 3,
   "name": "Печать ячеек (Ozon)",
   "version": "1.0",
-  "description": "Дополнительные возможности для Ozon: скрытие элементов, автозакрытие карточек, анулирование заказов и др.",
+  "description": "Тестович",
+  "background": {
+    "service_worker": "background.js"
+  },
   "icons": {
     "16": "images/icon.png",
     "32": "images/icon-32.png",
@@ -10,30 +13,13 @@
     "128": "images/icon-128.png"
   },
   "action": {
-    "default_popup": "index.html",
+    "default_popup": "popup/index.html",
     "default_icon": {
       "16": "images/icon.png",
       "32": "images/icon-32.png",
       "48": "images/icon-64.png",
       "128": "images/icon-128.png"
-    },
-    "css": []
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://turbo-pvz.ozon.ru/*"],
-      "js": [
-        "index.js",
-        "orders.js",
-        "return.js",
-        "receiving.js",
-        "hide/hide.js",
-        "hide/menu.js",
-        "hide/notifications.js",
-        "hide/returns.js"
-      ],
-      "css": ["index.css", "hide/hide.css"]
     }
-  ],
-  "permissions": ["activeTab", "scripting"]
+  },
+  "permissions": ["storage"]
 }
