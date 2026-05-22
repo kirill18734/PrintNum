@@ -11,14 +11,16 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut builder = tauri::Builder::default().plugin(
-        tauri_plugin_log::Builder::new()      
-            .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
-            .level(log::LevelFilter::Trace)
-            .max_file_size(10_485_760)
-            .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
-            .build(),
-    );
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
+                .level(log::LevelFilter::Trace)
+                .max_file_size(10_485_760)
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
+                .build(),
+        );
     // проверка на существующий запущенный экземпляр приложения
     #[cfg(desktop)]
     {
@@ -30,17 +32,18 @@ pub fn run() {
         }));
     }
     builder
-    .plugin(tauri_plugin_shell::init())
-    .plugin(tauri_plugin_opener::init())
-    .plugin(tauri_plugin_process::init())
-    .plugin(tauri_plugin_dialog::init())
-    .plugin(tauri_plugin_prevent_default::debug())
-    // обновление
-    .plugin(tauri_plugin_updater::Builder::new()
-    .default_version_comparator(|current, update| {
-    update.version != current
-    }).build())
-    .invoke_handler(tauri::generate_handler![get_version])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_prevent_default::debug())
+        // обновление
+        .plugin(
+            tauri_plugin_updater::Builder::new()
+                .default_version_comparator(|current, update| update.version != current)
+                .build(),
+        )
+        .invoke_handler(tauri::generate_handler![get_version])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

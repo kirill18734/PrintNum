@@ -1,3 +1,4 @@
+import { tempConfig } from "@/config/tempConfig";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext({});

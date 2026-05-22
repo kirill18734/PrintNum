@@ -50,25 +50,25 @@ def watchdog():
 def hello_world():
       return jsonify({"status": True})
 
-@app.get("/get-config")
-@app.get("/get-config/<config_key>")
-def getConfig(config_key=None):
-    config = load_config()
-    if not config_key:
-        return  jsonify({
-            **config,
-            "listPrinters": listPrinters(),
-            "listPapers": listPapers
-        })
-    return  jsonify({config_key: config.get(config_key)})
+# @app.get("/get-config")
+# @app.get("/get-config/<config_key>")
+# def getConfig(config_key=None):
+#     config = load_config()
+#     if not config_key:
+#         return  jsonify({
+#             **config,
+#             "listPrinters": listPrinters(),
+#             "listPapers": listPapers
+#         })
+#     return  jsonify({config_key: config.get(config_key)})
 
-@app.post("/set-config")
-def setConfig():
-    body = request.get_json()  
-    config = load_config().copy()
-    new_config = {**config, **body}
-    save_config(new_config)
-    return "OK"
+# @app.post("/set-config")
+# def setConfig():
+#     body = request.get_json()  
+#     config = load_config().copy()
+#     new_config = {**config, **body}
+#     save_config(new_config)
+#     return "OK"
 
 @app.get('/status-printer')
 def statusPrinter():
