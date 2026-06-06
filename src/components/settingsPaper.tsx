@@ -36,7 +36,7 @@ export default function SettingsPaper({
             checked={endLine}
             onCheckedChange={setEndLine}
           />
-          <FieldLabel htmlFor="checkbox-line">Нижняя линия</FieldLabel>
+          <FieldLabel htmlFor="checkbox-line">Подчёркивание</FieldLabel>
         </Field>
         {/* Гибридный формат */}
         <div

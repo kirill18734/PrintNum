@@ -9,5 +9,5 @@ POST {{printNumber}}
 content-type: application/json
 
 {
-    "text": "100-1"
+    "text": "100-23"
 }
