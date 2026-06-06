@@ -4,8 +4,8 @@ import threading
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from data import  listPapers, save_config,load_config
-from utils import listPrinters,status_printer
+from data import   load_config
+from utils import listPrinters, status_printer
 from print_text import print_text
 
 app = Flask(__name__)
@@ -50,31 +50,17 @@ def watchdog():
 def hello_world():
       return jsonify({"status": True})
 
-# @app.get("/get-config")
-# @app.get("/get-config/<config_key>")
-# def getConfig(config_key=None):
-#     config = load_config()
-#     if not config_key:
-#         return  jsonify({
-#             **config,
-#             "listPrinters": listPrinters(),
-#             "listPapers": listPapers
-#         })
-#     return  jsonify({config_key: config.get(config_key)})
-
-# @app.post("/set-config")
-# def setConfig():
-#     body = request.get_json()  
-#     config = load_config().copy()
-#     new_config = {**config, **body}
-#     save_config(new_config)
-#     return "OK"
-
 @app.get('/status-printer')
 def statusPrinter():
     global printerOnline
     printerOnline = status_printer()
     return jsonify({'printerOnline': printerOnline})
+
+@app.get('/listPrinters')
+def listPrinter():
+    printers = listPrinters()
+    return jsonify({'listPrinters': printers})
+
 
 @app.post('/print-number')
 def printNumber():

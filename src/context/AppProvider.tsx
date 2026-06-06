@@ -2,19 +2,20 @@ import { sendServer } from "@/services/api";
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Command } from "@tauri-apps/plugin-shell";
-// import { updater } from "@/services/updater";
+import { updater } from "@/services/updater";
 import { createContext, useContext, useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 const AppContext = createContext({});
 
-export default function AppProvider({ children }) {
+export default function AppProvider({ children }: any) {
   const [tab, setTab] = useState(false);
   const [serverOnline, setServerOnline] = useState(false);
   const [printerOnline, setPrinterOnline] = useState(false);
-
+  const [version, setVersion] = useState("");
   // запуск проверки для обновлений
   useEffect(() => {
-    // updater();
+    updater();
   }, []);
 
   const closeWindow = async () => {
@@ -23,25 +24,38 @@ export default function AppProvider({ children }) {
     await window.close();
   };
 
-  const hideWindow = () => "test"; //getCurrentWindow().minimize();
-  const openHelp = () => "test"; //open("https://github.com/kirill18734/PrintNum");
-  const getVersion = () => "1.1.0"; //invoke("get_version");
+  const hideWindow = () => getCurrentWindow().minimize();
+  const openHelp = () => open("https://github.com/kirill18734/PrintNum");
 
-  const checkServerStatus = async () => {
-    await sendServer
-      .get()
-      .then(() => {
-        if (!serverOnline) setServerOnline(true);
-      })
-      .catch(() => {
-        if (serverOnline) setServerOnline(false);
-      });
+  useEffect(() => {
+    invoke("get_version").then(
+      (message) => message && setVersion(`${message}`),
+    );
+  }, []);
+
+  const checkStatus = async () => {
+    try {
+      const response = await sendServer.get("status-printer");
+      const body = await response.json();
+
+      setServerOnline(true);
+
+      const statePrinter = body.printerOnline;
+
+      setPrinterOnline((prev) => (prev === statePrinter ? prev : statePrinter));
+    } catch {
+      setServerOnline(false);
+      setPrinterOnline(false);
+    }
   };
 
   useEffect(() => {
-    const interval = setInterval(checkServerStatus, 1000);
+    checkStatus();
+
+    const interval = setInterval(checkStatus, 1000);
+
     return () => clearInterval(interval);
-  }, [serverOnline]);
+  }, []);
 
   // при полной загрузки окна отображаем страницу
   useEffect(() => {
@@ -58,7 +72,7 @@ export default function AppProvider({ children }) {
         setPrinterOnline,
         closeWindow,
         hideWindow,
-        getVersion,
+        version,
         openHelp,
       }}
     >

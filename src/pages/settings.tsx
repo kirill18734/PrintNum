@@ -27,10 +27,9 @@ export default function Settings() {
     setExpand,
   }: any = useSettingsContext();
 
-  const { theme, setTheme } = useThemeContext();
-  const { themeStyle, setThemeStyle } = useThemeStyleContext();
-  const { getVersion } = useAppContext();
-  const version = getVersion();
+  const { theme, setTheme }: any = useThemeContext();
+  const { themeStyle, setThemeStyle }: any = useThemeStyleContext();
+  const { version }: any = useAppContext();
 
   return (
     <div

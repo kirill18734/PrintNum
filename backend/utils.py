@@ -1,6 +1,6 @@
 import win32print
 import win32timezone  # модуль для компиляции, нужен для очистки очереди
-from data import load_config,DEFAULT_CONFIG
+from data import load_config
 
 def listPrinters():
     # Получение списка всех подключенных принтеров

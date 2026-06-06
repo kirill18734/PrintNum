@@ -1,9 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useStorageState } from "@/hooks/useStorageState";
+import { createContext, useContext, useEffect } from "react";
 
 const ThemeStyleContext = createContext({});
 
-export default function ThemeStyleProvider({ children }) {
-  const [themeStyle, setThemeStyle] = useState("vercel");
+export default function ThemeStyleProvider({ children }: any) {
+  const [themeStyle, setThemeStyle] = useStorageState("themeStyle", "vercel");
 
   useEffect(() => {
     const currentThemeStyle =

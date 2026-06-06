@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 
 export default function Home() {
-  const { running, setRunning } = useRunningContext();
+  const { running, setRunning }: any = useRunningContext();
 
   const confRunning = running
     ? {
@@ -29,7 +29,7 @@ export default function Home() {
       <ItemActions>
         <Button
           className={`rounded-full w-35 h-35 text-lg text-white shadow-xl/30 ${confRunning.classN}`}
-          onClick={() => setRunning((e) => !e)}
+          onClick={() => setRunning((e: any) => !e)}
         >
           {confRunning.icon}
           {confRunning.text}

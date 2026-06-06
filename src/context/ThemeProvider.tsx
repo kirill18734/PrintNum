@@ -1,27 +1,10 @@
-import { tempConfig } from "@/config/tempConfig";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useStorageState } from "@/hooks/useStorageState";
+import { createContext, useContext, useEffect } from "react";
 
 const ThemeContext = createContext({});
 
-function usePersistedState(key: string, defaultValue: any) {
-  const [state, setState] = useState(() => {
-    const value = tempConfig[key] || defaultValue;
-    return value;
-  });
-
-  // сохранение в конфиге
-  useEffect(() => {
-    const confValue = tempConfig[key];
-    if (confValue !== state) {
-      tempConfig[key] = state;
-    }
-  }, [state]);
-
-  return [state, setState];
-}
-
-export default function ThemeProvider({ children }) {
-  const [theme, setTheme] = usePersistedState("theme", "system");
+export default function ThemeProvider({ children }: any) {
+  const [theme, setTheme] = useStorageState("theme", "system");
 
   useEffect(() => {
     const root = document.documentElement;
