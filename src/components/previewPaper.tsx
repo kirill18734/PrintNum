@@ -22,7 +22,7 @@ export default function PreviewPaper({ idNum, endLine, hybrid, expand }: any) {
 
           <div className="flex justify-center items-center  leading-none flex-1 ">
             <span
-              className={`text-4xl font-bold ${endLine && "underline  decoration-3"}`}
+              className={`text-4xl ${endLine && "underline  decoration-3"}`}
             >
               123{!endLine && "."}
             </span>

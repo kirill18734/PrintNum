@@ -86,7 +86,7 @@ export default function Layout() {
             data-tauri-drag-region
             className="flex justify-between items-center h-(--header-height) border-0 px-2"
           >
-            <Button variant="ghost" onClick={() => openHelp}>
+            <Button variant="ghost" onClick={() => openHelp()}>
               <IconHelp />
               Помощь
             </Button>

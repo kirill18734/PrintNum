@@ -54,15 +54,14 @@ export default defineContentScript({
         const container: any = await waitLoadElement(
           SELECTORS.containerNotification,
         );
-
         if (!container) return;
 
         const { items, offNotification } = data;
-        const curPath = location.pathname;
 
         const isHide = items.find(
           (elem) =>
-            offNotification.includes(elem.name) && curPath.startsWith(elem.url),
+            offNotification.includes(elem.name) &&
+            location.pathname.startsWith(elem.url),
         );
 
         if (isHide && container.style.display !== "none") {

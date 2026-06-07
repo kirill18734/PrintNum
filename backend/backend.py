@@ -15,7 +15,7 @@ CORS(app)  # Включаем CORS для всего приложения
 last_request_time = time.time()
 
 # Через сколько секунд убивать сервер
-TIMEOUT = 9999
+TIMEOUT = 10
 
 printerOnline = False
 
@@ -60,7 +60,6 @@ def statusPrinter():
 def listPrinter():
     printers = listPrinters()
     return jsonify({'listPrinters': printers})
-
 
 @app.post('/print-number')
 def printNumber():

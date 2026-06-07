@@ -33,11 +33,9 @@ export default defineContentScript({
 
     async function runScript() {
       const tags = document.querySelectorAll(SELECTORS.numprint);
-
       if (!tags.length) return;
 
       const number = tags[0].textContent?.trim();
-
       if (!number) return;
 
       const tagsCount = tags.length;

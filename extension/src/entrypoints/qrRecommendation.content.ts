@@ -4,6 +4,7 @@ import { waitLoadElement } from "@/utils/find";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
+
   async main() {
     let isRunning = false;
 
@@ -36,7 +37,6 @@ export default defineContentScript({
 
     function toggleState(qrId: string) {
       const command = qrCommandRecommendation.find((item) => item.id == qrId);
-
       if (!command || location.pathname !== command.pathname) return;
 
       runScript(command.name);

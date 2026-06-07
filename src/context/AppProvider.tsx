@@ -1,7 +1,7 @@
 import { sendServer } from "@/services/api";
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Command } from "@tauri-apps/plugin-shell";
+import { Command, open } from "@tauri-apps/plugin-shell";
 import { updater } from "@/services/updater";
 import { createContext, useContext, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";

@@ -8,6 +8,7 @@ import { listening } from "@/utils/listener";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
+
   async main() {
     let isRunning = false;
     let lastOrder: any = null;
@@ -85,7 +86,7 @@ export default defineContentScript({
       if (!location.pathname.startsWith(workPathNames.order)) return;
 
       const command: any = qrCommandReturnOrder.find((item) => item.id == qrId);
-      console.log(command);
+
       if (!command) {
         lastOrder = null;
 
@@ -110,7 +111,6 @@ export default defineContentScript({
       }
 
       if (resetTimer) clearTimeout(resetTimer);
-
       if (!lastOrder) return;
 
       const curOrder = lastOrder;

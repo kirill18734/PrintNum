@@ -17,7 +17,6 @@ export default defineContentScript({
       if (!commandName) return null;
 
       const banner: any = await waitLoadElement(SELECTORS.containerBannerOrder);
-
       if (!banner) return null;
 
       const isHide = offOther.includes(commandName.name);

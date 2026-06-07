@@ -20,8 +20,11 @@ def prepare_label_data(text, config):
     is_numeric = raw_main.isdigit()
     main_text_val = int(raw_main) if is_numeric else 0
     
-    # Триггер рокировки
-    is_swapped = hybrid and is_numeric and (main_text_val >= expand)
+    # Жирный шрифт активируется ТОЛЬКО если включен hybrid И значение >= expand
+    is_bold = hybrid and is_numeric and (main_text_val >= expand)
+    
+    # Триггер рокировки полностью совпадает с условием жирности
+    is_swapped = is_bold
     
     if is_swapped:
         header_text = raw_main
@@ -50,7 +53,8 @@ def prepare_label_data(text, config):
         "header_text": header_text,
         "show_header": show_header,
         "force_left_header": force_left_header,
-        "is_underlined": is_underlined
+        "is_underlined": is_underlined,
+        "is_bold": is_bold  # Передаем обновленный флаг
     }
 
 def calculate_dimensions(hdc, paper_size_str):
@@ -88,19 +92,22 @@ def draw_header(hdc, text, sizes, force_left):
     y = sizes["margin_y"]
     
     hdc.TextOut(x, y, text)
-    return y + text_h  # Возвращаем Y-координату, под которой начнется основной текст
+    return y + text_h
 
-def draw_main_text(hdc, text, sizes, y_start, is_underlined):
+def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
     """Рендеринг и автоматический подбор размера для центрального текста (Main)."""
     available_h = sizes["height_px"] - y_start - sizes["margin_y"]
     optimal_height = 10
+    
+    # Применяем жирный шрифт на основе флага из бизнес-логики
+    font_weight = win32con.FW_BOLD if is_bold else win32con.FW_NORMAL
     
     # Цикл подбора максимального размера шрифта
     while True:
         test_font = win32ui.CreateFont({
             "name": "Arial",
             "height": optimal_height,
-            "weight": win32con.FW_NORMAL,
+            "weight": font_weight,
             "underline": 1 if is_underlined else 0,
         })
         hdc.SelectObject(test_font)
@@ -114,7 +121,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined):
     final_font = win32ui.CreateFont({
         "name": "Arial",
         "height": optimal_height,
-        "weight": win32con.FW_NORMAL,
+        "weight": font_weight,
         "underline": 1 if is_underlined else 0,
     })
     hdc.SelectObject(final_font)
@@ -131,7 +138,6 @@ def print_text(text):
     config = load_config()
     
     clear_printer_queue()
-    # 1. Слой подготовки данных
     data = prepare_label_data(text, config)
     
     hdc = win32ui.CreateDC()
@@ -142,14 +148,9 @@ def print_text(text):
     
     try:
         hdc.SetBkMode(win32con.TRANSPARENT)
-        
-        # 2. Слой расчета метрик
         sizes = calculate_dimensions(hdc, config.get('paper', '30*20'))
-        
-        # Переменная сдвига по вертикали для центрального текста
         y_start_center = sizes["margin_y"]
         
-        # 3. Слой отрисовки элементов
         if data["show_header"] and data["header_text"]:
             y_start_center = draw_header(
                 hdc, 
@@ -163,16 +164,16 @@ def print_text(text):
             text=data["main_text"], 
             sizes=sizes, 
             y_start=y_start_center, 
-            is_underlined=data["is_underlined"]
+            is_underlined=data["is_underlined"],
+            is_bold=data["is_bold"]
         )
         
         hdc.EndPage()
         hdc.EndDoc()
-        print(f"Отправлено. Шрифт: {opt_h}px. Текст хедера: '{data['header_text']}'")
+        print(f"Отправлено. Шрифт: {opt_h}px. Жирный: {data['is_bold']}. Текст хедера: '{data['header_text']}'")
         
     except Exception as e:
         print(f"Ошибка при печати: {e}")
         hdc.AbortDoc()
     finally:
         hdc.DeleteDC()
-
