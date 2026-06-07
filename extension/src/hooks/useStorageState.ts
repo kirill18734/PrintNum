@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import { useState, useEffect } from "react";
 
 export function useStorageState(key: string, initialValue: string[]) {
@@ -5,7 +7,7 @@ export function useStorageState(key: string, initialValue: string[]) {
 
   // Загружаем данные при старте popup
   useEffect(() => {
-    chrome.storage.local.get([key], (result) => {
+    chrome.storage.local.get([key], (result: any) => {
       if (result[key]) {
         setState(result[key]);
       }

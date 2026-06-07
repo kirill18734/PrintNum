@@ -68,7 +68,7 @@ export default function SettingsPaper({
                   variant="outline"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => setExpand((num) => Math.max(1, num - 1))}
+                  onClick={() => setExpand((num: any) => Math.max(1, num - 1))}
                 >
                   −
                 </Button>
@@ -108,7 +108,7 @@ export default function SettingsPaper({
                   variant="outline"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => setExpand((e) => ++e)}
+                  onClick={() => setExpand((e: any) => ++e)}
                 >
                   +
                 </Button>

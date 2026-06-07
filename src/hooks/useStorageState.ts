@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 const storePromise = load("config.json", {
   autoSave: true,
+  defaults: {},
 });
 
 export function useStorageState<T>(key: string, initialValue: T) {
