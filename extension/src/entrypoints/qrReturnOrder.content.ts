@@ -28,7 +28,7 @@ export default defineContentScript({
 
         if (textValue === TEXT.READY) {
           btn.dispatchEvent(new MouseEvent("click"));
-          // await new Promise((r) => setTimeout(r, 500));
+          await new Promise((r) => setTimeout(r, 500));
         } else {
           btn.click();
         }
