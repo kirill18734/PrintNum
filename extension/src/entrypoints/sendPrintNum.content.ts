@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { sendServer } from "@/utils/api";
 import { SELECTORS, workPathNames } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
@@ -58,13 +56,10 @@ export default defineContentScript({
       const tagsChanged = tagsCount !== lastTagsCount;
 
       if (isNewNumber) {
-        const success = await sendNumber(number);
-
-        if (success) {
-          printedNumbers.add(number);
-        }
+        sendNumber(number);
+        printedNumbers.add(number);
       } else if (tagsChanged) {
-        const success = await sendNumber(number);
+        sendNumber(number);
       }
 
       lastTagsCount = tagsCount;

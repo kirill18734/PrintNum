@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { Button, ButtonProps } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils"; // Импортируем утилиту слияния классов shadcn
@@ -19,8 +17,8 @@ export function UniversalLinkButton({
   ...props
 }: UniversalLinkButtonProps) {
   const handleOpenUrl = () => {
-    if (typeof chrome !== "undefined" && chrome.tabs) {
-      chrome.tabs.create({ url: fileUrl });
+    if (browser.tabs) {
+      browser.tabs.create({ url: fileUrl });
     } else {
       window.open(fileUrl, "_blank", "noopener,noreferrer");
     }

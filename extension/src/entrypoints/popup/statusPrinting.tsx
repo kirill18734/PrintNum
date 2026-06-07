@@ -24,8 +24,8 @@ export default function StatusPrinting() {
     // первый запуск сразу
     checkServer();
 
-    // интервал 5 секунд
-    const interval = setInterval(checkServer, 5000);
+    // интервал
+    const interval = setInterval(checkServer, 1000);
 
     return () => {
       isMounted = false;

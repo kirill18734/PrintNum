@@ -1,11 +1,9 @@
-declare const chrome: any;
-
 import {
   qrCommandReturnOrder,
   SELECTORS,
   workPathNames,
 } from "@/utils/constants";
-import { waitLoadElement2, waitLoadElement } from "@/utils/find";
+import { waitLoadElement } from "@/utils/find";
 import { listening } from "@/utils/listener";
 
 export default defineContentScript({
@@ -30,7 +28,7 @@ export default defineContentScript({
 
         if (textValue === TEXT.READY) {
           btn.dispatchEvent(new MouseEvent("click"));
-          await new Promise((r) => setTimeout(r, 500));
+          // await new Promise((r) => setTimeout(r, 500));
         } else {
           btn.click();
         }
@@ -50,7 +48,7 @@ export default defineContentScript({
       isRunning = true;
 
       try {
-        const { offQrCodes = [] } = await chrome.storage.local.get([
+        const { offQrCodes = [] } = await browser.storage.local.get([
           "offQrCodes",
         ]);
         if (offQrCodes.includes(commandName)) return;
@@ -87,7 +85,7 @@ export default defineContentScript({
       if (!location.pathname.startsWith(workPathNames.order)) return;
 
       const command: any = qrCommandReturnOrder.find((item) => item.id == qrId);
-
+      console.log(command);
       if (!command) {
         lastOrder = null;
 
@@ -98,10 +96,12 @@ export default defineContentScript({
           document,
           3000,
         );
+
         if (!order) return;
 
         lastOrder = order;
         // Запускаем окно в 3 секунды, в течение которого нужно отсканировать команду
+
         if (resetTimer) clearTimeout(resetTimer);
         resetTimer = setTimeout(() => {
           lastOrder = null;
@@ -110,10 +110,12 @@ export default defineContentScript({
       }
 
       if (resetTimer) clearTimeout(resetTimer);
+
       if (!lastOrder) return;
 
       const curOrder = lastOrder;
       lastOrder = null;
+
       runScript(curOrder, command.actions, command.name);
     }
 

@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import {
   autoScriptPackage,
   hideOther,
@@ -25,7 +23,7 @@ export default defineBackground({
       ].map((item) => item.name);
 
       // 2. Получаем текущее состояние из хранилища
-      const storage: any = await chrome.storage.local.get([
+      const storage: any = await browser.storage.local.get([
         "other",
         "autoscripts",
         "offAutoscripts",
@@ -52,7 +50,7 @@ export default defineBackground({
 
       // 4. Записываем всё одним быстрым вызовом, если есть что записывать
       if (Object.keys(dataToSet).length > 0) {
-        await chrome.storage.local.set(dataToSet);
+        await browser.storage.local.set(dataToSet);
       }
     } catch (err) {
       console.error(`PrintNum: ${err}`);

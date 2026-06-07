@@ -51,22 +51,22 @@ export async function waitLoadElement(
     if (element) return resolve(element);
 
     // 2. Если элемента нет, запускаем слежку за DOM
-    const observer = new MutationObserver(() => {
+    const observerFind = new MutationObserver(() => {
       const el = textValue
         ? searchText(selector, container, textValue, name, isInclude)
         : container.querySelector(selector);
       if (el) {
         clearTimeout(timer);
-        observer.disconnect();
+        observerFind.disconnect();
         resolve(el);
       }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    observerFind.observe(document.body, { childList: true, subtree: true });
 
     // 3. Ограничиваем время ожидания
     const timer = setTimeout(() => {
-      observer.disconnect();
+      observerFind.disconnect();
       reject(new Error(`PrintNum: Элемент ${selector} не найден`));
     }, timeout);
   });

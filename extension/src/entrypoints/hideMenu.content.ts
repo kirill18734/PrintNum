@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { SELECTORS } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
 import { waitLoadElement } from "@/utils/find";
@@ -24,7 +22,7 @@ export default defineContentScript({
     }
 
     async function syncData() {
-      const { menu = [], offMenu = [] } = await chrome.storage.local.get([
+      const { menu = [], offMenu = [] } = await browser.storage.local.get([
         "menu",
         "offMenu",
       ]);
@@ -41,7 +39,7 @@ export default defineContentScript({
 
       // Безопасное сравнение структуры меню
       if (!areArraysEqual(itemsValue, menu)) {
-        await chrome.storage.local.set({ menu: itemsValue });
+        await browser.storage.local.set({ menu: itemsValue });
       }
       return { items, offMenu };
     }
@@ -84,7 +82,7 @@ export default defineContentScript({
     // Подписка на изменения структуры/навигации
     subscribe(toggleState);
 
-    chrome.storage.onChanged.addListener((changes: any) => {
+    browser.storage.onChanged.addListener((changes: any) => {
       if (changes.offMenu) {
         runScript();
       }

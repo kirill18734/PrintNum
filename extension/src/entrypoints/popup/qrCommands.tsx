@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { SettingSection } from "./SettingSection";
 import { Ban, QrCode } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";

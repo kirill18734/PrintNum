@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { autoScriptPackage } from "@/utils/constants";
 import { listening } from "@/utils/listener";
 import { waitLoadElement } from "@/utils/find";
@@ -16,7 +14,7 @@ export default defineContentScript({
       isRunning = true;
 
       try {
-        const { offAutoscripts = [] } = await chrome.storage.local.get([
+        const { offAutoscripts = [] } = await browser.storage.local.get([
           "offAutoscripts",
         ]);
         if (offAutoscripts.includes(commandName)) return;

@@ -100,7 +100,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined):
         test_font = win32ui.CreateFont({
             "name": "Arial",
             "height": optimal_height,
-            "weight": win32con.FW_BOLD,
+            "weight": win32con.FW_NORMAL,
             "underline": 1 if is_underlined else 0,
         })
         hdc.SelectObject(test_font)
@@ -114,7 +114,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined):
     final_font = win32ui.CreateFont({
         "name": "Arial",
         "height": optimal_height,
-        "weight": win32con.FW_BOLD,
+        "weight": win32con.FW_NORMAL,
         "underline": 1 if is_underlined else 0,
     })
     hdc.SelectObject(final_font)

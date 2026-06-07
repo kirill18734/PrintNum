@@ -15,7 +15,7 @@ CORS(app)  # Включаем CORS для всего приложения
 last_request_time = time.time()
 
 # Через сколько секунд убивать сервер
-TIMEOUT = 15
+TIMEOUT = 9999
 
 printerOnline = False
 
