@@ -18,7 +18,7 @@ body {
 }
 
 :root {
-  --header-height: calc(var(--spacing, 0.25rem) * 12 + 1px);
+  --header-height: calc(var(--spacing, 0.25rem) * 12);
 }
 
 /* Apply theme fonts to body for all themes */

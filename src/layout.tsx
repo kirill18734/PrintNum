@@ -6,6 +6,7 @@ import Home from "./pages/home";
 import Loading from "./pages/loading";
 import Settings from "./pages/settings";
 import { useAppContext } from "./context/AppProvider";
+import { useEffect } from "react";
 
 export default function Layout() {
   const {
@@ -16,7 +17,12 @@ export default function Layout() {
     closeWindow,
     hideWindow,
     openHelp,
+    visibleWindow,
   }: any = useAppContext();
+
+  useEffect(() => {
+    visibleWindow();
+  }, []);
 
   return (
     <>
@@ -31,9 +37,7 @@ export default function Layout() {
               className="flex items-center border-0 h-full"
             >
               <IconApp />
-              <span data-tauri-drag-region className="text-lg">
-                Печать ячеек
-              </span>
+              <span data-tauri-drag-region>Печать ячеек</span>
             </div>
             <Button
               variant="ghost"
@@ -44,7 +48,7 @@ export default function Layout() {
                   ? "bg-accent text-accent-foreground shadow-inner font-medium"
                   : "text-muted-foreground hover:text-foreground",
               )}
-              size="icon-lg"
+              size="icon-sm"
               title="Настройки"
               onClick={() => setTab(!tab)}
             >
@@ -59,7 +63,7 @@ export default function Layout() {
               <Button
                 variant="ghost"
                 className="rounded-none p-6 border-0"
-                size="icon-lg"
+                size="icon-sm"
                 title="Свернуть"
                 onClick={() => hideWindow()}
               >
@@ -68,7 +72,7 @@ export default function Layout() {
               <Button
                 variant="ghost"
                 className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0"
-                size="icon-lg"
+                size="icon-sm"
                 title="Закрыть"
                 onClick={() => closeWindow()}
               >

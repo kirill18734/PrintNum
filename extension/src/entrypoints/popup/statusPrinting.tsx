@@ -5,32 +5,16 @@ export default function StatusPrinting() {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
     const checkServer = async () => {
       try {
         const res = await sendServer.get();
-
-        if (isMounted) {
-          setIsActive(res.ok);
-        }
+        setIsActive(!!res?.ok);
       } catch {
-        if (isMounted) {
-          setIsActive(false);
-        }
+        setIsActive(false);
       }
     };
 
-    // первый запуск сразу
     checkServer();
-
-    // интервал
-    const interval = setInterval(checkServer, 1000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
   }, []);
 
   return (

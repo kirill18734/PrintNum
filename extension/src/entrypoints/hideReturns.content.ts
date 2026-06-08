@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import { SELECTORS, workPathNames } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
 import { waitLoadElement } from "@/utils/find";
@@ -16,9 +18,10 @@ export default defineContentScript({
     }
 
     async function syncData() {
-      const { returns = [], offReturns = [] } = await browser.storage.local.get(
-        ["returns", "offReturns"],
-      );
+      const { returns = [], offReturns = [] } = await chrome.storage.local.get([
+        "returns",
+        "offReturns",
+      ]);
       const titleReturns = await waitLoadElement(SELECTORS.titleReturns);
       if (!titleReturns) return null;
 
@@ -41,7 +44,7 @@ export default defineContentScript({
       const itemsValue = [...new Set(items.map((e) => e.name))]; // Удаляем пустые строки, если элемент не нашелся
 
       if (!areArraysEqual(itemsValue, returns)) {
-        await browser.storage.local.set({ returns: itemsValue });
+        await chrome.storage.local.set({ returns: itemsValue });
       }
       return { items, offReturns };
     }
@@ -84,7 +87,7 @@ export default defineContentScript({
     subscribe(toggleState);
 
     // Подписка на изменения из Popup
-    browser.storage.onChanged.addListener((changes: any) => {
+    chrome.storage.onChanged.addListener((changes: any) => {
       if (changes.offReturns) {
         runScript();
       }

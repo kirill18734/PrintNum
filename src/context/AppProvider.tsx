@@ -20,12 +20,13 @@ export default function AppProvider({ children }: any) {
 
   const closeWindow = async () => {
     const window = getCurrentWindow();
-    await Command.create("stop_backend").execute();
     await window.close();
+    await Command.create("stop_backend").execute();
   };
 
   const hideWindow = () => getCurrentWindow().minimize();
   const openHelp = () => open("https://github.com/kirill18734/PrintNum");
+  const visibleWindow = () => getCurrentWindow().show();
 
   useEffect(() => {
     invoke("get_version").then(
@@ -57,11 +58,6 @@ export default function AppProvider({ children }: any) {
     return () => clearInterval(interval);
   }, []);
 
-  // при полной загрузки окна отображаем страницу
-  useEffect(() => {
-    getCurrentWindow().show();
-  }, []);
-
   return (
     <AppContext
       value={{
@@ -74,6 +70,7 @@ export default function AppProvider({ children }: any) {
         hideWindow,
         version,
         openHelp,
+        visibleWindow,
       }}
     >
       {children}

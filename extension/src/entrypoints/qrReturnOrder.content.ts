@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import {
   qrCommandReturnOrder,
   SELECTORS,
@@ -49,7 +51,7 @@ export default defineContentScript({
       isRunning = true;
 
       try {
-        const { offQrCodes = [] } = await browser.storage.local.get([
+        const { offQrCodes = [] } = await chrome.storage.local.get([
           "offQrCodes",
         ]);
         if (offQrCodes.includes(commandName)) return;

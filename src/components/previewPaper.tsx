@@ -1,6 +1,6 @@
 export default function PreviewPaper({ idNum, endLine, hybrid, expand }: any) {
   return (
-    <div data-tauri-drag-region className="flex gap-4 w-full">
+    <div data-tauri-drag-region className="flex gap-1 w-full">
       <div className="flex flex-col items-center gap-1 p-1">
         {hybrid && (
           <span className="text-xs text-muted-foreground">

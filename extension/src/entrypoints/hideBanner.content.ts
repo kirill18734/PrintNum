@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import { hideOther, SELECTORS } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
 import { waitLoadElement } from "@/utils/find";
@@ -9,7 +11,7 @@ export default defineContentScript({
     let isRunning = false;
 
     async function syncData() {
-      const { offOther = [] } = await browser.storage.local.get(["offOther"]);
+      const { offOther = [] } = await chrome.storage.local.get(["offOther"]);
 
       const commandName = hideOther.find(
         (elem) => elem.pathname == location.pathname,
@@ -54,11 +56,5 @@ export default defineContentScript({
     }
     // Подписка на изменения структуры/навигации
     subscribe(toggleState);
-
-    browser.storage.onChanged.addListener((changes: any) => {
-      if (changes.offOther) {
-        runScript();
-      }
-    });
   },
 });

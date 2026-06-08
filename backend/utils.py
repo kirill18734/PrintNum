@@ -15,7 +15,7 @@ def status_printer():
 
     try:
         handle = win32print.OpenPrinter(printer_name)
-    except pywintypes.error:
+    except Exception:
         return False
 
     try:

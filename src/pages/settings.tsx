@@ -34,7 +34,7 @@ export default function Settings() {
   return (
     <div
       data-tauri-drag-region
-      className=" flex-1 flex flex-col justify-between h-full gap-2"
+      className="flex flex-col gap-1 flex-1 justify-between"
     >
       <span data-tauri-drag-region className="text-center text-blue-600 mt-2">
         OZON
@@ -78,7 +78,10 @@ export default function Settings() {
           setDefaultThemeStyle={setThemeStyle}
         />
       </div>
-      <div data-tauri-drag-region className="flex items-center justify-center">
+      <div
+        data-tauri-drag-region
+        className="flex items-center justify-center text-xs"
+      >
         v{version}
       </div>
     </div>

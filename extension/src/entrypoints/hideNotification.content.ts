@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import { SELECTORS } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
 import { waitLoadElement } from "@/utils/find";
@@ -23,7 +25,7 @@ export default defineContentScript({
 
     async function syncData() {
       const { notification = [], offNotification = [] } =
-        await browser.storage.local.get(["notification", "offNotification"]);
+        await chrome.storage.local.get(["notification", "offNotification"]);
 
       const container: any = await waitLoadElement(SELECTORS.containerMenu);
       if (!container) return null;
@@ -38,7 +40,7 @@ export default defineContentScript({
 
       // Безопасное сравнение структуры меню
       if (!areArraysEqual(itemsValue, notification)) {
-        await browser.storage.local.set({ notification: itemsValue });
+        await chrome.storage.local.set({ notification: itemsValue });
       }
       return { items, offNotification };
     }
@@ -78,7 +80,6 @@ export default defineContentScript({
 
     function toggleState(curPathname: string) {
       if (curPathname == lastPathname) return;
-
       lastPathname = curPathname;
 
       runScript();
@@ -86,11 +87,5 @@ export default defineContentScript({
 
     // Подписка на изменения структуры/навигации
     subscribe(toggleState);
-
-    browser.storage.onChanged.addListener((changes: any) => {
-      if (changes.offNotification) {
-        runScript();
-      }
-    });
   },
 });

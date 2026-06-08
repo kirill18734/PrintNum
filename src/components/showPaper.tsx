@@ -12,9 +12,12 @@ export default function ShowPaper({
   setDefaultExpand,
 }: any) {
   return (
-    <div data-tauri-drag-region className="flex flex-col items-center gap-2">
-      <span className="font-medium">Оформление этикетки</span>
-      <div data-tauri-drag-region className="flex items-start gap-7 w-full">
+    <div data-tauri-drag-region className="flex flex-col gap-1">
+      <span className="font-medium text-center">Оформление этикетки</span>
+      <div
+        data-tauri-drag-region
+        className="flex items-start justify-center w-full"
+      >
         {/* Настройки */}
         <SettingsPaper
           idNum={defaultIdNum}

@@ -16,7 +16,7 @@ export default function SettingsPaper({
   return (
     <div
       data-tauri-drag-region
-      className="flex flex-col items-end justify-end gap-2 w-full"
+      className="flex flex-col items-center justify-center w-full "
     >
       <div data-tauri-drag-region className="flex flex-col items-start ">
         {/* Показывать ID */}

@@ -1,3 +1,5 @@
+declare const chrome: any;
+
 import { qrCommandRecommendation } from "@/utils/constants";
 import { listening } from "@/utils/listener";
 import { waitLoadElement } from "@/utils/find";
@@ -21,7 +23,7 @@ export default defineContentScript({
       isRunning = true;
 
       try {
-        const { offQrCodes = [] } = await browser.storage.local.get([
+        const { offQrCodes = [] } = await chrome.storage.local.get([
           "offQrCodes",
         ]);
 
