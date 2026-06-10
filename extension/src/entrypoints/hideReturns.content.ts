@@ -77,9 +77,8 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(curPathname: string) {
-      if (!curPathname.startsWith(workPathNames.package)) return;
-
+    function toggleState() {
+      if (!location.href.includes(workPathNames.package)) return;
       runScript();
     }
 

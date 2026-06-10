@@ -63,7 +63,7 @@ export default defineContentScript({
         const isHide = items.find(
           (elem) =>
             offNotification.includes(elem.name) &&
-            location.pathname.startsWith(elem.url),
+            location.href.includes(elem.url),
         );
 
         if (isHide && container.style.display !== "none") {
@@ -78,14 +78,13 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(curPathname: string) {
-      if (curPathname == lastPathname) return;
-      lastPathname = curPathname;
-
-      runScript();
-    }
-
     // Подписка на изменения структуры/навигации
-    subscribe(toggleState);
+    subscribe(runScript);
+
+    chrome.storage.onChanged.addListener((changes: any) => {
+      if (changes.offNotification) {
+        runScript();
+      }
+    });
   },
 });

@@ -9,7 +9,6 @@ export default defineContentScript({
 
   async main() {
     let isRunning = false;
-    let lastPathname = "";
 
     // удаляет ВСЕ цифры на странице (флаг g)
     function formatText(text: string): string {
@@ -73,15 +72,8 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(curPathname: string) {
-      if (curPathname == lastPathname) return;
-      lastPathname = curPathname;
-
-      runScript();
-    }
-
     // Подписка на изменения структуры/навигации
-    subscribe(toggleState);
+    subscribe(runScript);
 
     chrome.storage.onChanged.addListener((changes: any) => {
       if (changes.offMenu) {

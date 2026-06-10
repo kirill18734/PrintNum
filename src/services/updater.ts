@@ -3,9 +3,16 @@ import { check } from "@tauri-apps/plugin-updater";
 import { ask } from "@tauri-apps/plugin-dialog";
 import { relaunch } from "@tauri-apps/plugin-process";
 
+let isUpdateChecked = false;
+
 export const updater = async () => {
+  // защита для режима разработки от повторно вызова
+  if (isUpdateChecked) return;
+  isUpdateChecked = true;
+
   const update = await check();
-  const startBackend = () => Command.create("start_backend").execute();
+  const startBackend = async () =>
+    await Command.create("start_backend").execute();
   if (!update) {
     startBackend();
     console.log("No update available");

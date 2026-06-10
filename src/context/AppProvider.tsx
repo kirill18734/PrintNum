@@ -8,6 +8,11 @@ import { invoke } from "@tauri-apps/api/core";
 
 const AppContext = createContext({});
 
+// // ---------- Остановка backend ----------
+getCurrentWindow().onCloseRequested(() => {
+  Command.create("stop_backend").execute();
+});
+
 export default function AppProvider({ children }: any) {
   const [tab, setTab] = useState(false);
   const [serverOnline, setServerOnline] = useState(false);
@@ -21,7 +26,6 @@ export default function AppProvider({ children }: any) {
   const closeWindow = async () => {
     const window = getCurrentWindow();
     await window.close();
-    await Command.create("stop_backend").execute();
   };
 
   const hideWindow = () => getCurrentWindow().minimize();
@@ -54,7 +58,6 @@ export default function AppProvider({ children }: any) {
     checkStatus();
 
     const interval = setInterval(checkStatus, 1000);
-
     return () => clearInterval(interval);
   }, []);
 

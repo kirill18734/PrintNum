@@ -69,15 +69,17 @@ export default defineContentScript({
       printedNumbers.clear();
     }
 
-    function toggleState(currentPathname: string) {
-      if (currentPathname !== workPathNames.recommendation) {
+    // отслеживание изменения URL
+    new MutationObserver(() => {
+      if (location.pathname !== workPathNames.recommendation) {
         resetState();
         return;
+      } else {
+        runScript();
       }
-
-      runScript();
-    }
-
-    subscribe(toggleState);
+    }).observe(document, {
+      childList: true,
+      subtree: true,
+    });
   },
 });

@@ -48,13 +48,22 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(curPathname: any) {
-      const hideBanner = hideOther.find((elem) => elem.pathname == curPathname);
+    function toggleState() {
+      const hideBanner = hideOther.find(
+        (elem) => elem.pathname == location.pathname,
+      );
       if (!hideBanner) return;
 
       runScript();
     }
+
     // Подписка на изменения структуры/навигации
     subscribe(toggleState);
+
+    chrome.storage.onChanged.addListener((changes: any) => {
+      if (changes.offOther) {
+        runScript();
+      }
+    });
   },
 });
