@@ -9,7 +9,11 @@ export default defineContentScript({
 
   async main() {
     let isRunning = false;
-    let lastPathname = "";
+
+    const dopData = [
+      { name: "Возвраты от покупателя", url: "returns-from-customer" },
+      { name: "Возвраты продавцу", url: "returns_to_seller" },
+    ];
 
     // удаляет ВСЕ цифры на странице (флаг g)
     function formatText(text: string): string {
@@ -31,18 +35,20 @@ export default defineContentScript({
       if (!container) return null;
 
       const items = [...container.querySelectorAll("a")].map((item) => ({
-        element: item,
         name: formatText(item.textContent || ""),
         url: item.getAttribute("href") || "",
       }));
+      const allItems = [...items, ...dopData];
 
-      const itemsValue = items.map((item) => item.name);
+      const itemsValue = allItems.map((item) => item.name);
 
       // Безопасное сравнение структуры меню
       if (!areArraysEqual(itemsValue, notification)) {
-        await chrome.storage.local.set({ notification: itemsValue });
+        await chrome.storage.local.set({
+          notification: itemsValue,
+        });
       }
-      return { items, offNotification };
+      return { allItems, offNotification };
     }
 
     async function runScript() {
@@ -58,9 +64,9 @@ export default defineContentScript({
         );
         if (!container) return;
 
-        const { items, offNotification } = data;
+        const { allItems, offNotification } = data;
 
-        const isHide = items.find((elem) => {
+        const isHide = allItems.find((elem: any) => {
           const isHide = offNotification.includes(elem.name);
           // корректирование ссылки
           let URL;
