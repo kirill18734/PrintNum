@@ -2,7 +2,8 @@ declare const chrome: any;
 
 import {
   autoScriptPackage,
-  hideOther,
+  hideBannerAllOrder,
+  hideBannerOrder,
   qrCommandRecommendation,
   qrCommandReturnOrder,
   qrCommandsIssueAllOrder,
@@ -14,7 +15,7 @@ export default defineBackground({
   async main() {
     try {
       // 1. Собираем дефолтные данные
-      const namesOther = hideOther.map((item) => item.name);
+      const namesOther = [hideBannerAllOrder.name, hideBannerOrder.name];
       const namesAutoscripts = autoScriptPackage.name;
       const namesQrCommands = [
         ...qrCommandsIssueAllOrder,

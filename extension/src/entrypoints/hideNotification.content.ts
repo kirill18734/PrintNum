@@ -60,11 +60,21 @@ export default defineContentScript({
 
         const { items, offNotification } = data;
 
-        const isHide = items.find(
-          (elem) =>
-            offNotification.includes(elem.name) &&
-            location.href.includes(elem.url),
-        );
+        const isHide = items.find((elem) => {
+          const isHide = offNotification.includes(elem.name);
+          // корректирование ссылки
+          let URL;
+          switch (elem.name) {
+            case "Отправка":
+              URL = "outbound";
+              break;
+            default:
+              URL = elem.url;
+              break;
+          }
+
+          return isHide && location.href.includes(URL);
+        });
 
         if (isHide && container.style.display !== "none") {
           container.style.display = "none";

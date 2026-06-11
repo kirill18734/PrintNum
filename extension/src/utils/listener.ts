@@ -7,14 +7,6 @@ export function listening(fn) {
 }
 
 window.addEventListener("keydown", (e) => {
-  if (
-    e.target.tagName === "INPUT" ||
-    e.target.tagName === "TEXTAREA" ||
-    e.target.isContentEditable
-  ) {
-    return;
-  }
-
   if (resetTimeout) clearTimeout(resetTimeout);
 
   // Накопление символов от сканера

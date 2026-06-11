@@ -5,7 +5,8 @@ export const SELECTORS = {
   containerReturns: 'div[class^="_block_"]:nth-of-type(2)',
   itemsReturns: 'div[class*="_itemsElement_"]',
   itemTitleReturns: 'div[class^="_titleWrap_"]',
-  containerBannerOrder: 'div[class*="_bankBanner_"]',
+  containerBannerAllOrder: 'div[class*="_bankBanner_"]',
+  containerBannerOrder: 'div[class^="_bankWrapper_"]',
   packageM: 'div:nth-child(1) > [class^="ozi__input__root__"] button',
   packageL: 'div:nth-child(2) > [class^="ozi__input__root__"] button',
   scanOrder: 'div[class^="_scanAnimate_"]',
@@ -129,9 +130,14 @@ export const autoScriptPackage = {
   pathname: workPathNames.package,
 };
 
-export const hideOther = [
-  {
-    name: "Баннер (Выдача заказов)",
-    pathname: workPathNames.allOrder,
-  },
-];
+export const hideBannerAllOrder = {
+  name: "Баннер (Выдача заказов)",
+  pathname: workPathNames.allOrder,
+  action: SELECTORS.containerBannerAllOrder,
+};
+
+export const hideBannerOrder = {
+  name: "Баннер (Открытая карточка выдачи)",
+  pathname: workPathNames.order,
+  action: SELECTORS.containerBannerOrder,
+};

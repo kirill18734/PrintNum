@@ -1,6 +1,6 @@
 declare const chrome: any;
 
-import { hideOther, SELECTORS } from "@/utils/constants";
+import { hideBannerOrder } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
 import { waitLoadElement } from "@/utils/find";
 
@@ -13,20 +13,17 @@ export default defineContentScript({
     async function syncData() {
       const { offOther = [] } = await chrome.storage.local.get(["offOther"]);
 
-      const commandName = hideOther.find(
-        (elem) => elem.pathname == location.pathname,
-      );
-      if (!commandName) return null;
-
-      const banner: any = await waitLoadElement(SELECTORS.containerBannerOrder);
+      const banner: any = await waitLoadElement(hideBannerOrder.action);
       if (!banner) return null;
 
-      const isHide = offOther.includes(commandName.name);
+      const isHide = offOther.includes(hideBannerOrder.name);
 
       return { banner, isHide };
     }
 
     async function runScript() {
+      if (!location.pathname.startsWith(hideBannerOrder.pathname)) return;
+
       if (isRunning) return;
       isRunning = true;
 
@@ -48,17 +45,8 @@ export default defineContentScript({
       }
     }
 
-    function toggleState() {
-      const hideBanner = hideOther.find(
-        (elem) => elem.pathname == location.pathname,
-      );
-      if (!hideBanner) return;
-
-      runScript();
-    }
-
     // Подписка на изменения структуры/навигации
-    subscribe(toggleState);
+    subscribe(runScript);
 
     chrome.storage.onChanged.addListener((changes: any) => {
       if (changes.offOther) {

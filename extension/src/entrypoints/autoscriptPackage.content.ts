@@ -2,7 +2,7 @@ declare const chrome: any;
 
 import { autoScriptPackage } from "@/utils/constants";
 import { listening } from "@/utils/listener";
-import { waitLoadElement } from "@/utils/find";
+import { waitLoadElement2 } from "@/utils/find";
 
 export default defineContentScript({
   // Исправлен шаблон матчинга URL
@@ -21,7 +21,7 @@ export default defineContentScript({
         ]);
         if (offAutoscripts.includes(commandName)) return;
 
-        const label: any = await waitLoadElement(
+        const label: any = await waitLoadElement2(
           "label",
           commandName,
           "",
@@ -31,7 +31,7 @@ export default defineContentScript({
         );
         if (!label) return null;
 
-        const radio: any = await waitLoadElement(
+        const radio: any = await waitLoadElement2(
           '[type="radio"]',
           "",
           "",
@@ -44,7 +44,7 @@ export default defineContentScript({
           return;
         }
 
-        const btn: any = await waitLoadElement(
+        const btn: any = await waitLoadElement2(
           "button",
           "Завершить",
           "",
