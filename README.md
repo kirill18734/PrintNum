@@ -348,4 +348,4 @@ PrintNum/
 
 - **Кирилл** — Разработчик. По всем вопросам можно связаться в Telegram (@ASPIRhigher)
 
-**Ключевые слова (SEO):** Ozon, Ozon Warehouse, Ozon Cell Printing, печать ячеек Ozon, печать этикеток Ozon, склад Ozon, ПВЗ Ozon, маркировка товаров, автоматизация склада, Windows, Tauri, логистика, складские этикетки.
+**Ключевые слова (SEO):** Ozon, Ozon Warehouse, Ozon Cell Printing, печать ячеек Ozon, печать этикеток Ozon, склад Ozon, ПВЗ Ozon, маркировка товаров, автоматизация склада, Windows, Tauri, логистика, складские этикетки, aвто-печать номера ячейки.
