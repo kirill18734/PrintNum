@@ -1,37 +1,31 @@
 import { Command } from "@tauri-apps/plugin-shell";
-import { check } from "@tauri-apps/plugin-updater";
-import { ask } from "@tauri-apps/plugin-dialog";
+import { check, Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 
 let isUpdateChecked = false;
+let currentUpdate: Update | null = null;
 
-export const updater = async () => {
-  // защита для режима разработки от повторно вызова
-  if (isUpdateChecked) return;
+// 1. Функция проверки: возвращает true (если есть апдейт) или false
+export const checkForUpdates = async (): Promise<boolean> => {
+  if (isUpdateChecked) return !!currentUpdate;
   isUpdateChecked = true;
 
   const update = await check();
-  const startBackend = async () =>
-    await Command.create("start_backend").execute();
-  if (!update) {
-    startBackend();
-    console.log("No update available");
-  } else {
-    console.log("Update available!", update.version, update.body);
-    const yes = await ask(
-      `Доступна новая версия ${update.version}!\n\nЧто нового:\n${update.rawJson.note}`,
-      {
-        title: "Обновление PrintNum",
-        kind: "info",
-        okLabel: "Обновить",
-        cancelLabel: "Позже",
-      },
-    );
-    if (yes) {
-      await update.downloadAndInstall();
-      await relaunch();
-    } else {
-      startBackend();
-    }
+
+  if (!update) return false;
+
+  console.log("Update available!", update.version, update.body);
+  currentUpdate = update; // Сохраняем объект для последующей установки
+  return true;
+};
+
+// 2. Функция чистой установки и перезапуска
+export const installAndRelaunch = async (): Promise<void> => {
+  if (!currentUpdate) {
+    console.error("No update object found. Run checkForUpdates first.");
+    return;
   }
+  await Command.create("stop_backend").execute();
+  await currentUpdate.downloadAndInstall();
+  await relaunch();
 };

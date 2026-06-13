@@ -6,7 +6,8 @@ import Home from "./pages/home";
 import Loading from "./pages/loading";
 import Settings from "./pages/settings";
 import { useAppContext } from "./context/AppProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { installAndRelaunch } from "./services/updater";
 
 export default function Layout() {
   const {
@@ -18,11 +19,24 @@ export default function Layout() {
     hideWindow,
     openHelp,
     visibleWindow,
+    isUpdate,
   }: any = useAppContext();
 
   useEffect(() => {
     visibleWindow();
   }, []);
+
+  const [isUpdating, setIsUpdating] = useState(false); // Состояние процесса установки
+
+  const handleUpdateClick = async () => {
+    setIsUpdating(true);
+    try {
+      await installAndRelaunch();
+    } catch (error) {
+      console.error("Ошибка при установке обновления:", error);
+      setIsUpdating(false); // Возвращаем кнопку в рабочее состояние, если произошла ошибка
+    }
+  };
 
   return (
     <>
@@ -88,17 +102,49 @@ export default function Layout() {
           </main>
           <footer
             data-tauri-drag-region
-            className="flex justify-between items-center h-(--header-height) border-0 px-2"
+            className="flex justify-between items-end h-(--footer-height) border-0 px-2 pb-2"
           >
-            <Button variant="ghost" onClick={() => openHelp()}>
-              <IconHelp />
-              Помощь
-            </Button>
-            {!printerOnline && (
-              <span data-tauri-drag-region className="text-red-700">
-                Принтер НЕДОСТУПЕН
-              </span>
-            )}
+            {/* Левая часть — выравнивание по нижнему краю */}
+            <div className="flex justify-start items-end w-full">
+              <Button variant="ghost" onClick={() => openHelp()}>
+                <IconHelp /> Помощь
+              </Button>
+            </div>
+
+            {/* Центральная часть: текст сверху, кнопка снизу — всегда строго по центру */}
+            <div className=" flex justify-center items-end w-full">
+              {isUpdate && (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {isUpdating ? "Установка..." : "Доступно обновление"}
+                  </span>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="h-8"
+                    disabled={isUpdating}
+                    onClick={handleUpdateClick}
+                  >
+                    {isUpdating ? "Обновляется" : "Обновить"}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Правая часть — выравнивание текста по нижнему краю, под высоту кнопок */}
+            <div
+              data-tauri-drag-region
+              className="w-full flex justify-end text-right items-end h-8"
+            >
+              {!printerOnline && (
+                <span
+                  data-tauri-drag-region
+                  className="text-red-700 font-medium leading-none"
+                >
+                  Принтер НЕДОСТУПЕН
+                </span>
+              )}
+            </div>
           </footer>
         </>
       ) : (

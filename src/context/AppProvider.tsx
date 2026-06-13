@@ -2,7 +2,7 @@ import { sendServer } from "@/services/api";
 
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Command, open } from "@tauri-apps/plugin-shell";
-import { updater } from "@/services/updater";
+import { checkForUpdates } from "@/services/updater";
 import { createContext, useContext, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -18,9 +18,28 @@ export default function AppProvider({ children }: any) {
   const [serverOnline, setServerOnline] = useState(false);
   const [printerOnline, setPrinterOnline] = useState(false);
   const [version, setVersion] = useState("");
-  // запуск проверки для обновлений
+  const [isUpdate, setIsUpdate] = useState(false);
+
   useEffect(() => {
-    updater();
+    const initApp = async () => {
+      // 1. Всегда запускаем бэкенд при старте приложения
+      try {
+        await Command.create("start_backend").execute();
+        console.log("Backend started successfully");
+      } catch (error) {
+        console.error("Failed to start backend:", error);
+      }
+
+      // 2. Параллельно или сразу после проверяем обновления
+      try {
+        const resUpdate = await checkForUpdates();
+        setIsUpdate(resUpdate);
+      } catch (error) {
+        console.error("Failed to check for updates:", error);
+      }
+    };
+
+    initApp();
   }, []);
 
   const closeWindow = async () => {
@@ -74,6 +93,7 @@ export default function AppProvider({ children }: any) {
         version,
         openHelp,
         visibleWindow,
+        isUpdate,
       }}
     >
       {children}
