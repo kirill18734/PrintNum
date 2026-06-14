@@ -1,37 +1,31 @@
 import { sendServer } from "@/utils/api";
 import { SELECTORS, workPathNames } from "@/utils/constants";
-import { subscribe } from "@/utils/observer";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
-    const printedNumbers = new Set<string>();
+  main() {
+    const printedNumbers = new Set();
 
     let firstRun = false;
     let lastTagsCount = 0;
 
     const URL = "print-number";
 
-    async function sendNumber(number: string): Promise<boolean> {
-      try {
-        const response = await sendServer.post(URL, { text: number });
-
-        if (!response.ok) {
-          console.error(
-            `Ошибка сервера: ${response.status} ${response.statusText}`,
-          );
-          return false;
-        }
-
-        return true;
-      } catch (error) {
-        console.error("Ошибка отправки номера:", error);
-        return false;
-      }
+    function sendNumber(number: string) {
+      let response = false;
+      sendServer
+        .post("print-number", { text: number })
+        .then(() => {
+          response = true;
+        })
+        .catch(() => {
+          response = false;
+        });
+      return response;
     }
 
-    async function runScript() {
+    function runScript() {
       const tags = document.querySelectorAll(SELECTORS.numprint);
       if (!tags.length) return;
 

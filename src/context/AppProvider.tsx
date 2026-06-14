@@ -53,24 +53,25 @@ export default function AppProvider({ children }: any) {
 
   useEffect(() => {
     invoke("get_version").then(
-      (message) => message && setVersion(`${message}`),
+      (message: any) => message && setVersion(`${message}`),
     );
   }, []);
 
-  const checkStatus = async () => {
-    try {
-      const response = await sendServer.get("status-printer");
-      const body = await response.json();
-
-      setServerOnline(true);
-
-      const statePrinter = body.printerOnline;
-
-      setPrinterOnline((prev) => (prev === statePrinter ? prev : statePrinter));
-    } catch {
-      setServerOnline(false);
-      setPrinterOnline(false);
-    }
+  const checkStatus = () => {
+    sendServer
+      .get("status-printer")
+      .then((response) => {
+        const body: any = response.json();
+        setServerOnline(true);
+        const statePrinter = body.printerOnline;
+        setPrinterOnline((prev: any) =>
+          prev === statePrinter ? prev : statePrinter,
+        );
+      })
+      .catch(() => {
+        setServerOnline(false);
+        setPrinterOnline(false);
+      });
   };
 
   useEffect(() => {

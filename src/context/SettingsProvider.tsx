@@ -25,25 +25,26 @@ export default function SettingsProvider({ children }: any) {
 
   const [listPrinters, setListPrinters] = useState([]);
 
-  const updateListPrinters = async () => {
-    try {
-      const response = await sendServer.get("listPrinters");
-      const body = await response.json();
+  const updateListPrinters = () => {
+    sendServer
+      .get("listPrinters")
+      .then((response) => {
+        const body: any = response.json();
+        setListPrinters((prev: any) => {
+          const next = body.listPrinters;
 
-      setListPrinters((prev) => {
-        const next = body.listPrinters;
+          // простая проверка по ссылке (быстрая)
+          if (prev === next) return prev;
 
-        // простая проверка по ссылке (быстрая)
-        if (prev === next) return prev;
+          // более надёжная проверка (по содержимому)
+          if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
 
-        // более надёжная проверка (по содержимому)
-        if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
-
-        return next;
+          return next;
+        });
+      })
+      .catch(() => {
+        setListPrinters((prev: any) => (prev.length === 0 ? prev : []));
       });
-    } catch {
-      setListPrinters((prev) => (prev.length === 0 ? prev : []));
-    }
   };
 
   useEffect(() => {
