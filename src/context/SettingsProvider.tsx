@@ -28,8 +28,8 @@ export default function SettingsProvider({ children }: any) {
   const updateListPrinters = () => {
     sendServer
       .get("listPrinters")
-      .then((response) => {
-        const body: any = response.json();
+      .then((response) => response.json())
+      .then((body) => {
         setListPrinters((prev: any) => {
           const next = body.listPrinters;
 
