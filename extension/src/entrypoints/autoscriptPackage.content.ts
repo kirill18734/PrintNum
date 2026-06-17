@@ -63,8 +63,7 @@ export default defineContentScript({
       }
     }
 
-    async function toggleState(qrId: string) {
-      console.log(qrId);
+    function toggleState(qrId: string) {
       const command = qrCommandsIssueAllOrder.find((item) => item.id == qrId);
 
       if (command || !location.pathname.startsWith(autoScriptPackage.pathname))

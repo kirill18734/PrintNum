@@ -14,7 +14,6 @@ export const checkForUpdates = async (): Promise<boolean> => {
 
   if (!update) return false;
 
-  console.log("Update available!", update.version, update.body);
   currentUpdate = update; // Сохраняем объект для последующей установки
   return true;
 };

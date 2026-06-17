@@ -25,7 +25,6 @@ export default function AppProvider({ children }: any) {
       // 1. Всегда запускаем бэкенд при старте приложения
       try {
         Command.create("start_backend").execute();
-        console.log("Backend started successfully");
       } catch (error) {
         console.error("Failed to start backend:", error);
       }

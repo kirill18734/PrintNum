@@ -7,19 +7,28 @@ export function listening(fn: any) {
 }
 
 window.addEventListener("keydown", (e) => {
-  if (resetTimeout) clearTimeout(resetTimeout);
-
   // Накопление символов от сканера
   if (e.key.length === 1) {
+    // Очищаем предыдущий таймер только при вводе нового символа
+    if (resetTimeout) clearTimeout(resetTimeout);
+    
     lastNumber += e.key;
-    // Сброс буфера через 500 мс (защита от медленного ручного ввода)
+    
+    // Сброс буфера через 500 мс
     resetTimeout = setTimeout(() => {
       lastNumber = "";
     }, 500);
     return;
   }
+  
   // Финализация ввода при нажатии Enter
   if (e.key === "Enter") {
+    // ОБЯЗАТЕЛЬНО: Отменяем фоновый таймер сброса, так как ввод завершен
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+      resetTimeout = null;
+    }
+
     if (lastNumber) {
       listFunc.forEach((fn: any) => fn(lastNumber));
     }
