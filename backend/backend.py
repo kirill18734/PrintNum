@@ -4,7 +4,7 @@ import threading
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from data import   load_config
+from data import load_config
 from utils import listPrinters, status_printer
 from print_text import print_text
 

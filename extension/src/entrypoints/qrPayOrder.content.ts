@@ -7,7 +7,7 @@ import { waitLoadElement } from "@/utils/find";
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
 
     // ИСПРАВЛЕНО: Исправлена логика проверки элемента (if (!btn))

@@ -5,31 +5,27 @@ from data import load_config
 def listPrinters():
     # Получение списка всех подключенных принтеров
     printers = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS)
-    return ([p[2] for p in printers])
+    return [p[2] for p in printers]
 
 def status_printer():
     config = load_config()
-    printer_name = config.get('printer')  # Безопасное чтение dict
+    printer_name = config.get('printer', '').strip()  # Безопасное чтение dict
     if not printer_name:
         return False
 
+    handle = None  # Инициализируем переменную заранее
     try:
         handle = win32print.OpenPrinter(printer_name)
-    except Exception:
-        return False
-
-    try:
         info = win32print.GetPrinter(handle, 2)
         attrs = info['Attributes']
         status = info['Status']
 
-        # 1. Проверяем физическое отключение (ваш рабочий метод)
+        # 1. Проверяем физическое отключение
         PRINTER_ATTRIBUTE_WORK_OFFLINE = 0x00000400
         if bool(attrs & PRINTER_ATTRIBUTE_WORK_OFFLINE):
             return False
 
-        # 2. Проверяем аппаратные ошибки, если они уже зафиксированы спулером
-        # Если принтер сообщает об ошибке, замятии или отсутствии бумаги — печать не пойдет
+        # 2. Проверяем аппаратные ошибки
         critical_errors = (
                 win32print.PRINTER_STATUS_ERROR |
                 win32print.PRINTER_STATUS_PAPER_JAM |
@@ -42,19 +38,15 @@ def status_printer():
         return True
 
     except Exception:
-        # Защита от непредвиденных ошибок при чтении полей структуры
         return False
     finally:
-        win32print.ClosePrinter(handle)
+        if handle:  # Закрываем дескриптор только если он был успешно открыт
+            win32print.ClosePrinter(handle)
 
 def clear_printer_queue():
     config = load_config()
-    printer_name = config.get('printer')
-    """
-    Полностью очищает очередь печати на указанном принтере.
-    Если имя принтера не передано (None или пустая строка), функция ничего не делает.
-    """
-    # Если имя принтера отсутствует, сразу выходим из функции
+    printer_name = config.get('printer', '').strip()
+    
     if not printer_name:
         return False
 
@@ -77,6 +69,5 @@ def clear_printer_queue():
         return False
         
     finally:
-        # Освобождаем дескриптор принтера в ОС Windows
         if h_printer:
             win32print.ClosePrinter(h_printer)

@@ -5,14 +5,16 @@ export default function StatusPrinting() {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    sendServer
-      .get()
-      .then(() => {
-        setIsActive(true);
-      })
-      .catch(() => {
+    const checkServer = async () => {
+      try {
+        const res = await sendServer.get();
+        setIsActive(!!res?.ok);
+      } catch {
         setIsActive(false);
-      });
+      }
+    };
+
+    checkServer();
   }, []);
 
   return (

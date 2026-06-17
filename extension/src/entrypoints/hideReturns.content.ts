@@ -2,12 +2,12 @@ declare const chrome: any;
 
 import { SELECTORS, workPathNames } from "@/utils/constants";
 import { subscribe } from "@/utils/observer";
-import { waitLoadElement } from "@/utils/find";
+import { waitLoadElement2 } from "@/utils/find";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
 
     // Хелпер для сравнения двух массивов без привязки к их порядку
@@ -22,10 +22,10 @@ export default defineContentScript({
         "returns",
         "offReturns",
       ]);
-      const titleReturns = await waitLoadElement(SELECTORS.titleReturns);
+      const titleReturns = await waitLoadElement2(SELECTORS.titleReturns);
       if (!titleReturns) return null;
 
-      const container: any = await waitLoadElement(SELECTORS.containerReturns);
+      const container: any = await waitLoadElement2(SELECTORS.containerReturns);
       if (
         !container ||
         !container.textContent.startsWith("Добавьте содержимое в перевозку")

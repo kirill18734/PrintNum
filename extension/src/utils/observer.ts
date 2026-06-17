@@ -1,4 +1,4 @@
-export const listeners = [];
+export const listeners: any = [];
 
 let lastURL = "";
 

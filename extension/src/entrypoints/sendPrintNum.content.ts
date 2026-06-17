@@ -4,28 +4,33 @@ import { SELECTORS, workPathNames } from "@/utils/constants";
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  main() {
-    const printedNumbers = new Set();
+  async main() {
+    const printedNumbers = new Set<string>();
 
     let firstRun = false;
     let lastTagsCount = 0;
 
     const URL = "print-number";
 
-    function sendNumber(number: string) {
-      let response = false;
-      sendServer
-        .post("print-number", { text: number })
-        .then(() => {
-          response = true;
-        })
-        .catch(() => {
-          response = false;
-        });
-      return response;
+    async function sendNumber(number: string): Promise<boolean> {
+      try {
+        const response = await sendServer.post(URL, { text: number });
+
+        if (!response.ok) {
+          console.error(
+            `Ошибка сервера: ${response.status} ${response.statusText}`,
+          );
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Ошибка отправки номера:", error);
+        return false;
+      }
     }
 
-    function runScript() {
+    async function runScript() {
       const tags = document.querySelectorAll(SELECTORS.numprint);
       if (!tags.length) return;
 

@@ -1,4 +1,6 @@
 // Эффективное ожидание элемента через MutationObserver
+import { TEXT } from "./constants";
+
 function searchText(
   selector: string,
   container: any,
@@ -67,7 +69,7 @@ export async function waitLoadElement(
     // 3. Ограничиваем время ожидания
     const timer = setTimeout(() => {
       observerFind.disconnect();
-      reject(new Error(`PrintNum: Элемент ${selector} не найден`));
+      resolve(null); // Мягкий выход вместо reject - чтобы не вызывать необработанные ошибки
     }, timeout);
   });
 }
@@ -83,7 +85,7 @@ export async function waitLoadElement2(
 ) {
   const startTime = Date.now();
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     function findElement() {
       const element = textValue
         ? searchText(selector, container, textValue, name, isInclude)
@@ -92,9 +94,9 @@ export async function waitLoadElement2(
       if (element) {
         resolve(element);
       } else if (Date.now() - startTime >= timeout) {
-        reject(new Error(`PrintNum: Элемент ${selector} не найден`));
+        resolve(null); // Мягкий выход, если страница "не та" и элемента нет
       } else {
-        setTimeout(findElement, 300);
+        setTimeout(findElement, 250); // Проверка каждые 250мс
       }
     }
     findElement();

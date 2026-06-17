@@ -7,7 +7,7 @@ import { waitLoadElement } from "@/utils/find";
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
 
     // удаляет ВСЕ цифры на странице (флаг g)

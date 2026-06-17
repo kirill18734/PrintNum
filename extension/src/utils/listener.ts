@@ -1,8 +1,8 @@
-export const listFunc = [];
+export const listFunc: any = [];
 let lastNumber = "";
-let resetTimeout = null;
+let resetTimeout: any = null;
 
-export function listening(fn) {
+export function listening(fn: any) {
   listFunc.push(fn);
 }
 
@@ -22,7 +22,7 @@ window.addEventListener("keydown", (e) => {
   // Финализация ввода при нажатии Enter
   if (e.key === "Enter") {
     if (lastNumber) {
-      listFunc.forEach((fn) => fn(lastNumber));
+      listFunc.forEach((fn: any) => fn(lastNumber));
     }
     lastNumber = "";
   }

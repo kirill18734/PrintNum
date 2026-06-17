@@ -8,7 +8,7 @@ export default defineContentScript({
   // Исправлен шаблон матчинга URL
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
 
     async function runScript(commandName: string) {
@@ -29,6 +29,7 @@ export default defineContentScript({
           5000,
           true,
         );
+
         if (!label) return null;
 
         const radio: any = await waitLoadElement2(

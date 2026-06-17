@@ -5,13 +5,13 @@ import {
   SELECTORS,
   workPathNames,
 } from "@/utils/constants";
-import { waitLoadElement } from "@/utils/find";
+import { waitLoadElement2 } from "@/utils/find";
 import { listening } from "@/utils/listener";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
     let lastOrder: any = null;
     let resetTimer: any = null;
@@ -22,7 +22,7 @@ export default defineContentScript({
       container: any,
     ) {
       try {
-        const btn: any = await waitLoadElement(
+        const btn: any = await waitLoadElement2(
           selector,
           textValue,
           "",

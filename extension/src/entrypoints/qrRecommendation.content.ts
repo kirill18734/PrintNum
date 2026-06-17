@@ -7,7 +7,7 @@ import { waitLoadElement } from "@/utils/find";
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
-  async main() {
+  main() {
     let isRunning = false;
 
     async function clickByElem(selector: string, textValue: string) {
@@ -16,6 +16,7 @@ export default defineContentScript({
 
       const checkbox = label.querySelector('[type="checkbox"]');
       if (checkbox) checkbox.click();
+      return true;
     }
 
     async function runScript(commandName: string) {

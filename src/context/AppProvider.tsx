@@ -23,10 +23,20 @@ export default function AppProvider({ children }: any) {
   useEffect(() => {
     const initApp = async () => {
       // 1. Всегда запускаем бэкенд при старте приложения
-      Command.create("start_backend").execute();
+      try {
+        Command.create("start_backend").execute();
+        console.log("Backend started successfully");
+      } catch (error) {
+        console.error("Failed to start backend:", error);
+      }
 
-      const resUpdate = await checkForUpdates();
-      setIsUpdate(resUpdate);
+      // 2. Параллельно или сразу после проверяем обновления
+      try {
+        const resUpdate = await checkForUpdates();
+        setIsUpdate(resUpdate);
+      } catch (error) {
+        console.error("Failed to check for updates:", error);
+      }
     };
 
     initApp();
@@ -43,25 +53,24 @@ export default function AppProvider({ children }: any) {
 
   useEffect(() => {
     invoke("get_version").then(
-      (message: any) => message && setVersion(`${message}`),
+      (message) => message && setVersion(`${message}`),
     );
   }, []);
 
-  const checkStatus = () => {
-    sendServer
-      .get("status-printer")
-      .then((response) => response.json())
-      .then((body) => {
-        setServerOnline(true);
-        const statePrinter = body.printerOnline;
-        setPrinterOnline((prev: any) =>
-          prev === statePrinter ? prev : statePrinter,
-        );
-      })
-      .catch(() => {
-        setServerOnline(false);
-        setPrinterOnline(false);
-      });
+  const checkStatus = async () => {
+    try {
+      const response = await sendServer.get("status-printer");
+      const body = await response.json();
+
+      setServerOnline(true);
+
+      const statePrinter = body.printerOnline;
+
+      setPrinterOnline((prev) => (prev === statePrinter ? prev : statePrinter));
+    } catch {
+      setServerOnline(false);
+      setPrinterOnline(false);
+    }
   };
 
   useEffect(() => {
