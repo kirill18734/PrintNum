@@ -63,8 +63,12 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(number: string) {
-      if (!location.pathname.startsWith(autoScriptPackage.pathname)) return;
+    async function toggleState(qrId: string) {
+      console.log(qrId);
+      const command = qrCommandsIssueAllOrder.find((item) => item.id == qrId);
+
+      if (command || !location.pathname.startsWith(autoScriptPackage.pathname))
+        return;
 
       runScript(autoScriptPackage.name);
     }

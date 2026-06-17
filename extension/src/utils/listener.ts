@@ -12,7 +12,6 @@ window.addEventListener("keydown", (e) => {
   // Накопление символов от сканера
   if (e.key.length === 1) {
     lastNumber += e.key;
-
     // Сброс буфера через 500 мс (защита от медленного ручного ввода)
     resetTimeout = setTimeout(() => {
       lastNumber = "";
