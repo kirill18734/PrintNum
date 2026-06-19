@@ -1,5 +1,6 @@
 import { sendServer } from "@/utils/api";
 import { SELECTORS, workPathNames } from "@/utils/constants";
+import { subscribe } from "@/utils/observer";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
@@ -9,6 +10,7 @@ export default defineContentScript({
 
     let firstRun = false;
     let lastTagsCount = 0;
+    let observer: any = null;
 
     const URL = "print-number";
 
@@ -30,7 +32,7 @@ export default defineContentScript({
       }
     }
 
-    async function runScript() {
+    function runScript() {
       const tags = document.querySelectorAll(SELECTORS.numprint);
       if (!tags.length) return;
 
@@ -42,10 +44,8 @@ export default defineContentScript({
       // Первый найденный номер пропускаем
       if (!firstRun) {
         printedNumbers.add(number);
-
         lastTagsCount = tagsCount;
         firstRun = true;
-
         return;
       }
 
@@ -63,22 +63,36 @@ export default defineContentScript({
     }
 
     function resetState() {
+      if (observer) {
+        observer.disconnect();
+        observer = null; // Обязательно зануляем ссылку
+      }
       firstRun = false;
       lastTagsCount = 0;
       printedNumbers.clear();
     }
 
-    // отслеживание изменения URL
-    new MutationObserver(() => {
+    function toggleState() {
+      // 1. ПЕРВЫМ ДЕЛОМ всегда очищаем старый обсервер, предотвращая утечку памяти
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+
       if (location.pathname !== workPathNames.recommendation) {
         resetState();
         return;
-      } else {
-        runScript();
       }
-    }).observe(document, {
-      childList: true,
-      subtree: true,
-    });
+
+      // 2. Создаем обсервер только убедившись, что старый уничтожен
+      observer = new MutationObserver(() => runScript());
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    subscribe(toggleState);
   },
 });

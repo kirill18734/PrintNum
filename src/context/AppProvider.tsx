@@ -20,25 +20,9 @@ export default function AppProvider({ children }: any) {
   const [version, setVersion] = useState("");
   const [isUpdate, setIsUpdate] = useState(false);
 
+  // useEffect #1: Инициализация и запуск бэкенда (Максимальный приоритет)
   useEffect(() => {
-    const initApp = async () => {
-      // 1. Всегда запускаем бэкенд при старте приложения
-      try {
-        Command.create("start_backend").execute();
-      } catch (error) {
-        console.error("Failed to start backend:", error);
-      }
-
-      // 2. Параллельно или сразу после проверяем обновления
-      try {
-        const resUpdate = await checkForUpdates();
-        setIsUpdate(resUpdate);
-      } catch (error) {
-        console.error("Failed to check for updates:", error);
-      }
-    };
-
-    initApp();
+    Command.create("start_backend").execute();
   }, []);
 
   const closeWindow = async () => {
@@ -77,6 +61,20 @@ export default function AppProvider({ children }: any) {
 
     const interval = setInterval(checkStatus, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // useEffect #2: Проверка обновлений (Низкий приоритет, фоновый режим)
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        const resUpdate = await checkForUpdates();
+        setIsUpdate(resUpdate);
+      } catch (error) {
+        console.error("Failed to check for updates:", error);
+      }
+    };
+
+    fetchUpdates();
   }, []);
 
   return (

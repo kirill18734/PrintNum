@@ -1,8 +1,8 @@
 declare const chrome: any;
 
 import { autoScriptPackage } from "@/utils/constants";
-import { listening } from "@/utils/listener";
 import { waitLoadElement2 } from "@/utils/find";
+import { subscribe } from "@/utils/observer";
 
 export default defineContentScript({
   // Исправлен шаблон матчинга URL
@@ -10,6 +10,7 @@ export default defineContentScript({
 
   main() {
     let isRunning = false;
+    let observer: any = null;
 
     async function runScript(commandName: string) {
       if (isRunning) return;
@@ -42,6 +43,7 @@ export default defineContentScript({
 
         if (radio && !radio.checked) {
           radio.click();
+          await new Promise((resolve) => setTimeout(resolve, 300));
           return;
         }
 
@@ -50,12 +52,13 @@ export default defineContentScript({
           "Завершить",
           "",
           document,
-          1000,
+          2000,
         );
 
         if (!btn) return;
 
         btn.click();
+        await new Promise((resolve) => setTimeout(resolve, 1500));
       } catch (err) {
         console.error(`PrintNum: ${err}`);
       } finally {
@@ -63,15 +66,31 @@ export default defineContentScript({
       }
     }
 
-    function toggleState(qrId: string) {
-      const command = qrCommandsIssueAllOrder.find((item) => item.id == qrId);
-
-      if (command || !location.pathname.startsWith(autoScriptPackage.pathname))
-        return;
-
-      runScript(autoScriptPackage.name);
+    function resetState() {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
     }
 
-    listening(toggleState);
+    function toggleState() {
+      if (observer) resetState();
+
+      if (!location.pathname.includes(autoScriptPackage.pathname)) {
+        // Если ушли с целевой страницы — полностью очищаем состояние и выходим
+        resetState();
+        return;
+      }
+
+      // 2. Создаем обсервер только убедившись, что старый уничтожен
+      observer = new MutationObserver(() => runScript(autoScriptPackage.name));
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    subscribe(toggleState);
   },
 });
