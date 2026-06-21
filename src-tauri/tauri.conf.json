@@ -41,7 +41,7 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "../backend/output": "backend",
+      "../backend/output/backend.exe": "./backend.exe",
       "../extension/.output/chrome-mv3": "extension",
       "../DriverPrinter_CHITENG-CT221B.exe": "./DriverPrinter_CHITENG-CT221B.exe"
     },

@@ -139,7 +139,7 @@
 
 [(Вернуться к началу)](#printnum--печать-ячеек-ozon)
 
-- **ОС**: Windows 8+ x64 — требуется для работы печати и Tauri.
+- **ОС**: Windows 10+ x64 — требуется для работы печати и Tauri
 - **Браузер**: Chromium-совместимый браузер (Chrome, Yandex, Edge).
 - **Python**: 3.10+ для backend-разработки.
 - **Node.js**: 18+ LTS для frontend, extension и Tauri.
