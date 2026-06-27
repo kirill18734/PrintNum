@@ -42,8 +42,7 @@
     ],
     "resources": {
       "../backend/output/backend.exe": "./backend.exe",
-      "../extension/.output/chrome-mv3": "extension",
-      "../DriverPrinter_CHITENG-CT221B.exe": "./DriverPrinter_CHITENG-CT221B.exe"
+      "../extension/.output/chrome-mv3": "extension"
     },
     "windows": {
       "nsis": {
