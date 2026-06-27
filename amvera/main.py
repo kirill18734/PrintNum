@@ -1,8 +1,10 @@
 import os
 import json
+from flask_cors import CORS
 from flask import Flask, jsonify, send_from_directory, abort
 
 app = Flask(__name__)
+CORS(app)  # Включаем CORS для всего приложения
 
 # Отключаем экранирование кириллицы в JSON
 app.config['JSON_AS_ASCII'] = False  # Для старых версий Flask
