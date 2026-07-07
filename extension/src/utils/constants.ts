@@ -11,6 +11,7 @@ export const SELECTORS = {
   packageL: 'div:nth-child(2) > [class^="ozi__input__root__"] button',
   scanOrder: 'div[class^="_scanAnimate_"]',
   numprint: 'div[class^="_list_"] div[class^="_shelfTag_"]',
+  itemsBoxes: 'input[type="checkbox"]',
 };
 
 export const TEXT = {
@@ -23,6 +24,7 @@ export const TEXT = {
   CHECK: "Проверить",
   ONCHECK: "На проверке",
   RETURN_REASON_1: "Изменил решение о покупке/Товар не подошёл",
+  MOVE: "Переместить",
 };
 
 export const workPathNames = {
@@ -126,7 +128,12 @@ export const qrCommandRecommendation = [
 
 // AutoScripts
 export const autoScriptPackage = {
-  name: "Упаковка не требуется",
+  name: "Упаковки Ozon нет в наличии",
+  pathname: workPathNames.package,
+};
+
+export const autoScriptBox = {
+  name: "Перенести тарники в перевозку",
   pathname: workPathNames.package,
 };
 

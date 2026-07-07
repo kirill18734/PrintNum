@@ -1,6 +1,7 @@
 declare const chrome: any;
 
 import {
+  autoScriptBox,
   autoScriptPackage,
   hideBannerAllOrder,
   hideBannerOrder,
@@ -16,7 +17,7 @@ export default defineBackground({
     try {
       // 1. Собираем дефолтные данные
       const namesOther = [hideBannerAllOrder.name, hideBannerOrder.name];
-      const namesAutoscripts = autoScriptPackage.name;
+      const namesAutoscripts = [autoScriptPackage.name, autoScriptBox.name];
       const namesQrCommands = [
         ...qrCommandsIssueAllOrder,
         ...qrCommandsIssueOrder,
@@ -42,8 +43,8 @@ export default defineBackground({
       }
 
       if (storage.autoscripts === undefined) {
-        dataToSet.autoscripts = [namesAutoscripts];
-        dataToSet.offAutoscripts = [namesAutoscripts];
+        dataToSet.autoscripts = namesAutoscripts;
+        dataToSet.offAutoscripts = namesAutoscripts;
       }
 
       if (storage.qrCodes === undefined) {
