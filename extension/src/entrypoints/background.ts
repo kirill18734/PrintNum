@@ -15,7 +15,7 @@ import {
 export default defineBackground({
   async main() {
     try {
-      // 1. Собираем дефолтные данные
+      // Дефолтные значения
       const namesOther = [hideBannerAllOrder.name, hideBannerOrder.name];
       const namesAutoscripts = [autoScriptPackage.name, autoScriptBox.name];
       const namesQrCommands = [
@@ -26,7 +26,7 @@ export default defineBackground({
         ...qrCommandReturnOrder,
       ].map((item) => item.name);
 
-      // 2. Получаем текущее состояние из хранилища
+      // Получаем текущее состояние
       const storage: any = await chrome.storage.local.get([
         "other",
         "autoscripts",
@@ -37,22 +37,50 @@ export default defineBackground({
 
       const dataToSet: any = {};
 
-      // 3. Проверяем строго на undefined (чтобы не затирать пустые массивы пользователя)
-      if (storage.other === undefined) {
+      // Сравнение без учета порядка элементов
+      const isDifferent = (
+        current: string[] | undefined,
+        next: string[],
+      ): boolean => {
+        if (!Array.isArray(current)) return true;
+
+        const currentSet = new Set(current);
+        const nextSet = new Set(next);
+
+        if (currentSet.size !== nextSet.size) {
+          return true;
+        }
+
+        for (const item of currentSet) {
+          if (!nextSet.has(item)) {
+            return true;
+          }
+        }
+
+        return false;
+      };
+
+      if (isDifferent(storage.other, namesOther)) {
         dataToSet.other = namesOther;
       }
 
-      if (storage.autoscripts === undefined) {
+      if (isDifferent(storage.autoscripts, namesAutoscripts)) {
         dataToSet.autoscripts = namesAutoscripts;
+      }
+
+      if (isDifferent(storage.offAutoscripts, namesAutoscripts)) {
         dataToSet.offAutoscripts = namesAutoscripts;
       }
 
-      if (storage.qrCodes === undefined) {
-        dataToSet.qrCodes = namesQrCommands; // ИСПРАВЛЕНО: убраны лишние скобки []
-        dataToSet.offQrCodes = namesQrCommands; // ИСПРАВЛЕНО: убраны лишние скобки []
+      if (isDifferent(storage.qrCodes, namesQrCommands)) {
+        dataToSet.qrCodes = namesQrCommands;
       }
 
-      // 4. Записываем всё одним быстрым вызовом, если есть что записывать
+      if (isDifferent(storage.offQrCodes, namesQrCommands)) {
+        dataToSet.offQrCodes = namesQrCommands;
+      }
+
+      // Записываем только если есть изменения
       if (Object.keys(dataToSet).length > 0) {
         await chrome.storage.local.set(dataToSet);
       }
