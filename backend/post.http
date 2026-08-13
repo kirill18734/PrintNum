@@ -11,3 +11,11 @@ content-type: application/json
 {
     "text": "500-1"
 }
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "КГТ-23"
+}

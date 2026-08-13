@@ -9,3 +9,5 @@ GET {{host}}
 GET {{host}}/status-printer
 ###
 GET {{host}}/listPrinters
+
+GET https://printnum-kirill123451.amvera.io/v2.0.1/PrintNum_2.0.1_x64-setup.exe

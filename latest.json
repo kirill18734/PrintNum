@@ -1,10 +1,10 @@
 {
-  "version": "2.0.0",
+  "version": "2.0.1",
   "note": "Современная, быстрая, оптимизированная, надежная, удобная и бесплатная, ваша программа PrintNum.\n\n\nВАЖНО: после установки не забудьте перезапустить браузер или обновить расширение, чтобы активировать новые функции",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWFNL0NMMFpoREJleU5oVi9LYWpJMkVrMkVUdEhHZEc1LzlLNlgvYmpCUEhFZDROUkJHdzAxUEdPcUtTREIwSnVIdXZJU0FDdTVtUG9tUmpob01Kd2dzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgyMDc0MTY5CWZpbGU6UHJpbnROdW1fMi4wLjBfeDY0LXNldHVwLmV4ZQpPdEhWUWE1NzRzbmhYY0p4YU84d1NBZjlFS0J3SlVudUVyV3ZZUUw2YUlkdXJjcHFRZlhISnFGNFZxZWNmbTZQSUs2WXdNUlVna256UkZ6RmE1SHZBUT09Cg==",
-      "url": "https://printnum-kirill123451.amvera.io/v2.0.0/PrintNum_2.0.0_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVhmLzBsWDhRV0owT0ZNVE1Zck5zeDdMQlJsL01wOWU4bHR4NWV1cThuUkx4eXpob3kxSXE0a0RsL0QzZnF6aHdoRjFnTjFUeEJyUHR6YXMxdXAveVE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2NjU3ODQxCWZpbGU6UHJpbnROdW1fMi4wLjFfeDY0LXNldHVwLmV4ZQp2OE0vcnFqdmVMYm9pUGxycWpFb0FsOURkbEJ2cGN5VThIbHZ6K1NodmdjcXFGZWhYMFkzZmlFWHUvTjNNQnZSUFd2N1ErcEdUYyttQm9UWHRkUXREZz09Cg==",
+      "url": "https://printnum-kirill123451.amvera.io/v2.0.1/PrintNum_2.0.1_x64-setup.exe"
     }
   }
 }
