@@ -18,15 +18,7 @@ function searchText(
   if (!element) {
     // для повторной попытки оплатить
     if (name.startsWith("Оплатить")) {
-      let text;
-      switch (textValue) {
-        case TEXT.CONTINUE:
-          text = TEXT.PAY_REPEAT;
-          break;
-        case TEXT.PAY:
-          text = TEXT.HOME;
-          break;
-      }
+      let text = TEXT.PAY_REPEAT;
       // Ищем элемент только если для textValue нашелся запасной вариант текста
       if (text) {
         element = elements.find((e: any) => e.textContent?.trim() === text);

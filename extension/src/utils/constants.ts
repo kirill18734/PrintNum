@@ -39,31 +39,19 @@ export const qrCommandsIssueAllOrder = [
     id: "74892015376184239061527",
     name: "Выдать все (без пакета)",
     pathname: workPathNames.allOrder,
-    actions: [TEXT.READY, TEXT.CONTINUE, TEXT.ISSUE, TEXT.HOME],
+    actions: [TEXT.READY, TEXT.ISSUE],
   },
   {
     id: "91347265019832476015342",
     name: "Выдать все (+1 пакет M)",
     pathname: workPathNames.allOrder,
-    actions: [
-      TEXT.READY,
-      TEXT.CONTINUE,
-      SELECTORS.packageM,
-      TEXT.ISSUE,
-      TEXT.HOME,
-    ],
+    actions: [TEXT.READY, SELECTORS.packageM, TEXT.ISSUE],
   },
   {
     id: "91347265019832476015343",
     name: "Выдать все (+1 пакет L)",
     pathname: workPathNames.allOrder,
-    actions: [
-      TEXT.READY,
-      TEXT.CONTINUE,
-      SELECTORS.packageL,
-      TEXT.ISSUE,
-      TEXT.HOME,
-    ],
+    actions: [TEXT.READY, SELECTORS.packageL, TEXT.ISSUE],
   },
 ];
 
@@ -72,19 +60,19 @@ export const qrCommandsIssueOrder = [
     id: "37821563489167429583100",
     name: "Выдать заказ (без пакета)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, TEXT.ISSUE, TEXT.HOME],
+    actions: [TEXT.ISSUE],
   },
   {
     id: "60418273951624830975261",
     name: "Выдать заказ (+1 пакет M)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, SELECTORS.packageM, TEXT.ISSUE, TEXT.HOME],
+    actions: [SELECTORS.packageM, TEXT.ISSUE],
   },
   {
     id: "60418273951624830975262",
     name: "Выдать заказ (+1 пакет L)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, SELECTORS.packageL, TEXT.ISSUE, TEXT.HOME],
+    actions: [SELECTORS.packageL, TEXT.ISSUE],
   },
 ];
 
@@ -93,19 +81,19 @@ export const qrCommandsPayOrder = [
     id: "70983625147892016354712",
     name: "Оплатить заказ (без пакета)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, TEXT.PAY, TEXT.HOME],
+    actions: [TEXT.PAY],
   },
   {
     id: "70983625147892016354713",
     name: "Оплатить заказ (+1 пакет M)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, SELECTORS.packageM, TEXT.PAY, TEXT.HOME],
+    actions: [SELECTORS.packageM, TEXT.PAY],
   },
   {
     id: "70983625147892016354714",
     name: "Оплатить заказ (+1 пакет L)",
     pathname: workPathNames.order,
-    actions: [TEXT.CONTINUE, SELECTORS.packageL, TEXT.PAY, TEXT.HOME],
+    actions: [SELECTORS.packageL, TEXT.PAY],
   },
 ];
 
