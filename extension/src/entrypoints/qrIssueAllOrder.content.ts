@@ -42,7 +42,7 @@ export default defineContentScript({
 
             const success = await clickByElem(selector, text);
             if (!success) return; // Прерываем цепочку действий, если один из шагов сорвался
-            await delay(1000);
+            await delay(300);
           }
         } while (true);
       } catch (err) {
