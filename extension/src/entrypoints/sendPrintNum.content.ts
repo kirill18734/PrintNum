@@ -6,11 +6,11 @@ export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
   async main() {
-    const printedNumbers = new Set<string>();
-
     let firstRun = false;
-    let lastTagsCount = 0;
-    let observer: any = null;
+    let observer: MutationObserver | null = null;
+
+    // Старый список текстов, с которым сравниваем новый
+    let previousTexts: string[] = [];
 
     const URL = "print-number";
 
@@ -32,48 +32,63 @@ export default defineContentScript({
       }
     }
 
-    function runScript() {
+    function getTexts(): string[] {
       const tags = document.querySelectorAll(SELECTORS.numprint);
-      if (!tags.length) return;
 
-      const number = tags[0].textContent?.trim();
-      if (!number) return;
+      return Array.from(tags)
+        .map((tag) => tag.textContent?.trim() || "")
+        .filter(Boolean)
+        .slice(0, 10);
+    }
 
-      const tagsCount = tags.length;
+    function areListsEqual(first: string[], second: string[]): boolean {
+      if (first.length !== second.length) {
+        return false;
+      }
 
-      // Первый найденный номер пропускаем
+      return first.every((text, index) => text === second[index]);
+    }
+
+    function runScript() {
+      const currentTexts = getTexts();
+
+      if (!currentTexts.length) return;
+
+      // Первый запуск:
+      // просто сохраняем список, ничего не отправляем
       if (!firstRun) {
-        printedNumbers.add(number);
-        lastTagsCount = tagsCount;
+        previousTexts = currentTexts;
         firstRun = true;
         return;
       }
 
-      const isNewNumber = !printedNumbers.has(number);
-      const tagsChanged = tagsCount !== lastTagsCount;
-
-      if (isNewNumber) {
-        sendNumber(number);
-        printedNumbers.add(number);
-      } else if (tagsChanged) {
-        sendNumber(number);
+      // Если список не изменился — ничего не делаем
+      if (areListsEqual(currentTexts, previousTexts)) {
+        return;
       }
 
-      lastTagsCount = tagsCount;
+      // Список изменился.
+      // Отправляем первый текст нового списка
+      const newText = currentTexts[0];
+
+      sendNumber(newText);
+
+      // Обновляем старый список только после успешной отправки
+      previousTexts = currentTexts;
     }
 
     function resetState() {
       if (observer) {
         observer.disconnect();
-        observer = null; // Обязательно зануляем ссылку
+        observer = null;
       }
+
       firstRun = false;
-      lastTagsCount = 0;
-      printedNumbers.clear();
+      previousTexts = [];
     }
 
     function toggleState() {
-      // 1. ПЕРВЫМ ДЕЛОМ всегда очищаем старый обсервер, предотвращая утечку памяти
+      // Всегда очищаем старый observer
       if (observer) {
         observer.disconnect();
         observer = null;
@@ -84,7 +99,7 @@ export default defineContentScript({
         return;
       }
 
-      // 2. Создаем обсервер только убедившись, что старый уничтожен
+      // Создаем новый observer
       observer = new MutationObserver(() => runScript());
 
       observer.observe(document.body, {
