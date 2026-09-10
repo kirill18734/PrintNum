@@ -5,10 +5,11 @@ import { Command, open } from "@tauri-apps/plugin-shell";
 import { checkForUpdates } from "@/services/updater";
 import { createContext, useContext, useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { useStorageState } from "@/services/store.tauri";
 
 const AppContext = createContext({});
 
-// // ---------- Остановка backend ----------
+// ---------- Остановка backend ----------
 getCurrentWindow().onCloseRequested(() => {
   Command.create("stop_backend").execute();
 });

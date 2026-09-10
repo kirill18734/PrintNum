@@ -9,7 +9,6 @@ import { useAppContext } from "./context/AppProvider";
 import { useEffect, useState } from "react";
 import { installAndRelaunch } from "./services/updater";
 
-// Заменили IconHelp на IconBrandGithub
 import {
   IconBrandGithub,
   IconBrandTelegram,
