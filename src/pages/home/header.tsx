@@ -1,14 +1,17 @@
 import IconApp from "@/assets/App";
 import { Button } from "@/components/ui/button";
 import { appService } from "@/services/app.tauri";
+import { useAppStore } from "@/services/store";
 import { IconMinus, IconX } from "@tabler/icons-react";
 
 export default function Header() {
+  const theme = useAppStore((state: any) => state.theme);
   return (
     <header
       data-tauri-drag-region
       className="flex justify-between items-center h-(--header-height) border-0"
     >
+      <div>{theme}</div>  
       <div data-tauri-drag-region className="flex items-center border-0 h-full">
         <IconApp />
         <span data-tauri-drag-region>Печать ячеек</span>
