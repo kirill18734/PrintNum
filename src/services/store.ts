@@ -1,77 +1,35 @@
 import { create } from "zustand";
-import { defaultConfig } from "../config/defaultConfig";
 import { storeService } from "./store.tauri";
+import { appService } from "./app.tauri";
 
-// Вытаскиваем тип настроек из вашего конфига
-type ConfigType = typeof defaultConfig;
+export const useAppStore = create((set) => ({
+  // config.json
+  theme: storeService.get("theme"),
+  themeStyle: storeService.get("themeStyle"),
+  running: storeService.get("running"),
+  printer: storeService.get("printer"),
+  paper: storeService.get("paper"),
+  idNum: storeService.get("idNum"),
+  endLine: storeService.get("endLine"),
+  hybrid: storeService.get("hybrid"),
+  expand: storeService.get("expand"),
 
-// Описываем интерфейс всего состояния приложения
-interface AppState extends ConfigType {
-  // --- Состояния сети и принтера ---
-  serverOnline: boolean;
-  printerOnline: boolean;
-  listPrinters: string[];
-  version: string;
-  isUpdate: boolean;
-
-  // --- Системные экшены ---
-  setServerOnline: (online: boolean) => void;
-  setPrinterOnline: (online: boolean) => void;
-  setListPrinters: (printers: string[]) => void;
-  setVersion: (version: string) => void;
-  setIsUpdate: (isUpdate: boolean) => void;
-
-  // --- Экшены для настроек (динамический сеттер) ---
-  // Позволяет обновить любой ключ из config.json
-  setConfigValue: <K extends keyof ConfigType>(
-    key: K,
-    value: ConfigType[K],
-  ) => void;
-
-  // Метод для начальной загрузки всех настроек из Tauri на старте приложения
-  initStore: () => Promise<void>;
-}
-
-export const useAppStore = create<AppState>((set) => ({
-  // 1. Инициализируем настройки дефолтными значениями из defaultConfig
-  ...defaultConfig,
-
-  // 2. Начальные значения для статусов бэкенда
   serverOnline: false,
   printerOnline: false,
-  listPrinters: [],
-  version: "",
-  isUpdate: false,
+  version: appService.getAppVersion(),
+  isUpdate: appService.checkForUpdates(),
+  installUpdate: false,
 
-  // 3. Изменение статусов бэкенда
-  setServerOnline: (online) => set({ serverOnline: online }),
-  setPrinterOnline: (online) => set({ printerOnline: online }),
-  setListPrinters: (printers) => set({ listPrinters: printers }),
-  setVersion: (version) => set({ version }),
-  setIsUpdate: (isUpdate) => set({ isUpdate }),
+  setServerOnline: (serverOnline: boolean) => set({ serverOnline }),
+  setPrinterOnline: (printerOnline: boolean) => set({ printerOnline }),
+  setTheme: (theme: string) => {
+    // Действие 1: Сохраняем в сторонний сервис (например, в плагин Tauri или LocalStorage)
+    storeService.set("theme", theme);
 
-  // 4. Умный синхронно-асинхронный сеттер настроек
-  setConfigValue: (key, value) => {
-    // Сначала МГНОВЕННО обновляем состояние в React (интерфейс не ждет диск)
-    set({ [key]: value } as any);
-
-    // Затем асинхронно сохраняем на диск в config.json через ваш storeService
-    storeService.set(key, value).catch((err) => {
-      console.error(`Ошибка сохранения ключа ${String(key)} на диск:`, err);
-    });
+    // Действие 2: Обновляем состояние в Zustand для триггера перерендера
+    set({ theme });
   },
-
-  // 5. Загрузка данных с диска при старте приложения
-  initStore: async () => {
-    try {
-      const savedConfig = await storeService.getAll();
-      // Обновляем стор только теми ключами, которые реально пришли из хранилища
-      set(savedConfig);
-    } catch (error) {
-      console.error(
-        "Не удалось загрузить настройки с диска, используются дефолтные:",
-        error,
-      );
-    }
-  },
+  setIsUpdate: (isUpdate: boolean) => set({ isUpdate }),
+  setVersion: (version: boolean) => set({ version }),
+  setInstallUpdate: (installUpdate: boolean) => set({ installUpdate }),
 }));

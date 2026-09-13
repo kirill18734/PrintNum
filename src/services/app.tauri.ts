@@ -18,7 +18,7 @@ let isUpdateCheckedMock = false;
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ БРАУЗЕРА (MOCK) ───
 const webAppService: IAppService = {
-  getAppVersion: async () => "2.0.0-web-mock",
+  getAppVersion: async () => "2.0.0",
   openExternalUrl: async (url) => {
     window.open(url, "_blank");
   },
@@ -50,7 +50,7 @@ const tauriAppService: IAppService = {
   getAppVersion: async () => {
     const { invoke } = await import("@tauri-apps/api/core");
     const message = await invoke("get_version");
-    return message ? `${message}` : "unknown";
+    return message ? `${message}` : "";
   },
 
   openExternalUrl: async (url) => {
