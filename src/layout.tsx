@@ -20,6 +20,8 @@ export default function Layout() {
   const installUpdate = useAppStore((state: any) => state.installUpdate);
   const setServerOnline = useAppStore((state: any) => state.setServerOnline);
   const setPrinterOnline = useAppStore((state: any) => state.setPrinterOnline);
+  const listPrinters = useAppStore((state: any) => state.listPrinters);
+  const setListPrinters = useAppStore((state: any) => state.setListPrinters);
   const updateStoreTauriValue = useAppStore(
     (state: any) => state.updateStoreTauriValue,
   );
@@ -54,6 +56,37 @@ export default function Layout() {
     const isDark = theme === "dark";
     root.classList.toggle("dark", isDark);
   }, [theme]);
+
+const updateListPrinters = async () => {
+  try {
+    const response = await sendServer.get("listPrinters");
+    const body = await response.json();
+    const next = body.listPrinters;
+
+    // 1. Простая проверка по ссылке (быстрая)
+    if (listPrinters === next) return;
+
+    // 2. Более надёжная проверка (по содержимому)
+    if (JSON.stringify(listPrinters) === JSON.stringify(next)) return;
+
+    // Если список изменился, обновляем Zustand
+    setListPrinters(next);
+  } catch {
+    // Если произошла ошибка и текущий список не пуст — очищаем его
+    if (listPrinters.length !== 0) {
+      setListPrinters([]);
+    }
+  }
+};
+
+useEffect(() => {
+  updateListPrinters();
+
+  const interval = setInterval(updateListPrinters, 5000);
+
+  return () => clearInterval(interval);
+}, [listPrinters]); // Добавляем в зависимости, чтобы внутри updateListPrinters всегда были актуальные данные
+
 
   // проверка сервера/принтера на доступность
   const checkStatus = async () => {
