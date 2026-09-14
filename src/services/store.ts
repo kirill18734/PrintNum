@@ -1,51 +1,41 @@
 import { create } from "zustand";
 import { storeService } from "./store.tauri";
-import { appService } from "./app.tauri";
-import { defaultConfig } from "@/config/defaultConfig";
 
 export const useAppStore = create((set) => ({
-  // 1. Инициализируем синхронными заглушками, чтобы UI не падал
-  ...defaultConfig,
+  // 1. Инициализируем синхронными заглушками из Tauri JSON
+  ...storeService.getAll(),
 
   serverOnline: false,
   printerOnline: false,
   version: "",
   isUpdate: false,
   installUpdate: false,
+  listPrinters: [],
+  listPapars: [
+    "30*20",
+    "40*30",
+    "43*25",
+    "50*70",
+    "58*40",
+    "60*40",
+    "75*120",
+    "100*150",
+  ],
 
-  // Флаг готовности данных (аналог вашего const [loaded, setLoaded])
-  isHydrated: false,
-
-  // 2. Аналог вашего первого useEffect — асинхронная загрузка ВСЕХ данных при старте
-  hydrate: async () => {
+  // 2. Универсальный сеттер для ЛЮБЫХ данных, которые нужно сохранять на диск
+  updateStoreTauriValue: async (key: string, value: any) => {
     try {
-      // Загружаем данные из config.json
-      const config = await storeService.getAll();
-
-      // Загружаем данные из appService
-      const version = await appService.getAppVersion();
-      const isUpdate = await appService.checkForUpdates();
-
-      set({
-        ...config, // Применяем сохраненные значения поверх дефолтных
-        version,
-        isUpdate,
-        isHydrated: true, // Данные готовы, промисов больше нет
-      });
-    } catch (e) {
-      console.error("Ошибка загрузки конфига:", e);
-      set({ isHydrated: true });
+      await storeService.set(key, value); // Пишем в Tauri JSON
+      set({ [key]: value }); // Синхронно обновляем Zustand
+    } catch (error) {
+      console.error(`Ошибка сохранения ключа "${key}" на диск:`, error);
     }
   },
 
-  // 3. Сеттеры (аналог вашего второго useEffect — запись изменений на диск)
-  setTheme: async (theme: string) => {
-    await storeService.set("theme", theme); // Пишем в Tauri JSON
-    set({ theme }); // Обновляем в Zustand (строка, не Promise)
-  },
-
+  // 3. Обычные сеттеры для локального стейта (не пишутся на диск)
   setServerOnline: (serverOnline: boolean) => set({ serverOnline }),
   setPrinterOnline: (printerOnline: boolean) => set({ printerOnline }),
+  setListPrinters: (listPrinters: any) => set({ listPrinters }),
   setIsUpdate: (isUpdate: boolean) => set({ isUpdate }),
   setVersion: (version: string) => set({ version }),
   setInstallUpdate: (installUpdate: boolean) => set({ installUpdate }),

@@ -5,23 +5,24 @@ import { sendServer } from "./services/api";
 import { useAppStore } from "./services/store";
 import Updating from "./pages/updating";
 import Loading from "./pages/loading";
+import { initStoreService } from "./services/store.tauri";
 
 // ---------- Остановка backend ----------
 appService.initCloseHandler();
 
+// Инициализируем конфиг (загрузит данные с диска, если это Tauri)
+await initStoreService();
+
 export default function Layout() {
-  const hydrate = useAppStore((state: any) => state.hydrate);
   const serverOnline = useAppStore((state: any) => state.serverOnline);
   const theme = useAppStore((state: any) => state.theme);
   const themeStyle = useAppStore((state: any) => state.themeStyle);
   const installUpdate = useAppStore((state: any) => state.installUpdate);
   const setServerOnline = useAppStore((state: any) => state.setServerOnline);
   const setPrinterOnline = useAppStore((state: any) => state.setPrinterOnline);
-  const setTheme = useAppStore((state: any) => state.setTheme); // Достаем метод смены темы
-
-  useEffect(() => {
-    hydrate(); // Запускаем асинхронное чтение настроек из файла Tauri
-  }, [hydrate]);
+  const updateStoreTauriValue = useAppStore(
+    (state: any) => state.updateStoreTauriValue,
+  );
 
   // Инициализация и запуск бэкенда
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function Layout() {
       const systemIsDark = window.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
-      setTheme(systemIsDark ? "dark" : "light");
+      updateStoreTauriValue("theme", systemIsDark ? "dark" : "light");
       return; // Прерываем выполнение, так как изменение темы вызовет этот useEffect снова
     }
 
@@ -66,7 +67,7 @@ export default function Layout() {
 
       setPrinterOnline(statePrinter);
     } catch {
-      setServerOnline(true);
+      setServerOnline(false);
       setPrinterOnline(false);
     }
   };
