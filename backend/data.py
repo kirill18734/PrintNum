@@ -2,13 +2,7 @@ import os
 import json
 from threading import Lock
 
-# Пути к файлам и папкам
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Безопасное получение APPDATA (с фолбеком на случай отсутствия переменной в окружении)
-APP_DIR = os.path.join(os.environ.get('APPDATA', BASE_DIR), "PrintNum")
-os.makedirs(APP_DIR, exist_ok=True)
-CONFIG_PATH = os.path.join(APP_DIR, "config.json")
+CONFIG_PATH =  "config.json"
 
 lastUpdateConfig = 0
 config = {}

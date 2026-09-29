@@ -1,0 +1,12 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^pnpm compile$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^cd /workspaces/PrintNum/extension-new && pnpm add @radix-ui/react-slot @radix-ui/react-checkbox$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

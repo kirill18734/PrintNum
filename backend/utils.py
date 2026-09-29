@@ -2,11 +2,6 @@ import win32print
 import win32timezone  # модуль для компиляции, нужен для очистки очереди
 from data import load_config
 
-def listPrinters():
-    # Получение списка всех подключенных принтеров
-    printers = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS)
-    return [p[2] for p in printers]
-
 def status_printer():
     config = load_config()
     printer_name = config.get('printer', '').strip()  # Безопасное чтение dict

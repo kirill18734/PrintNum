@@ -11,60 +11,15 @@ from print_text import print_text
 app = Flask(__name__)
 CORS(app)  # Включаем CORS для всего приложения
 
-# Время последнего запроса
-last_request_time = time.time()
-
-# Через сколько секунд убивать сервер
-TIMEOUT = 10
-
-printerOnline = False
-
-@app.before_request
-def update_activity():
-    """
-    Обновляем время активности
-    перед каждым запросом
-    """
-    global last_request_time
-
-    last_request_time = time.time()
-
-def watchdog():
-    """
-    Следит за неактивностью
-    """
-    global last_request_time
-
-    while True:
-        inactive_time = time.time() - last_request_time
-
-        if inactive_time > TIMEOUT:
-            print(f"Нет запросов {TIMEOUT} секунд")
-            print("Flask сервер завершен")
-        
-            os._exit(0)
-
-        time.sleep(1)
-
-@app.get("/")
-def hello_world():
-      return jsonify({"status": True})
-
-@app.get('/status-printer')
-def statusPrinter():
-    global printerOnline
-    printerOnline = status_printer()
-    return jsonify({'printerOnline': printerOnline})
-
-@app.get('/listPrinters')
-def listPrinter():
-    printers = listPrinters()
-    return jsonify({'listPrinters': printers})
+@app.get('/')
+def status():
+    return jsonify({"status": "ok"})
 
 @app.post('/print-number')
 def printNumber():
     body = request.get_json()
     config = load_config().copy()
+    printerOnline = status_printer()
     text = body.get("text").strip()
     if (text) and config.get('running') and config.get('printer') and printerOnline:
         print_text(text)
