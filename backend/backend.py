@@ -10,15 +10,15 @@ def status():
     return jsonify({"status": "ok"})
 
 @app.post('/print-number')
-def printNumber():
+def print_number():
     body = request.get_json()
     config = load_config().copy()
     printerOnline = status_printer()
     if not printerOnline: 
-        print(f"Принтер Недоступен {config.get('printer')}") 
+        print(f"Принтер Недоступен '{config.get('printer')}'") 
         return 'OK'
     text = body.get("text").strip()
-    if (text) and config.get('running') and config.get('printer'):
+    if (text):
         print_text(text)
     return "OK"
 
