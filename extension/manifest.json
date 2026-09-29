@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "PrintNum",
+  "description": "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
+  "version": "2.0.5",
+  "icons": {
+    "16": "icon/16.png",
+    "32": "icon/32.png",
+    "48": "icon/48.png",
+    "96": "icon/96.png",
+    "128": "icon/128.png"
+  },
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "PrintNum",
+    "default_popup": "entrypoints/popup/index.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": [
+        "entrypoints/utils/constants.js",
+        "entrypoints/utils/storage.js",
+        "entrypoints/utils/find.js",
+        "entrypoints/utils/api.js",
+        "entrypoints/utils/observer.js",
+        "entrypoints/utils/listener.js",
+        "entrypoints/utils/storageListener.js",
+        "entrypoints/background.js",
+        "entrypoints/qrCodes.js",
+        "entrypoints/sendPrintNum.js",
+        "entrypoints/hideBanner.js",
+        "entrypoints/hideMenuNotification.js",
+        "entrypoints/hideReturns.js",
+        "entrypoints/autoscriptBox.js",
+        "entrypoints/autoscriptPackage.js"
+      ]
+    }
+  ]
+}

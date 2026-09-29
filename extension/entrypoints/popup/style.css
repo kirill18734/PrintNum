@@ -1,0 +1,314 @@
+:root {
+  --bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #f3f4f6;
+  --border-dark: #e5e7eb;
+  --primary: #3b82f6;
+
+  /* Цвета статусов */
+  --green-bg: #f0fdf4;
+  --green-text: #16a34a;
+  --green-border: #bbf7d0;
+
+  --red-bg: #fef2f2;
+  --red-text: #dc2626;
+  --red-border: #fecaca;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 12px;
+  width: 320px;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- СТАТУС ПЕЧАТИ --- */
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+.status-card.active {
+  background-color: var(--green-bg);
+  color: var(--green-text);
+  border-color: var(--green-border);
+}
+.status-card.inactive {
+  background-color: var(--red-bg);
+  color: var(--red-text);
+  border-color: var(--red-border);
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-card.active .indicator {
+  background-color: var(--green-text);
+  animation: pulse 2s infinite;
+}
+.status-card.inactive .indicator {
+  background-color: var(--red-text);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 5px rgba(22, 163, 74, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.status-card.inactive .status-info {
+  color: #991b1b;
+}
+.status-card.active .status-info {
+  color: #166534;
+}
+.status-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 1px;
+}
+.download-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.download-btn:hover {
+  opacity: 1;
+}
+
+/* --- АККОРДЕОНЫ --- */
+summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  padding: 10px 0;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--text-muted);
+  border-bottom: 1.5px solid var(--text-muted);
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+  margin-right: 4px;
+}
+details[open] > summary::after {
+  transform: rotate(45deg);
+}
+
+.main-accordion {
+  border-top: 1px solid var(--border-dark);
+}
+.main-accordion > summary {
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.accordion-content {
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.sub-accordion {
+  border-bottom: 1px solid var(--border);
+}
+.sub-content {
+  padding: 4px 0 12px 0;
+}
+
+/* Контейнер для списка динамических кнопок */
+.buttons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* --- СТИЛИ ДЛЯ КНОПОК --- */
+.status-toggle {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+.status-toggle.active {
+  background-color: var(--green-bg);
+  color: var(--green-text);
+  border-color: var(--green-border);
+}
+.status-toggle.active:hover {
+  background-color: #e6fced;
+}
+.status-toggle.inactive {
+  background-color: var(--red-bg);
+  color: var(--red-text);
+  border-color: var(--red-border);
+}
+.status-toggle.inactive:hover {
+  background-color: #fee2e2;
+}
+
+/* ГЛОБАЛЬНАЯ КНОПКА (Включить/Выключить всё) */
+.global-toggle-btn {
+  display: none; /* Скрыта по умолчанию, показываем через JS при наличии данных */
+  width: 100%;
+  text-align: center;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.global-toggle-btn.enable-mode {
+  display: block;
+  border: 1px dashed var(--green-border);
+  background-color: var(--green-bg);
+  color: var(--green-text);
+}
+.global-toggle-btn.disable-mode {
+  display: block;
+  border: 1px dashed var(--red-border);
+  background-color: var(--red-bg);
+  color: var(--red-text);
+}
+
+/* Разделительная линия для секции возвратов */
+#returns .global-toggle-btn {
+  margin-bottom: 6px;
+}
+#returns .buttons-list {
+  border-top: 1px dashed var(--border-dark);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+/* Стили для кастомных текстовых плашек и счетчиков */
+.returns-count-badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  font-weight: 500;
+  display: block;
+}
+.empty-message {
+  display: block;
+  padding: 4px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --- НАСТРОЙКИ ВИДИМОСТИ --- */
+.visibility-settings {
+  display: flex;
+  flex-direction: column;
+  margin-top: 14px;
+}
+.settings-title {
+  margin: 0 0 4px 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* --- КНОПКА ПРИНТЕРА В SUMMARY --- */
+.sub-accordion summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Меняем flex-направление для правильного отступа */
+  gap: 8px;
+}
+
+/* Сдвигаем стрелочку аккордеона в самый правый край */
+.sub-accordion summary::after {
+  margin-left: auto;
+  margin-right: 4px;
+}
+
+/* Стили самой кнопки-иконки */
+.icon-print-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  z-index: 2; /* Позволяет кликать по кнопке поверх summary */
+}
+
+/* Размер SVG иконки */
+.icon-print-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Эффект при наведении */
+.icon-print-btn:hover {
+  color: var(--primary);
+  background-color: var(--border);
+}
+
+/* Эффект при клике */
+.icon-print-btn:active {
+  transform: scale(0.95);
+}

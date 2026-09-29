@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>PrintNum</title>
+  </head>
+  <body>
+    <!-- БЛОК СТАТУСА ПЕЧАТИ -->
+    <div id="statusCard" class="status-card inactive">
+      <div class="indicator"></div>
+      <div class="status-info">
+        <span id="statusTitle" class="status-title">Печать не активна</span>
+        <span id="statusDesc">
+          Проверьте, что приложение PrintNum запущено или
+          <button id="downloadBtn" class="download-btn">
+            скачайте PrintNum
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <!-- ОСНОВНОЙ АККОРДЕОН -->
+    <details class="main-accordion" open>
+      <summary>Дополнительные возможности</summary>
+      <div class="accordion-content">
+        <!-- 1. QR-коды -->
+        <details class="sub-accordion" id="qrCodes">
+          <summary>
+            <span>Обработчики QR-кодов</span>
+            <!-- Кнопка принтера с SVG-иконкой внутри summary -->
+            <button
+              id="print-pdf"
+              class="icon-print-btn"
+              title="Печать PDF"
+              type="button"
+            >
+              <svg
+                xmlns="http://w3.org"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path
+                  d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                ></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            </button>
+          </summary>
+          <div class="sub-content">
+            <button class="global-toggle-btn"></button>
+            <div class="buttons-list"></div>
+          </div>
+        </details>
+
+        <!-- 2. Автоскрипты -->
+        <details class="sub-accordion" id="autoscripts">
+          <summary>Автоскрипты</summary>
+          <div class="sub-content">
+            <button class="global-toggle-btn"></button>
+            <div class="buttons-list"></div>
+          </div>
+        </details>
+
+        <!-- БЛОК: Настройка видимости -->
+        <div class="visibility-settings">
+          <h3 class="settings-title">Настройка видимости</h3>
+
+          <!-- 3. Меню -->
+          <details class="sub-accordion" id="menu">
+            <summary>Меню</summary>
+            <div class="sub-content">
+              <button class="global-toggle-btn"></button>
+              <div class="buttons-list"></div>
+            </div>
+          </details>
+
+          <!-- 4. Уведомления -->
+          <details class="sub-accordion" id="notification">
+            <summary>Уведомления</summary>
+            <div class="sub-content">
+              <button class="global-toggle-btn"></button>
+              <div class="buttons-list"></div>
+            </div>
+          </details>
+
+          <!-- 5. Возвраты -->
+          <details class="sub-accordion" id="returns">
+            <summary>Возвраты</summary>
+            <div class="sub-content">
+              <button class="global-toggle-btn"></button>
+              <div class="buttons-list"></div>
+            </div>
+          </details>
+
+          <!-- 6. Баннеры -->
+          <details class="sub-accordion" id="banners">
+            <summary>Баннеры</summary>
+            <div class="sub-content">
+              <button class="global-toggle-btn"></button>
+              <div class="buttons-list"></div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </details>
+
+    <script src="script.js"></script>
+  </body>
+</html>
