@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from data import load_config
-from utils import listPrinters, status_printer
+from utils import status_printer
+from flask_cors import CORS
 from print_text import print_text
 
 app = Flask(__name__)
+CORS(app) # Включаем CORS для всего приложения
 
 @app.get('/')
 def status():
@@ -11,6 +13,7 @@ def status():
 
 @app.post('/print-number')
 def print_number():
+    print(request)
     body = request.get_json()
     config = load_config().copy()
     printerOnline = status_printer()
