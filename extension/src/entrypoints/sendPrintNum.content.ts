@@ -1,39 +1,45 @@
-import { sendServer } from "@/utils/api";
-import { SELECTORS, workPathNames } from "@/utils/constants";
-import { subscribe } from "@/utils/observer";
+declare const chrome: any;
+
+import { PATH, SELECTOR } from "../utils/constants";
+import { subscribe } from "../utils/observer";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
 
   async main() {
     let firstRun = false;
-    let observer: MutationObserver | null = null;
+    let observerPrint: any = null;
 
-    // Старый список текстов, с которым сравниваем новый
-    let previousTexts: string[] = [];
+    let previousTexts: any = [];
 
-    const URL = "print-number";
-
-    async function sendNumber(number: string): Promise<boolean> {
+    async function sendNumber(number: any) {
       try {
-        const response = await sendServer.post(URL, { text: number });
+        // Отправляем сообщение в Background Script и ждем промис
+        const response = await chrome.runtime.sendMessage({
+          action: "sendNumberToFlask",
+          number: number,
+        });
 
-        if (!response.ok) {
+        // Если фоновый скрипт вернул ошибку или статус неуспеха
+        if (!response || !response.success) {
           console.error(
-            `Ошибка сервера: ${response.status} ${response.statusText}`,
+            `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
           );
           return false;
         }
 
         return true;
       } catch (error) {
-        console.error("Ошибка отправки номера:", error);
+        console.error(
+          `Ошибка отправки номера ячейки "${number}" через фоновый скрипт: `,
+          error,
+        );
         return false;
       }
     }
 
-    function getTexts(): string[] {
-      const tags = document.querySelectorAll(SELECTORS.numprint);
+    function getTexts() {
+      const tags = document.querySelectorAll(SELECTOR.printNumber);
 
       return Array.from(tags)
         .map((tag) => tag.textContent?.trim() || "")
@@ -41,12 +47,12 @@ export default defineContentScript({
         .slice(0, 10);
     }
 
-    function areListsEqual(first: string[], second: string[]): boolean {
+    function areListsEqual(first: any, second: any) {
       if (first.length !== second.length) {
         return false;
       }
 
-      return first.every((text, index) => text === second[index]);
+      return first.every((text: any, index: any) => text === second[index]);
     }
 
     function runScript() {
@@ -54,8 +60,7 @@ export default defineContentScript({
 
       if (!currentTexts.length) return;
 
-      // Первый запуск:
-      // просто сохраняем список, ничего не отправляем
+      // Первый запуск: просто сохраняем список, ничего не отправляем
       if (!firstRun) {
         previousTexts = currentTexts;
         firstRun = true;
@@ -67,20 +72,20 @@ export default defineContentScript({
         return;
       }
 
-      // Список изменился.
-      // Отправляем первый текст нового списка
+      // Список изменился. Фиксируем новый текст
       const newText = currentTexts[0];
 
-      sendNumber(newText);
-
-      // Обновляем старый список только после успешной отправки
+      // скрипт НЕ будет пытаться отправить этот номер повторно.
       previousTexts = currentTexts;
+
+      // Отправляем первый текст нового списка в фоновом режиме (без await)
+      sendNumber(newText);
     }
 
     function resetState() {
-      if (observer) {
-        observer.disconnect();
-        observer = null;
+      if (observerPrint) {
+        observerPrint.disconnect();
+        observerPrint = null;
       }
 
       firstRun = false;
@@ -88,24 +93,23 @@ export default defineContentScript({
     }
 
     function toggleState() {
-      // Всегда очищаем старый observer
-      if (observer) {
-        observer.disconnect();
-        observer = null;
-      }
+      // Исправлено: Гарантированный сброс состояния при любом переходе
+      resetState();
 
-      if (location.pathname !== workPathNames.recommendation) {
-        resetState();
+      if (location.pathname !== PATH.recommendation) {
         return;
       }
 
-      // Создаем новый observer
-      observer = new MutationObserver(() => runScript());
+      // Создаем новый observerPrint
+      observerPrint = new MutationObserver(() => runScript());
 
-      observer.observe(document.body, {
+      observerPrint.observe(document.body, {
         childList: true,
         subtree: true,
       });
+
+      // Первичный запуск для фиксации исходного состояния элементов
+      runScript();
     }
 
     subscribe(toggleState);

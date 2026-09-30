@@ -1,8 +1,8 @@
-export const listeners: any = [];
+const listeners: any = [];
 
 let lastURL = "";
 
-export const observer = new MutationObserver(() => {
+const observer = new MutationObserver(() => {
   const curURL = location.href;
   if (lastURL !== curURL) {
     lastURL = curURL;

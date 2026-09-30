@@ -3,6 +3,7 @@ import { Ban, QrCode } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { Printer } from "lucide-react";
 import { UniversalLinkButton } from "@/components/opeTabURL";
+import { useStorageState } from "@/hooks/useStorageState";
 
 export default function QrCommands() {
   // Предполагается, что useStorageState объявлен выше или импортирован

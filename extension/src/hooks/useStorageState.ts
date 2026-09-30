@@ -1,30 +1,35 @@
 declare const chrome: any;
 
 import { useState, useEffect } from "react";
+import { get_local_storage } from "@/utils/storage";
 
 export function useStorageState(key: string, initialValue: string[]) {
   const [state, setState] = useState<string[]>(initialValue);
 
-  // Загружаем данные при старте popup
+  // 1. Загружаем данные из хранилища при старте или смене ключа
   useEffect(() => {
-    chrome.storage.local.get([key], (result: any) => {
-      if (result[key]) {
-        setState(result[key]);
+    async function loadData() {
+      const storedValue = await get_local_storage(key);
+      if (storedValue !== false) {
+        setState(storedValue);
       }
-    });
+    }
+    loadData();
   }, [key]);
 
-  // Переключатель элемента
+  // 2. Автоматически сохраняем изменения в chrome.storage при изменении state
+  useEffect(() => {
+    // Пропускаем запись дефолтного значения, если это необходимо,
+    // либо пишем всегда, чтобы синхронизировать состояние
+    set_local_storage(key, state);
+  }, [key, state]);
+
+  // Переключатель элемента (только обновляет состояние React)
   const toggleItem = (item: string) => {
     setState((prev) => {
-      const newValue = prev.includes(item)
+      return prev.includes(item)
         ? prev.filter((i) => i !== item)
         : [...prev, item];
-
-      // Сохраняем в память расширения
-      chrome.storage.local.set({ [key]: newValue });
-
-      return newValue;
     });
   };
 

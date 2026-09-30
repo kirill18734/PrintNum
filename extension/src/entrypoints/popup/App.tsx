@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Hide from "./hide";
 
 import {
   Accordion,
@@ -8,7 +7,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import StatusPrinting from "./statusPrinting";
-import Autoscript from "./autoscript";
 import QrCommands from "./qrCommands";
 import Help from "./Help";
 
@@ -36,8 +34,6 @@ function App() {
           <AccordionContent className="p-3 pt-0 flex flex-col items-center gap-2">
             <div className="flex flex-col items-center p-2 w-full gap-2">
               <QrCommands />
-              <Autoscript />
-              <Hide />
               <Help />
             </div>
           </AccordionContent>
