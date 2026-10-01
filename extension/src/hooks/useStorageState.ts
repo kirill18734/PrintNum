@@ -1,7 +1,7 @@
 declare const chrome: any;
 
 import { useState, useEffect } from "react";
-import { get_local_storage } from "@/utils/storage";
+import { get_local_storage, set_local_storage } from "@/utils/storage";
 
 export function useStorageState(key: string, initialValue: string[]) {
   const [state, setState] = useState<string[]>(initialValue);

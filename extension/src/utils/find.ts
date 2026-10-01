@@ -1,4 +1,4 @@
-import { TEXT } from "./constants";
+import { TEXT } from "@/utils/constants";
 
 function searchText(
   selector: string,

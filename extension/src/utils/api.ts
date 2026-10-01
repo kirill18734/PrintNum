@@ -1,4 +1,4 @@
-import { API_BASE } from "./constants";
+import { API_BASE } from "@/utils/constants";
 
 export const sendServer = {
   get: async (domain = API_BASE, endpoint = "") =>

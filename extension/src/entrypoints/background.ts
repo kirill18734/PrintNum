@@ -6,12 +6,12 @@ import { get_local_storage, set_local_storage } from "@/utils/storage";
 export default defineBackground({
   main() {
     // ==========================================
-    // 1. СЛУШАТЕЛЬ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ (Flask)
+    // 1. СЛУШАТЕЛЬ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ И ОТПРАВКА НА BACKEND (Flask)
     // ==========================================
     chrome.runtime.onMessage.addListener(
       (message: any, sender: any, sendResponse: any) => {
         if (message.action === "sendNumberToFlask") {
-          fetch(API_BASE, {
+          fetch(`${API_BASE}/print-number`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
