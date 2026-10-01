@@ -8,7 +8,7 @@ export default defineConfig({
     action: {},
     name: "PrintNum - Печать Ячеек (Ozon)",
     description:
-      "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
+      "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек и удобная автоматизация по QR-кодам",
   },
 
   srcDir: "src",
