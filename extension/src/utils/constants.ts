@@ -135,4 +135,39 @@ export const qrCodes = [
     "recommendation",
     false,
   ),
+  // =========================
+  // Автоматическая выдача
+  // Общий цикл:
+  // без пакета → M → L → ...
+  // =========================
+
+  cmd(
+    "auto_all",
+    "82645173920468157392046",
+    "Выдать все (авто)",
+    PATH.all,
+    [TEXT.ready, TEXT.issue],
+    "package_cycle",
+    true,
+  ),
+
+  cmd(
+    "auto_issue",
+    "56192837465019283746501",
+    "Выдать заказ (авто)",
+    PATH.order,
+    [TEXT.issue],
+    "package_cycle",
+    false,
+  ),
+
+  cmd(
+    "auto_pay",
+    "39481726503948172650394",
+    "Оплатить заказ (авто)",
+    PATH.order,
+    [TEXT.pay],
+    "package_cycle",
+    false,
+  ),
 ];
