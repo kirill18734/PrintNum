@@ -42,13 +42,7 @@ export default defineContentScript({
       const nextIndex: any = (packageCycleIndex + 1) % packageCycle.length;
 
       // Сохраняем новый индекс в хранилище для всех вкладок
-      // Предполагается, что у вас есть парная функция set_local_storage
-      if (typeof set_local_storage === "function") {
-        await set_local_storage("packageCycleIndex", nextIndex);
-      } else {
-        // Если встроенной set_local_storage нет, используем стандартный localStorage API
-        localStorage.setItem("packageCycleIndex", nextIndex);
-      }
+      await set_local_storage("packageCycleIndex", nextIndex);
 
       return packageSelector;
     }
