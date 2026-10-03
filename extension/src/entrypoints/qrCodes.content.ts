@@ -11,27 +11,15 @@ export default defineContentScript({
     let isRunning = false;
 
     // ============================================================
-    // ОБЩИЙ СЧЁТЧИК ПАКЕТОВ ДЛЯ ТРЁХ НОВЫХ QR
+    // ОБЩИЙ СЧЁТЧИК ПАКЕТОВ
     //
     // 0 → без пакета
     // 1 → M
     // 2 → L
     // затем снова 0
-    //
-    // ВАЖНО:
-    // Счётчик общий для:
-    //   auto_all
-    //   auto_issue
-    //   auto_pay
     // ============================================================
 
-    let packageCycleIndex = 0;
-
-    const packageCycle = [
-      null, // 0 — без пакета
-      SELECTOR.packageM, // 1 — пакет M
-      SELECTOR.packageL, // 2 — пакет L
-    ];
+    const packageCycle = [null, SELECTOR.packageM, SELECTOR.packageL];
 
     const delay = (ms: any) =>
       new Promise((resolve) => setTimeout(resolve, ms));
@@ -40,10 +28,27 @@ export default defineContentScript({
     // Получить следующий тип пакета
     // ============================================================
 
-    function getNextPackage() {
+    async function getNextPackage() {
+      // Достаем актуальный индекс из хранилища (если его там нет, по дефолту 0)
+      let packageCycleIndex =
+        (await get_local_storage("packageCycleIndex")) || 0;
+
+      // Приводим к числу на всякий случай
+      packageCycleIndex = Number(packageCycleIndex);
+
       const packageSelector = packageCycle[packageCycleIndex];
 
-      packageCycleIndex = (packageCycleIndex + 1) % packageCycle.length;
+      // Вычисляем следующий индекс
+      const nextIndex: any = (packageCycleIndex + 1) % packageCycle.length;
+
+      // Сохраняем новый индекс в хранилище для всех вкладок
+      // Предполагается, что у вас есть парная функция set_local_storage
+      if (typeof set_local_storage === "function") {
+        await set_local_storage("packageCycleIndex", nextIndex);
+      } else {
+        // Если встроенной set_local_storage нет, используем стандартный localStorage API
+        localStorage.setItem("packageCycleIndex", nextIndex);
+      }
 
       return packageSelector;
     }
@@ -52,23 +57,21 @@ export default defineContentScript({
     // Клик по элементу
     // ============================================================
 
-    async function clickByElem(selector: any, textValue: any, name: any) {
+    async function clickByElem(
+      selector: string,
+      textValue: string,
+      name: string,
+    ) {
       const btn: any = await waitLoadElement(selector, textValue, name);
-
       if (!btn) return null;
 
       btn.click();
-
       return true;
     }
 
-    // ============================================================
-    // Безопасное включение чекбокса
-    // ============================================================
-
-    async function checkCheckboxOnly(selector: any, textValue: any) {
+    // Вспомогательная функция для безопасного включения чекбокса
+    async function checkCheckboxOnly(selector: string, textValue: string) {
       const label: any = await waitLoadElement(selector, textValue);
-
       if (!label) return false;
 
       const checkbox = label.querySelector('[type="checkbox"]');
@@ -76,23 +79,23 @@ export default defineContentScript({
       if (checkbox) {
         checkbox.click();
       }
-
       return true;
     }
 
     // ============================================================
-    // Выполнение обычной команды
+    // Выполнение действий
     // ============================================================
 
-    async function executeActions(actions: any[], commandName: string) {
+    async function executeActions(actions: any, commandName: string) {
       for (const action of actions) {
-        const isSelector = [SELECTOR.packageL, SELECTOR.packageM].includes(
-          action,
-        );
+        const isPackageSelector = [
+          SELECTOR.packageL,
+          SELECTOR.packageM,
+        ].includes(action);
 
-        const selector = isSelector ? action : "button";
+        const selector = isPackageSelector ? action : "button";
 
-        const text = isSelector ? "" : action;
+        const text = isPackageSelector ? "" : action;
 
         const success = await clickByElem(selector, text, commandName);
 
@@ -105,40 +108,28 @@ export default defineContentScript({
     }
 
     // ============================================================
-    // Получить действия для автоматического цикла
+    // Получить действия текущей итерации
     // ============================================================
 
-    function getCycleActions(command: any, packageSelector: any) {
+    async function getActionsForIteration(command: any) {
       const actions = [...(command.actions || [])];
 
-      // Без пакета
-      if (!packageSelector) {
+      // Обычная команда
+      if (command.group !== "package_cycle") {
         return actions;
       }
 
-      // Для auto_all:
-      //
-      // [TEXT.ready, TEXT.issue]
-      //
-      // превращаем в:
-      //
-      // [TEXT.ready, SELECTOR.packageM, TEXT.issue]
-      //
-      // Для auto_issue:
-      //
-      // [TEXT.issue]
-      //
-      // превращаем в:
-      //
-      // [SELECTOR.packageM, TEXT.issue]
-      //
-      // Для auto_pay:
-      //
-      // [TEXT.pay]
-      //
-      // превращаем в:
-      //
-      // [SELECTOR.packageM, TEXT.pay]
+      // package_cycle:
+      // null → обычные actions
+      // M    → вставляем M перед последним действием
+      // L    → вставляем L перед последним действием
+
+      // Ждем актуальный селектор из хранилища
+      const packageSelector = await getNextPackage();
+
+      if (!packageSelector) {
+        return actions;
+      }
 
       if (actions.length > 0) {
         actions.splice(actions.length - 1, 0, packageSelector);
@@ -150,7 +141,6 @@ export default defineContentScript({
     // ============================================================
     // Основная логика
     // ============================================================
-
     async function runScript(command: any) {
       // Защита от параллельного запуска
       if (isRunning) return;
@@ -165,79 +155,30 @@ export default defineContentScript({
         }
 
         // ========================================================
-        // СЦЕНАРИЙ 1: Рекомендации
+        // Рекомендации
         // ========================================================
-
-        if (command.group == "recommendation") {
+        if (command.group === "recommendation") {
           await checkCheckboxOnly("label", command.name);
-
           return;
         }
 
         // ========================================================
-        // СЦЕНАРИЙ 2:
-        // Обычные команды
+        // Единый цикл для всех команд
         // ========================================================
-
-        if (command.group !== "package_cycle") {
-          const actions = command.actions || [];
-
-          // Максимум 50 кругов
-          let maxLoops = 50;
-
-          do {
-            const allActionsSuccess = await executeActions(
-              actions,
-              command.name,
-            );
-
-            // Если действие не выполнилось —
-            // прекращаем цикл
-            if (!allActionsSuccess) {
-              break;
-            }
-
-            if (command.isLoop) {
-              await delay(1000);
-              maxLoops--;
-            }
-          } while (command.isLoop && maxLoops > 0);
-
-          return;
-        }
-
-        // ========================================================
-        // СЦЕНАРИЙ 3:
-        // НОВЫЙ АВТОМАТИЧЕСКИЙ ЦИКЛ
-        //
-        // Без пакета → M → L → без пакета → ...
-        //
-        // Один общий счётчик для ВСЕХ трёх QR.
-        // ========================================================
-
         let maxLoops = 50;
 
         do {
-          // Получаем следующий пакет
-          //
-          // null → без пакета
-          // packageM → M
-          // packageL → L
-          const packageSelector = getNextPackage();
+          // Добавлено ключевое слово await, так как функция стала асинхронной
+          const actions = await getActionsForIteration(command);
 
-          // Формируем действия
-          const actions = getCycleActions(command, packageSelector);
+          const success = await executeActions(actions, command.name);
 
-          // Выполняем действия
-          const allActionsSuccess = await executeActions(actions, command.name);
-
-          // Если действие не выполнилось,
-          // НЕ продолжаем выдачу
-          if (!allActionsSuccess) {
+          // Если действие не выполнилось — прекращаем цикл
+          if (!success) {
             break;
           }
 
-          // Для циклической команды ждём секунду
+          // Для циклических команд ждём секунду
           if (command.isLoop) {
             await delay(1000);
             maxLoops--;
@@ -250,17 +191,12 @@ export default defineContentScript({
       }
     }
 
-    // ============================================================
-    // Обработка QR
-    // ============================================================
-
-    function toggleState(qrId: any) {
-      const command = qrCodes.find((item: any) => item.code == qrId);
-
+    function toggleState(qrId: string) {
+      const command = qrCodes.find((item) => item.code == qrId);
       if (!command) return;
 
       const isPathValid =
-        command.group === "issue_all" || command.group === "package_cycle"
+        command.group === "issue_all" || command.id == "auto_all"
           ? location.pathname === command.path
           : location.pathname.startsWith(command.path);
 
