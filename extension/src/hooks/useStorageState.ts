@@ -33,5 +33,5 @@ export function useStorageState(key: string, initialValue: string[]) {
     });
   };
 
-  return [state, toggleItem] as const;
+  return [state, toggleItem, setState] as const;
 }

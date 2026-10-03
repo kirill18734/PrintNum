@@ -61,6 +61,8 @@ interface SettingSectionProps {
   items: string[];
   hiddenItems: string[];
   onItemToggle: (item: string) => void;
+  toggleAllLabel?: string;
+  onToggleAll?: () => void;
   VisibleIcon: LucideIcon;
   HiddenIcon: LucideIcon;
   renderLabel?: (item: string) => string;
@@ -72,6 +74,8 @@ export function SettingSection({
   items,
   hiddenItems,
   onItemToggle,
+  toggleAllLabel,
+  onToggleAll,
   VisibleIcon,
   HiddenIcon,
   renderLabel,
@@ -82,6 +86,16 @@ export function SettingSection({
         {title}
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-3 pt-0 flex flex-col gap-1.5">
+        {items.length > 0 && onToggleAll && toggleAllLabel && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onToggleAll}
+            className="w-full h-auto rounded-lg py-2 text-xs"
+          >
+            {toggleAllLabel}
+          </Button>
+        )}
         {/* Проверка на пустой список */}
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-lg border border-dashed border-muted text-center text-muted-foreground/60 select-none">
