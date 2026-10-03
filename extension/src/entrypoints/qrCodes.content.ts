@@ -1,5 +1,5 @@
 import { waitLoadElement } from "@/utils/find";
-import { get_local_storage } from "@/utils/storage";
+import { get_local_storage, set_local_storage } from "@/utils/storage";
 import { SELECTOR } from "@/utils/constants";
 import { qrCodes } from "@/utils/constants";
 import { listening } from "@/utils/listener";
