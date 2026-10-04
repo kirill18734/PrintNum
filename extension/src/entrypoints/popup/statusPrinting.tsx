@@ -1,7 +1,6 @@
-declare const chrome: any;
-
 import { useEffect, useState } from "react";
 import { sendServer } from "@/utils/api";
+import { openUrl } from "@/components/opeTabURL";
 
 export default function StatusPrinting() {
   const [isActive, setIsActive] = useState(false);
@@ -46,11 +45,9 @@ export default function StatusPrinting() {
       return;
     }
 
-    if (chrome?.tabs) {
-      chrome.tabs.create({ url: downloadUrl });
-    } else {
-      window.open(downloadUrl, "_blank", "noopener,noreferrer");
-    }
+    void openUrl(downloadUrl).catch((error) =>
+      console.error("Не удалось открыть ссылку для скачивания", error),
+    );
   }, [downloadClicked, downloadUrl]);
 
   const handleDownload = () => {

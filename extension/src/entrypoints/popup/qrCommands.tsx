@@ -3,11 +3,18 @@ import { Ban, QrCode } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { Printer } from "lucide-react";
 import { UniversalLinkButton } from "@/components/opeTabURL";
+import { useStorageState } from "@/hooks/useStorageState";
 
 export default function QrCommands() {
-  // Предполагается, что useStorageState объявлен выше или импортирован
   const [qrCodes, setQrCodes] = useStorageState("qrCodes", []);
-  const [offQrCodes, setOffQrId] = useStorageState("offQrCodes", []);
+  const [offQrCodes, setOffQrId, setOffQrCodes] = useStorageState(
+    "offQrCodes",
+    [],
+  );
+  const disabledQrCodesCount = qrCodes.filter((code) =>
+    offQrCodes.includes(code),
+  ).length;
+  const shouldEnableAll = disabledQrCodesCount > qrCodes.length / 2;
 
   return (
     <div className="bg-background flex items-start justify-between gap-1 w-full">
@@ -22,6 +29,8 @@ export default function QrCommands() {
           items={qrCodes}
           hiddenItems={offQrCodes}
           onItemToggle={setOffQrId}
+          toggleAllLabel={shouldEnableAll ? "Включить все" : "Выключить все"}
+          onToggleAll={() => setOffQrCodes(shouldEnableAll ? [] : qrCodes)}
           VisibleIcon={QrCode}
           HiddenIcon={Ban}
         />

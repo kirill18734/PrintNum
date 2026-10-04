@@ -1,5 +1,3 @@
-declare const chrome: any;
-
 import { Button, ButtonProps } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils"; // Импортируем утилиту слияния классов shadcn
@@ -10,6 +8,16 @@ interface UniversalLinkButtonProps extends ButtonProps {
   icon?: LucideIcon;
 }
 
+declare const chrome: {
+  runtime: { getURL: (path: string) => string };
+  tabs: { create: (properties: { url: string }) => Promise<unknown> };
+};
+
+export function openUrl(url: string): Promise<unknown> {
+  const target = url.startsWith("/") ? chrome.runtime.getURL(url.slice(1)) : url;
+  return chrome.tabs.create({ url: target });
+}
+
 export function UniversalLinkButton({
   fileUrl,
   text = "",
@@ -18,14 +26,6 @@ export function UniversalLinkButton({
   className,
   ...props
 }: UniversalLinkButtonProps) {
-  const handleOpenUrl = () => {
-    if (chrome.tabs) {
-      chrome.tabs.create({ url: fileUrl });
-    } else {
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
-    }
-  };
-
   return (
     <Button
       variant={variant}
@@ -34,7 +34,11 @@ export function UniversalLinkButton({
         "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
         className,
       )}
-      onClick={handleOpenUrl}
+      onClick={() => {
+        void openUrl(fileUrl).catch((error) =>
+          console.error("Не удалось открыть ссылку", error),
+        );
+      }}
       {...props}
     >
       {/* Теперь у иконки есть жесткие размеры */}

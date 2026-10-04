@@ -1,138 +1,173 @@
-export const SELECTORS = {
-  containerMenu: 'div[class^="_wrapperMenuItems_"]',
-  containerNotification: "#ozi-notifications-container",
-  titleReturns: 'div[class^="_breadcrumbsTitle_"]',
-  containerReturns: 'div[class^="_block_"]:nth-of-type(2)',
-  itemsReturns: 'div[class*="_itemsElement_"]',
-  itemTitleReturns: 'div[class^="_titleWrap_"]',
-  containerBannerAllOrder: 'div[class*="_bankBanner_"]',
-  containerBannerOrder: 'div[class^="_bankWrapper_"]',
+export const API_BASE = "http://127.0.0.1:5000";
+
+export const SELECTOR = {
   packageM: 'div:nth-child(1) > [class^="ozi__input__root__"] button',
   packageL: 'div:nth-child(2) > [class^="ozi__input__root__"] button',
-  scanOrder: 'div[class^="_scanAnimate_"]',
-  numprint: 'div[class^="_list_"] div[class^="_shelfTag_"]',
-  itemsBoxes: 'input[type="checkbox"]',
+  printNumber: 'div[class^="_list_"] div[class^="_shelfTag_"]',
 };
 
 export const TEXT = {
-  CONTINUE: "Продолжить",
-  ISSUE: "Выдать",
-  PAY: "Провести оплату",
-  PAY_REPEAT: "Попробовать ещё",
-  HOME: "На главную",
-  READY: "К выдаче",
-  CHECK: "Проверить",
-  ONCHECK: "На проверке",
-  RETURN_REASON_1: "Изменил решение о покупке/Товар не подошёл",
-  MOVE: "Переместить",
+  issue: "Выдать",
+  pay: "Провести оплату",
+  payAgain: "Попробовать ещё",
+  ready: "К выдаче",
 };
 
-export const workPathNames = {
-  allOrder: "/orders",
+export const PATH = {
+  all: "/orders",
   order: "/orders/session",
   recommendation: "/receiving-v2/main",
-  package: "/outbound",
 };
+const cmd = (
+  id: any,
+  code: any,
+  name: any,
+  path: any,
+  actions: any,
+  group: any,
+  isLoop: any,
+) => ({
+  id,
+  code,
+  name,
+  path,
+  actions,
+  group,
+  isLoop,
+});
+
 // QR-Codes
-export const qrCommandsIssueAllOrder = [
-  {
-    id: "74892015376184239061527",
-    name: "Выдать все (без пакета)",
-    pathname: workPathNames.allOrder,
-    actions: [TEXT.READY, TEXT.ISSUE],
-  },
-  {
-    id: "91347265019832476015342",
-    name: "Выдать все (+1 пакет M)",
-    pathname: workPathNames.allOrder,
-    actions: [TEXT.READY, SELECTORS.packageM, TEXT.ISSUE],
-  },
-  {
-    id: "91347265019832476015343",
-    name: "Выдать все (+1 пакет L)",
-    pathname: workPathNames.allOrder,
-    actions: [TEXT.READY, SELECTORS.packageL, TEXT.ISSUE],
-  },
+export const qrCodes = [
+  // Группа: Выдача всех отправлений
+  cmd(
+    "all",
+    "74892015376184239061527",
+    "Выдать все (без пакета)",
+    PATH.all,
+    [TEXT.ready, TEXT.issue],
+    "issue_all",
+    true,
+  ),
+  cmd(
+    "all_m",
+    "91347265019832476015342",
+    "Выдать все (+1 пакет M)",
+    PATH.all,
+    [TEXT.ready, SELECTOR.packageM, TEXT.issue],
+    "issue_all",
+    true,
+  ),
+  cmd(
+    "all_l",
+    "91347265019832476015343",
+    "Выдать все (+1 пакет L)",
+    PATH.all,
+    [TEXT.ready, SELECTOR.packageL, TEXT.issue],
+    "issue_all",
+    true,
+  ),
+
+  // Группа: Выдача конкретного заказа
+  cmd(
+    "issue",
+    "37821563489167429583100",
+    "Выдать заказ (без пакета)",
+    PATH.order,
+    [TEXT.issue],
+    "issue_order",
+    false,
+  ),
+  cmd(
+    "issue_m",
+    "60418273951624830975261",
+    "Выдать заказ (+1 пакет M)",
+    PATH.order,
+    [SELECTOR.packageM, TEXT.issue],
+    "issue_order",
+    false,
+  ),
+  cmd(
+    "issue_l",
+    "60418273951624830975262",
+    "Выдать заказ (+1 пакет L)",
+    PATH.order,
+    [SELECTOR.packageL, TEXT.issue],
+    "issue_order",
+    false,
+  ),
+
+  // Группа: Оплата заказа
+  cmd(
+    "pay",
+    "70983625147892016354712",
+    "Оплатить заказ (без пакета)",
+    PATH.order,
+    [TEXT.pay],
+    "pay_order",
+    false,
+  ),
+  cmd(
+    "pay_m",
+    "70983625147892016354713",
+    "Оплатить заказ (+1 пакет M)",
+    PATH.order,
+    [SELECTOR.packageM, TEXT.pay],
+    "pay_order",
+    false,
+  ),
+  cmd(
+    "pay_l",
+    "70983625147892016354714",
+    "Оплатить заказ (+1 пакет L)",
+    PATH.order,
+    [SELECTOR.packageL, TEXT.pay],
+    "pay_order",
+    false,
+  ),
+
+  // Группа: Рекомендации
+  cmd(
+    "rec",
+    "920374615208431975286391",
+    "С рекомендацией",
+    PATH.recommendation,
+    [],
+    "recommendation",
+    false,
+  ),
+  // =========================
+  // Автоматическая выдача
+  // Общий цикл:
+  // без пакета → M → L → ...
+  // =========================
+
+  cmd(
+    "auto_all",
+    "82645173920468157392046",
+    "Выдать все (авто)",
+    PATH.all,
+    [TEXT.ready, TEXT.issue],
+    "package_cycle",
+    true,
+  ),
+
+  cmd(
+    "auto_issue",
+    "56192837465019283746501",
+    "Выдать заказ (авто)",
+    PATH.order,
+    [TEXT.issue],
+    "package_cycle",
+    false,
+  ),
+
+  cmd(
+    "auto_pay",
+    "39481726503948172650394",
+    "Оплатить заказ (авто)",
+    PATH.order,
+    [TEXT.pay],
+    "package_cycle",
+    false,
+  ),
 ];
-
-export const qrCommandsIssueOrder = [
-  {
-    id: "37821563489167429583100",
-    name: "Выдать заказ (без пакета)",
-    pathname: workPathNames.order,
-    actions: [TEXT.ISSUE],
-  },
-  {
-    id: "60418273951624830975261",
-    name: "Выдать заказ (+1 пакет M)",
-    pathname: workPathNames.order,
-    actions: [SELECTORS.packageM, TEXT.ISSUE],
-  },
-  {
-    id: "60418273951624830975262",
-    name: "Выдать заказ (+1 пакет L)",
-    pathname: workPathNames.order,
-    actions: [SELECTORS.packageL, TEXT.ISSUE],
-  },
-];
-
-export const qrCommandsPayOrder = [
-  {
-    id: "70983625147892016354712",
-    name: "Оплатить заказ (без пакета)",
-    pathname: workPathNames.order,
-    actions: [TEXT.PAY],
-  },
-  {
-    id: "70983625147892016354713",
-    name: "Оплатить заказ (+1 пакет M)",
-    pathname: workPathNames.order,
-    actions: [SELECTORS.packageM, TEXT.PAY],
-  },
-  {
-    id: "70983625147892016354714",
-    name: "Оплатить заказ (+1 пакет L)",
-    pathname: workPathNames.order,
-    actions: [SELECTORS.packageL, TEXT.PAY],
-  },
-];
-
-export const qrCommandReturnOrder = [
-  {
-    id: "82634791520368417952631",
-    name: "Отказ от товара",
-    pathname: workPathNames.order,
-    actions: [TEXT.CHECK, TEXT.ONCHECK, TEXT.READY, TEXT.RETURN_REASON_1],
-  },
-];
-
-export const qrCommandRecommendation = [
-  {
-    id: "920374615208431975286391",
-    pathname: workPathNames.recommendation,
-    name: "С рекомендацией",
-  },
-];
-
-// AutoScripts
-export const autoScriptPackage = {
-  name: "Упаковки Ozon нет в наличии",
-  pathname: workPathNames.package,
-};
-
-export const autoScriptBox = {
-  name: "Перенести тарники в перевозку",
-  pathname: workPathNames.package,
-};
-
-export const hideBannerAllOrder = {
-  name: "Баннер (Выдача заказов)",
-  pathname: workPathNames.allOrder,
-  action: SELECTORS.containerBannerAllOrder,
-};
-
-export const hideBannerOrder = {
-  name: "Баннер (Открытая карточка выдачи)",
-  pathname: workPathNames.order,
-  action: SELECTORS.containerBannerOrder,
-};

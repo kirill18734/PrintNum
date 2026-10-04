@@ -1,5 +1,4 @@
-// Эффективное ожидание элемента через MutationObserver
-import { TEXT } from "./constants";
+import { TEXT } from "@/utils/constants";
 
 function searchText(
   selector: string,
@@ -18,7 +17,7 @@ function searchText(
   if (!element) {
     // для повторной попытки оплатить
     if (name.startsWith("Оплатить")) {
-      let text = TEXT.PAY_REPEAT;
+      let text = TEXT.payAgain;
       // Ищем элемент только если для textValue нашелся запасной вариант текста
       if (text) {
         element = elements.find((e: any) => e.textContent?.trim() === text);
@@ -63,34 +62,5 @@ export async function waitLoadElement(
       observerFind.disconnect();
       resolve(null); // Мягкий выход вместо reject - чтобы не вызывать необработанные ошибки
     }, timeout);
-  });
-}
-
-// автоматическое ожидание элемента
-export async function waitLoadElement2(
-  selector = "",
-  textValue = "",
-  name = "",
-  container = document,
-  timeout = 5000,
-  isInclude = false,
-) {
-  const startTime = Date.now();
-
-  return new Promise((resolve) => {
-    function findElement() {
-      const element = textValue
-        ? searchText(selector, container, textValue, name, isInclude)
-        : container.querySelector(selector);
-
-      if (element) {
-        resolve(element);
-      } else if (Date.now() - startTime >= timeout) {
-        resolve(null); // Мягкий выход, если страница "не та" и элемента нет
-      } else {
-        setTimeout(findElement, 250); // Проверка каждые 250мс
-      }
-    }
-    findElement();
   });
 }

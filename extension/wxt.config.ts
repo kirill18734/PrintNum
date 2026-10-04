@@ -5,11 +5,14 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   manifest: {
     permissions: ["storage"],
+    host_permissions: [
+      "http://127.0.0.1/*",
+      "https://printnum-kirill123451.amvera.io/*",
+    ],
     action: {},
     name: "PrintNum - Печать Ячеек (Ozon)",
     description:
-      "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
-    host_permissions: ["http://localhost/*", "http://127.0.0.1/*"],
+      "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек и удобная автоматизация по QR-кодам",
   },
 
   srcDir: "src",
