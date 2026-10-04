@@ -5,6 +5,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   manifest: {
     permissions: ["storage"],
+    host_permissions: [
+      "http://127.0.0.1/*",
+      "https://printnum-kirill123451.amvera.io/*",
+    ],
     action: {},
     name: "PrintNum - Печать Ячеек (Ozon)",
     description:
