@@ -23,62 +23,60 @@ Backend использует `pywin32`, поэтому запуск печати
 1. Скачайте и установите Git for Windows с [git-scm.com](https://git-scm.com/download/win). В установщике оставьте настройки по умолчанию.
 2. Откройте PowerShell и проверьте установку Git:
 
-  ```powershell
-  git --version
-  ```
+```powershell
+git --version
+```
 
 3. Перейдите в папку, где будет храниться проект, и склонируйте ветку `core`:
 
-  ```powershell
-  cd "$HOME\Documents"
-  git clone --branch core https://github.com/kirill18734/printnum.git PrintNum
-  cd .\PrintNum
-  ```
+```powershell
+cd "$HOME\Documents"
+git clone --branch core https://github.com/kirill18734/printnum.git PrintNum
+cd .\PrintNum
+```
 
 4. Скачайте установщик Python 3.10 или новее для Windows с [python.org/downloads](https://www.python.org/downloads/windows/).
 5. Запустите установщик. На первом экране обязательно включите пункт **Add python.exe to PATH**, затем нажмите **Install Now**.
 6. После завершения установки закройте и снова откройте PowerShell. Проверьте установку:
 
-  ```powershell
-  python --version
-  pip --version
-  ```
+```powershell
+python --version
+pip --version
+```
 
-  Обе команды должны вывести версию. Если PowerShell сообщает, что `python` не найден, перезапустите компьютер или переустановите Python, включив опцию добавления в `PATH`.
-7. Вернитесь в папку проекта и откройте каталог backend:
+Обе команды должны вывести версию. Если PowerShell сообщает, что `python` не найден, перезапустите компьютер или переустановите Python, включив опцию добавления в `PATH`. 7. Вернитесь в папку проекта и откройте каталог backend:
 
-  ```powershell
-  cd "$HOME\Documents\PrintNum\backend"
-  ```
+```powershell
+cd "$HOME\Documents\PrintNum\backend"
+```
 
 8. Создайте изолированное окружение для зависимостей и активируйте его:
 
-  ```powershell
-  python -m venv .venv
-  .\.venv\Scripts\Activate.ps1
-  ```
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-  Если PowerShell запретил выполнение скрипта, разрешите его только для текущего окна и повторите активацию:
+Если PowerShell запретил выполнение скрипта, разрешите его только для текущего окна и повторите активацию:
 
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  .\.venv\Scripts\Activate.ps1
-  ```
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
 
-  В начале командной строки появится `(.venv)`.
-9. Установите зависимости проекта:
+В начале командной строки появится `(.venv)`. 9. Установите зависимости проекта:
 
-  ```powershell
-  python -m pip install --upgrade pip
-  pip install -r requirements.txt
-  ```
+```powershell
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
 10. Откройте `config.json` в текстовом редакторе и укажите точное имя установленного Windows-принтера в поле `printer`. Остальные параметры описаны в разделе «Настройка принтера».
 11. Запустите сервис, не закрывая это окно PowerShell:
 
-  ```powershell
-  python backend.py
-  ```
+```powershell
+python backend.py
+```
 
 Сервис запускается на `http://127.0.0.1:5000`. Проверить его доступность можно командой:
 
@@ -89,16 +87,16 @@ Invoke-RestMethod http://127.0.0.1:5000/
 Ожидаемый ответ:
 
 ```json
-{"status":"ok"}
+{ "status": "ok" }
 ```
 
 12. Для первой тестовой печати откройте второе окно PowerShell и отправьте номер ячейки:
 
-  ```powershell
-  Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/print-number -ContentType "application/json" -Body '{"text":"500-1"}'
-  ```
+```powershell
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/print-number -ContentType "application/json" -Body '{"text":"500-1"}'
+```
 
-  Если принтер доступен, на нём должна появиться этикетка. При недоступном принтере сервис также возвращает `OK`, но выводит сообщение в окно PowerShell и не отправляет задание на печать. Остановить сервис можно в первом окне сочетанием `Ctrl+C`.
+Если принтер доступен, на нём должна появиться этикетка. При недоступном принтере сервис также возвращает `OK`, но выводит сообщение в окно PowerShell и не отправляет задание на печать. Остановить сервис можно в первом окне сочетанием `Ctrl+C`.
 
 Важно: запускайте `backend.py` именно из каталога `backend`, так как файл настроек ищется как `config.json` в текущей рабочей директории.
 
@@ -117,14 +115,14 @@ Invoke-RestMethod http://127.0.0.1:5000/
 }
 ```
 
-| Параметр | Описание |
-| --- | --- |
-| `printer` | Точное имя принтера из настроек Windows. |
-| `paper` | Размер этикетки в миллиметрах в формате `ширина*высота`, например `30*20`. |
-| `endLine` | Подчёркивает основной текст. Если `false`, к нему добавляется точка. |
-| `idNum` | Показывает часть номера после дефиса в заголовке. |
-| `hybrid` | Включает специальное форматирование для числовых ячеек от `expand`. |
-| `expand` | Порог для специального форматирования при включённом `hybrid`. |
+| Параметр  | Описание                                                                   |
+| --------- | -------------------------------------------------------------------------- |
+| `printer` | Точное имя принтера из настроек Windows.                                   |
+| `paper`   | Размер этикетки в миллиметрах в формате `ширина*высота`, например `30*20`. |
+| `endLine` | Подчёркивает основной текст. Если `false`, к нему добавляется точка.       |
+| `idNum`   | Показывает часть номера после дефиса в заголовке.                          |
+| `hybrid`  | Включает специальное форматирование для числовых ячеек от `expand`.        |
+| `expand`  | Порог для специального форматирования при включённом `hybrid`.             |
 
 Для обычной строки `500-1` основным текстом будет `500`, а при `idNum: true` в заголовке печатается `-1`. Для КГТ (`КГТ-23`) части строки всегда меняются местами, а основной текст печатается жирным независимо от `hybrid`. Для числовых ячеек это форматирование включается, когда `hybrid: true` и значение достигает порога `expand`.
 
