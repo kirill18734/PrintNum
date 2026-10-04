@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { appService } from "./services/app.tauri";
-import { initStoreService } from "./services/store.tauri";
+import { initStoreService, storeService } from "./services/store.tauri";
 import { useAppStore } from "./services/store";
 import { sendServer } from "./services/api";
 
@@ -12,8 +12,10 @@ import Loading from "./pages/loading";
 // ---------- Остановка backend ----------
 appService.initCloseHandler();
 
-// Инициализируем конфиг (загрузит данные с диска, если это Tauri)
+// Инициализируем конфиг до гидратации Zustand: импортируемый store уже создан
+// к этому моменту и содержит только значения по умолчанию.
 await initStoreService();
+useAppStore.setState(storeService.getAll());
 
 export default function Layout() {
   const serverOnline = useAppStore((state: any) => state.serverOnline);
@@ -31,6 +33,11 @@ export default function Layout() {
   const updateStoreTauriValue = useAppStore(
     (state: any) => state.updateStoreTauriValue,
   );
+
+  // запуск backend
+  useEffect(() => {
+    appService.initStartHandler();
+  }, []);
 
   // стиль
   useEffect(() => {

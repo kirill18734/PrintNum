@@ -5,13 +5,23 @@ import {
 } from "@tabler/icons-react";
 import { useAppStore } from "@/services/store";
 import { appService } from "@/services/app.tauri";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
   const isUpdate = useAppStore((state: any) => state.isUpdate);
   const isUpdating = useAppStore((state: any) => state.isUpdating);
-  const version = useAppStore((state: any) => state.version);
   const setIsUpdating = useAppStore((state: any) => state.setIsUpdating);
   const setInstallUpdate = useAppStore((state: any) => state.setInstallUpdate);
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    const getVersion = async () => {
+      const curVersion = await appService.getAppVersion();
+      setVersion(curVersion);
+    };
+
+    getVersion();
+  }, []);
 
   return (
     <footer

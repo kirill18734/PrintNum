@@ -1,6 +1,6 @@
 import { defaultConfig } from "../config/defaultConfig";
 
-const isTauri = typeof window !== "undefined" && "__TAURI_METADATA__" in window;
+const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Интерфейс теперь полностью синхронный на чтение
 interface IStoreService {

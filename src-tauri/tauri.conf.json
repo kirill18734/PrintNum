@@ -21,8 +21,8 @@
         "decorations": false,
         "visible": false,
         "center": true,
-        "width": 450,
-        "height": 450
+        "width": 500,
+        "height": 600
       }
     ],
     "security": {

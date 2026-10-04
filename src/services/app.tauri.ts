@@ -1,4 +1,4 @@
-const isTauri = typeof window !== "undefined" && "__TAURI_METADATA__" in window;
+const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Описываем интерфейс, чтобы React всегда знал, какие методы доступны
 interface IAppService {
@@ -28,12 +28,8 @@ const webAppService: IAppService = {
   visibleWindow: async () => {},
   minWindow: async () => {},
   closeWindow: async () => {},
-  initCloseHandler: async () => {
-    // В браузере закрытие вкладки обрабатывать не нужно
-  },
-  initStartHandler: async () => {
-    // В браузере открытие вкладки обрабатывать не нужно
-  },
+  initCloseHandler: async () => {},
+  initStartHandler: async () => {},
 };
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ TAURI V2 ───
