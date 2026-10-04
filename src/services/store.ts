@@ -8,7 +8,7 @@ export const useAppStore = create((set) => ({
   serverOnline: false,
   printerOnline: false,
   version: "2.0.0",
-  isUpdate: false,
+  isUpdate: true,
   installUpdate: false,
   listPrinters: [],
   listPapers: [

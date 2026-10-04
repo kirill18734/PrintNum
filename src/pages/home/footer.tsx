@@ -1,77 +1,81 @@
-import React from "react";
-import { IconBrandGithub, IconBrandTelegram } from "@tabler/icons-react";
-import { useAppStore } from "@/store/useAppStore"; // Укажите правильный путь к вашему стору
+import {
+  IconBrandGithub,
+  IconBrandTelegram,
+  IconDownload,
+} from "@tabler/icons-react";
+import { useAppStore } from "@/services/store";
+import { appService } from "@/services/app.tauri";
 
-export const Footer: React.FC = () => {
-  // Получаем нужные данные из стора напрямую
+export default function Footer() {
   const isUpdate = useAppStore((state: any) => state.isUpdate);
   const isUpdating = useAppStore((state: any) => state.isUpdating);
-  const openHelp = useAppStore((state: any) => state.openHelp);
+  const version = useAppStore((state: any) => state.version);
   const handleUpdateClick = useAppStore(
     (state: any) => state.handleUpdateClick,
   );
-  const telegramLink =
-    useAppStore((state: any) => state.telegramLink) || "https://t.me";
 
   return (
     <footer
       data-tauri-drag-region
-      className="flex justify-between items-end h-[--footer-height] border-0 px-2 pb-2 relative"
+      className="grid grid-cols-3 items-center w-full h-[--footer-height] px-4 pb-3 bg-transparent select-none relative z-50"
     >
-      {/* Левая часть — фиксированная ширина или изоляция потока */}
-      <div className="flex justify-start items-center gap-3 w-full h-10">
-        {/* КНОПКА 1: GitHub (Документация / Исходный код) */}
-        <div className="relative w-10 h-10 shrink-0 z-10 hover:z-20">
-          <button
-            onClick={() => openHelp?.()}
-            className="group absolute left-0 top-0 flex items-center h-10 px-2.5 text-muted-foreground hover:text-foreground cursor-pointer w-10 hover:w-[270px] transition-all duration-300 overflow-hidden"
-          >
-            {/* Иконка GitHub видна всегда */}
-            <IconBrandGithub size={20} className="shrink-0" />
-
-            {/* Выдвигающийся текст */}
-            <div className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[230px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-300 ease-in-out whitespace-nowrap text-sm font-medium">
-              Документация / Исходный код
-            </div>
-          </button>
-        </div>
-
-        {/* КНОПКА 2: Telegram канал */}
-        <div className="relative w-10 h-10 shrink-0 z-10 hover:z-20">
-          <a
-            href={telegramLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group absolute left-0 top-0 flex items-center h-10 px-2.5 text-muted-foreground hover:text-sky-600 dark:hover:text-sky-400 w-10 hover:w-[130px] transition-all duration-300 overflow-hidden"
-          >
-            {/* Иконка Telegram видна всегда */}
-            <IconBrandTelegram size={20} className="shrink-0" />
-
-            {/* Выдвигающийся контент */}
-            <div className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[90px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-300 ease-in-out whitespace-nowrap text-sm font-medium text-foreground">
-              @printnum
-            </div>
-          </a>
-        </div>
+      {/* ЛЕВАЯ ЧАСТЬ: Версия приложения */}
+      <div className="flex items-center justify-start text-[11px] font-medium text-neutral-400 dark:text-neutral-500 z-20">
+        v{version}
       </div>
 
-      {/* Центральная часть: текст сверху, кнопка снизу — всегда строго по центру */}
-      <div className="flex justify-center items-end w-full pointer-events-none">
+      {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления по центру */}
+      <div className="flex justify-center items-center z-10">
         {isUpdate && (
-          <div className="flex flex-col items-center gap-1 pointer-events-auto">
-            <span className="text-xs font-medium text-muted-foreground">
-              {isUpdating ? "Установка..." : "Доступно обновление"}
-            </span>
-            <button
-              disabled={isUpdating}
-              onClick={() => handleUpdateClick?.()}
-              className="h-8 px-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-md disabled:opacity-50 transition-colors cursor-pointer"
-            >
-              {isUpdating ? "Обновляется" : "Обновить"}
-            </button>
-          </div>
+          <button
+            disabled={isUpdating}
+            onClick={() => handleUpdateClick?.()}
+            className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
+          >
+            <IconDownload
+              size={14}
+              className={isUpdating ? "animate-bounce" : ""}
+            />
+            <span>{isUpdating ? "Обновление..." : "Доступно обновление"}</span>
+          </button>
         )}
+      </div>
+
+      {/* ПРАВАЯ ЧАСТЬ: Анимированные кнопки Bento */}
+      <div className="flex items-center gap-2 z-20 justify-end">
+        {/* КНОПКА 1: GitHub Документация */}
+        <button
+          onClick={() =>
+            appService.openExternalUrl(
+              "https://github.com/kirill18734/printnum",
+            )
+          }
+          className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-neutral-200/60 dark:border-neutral-800/60 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 shadow-sm active:scale-[0.97] cursor-pointer"
+        >
+          <IconBrandGithub
+            size={14}
+            className="shrink-0 text-neutral-500 dark:text-neutral-400 transition-transform duration-300 group-hover:scale-110 group-focus-visible:scale-110"
+          />
+          <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap">
+            Документация
+          </span>
+        </button>
+
+        {/* КНОПКА 2: Telegram Канал */}
+        <button
+          onClick={() => appService.openExternalUrl("https://t.me/printnum")}
+          className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-sky-500/20 bg-gradient-to-b from-sky-500/5 to-sky-500/[0.12] text-sky-600 dark:text-sky-400 hover:from-sky-500 hover:to-sky-500 hover:text-white dark:hover:text-white shadow-sm shadow-sky-500/[0.03] active:scale-[0.97] cursor-pointer"
+          title="Telegram-канал PrintNum"
+        >
+          <IconBrandTelegram
+            size={14}
+            className="shrink-0 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 group-focus-visible:rotate-12 group-focus-visible:scale-110"
+          />
+          <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap font-semibold">
+            @printnum
+          </span>
+        </button>
       </div>
     </footer>
   );
-};
+}
