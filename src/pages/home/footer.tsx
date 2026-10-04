@@ -11,9 +11,7 @@ export default function Footer() {
   const isUpdating = useAppStore((state: any) => state.isUpdating);
   const version = useAppStore((state: any) => state.version);
   const setIsUpdating = useAppStore((state: any) => state.setIsUpdating);
-  const setInstallUpdate = useAppStore(
-    (state: any) => state.setInstallUpdate,
-  );
+  const setInstallUpdate = useAppStore((state: any) => state.setInstallUpdate);
 
   return (
     <footer
