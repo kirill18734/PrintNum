@@ -17,18 +17,45 @@ export default function Header() {
   return (
     <header
       data-tauri-drag-region
-      className="flex justify-between items-center h-(--header-height) border-0"
+      className="flex justify-between items-center h-(--header-height) border-0 bg-white/50 dark:bg-neutral-950/50 backdrop-blur-sm"
     >
-      <div data-tauri-drag-region className="flex items-center border-0 h-full">
-        <IconApp />
-        <span data-tauri-drag-region>Печать ячеек</span>
+      {/* Левая часть: Иконка + Название + Брендинг */}
+      <div
+        data-tauri-drag-region
+        className="flex items-center gap-2 border-0 h-full select-none"
+      >
+        <div
+          data-tauri-drag-region
+          className="flex items-center text-blue-600 dark:text-blue-400"
+        >
+          <IconApp />
+        </div>
+        <span
+          data-tauri-drag-region
+          className="font-medium text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          Печать ячеек
+        </span>
+        <span
+          data-tauri-drag-region
+          className="text-neutral-300 dark:text-neutral-700 text-xs"
+        >
+          •
+        </span>
+        <span
+          data-tauri-drag-region
+          className="font-black tracking-wider text-blue-600 dark:text-blue-400 text-xs px-1.5 py-0.5 rounded bg-blue-500/10 dark:bg-blue-500/5"
+        >
+          OZON
+        </span>
       </div>
 
-      <div className="flex items-center p-0 border-0">
+      {/* Правая часть: Кнопки управления */}
+      <div className="flex items-center p-0 border-0 h-full">
         {/* Общепринятая интерактивная кнопка смены темы */}
         <Button
           variant="ghost"
-          className="relative rounded-md p-6 border-0 mr-4 text-muted-foreground hover:text-foreground"
+          className="relative rounded-md p-6 border-0 mr-2 text-muted-foreground hover:text-foreground"
           size="icon-sm"
           title="Сменить тему"
           onClick={toggleTheme}
@@ -44,7 +71,7 @@ export default function Header() {
 
         <Button
           variant="ghost"
-          className="rounded-none p-6 border-0"
+          className="rounded-none p-6 border-0 h-full flex items-center justify-center"
           size="icon-sm"
           title="Свернуть"
           onClick={() => appService.minWindow()}
@@ -53,7 +80,7 @@ export default function Header() {
         </Button>
         <Button
           variant="ghost"
-          className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0"
+          className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0 h-full flex items-center justify-center"
           size="icon-sm"
           title="Закрыть"
           onClick={() => appService.closeWindow()}

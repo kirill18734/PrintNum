@@ -17,15 +17,16 @@ export default function Footer() {
   return (
     <footer
       data-tauri-drag-region
-      className="grid grid-cols-3 items-center w-full h-[--footer-height] px-4 pb-3 bg-transparent select-none relative z-50"
+      // Убрали pb-3, элементы теперь центрируются идеально благодаря items-center
+      className="grid grid-cols-3 items-center w-full h-(--header-height) px-4 bg-transparent select-none relative z-50"
     >
       {/* ЛЕВАЯ ЧАСТЬ: Версия приложения */}
-      <div className="flex items-center justify-start text-[11px] font-medium text-neutral-400 dark:text-neutral-500 z-20">
+      <div className="flex items-center justify-start h-9 text-[11px] font-medium text-neutral-400 dark:text-neutral-500 z-20">
         v{version}
       </div>
 
       {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления по центру */}
-      <div className="flex justify-center items-center z-10">
+      <div className="flex justify-center items-center h-9 z-10">
         {isUpdate && (
           <button
             disabled={isUpdating}
@@ -42,7 +43,7 @@ export default function Footer() {
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ: Анимированные кнопки Bento */}
-      <div className="flex items-center gap-2 z-20 justify-end">
+      <div className="flex items-center gap-2 h-9 z-20 justify-end">
         {/* КНОПКА 1: GitHub Документация */}
         <button
           onClick={() =>

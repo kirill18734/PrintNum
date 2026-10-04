@@ -40,23 +40,19 @@ export default function Main() {
     updateStoreTauriValue("themeStyle", newThemeStyle);
 
   return (
-    <main className="flex flex-col gap-4 justify-between items-center p-4 min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50">
-      <span
-        data-tauri-drag-region
-        className="text-center font-bold tracking-wider text-blue-600 dark:text-blue-400 mt-2 select-none"
-      >
-        OZON
-      </span>
-
-      <StatusCard
-        running={running}
-        printerOnline={printerOnline}
-        onToggleRunning={changeRunning}
-      />
+    // Убрали min-h-screen, добавили w-full h-full и flex-col с центрированием контента
+    <main className="flex flex-col items-center justify-center gap-4 p-4 w-full h-full bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50">
+      <div className="w-full max-w-sm">
+        <StatusCard
+          running={running}
+          printerOnline={printerOnline}
+          onToggleRunning={changeRunning}
+        />
+      </div>
 
       <div
         data-tauri-drag-region
-        className="flex items-center justify-center gap-10 w-full max-w-sm"
+        className="flex items-center justify-center gap-4 w-full max-w-sm"
       >
         <Printer
           defaultPrinter={printer}
@@ -86,9 +82,10 @@ export default function Main() {
       </div>
 
       <Separator className="max-w-sm opacity-60" />
+
       <div
         data-tauri-drag-region
-        className="flex items-center justify-center gap-10"
+        className="flex items-center justify-center w-full max-w-sm"
       >
         <ThemeStyle
           defaultThemeStyle={themeStyle}
