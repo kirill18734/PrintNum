@@ -193,7 +193,7 @@ const banners = [
   },
   {
     name: "Баннер (Открытая карточка выдачи)",
-    pathname: PATH.order,
-    action: SELECTOR.bannerOrder,
+    path: PATH.order,
+    selector: SELECTOR.bannerOrder,
   },
 ];
