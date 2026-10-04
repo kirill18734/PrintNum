@@ -8,7 +8,8 @@ export const useAppStore = create((set) => ({
   serverOnline: false,
   printerOnline: false,
   version: "2.0.0",
-  isUpdate: true,
+  isUpdate: false,
+  isUpdating: false,
   installUpdate: false,
   listPrinters: [],
   listPapers: [
@@ -37,6 +38,7 @@ export const useAppStore = create((set) => ({
   setPrinterOnline: (printerOnline: boolean) => set({ printerOnline }),
   setListPrinters: (listPrinters: any) => set({ listPrinters }),
   setIsUpdate: (isUpdate: boolean) => set({ isUpdate }),
+  setIsUpdating: (isUpdating: boolean) => set({ isUpdating }),
   setVersion: (version: string) => set({ version }),
   setInstallUpdate: (installUpdate: boolean) => set({ installUpdate }),
 }));

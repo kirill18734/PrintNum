@@ -14,7 +14,6 @@ interface IAppService {
 }
 
 // Переменные для веб-заглушки обновлений
-let isUpdateCheckedMock = false;
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ БРАУЗЕРА (MOCK) ───
 const webAppService: IAppService = {
@@ -23,14 +22,9 @@ const webAppService: IAppService = {
     window.open(url, "_blank");
   },
   checkForUpdates: async () => {
-    if (isUpdateCheckedMock) return false;
-    isUpdateCheckedMock = true;
-
     return true; // Имитируем, что обновление найдено
   },
-  installAndRelaunch: async () => {
-    alert("Приложение обновилось бы и перезапустилось в Tauri!");
-  },
+  installAndRelaunch: async () => {},
   visibleWindow: async () => {},
   minWindow: async () => {},
   closeWindow: async () => {},

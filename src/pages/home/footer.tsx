@@ -10,8 +10,9 @@ export default function Footer() {
   const isUpdate = useAppStore((state: any) => state.isUpdate);
   const isUpdating = useAppStore((state: any) => state.isUpdating);
   const version = useAppStore((state: any) => state.version);
-  const handleUpdateClick = useAppStore(
-    (state: any) => state.handleUpdateClick,
+  const setIsUpdating = useAppStore((state: any) => state.setIsUpdating);
+  const setInstallUpdate = useAppStore(
+    (state: any) => state.setInstallUpdate,
   );
 
   return (
@@ -30,7 +31,18 @@ export default function Footer() {
         {isUpdate && (
           <button
             disabled={isUpdating}
-            onClick={() => handleUpdateClick?.()}
+            onClick={async () => {
+              try {
+                // Переключаем приложение в режим установки обновления,
+                // чтобы Layout отрисовал компонент <Updating />
+                setInstallUpdate(true);
+                setIsUpdating(true);
+                await appService.installAndRelaunch();
+              } finally {
+                // На случай веб-мока без перезапуска вернём состояние
+                setIsUpdating(false);
+              }
+            }}
             className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
           >
             <IconDownload

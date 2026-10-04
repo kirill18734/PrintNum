@@ -23,6 +23,7 @@ export default function Layout() {
   const themeStyle = useAppStore((state: any) => state.themeStyle);
   const installUpdate = useAppStore((state: any) => state.installUpdate);
   const setPrinterOnline = useAppStore((state: any) => state.setPrinterOnline);
+  const setIsUpdate = useAppStore((state: any) => state.setIsUpdate);
 
   const listPrinters = useAppStore((state: any) => state.listPrinters);
   const setListPrinters = useAppStore((state: any) => state.setListPrinters);
@@ -30,11 +31,6 @@ export default function Layout() {
   const updateStoreTauriValue = useAppStore(
     (state: any) => state.updateStoreTauriValue,
   );
-
-  // Инициализация и запуск бэкенда
-  useEffect(() => {
-    appService.initStartHandler();
-  }, []);
 
   // стиль
   useEffect(() => {
@@ -116,6 +112,21 @@ export default function Layout() {
 
     const interval = setInterval(checkStatus, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Проверка обновлений
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        const resUpdate = await appService.checkForUpdates();
+
+        setIsUpdate(resUpdate);
+      } catch (error) {
+        console.error("Failed to check for updates:", error);
+      }
+    };
+
+    fetchUpdates();
   }, []);
 
   // после запуска всех нужных компонентов показываем окно
