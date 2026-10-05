@@ -109,7 +109,7 @@ export default function Layout() {
 
       setPrinterOnline(statePrinter);
     } catch {
-      setServerOnline(false);
+      setServerOnline(true);
       setPrinterOnline(false);
     }
   };

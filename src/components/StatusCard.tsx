@@ -54,11 +54,11 @@ export default function StatusCard({
   return (
     <Item
       data-tauri-drag-region
-      className="w-full max-w-sm rounded-2xl p-5 bg-neutral-50 dark:bg-neutral-900/50 transition-all duration-300"
+      className="w-full max-w-sm rounded-2xl p-4 bg-neutral-50 dark:bg-neutral-900/50 transition-all duration-300"
     >
       {/* Мягкая плашка статуса без рамки */}
       <div
-        className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-300 ${statusConfig.bgColor}`}
+        className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${statusConfig.bgColor}`}
       >
         <div className="mt-0.5 shrink-0">{statusConfig.icon}</div>
         <div className="flex flex-col gap-0.5">
@@ -74,7 +74,7 @@ export default function StatusCard({
       </div>
 
       {/* Кнопка действия */}
-      <ItemActions className="mt-4 w-full">
+      <ItemActions className="mt-2 w-full">
         <Button
           size="lg"
           onClick={onToggleRunning}

@@ -41,7 +41,7 @@ export default function Main() {
 
   return (
     // Убрали min-h-screen, добавили w-full h-full и flex-col с центрированием контента
-    <main className="flex flex-col items-center justify-center gap-4 p-4 w-full h-full bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50">
+    <main className="flex flex-col items-center justify-center gap-2 p-3 w-full h-full bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50">
       <div className="w-full max-w-sm">
         <StatusCard
           running={running}

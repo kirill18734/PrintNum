@@ -1,9 +1,9 @@
 export default function PreviewPaper({ idNum, endLine, hybrid, expand }: any) {
   return (
     <div data-tauri-drag-region className="flex gap-1 w-full">
-      <div className="flex flex-col items-center gap-1 p-1">
+      <div className="flex flex-col items-center gap-1 p-1 whitespace-nowrap">
         {hybrid && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
             Этикетки 1 – {expand - 1 < 1 ? expand : expand - 1}
           </span>
         )}
@@ -31,8 +31,8 @@ export default function PreviewPaper({ idNum, endLine, hybrid, expand }: any) {
       </div>
 
       {hybrid && (
-        <div className="flex flex-col items-center gap-1 p-1">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex flex-col items-center gap-1 p-1 whitespace-nowrap">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
             Этикетки от {expand}
           </span>
 
