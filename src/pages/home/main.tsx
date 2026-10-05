@@ -284,6 +284,8 @@ export default function Main() {
           >
             <LabelStudio
               printerReady={printerOnline && Boolean(printer)}
+              printerOnline={printerOnline}
+              printerSelected={Boolean(printer)}
               isPrinting={isPrinting}
               printError={printError}
               onPrint={printLabel}

@@ -12,12 +12,12 @@ export default function ShowPaper({
   preview,
 }: any) {
   return (
-    <section className="w-full rounded-xl border border-border bg-card p-2.5">
-      <h2 className="mb-2 text-center text-sm font-semibold leading-tight">
+    <section className="w-full rounded-md border border-border bg-card p-1">
+      <h2 className="mb-0.5 text-center text-xs font-semibold leading-tight">
         Оформление этикетки
       </h2>
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-center justify-items-center gap-2.5 max-[380px]:grid-cols-1">
-        <div data-tauri-drag-region className="min-w-0 max-w-full justify-self-center">
+      <div className="mx-auto grid w-full max-w-[560px] grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-center gap-2">
+        <div className="min-w-0 justify-self-center">
           <SettingsPaper
             idNum={defaultIdNum}
             setIdNum={setDefaultIdNum}
@@ -29,7 +29,7 @@ export default function ShowPaper({
             setExpand={setDefaultExpand}
           />
         </div>
-        <div className="min-w-0 w-full max-w-64 justify-self-center">{preview}</div>
+        <div className="min-w-0 w-full justify-self-center">{preview}</div>
       </div>
     </section>
   );

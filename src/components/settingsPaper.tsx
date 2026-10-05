@@ -14,63 +14,58 @@ export default function SettingsPaper({
   setExpand,
 }: any) {
   return (
-    <div data-tauri-drag-region className="flex w-fit max-w-full flex-col">
-      <div data-tauri-drag-region className="flex w-full flex-col items-start">
+    <div data-tauri-drag-region className="w-fit max-w-full min-w-0">
+      <div className="flex w-full flex-col items-start gap-y-0">
         {/* Показывать ID */}
-        <Field orientation="horizontal" className="w-full items-center gap-2 px-1 py-0.5">
+        <Field orientation="horizontal" className="w-full items-center gap-1 px-0 py-0">
           <Checkbox
             id="checkbox-idNum"
             checked={idNum}
             onCheckedChange={setIdNum}
           />
-          <FieldLabel className="text-[13px]" htmlFor="checkbox-idNum">
+          <FieldLabel className="whitespace-nowrap text-[11px]" htmlFor="checkbox-idNum">
             Показывать ID
           </FieldLabel>
         </Field>
 
         {/* Нижняя линия */}
-        <Field orientation="horizontal" className="w-full items-center gap-2 px-1 py-0.5">
+        <Field orientation="horizontal" className="w-full items-center gap-1 px-0 py-0">
           <Checkbox
             id="checkbox-line"
             checked={endLine}
             onCheckedChange={setEndLine}
           />
-          <FieldLabel className="text-[13px]" htmlFor="checkbox-line">
+          <FieldLabel className="whitespace-nowrap text-[11px]" htmlFor="checkbox-line">
             Подчёркивание
           </FieldLabel>
         </Field>
         {/* Гибридный формат */}
         <div
-          data-tauri-drag-region
-          className={`flex w-full flex-col items-start justify-center rounded-lg border px-1 py-0.5 ${
-            hybrid ? "border-border bg-muted/30" : "border-transparent"
+          className={`flex w-full flex-wrap items-center gap-x-1 rounded px-0.5 ${
+            hybrid ? "bg-muted/30" : ""
           }`}
         >
-          <Field orientation="horizontal" className="w-full items-center gap-2">
+          <Field orientation="horizontal" className="w-full items-center gap-1 px-0 py-0">
             <Checkbox
               id="checkbox-hybrid"
               checked={hybrid}
               onCheckedChange={setHybrid}
             />
-            <FieldLabel className="text-[13px]" htmlFor="checkbox-hybrid">
+            <FieldLabel className="whitespace-nowrap text-[11px]" htmlFor="checkbox-hybrid">
               Гибридный формат
             </FieldLabel>
           </Field>
           {hybrid && (
-            <div className="flex flex-col gap-1 pl-6 pt-1">
-              <label
-                htmlFor="expand-value"
-                className="text-xs text-muted-foreground"
-              >
+            <div className="flex items-center gap-0.5 pl-6">
+              <label htmlFor="expand-value" className="sr-only">
                 Начиная с номера
               </label>
-
               <div className="flex items-center gap-1">
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg"
+                  className="h-7 w-7 rounded-md"
                   onClick={() => setExpand((num: any) => Math.max(1, num - 1))}
                 >
                   −
@@ -98,14 +93,14 @@ export default function SettingsPaper({
                     if (!Number.isInteger(Number(expand)) || Number(expand) < 1)
                       setExpand(1);
                   }}
-                  className="h-8 w-16 rounded-lg px-1 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="h-7 w-14 rounded-md px-1 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
 
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 rounded-lg"
+                  className="h-7 w-7 rounded-md"
                   onClick={() => setExpand((e: any) => ++e)}
                 >
                   +

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType } from "./LabelStudio";
 
 interface PreviewPaperProps {
@@ -28,6 +28,85 @@ interface GeneratedCode {
   loading: boolean;
 }
 
+interface FittedTextProps {
+  children: string;
+  className?: string;
+  singleLine?: boolean;
+  preserveLineBreaks?: boolean;
+  align?: "center" | "right";
+}
+
+function FittedText({
+  children,
+  className = "",
+  singleLine = false,
+  preserveLineBreaks = false,
+  align = "center",
+}: FittedTextProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [fontSize, setFontSize] = useState(8);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    const fitText = () => {
+      const { clientWidth, clientHeight } = text;
+      if (!clientWidth || !clientHeight) return;
+
+      let low = 4;
+      let high = Math.max(clientWidth, clientHeight) * 2;
+      for (let i = 0; i < 14; i += 1) {
+        const candidate = (low + high) / 2;
+        text.style.fontSize = `${candidate}px`;
+        if (
+          text.scrollWidth <= clientWidth + 1 &&
+          text.scrollHeight <= clientHeight + 1
+        ) {
+          low = candidate;
+        } else {
+          high = candidate;
+        }
+      }
+
+      const nextFontSize = Math.max(4, Math.floor(low * 10) / 10);
+      setFontSize((current) =>
+        current === nextFontSize ? current : nextFontSize,
+      );
+    };
+
+    fitText();
+    const observer = new ResizeObserver(fitText);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [children, singleLine, preserveLineBreaks]);
+
+  return (
+    <div ref={containerRef} className="h-full min-h-0 w-full min-w-0">
+      <span
+        ref={textRef}
+        className={`block h-full w-full leading-[1.05] ${
+          singleLine
+            ? "whitespace-nowrap"
+            : preserveLineBreaks
+              ? "whitespace-pre"
+              : "whitespace-pre-wrap break-words"
+        } ${className}`}
+        style={{
+          alignContent: "center",
+          fontSize: `${fontSize}px`,
+          overflowWrap: "anywhere",
+          textAlign: align,
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
 export default function PreviewPaper({
   mode,
   paper,
@@ -41,16 +120,47 @@ export default function PreviewPaper({
   underline,
   showCodeText,
 }: PreviewPaperProps) {
+  const previewFrameRef = useRef<HTMLDivElement>(null);
+  const [frameSize, setFrameSize] = useState({ width: 240, height: 244 });
   const [rawWidth, rawHeight] = paper.split("*").map(Number);
   const width = Number.isFinite(rawWidth) && rawWidth > 0 ? rawWidth : 30;
   const height = Number.isFinite(rawHeight) && rawHeight > 0 ? rawHeight : 20;
-  const previewWidth = Math.min(132, 88 * (width / height));
   const automatic = mode === "autoprint";
+  const hybridAutomatic = automatic && hybrid;
+  const labelAreaWidth = hybridAutomatic
+    ? (frameSize.width - 6) / 2
+    : frameSize.width;
+  const labelAreaHeight = Math.max(
+    1,
+    frameSize.height - (hybridAutomatic ? 20 : 0),
+  );
+  const previewScale =
+    (automatic
+      ? Math.min(labelAreaWidth / width, labelAreaHeight / height)
+      : Math.min(frameSize.width / width, frameSize.height / height)) * 0.7;
+  const previewWidth = width * previewScale;
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({
     svg: null,
     error: null,
     loading: false,
   });
+
+  useLayoutEffect(() => {
+    const frame = previewFrameRef.current;
+    if (!frame) return;
+
+    const updateFrameSize = () => {
+      setFrameSize({
+        width: Math.max(1, frame.clientWidth - 16),
+        height: Math.max(1, frame.clientHeight - 16),
+      });
+    };
+
+    updateFrameSize();
+    const observer = new ResizeObserver(updateFrameSize);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (automatic || contentType === "text" || !content.trim()) {
@@ -100,7 +210,7 @@ export default function PreviewPaper({
 
   const renderLabel = (secondHybridLabel = false) => (
     <div
-      className="flex max-h-22 min-h-11 items-center justify-center overflow-hidden rounded-md border border-neutral-300 bg-white p-1.5 text-center text-neutral-950 shadow-sm"
+      className="flex min-w-0 flex-col items-center justify-center overflow-hidden rounded-md border border-neutral-300 bg-white p-1.5 text-center text-neutral-950 shadow-sm"
       style={{
         aspectRatio: `${width}/${height}`,
         width: `${previewWidth}px`,
@@ -108,58 +218,68 @@ export default function PreviewPaper({
       }}
     >
       {automatic ? (
-        <div className="flex h-full w-full flex-col items-center justify-center">
+        <>
           {(idNum || (hybrid && secondHybridLabel)) && (
-            <span className="mb-1 w-full text-right text-[10px] leading-none">
-              {hybrid && secondHybridLabel ? `${expand}−` : "−47"}
-            </span>
+            <div className="h-[22%] min-h-0 w-full shrink-0 text-right">
+              <FittedText align="right" singleLine>
+                {hybrid && secondHybridLabel ? `${expand}−` : "−47"}
+              </FittedText>
+            </div>
           )}
-          <span
-            className={`line-clamp-3 break-words text-2xl ${
-              hybrid && secondHybridLabel ? "font-bold" : ""
-            } ${endLine ? "underline decoration-2 underline-offset-2" : ""}`}
-          >
-            123{!endLine && "."}
-          </span>
-        </div>
+          <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+            <FittedText
+              className={`${
+                hybrid && secondHybridLabel ? "font-bold" : "font-normal"
+              } ${endLine ? "underline decoration-2 underline-offset-2" : ""}`}
+              singleLine
+            >
+              {`123${endLine ? "" : "."}`}
+            </FittedText>
+          </div>
+        </>
       ) : contentType === "text" ? (
-        <span
-          className={`line-clamp-4 break-words text-sm ${
+        <FittedText
+          className={`${
             bold ? "font-bold" : "font-medium"
           } ${underline ? "underline decoration-2 underline-offset-2" : ""} ${
             content ? "" : "font-normal text-neutral-400"
           }`}
+          preserveLineBreaks
         >
           {content || "Ваш текст появится здесь"}
-        </span>
+        </FittedText>
       ) : (
         <div className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-0.5">
           {generatedCode.svg ? (
             <img
               src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
               alt={`${contentLabels[contentType]} для введённых данных`}
-              className="block min-h-0 max-h-full max-w-full flex-1 object-contain"
+              className={`block min-h-0 max-h-full max-w-full flex-1 object-contain ${
+                contentType === "barcode" ? "w-full" : ""
+              }`}
             />
           ) : (
-            <p
+            <div
               role={generatedCode.error ? "alert" : undefined}
-              className={`px-1 text-center text-[10px] leading-tight ${
+              className={`flex min-h-0 w-full flex-1 items-center justify-center px-1 ${
                 generatedCode.error
                   ? "text-red-700"
                   : "text-neutral-400"
               }`}
             >
-              {generatedCode.loading
-                ? "Создаём код…"
-                : generatedCode.error
-                ? `Не удалось создать код: ${generatedCode.error}`
-                : "Введите данные, чтобы увидеть код"}
-            </p>
+              <FittedText>
+                {generatedCode.loading
+                  ? "Создаём код…"
+                  : generatedCode.error
+                    ? `Не удалось создать код: ${generatedCode.error}`
+                    : "Введите данные, чтобы увидеть код"}
+              </FittedText>
+            </div>
           )}
           {showCodeText && content.trim() && (
-            <span className="max-w-full shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-[9px] leading-tight text-neutral-800">
-              {content}
-            </span>
+            <div className="h-[18%] min-h-0 w-full shrink-0 text-neutral-800">
+              <FittedText singleLine>{content}</FittedText>
+            </div>
           )}
         </div>
       )}
@@ -168,8 +288,13 @@ export default function PreviewPaper({
 
   return (
     <section className="w-full min-w-0">
-      <div className="flex min-h-[4.5rem] items-center justify-center gap-1.5 overflow-hidden rounded-lg bg-muted/50 p-2">
-        <div className="flex min-w-0 flex-col items-center gap-0.5">
+      <div
+        ref={previewFrameRef}
+        className={`flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-muted/50 p-2 ${
+          automatic ? "h-[140px]" : "h-[260px]"
+        }`}
+      >
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5">
           {automatic && hybrid && (
             <span className="text-[10px] leading-tight text-muted-foreground">
               1–{Number(expand) - 1 < 1 ? expand : Number(expand) - 1}
@@ -178,7 +303,7 @@ export default function PreviewPaper({
           {renderLabel()}
         </div>
         {automatic && hybrid && (
-          <div className="flex min-w-0 flex-col items-center gap-0.5">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5">
             <span className="text-[10px] leading-tight text-muted-foreground">
               от {expand}
             </span>

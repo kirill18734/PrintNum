@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Barcode, Grid3X3, QrCode, Text } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -6,6 +7,8 @@ export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
 interface LabelStudioProps {
   printerReady: boolean;
+  printerOnline: boolean;
+  printerSelected: boolean;
   isPrinting: boolean;
   printError: string | null;
   onPrint: () => void;
@@ -22,12 +25,16 @@ interface LabelStudioProps {
   preview: ReactNode;
 }
 
-const contentTypes: { id: LabelContentType; label: string }[] = [
-  { id: "text", label: "Текст" },
-  { id: "barcode", label: "Штрихкод" },
-  { id: "qr", label: "QR-код" },
-  { id: "datamatrix", label: "Data Matrix" },
-];
+const contentTypes = [
+  { id: "text", label: "Текст", icon: Text },
+  { id: "barcode", label: "Штрихкод", icon: Barcode },
+  { id: "qr", label: "QR-код", icon: QrCode },
+  { id: "datamatrix", label: "Data Matrix", icon: Grid3X3 },
+] satisfies {
+  id: LabelContentType;
+  label: string;
+  icon: typeof Text;
+}[];
 
 const contentLabels: Record<LabelContentType, string> = {
   text: "Текст на этикетке",
@@ -43,8 +50,12 @@ const placeholders: Record<LabelContentType, string> = {
   datamatrix: "Введите данные для кода",
 };
 
+const maxContentLength = 100;
+
 export default function LabelStudio({
   printerReady,
+  printerOnline,
+  printerSelected,
   isPrinting,
   printError,
   onPrint,
@@ -78,7 +89,7 @@ export default function LabelStudio({
             aria-label="Тип содержимого этикетки"
             className="grid grid-cols-2 gap-1 rounded-lg bg-muted/70 p-1"
           >
-            {contentTypes.map(({ id, label }) => (
+            {contentTypes.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 id={`label-tab-${id}`}
@@ -87,12 +98,13 @@ export default function LabelStudio({
                 aria-selected={contentType === id}
                 aria-controls="label-editor-panel"
                 onClick={() => onContentTypeChange(id)}
-                className={`min-h-8 rounded-md px-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`flex min-h-8 items-center justify-center gap-1 rounded-md px-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   contentType === id
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
                 }`}
               >
+                <Icon aria-hidden="true" className="size-3.5 shrink-0" />
                 {label}
               </button>
             ))}
@@ -111,20 +123,29 @@ export default function LabelStudio({
               contentType === "datamatrix" ? (
                 <textarea
                   value={content}
-                  onChange={(event) => onContentChange(event.target.value)}
+                  onChange={(event) =>
+                    onContentChange(event.target.value.slice(0, maxContentLength))
+                  }
                   placeholder={placeholders[contentType]}
                   rows={2}
-                  className="min-h-16 w-full select-text resize-y rounded-lg border border-input bg-background px-2.5 py-2 text-sm font-normal outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
+                  maxLength={maxContentLength}
+                  className="min-h-16 w-full select-text resize-none overflow-y-auto rounded-lg border border-input bg-background px-2.5 py-2 text-sm font-normal outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
                 />
               ) : (
                 <Input
                   value={content}
-                  onChange={(event) => onContentChange(event.target.value)}
+                  onChange={(event) =>
+                    onContentChange(event.target.value.slice(0, maxContentLength))
+                  }
                   placeholder={placeholders[contentType]}
-                  className="h-9 select-text text-sm font-normal"
+                  maxLength={maxContentLength}
+                  className="h-8 select-text text-[13px] font-normal"
                 />
               )}
             </label>
+            <p className="mt-1 text-right text-[11px] leading-tight text-muted-foreground">
+              {content.length}/{maxContentLength}
+            </p>
 
             {contentType === "text" ? (
               <div className="mt-2 flex flex-col items-start gap-1.5">
@@ -163,14 +184,28 @@ export default function LabelStudio({
           </div>
         </div>
 
-        <div className="min-w-0 w-full max-w-64 justify-self-center">{preview}</div>
+        <div className="min-w-0 w-full justify-self-center">
+          <p className="mb-1 text-center text-xs leading-snug text-muted-foreground">
+            Так будет выглядеть распечатанная этикетка
+          </p>
+          {preview}
+        </div>
       </div>
 
       <div className="mt-2 flex flex-col gap-1.5 border-t border-border pt-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs leading-snug text-muted-foreground">
+        <p
+          role={!printerReady ? "status" : undefined}
+          className={`text-xs leading-snug ${
+            printerReady
+              ? "text-muted-foreground"
+              : "font-medium text-destructive"
+          }`}
+        >
           {printerReady
             ? "Этикетка будет отправлена на выбранный принтер."
-            : "Выберите принтер и проверьте его подключение."}
+            : printerSelected && !printerOnline
+              ? "Принтер недоступен. Проверьте, что он включён и подключён."
+              : "Выберите принтер для печати."}
         </p>
         <Button
           type="button"
