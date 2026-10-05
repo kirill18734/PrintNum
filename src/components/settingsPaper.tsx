@@ -14,47 +14,50 @@ export default function SettingsPaper({
   setExpand,
 }: any) {
   return (
-    <div
-      data-tauri-drag-region
-      className="flex flex-col items-center justify-center w-full "
-    >
-      <div data-tauri-drag-region className="flex flex-col items-start ">
+    <div data-tauri-drag-region className="flex w-fit max-w-full flex-col">
+      <div data-tauri-drag-region className="flex w-full flex-col items-start">
         {/* Показывать ID */}
-        <Field orientation="horizontal" className="p-1 w-auto">
+        <Field orientation="horizontal" className="w-full items-center gap-2 px-1 py-0.5">
           <Checkbox
             id="checkbox-idNum"
             checked={idNum}
             onCheckedChange={setIdNum}
           />
-          <FieldLabel htmlFor="checkbox-idNum">Показывать ID</FieldLabel>
+          <FieldLabel className="text-[13px]" htmlFor="checkbox-idNum">
+            Показывать ID
+          </FieldLabel>
         </Field>
 
         {/* Нижняя линия */}
-        <Field orientation="horizontal" className="p-1 w-auto">
+        <Field orientation="horizontal" className="w-full items-center gap-2 px-1 py-0.5">
           <Checkbox
             id="checkbox-line"
             checked={endLine}
             onCheckedChange={setEndLine}
           />
-          <FieldLabel htmlFor="checkbox-line">Подчёркивание</FieldLabel>
+          <FieldLabel className="text-[13px]" htmlFor="checkbox-line">
+            Подчёркивание
+          </FieldLabel>
         </Field>
         {/* Гибридный формат */}
         <div
           data-tauri-drag-region
-          className={`flex flex-col items-center justify-center rounded-lg p-1  ${
-            hybrid ? "border border-border bg-muted/30" : ""
+          className={`flex w-full flex-col items-start justify-center rounded-lg border px-1 py-0.5 ${
+            hybrid ? "border-border bg-muted/30" : "border-transparent"
           }`}
         >
-          <Field orientation="horizontal">
+          <Field orientation="horizontal" className="w-full items-center gap-2">
             <Checkbox
               id="checkbox-hybrid"
               checked={hybrid}
               onCheckedChange={setHybrid}
             />
-            <FieldLabel htmlFor="checkbox-hybrid">Гибридный формат</FieldLabel>
+            <FieldLabel className="text-[13px]" htmlFor="checkbox-hybrid">
+              Гибридный формат
+            </FieldLabel>
           </Field>
           {hybrid && (
-            <div className="flex flex-col gap-1 pl-6">
+            <div className="flex flex-col gap-1 pl-6 pt-1">
               <label
                 htmlFor="expand-value"
                 className="text-xs text-muted-foreground"
@@ -67,7 +70,7 @@ export default function SettingsPaper({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 rounded-lg"
                   onClick={() => setExpand((num: any) => Math.max(1, num - 1))}
                 >
                   −
@@ -95,19 +98,14 @@ export default function SettingsPaper({
                     if (!Number.isInteger(Number(expand)) || Number(expand) < 1)
                       setExpand(1);
                   }}
-                  className="
-      h-8 w-16 text-center
-      [appearance:textfield]
-      [&::-webkit-outer-spin-button]:appearance-none
-      [&::-webkit-inner-spin-button]:appearance-none
-    "
+                  className="h-8 w-16 rounded-lg px-1 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
 
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 rounded-lg"
                   onClick={() => setExpand((e: any) => ++e)}
                 >
                   +

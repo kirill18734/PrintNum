@@ -22,7 +22,11 @@
         "visible": false,
         "center": true,
         "width": 500,
-        "height": 600
+        "height": 600,
+        "minWidth": 500,
+        "maxWidth": 500,
+        "minHeight": 600,
+        "maxHeight": 600
       }
     ],
     "security": {

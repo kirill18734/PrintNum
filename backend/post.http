@@ -19,3 +19,14 @@ content-type: application/json
 {
     "text": "КГТ-23"
 }
+
+###
+POST {{host}}/print-label
+content-type: application/json
+
+{
+    "contentType": "text",
+    "content": "Заказ № 12345",
+    "bold": true,
+    "underline": false
+}

@@ -13,13 +13,13 @@ export default function ThemeStyle({
   setDefaultThemeStyle,
 }: any) {
   return (
-    <div className="flex  items-center gap-1">
-      <span>Стиль</span>
+    <div className="flex min-w-0 items-center gap-1.5 text-xs">
+      <span className="font-medium text-muted-foreground">Стиль</span>
       <Select
         defaultValue={defaultThemeStyle}
         onValueChange={setDefaultThemeStyle}
       >
-        <SelectTrigger className="w-full max-w-48">
+        <SelectTrigger className="h-9 w-full max-w-48 rounded-lg px-2.5 text-sm">
           <SelectValue placeholder="Стиль темы" />
         </SelectTrigger>
         <SelectContent>

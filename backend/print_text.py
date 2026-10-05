@@ -1,3 +1,6 @@
+from io import BytesIO
+
+from PIL import Image, ImageWin
 import win32ui
 import win32con
 from data import load_config
@@ -197,5 +200,125 @@ def print_text(text):
     except Exception as e:
         print(f"Ошибка при печати: {e}")
         hdc.AbortDoc()
+    finally:
+        hdc.DeleteDC()
+
+
+def wrap_text(hdc, text, max_width):
+    """Split text into printer-width lines while preserving explicit line breaks."""
+    lines = []
+    for paragraph in text.splitlines() or [text]:
+        words = paragraph.split()
+        if not words:
+            lines.append('')
+            continue
+
+        line = ''
+        for word in words:
+            candidate = f'{line} {word}' if line else word
+            if hdc.GetTextExtent(candidate)[0] <= max_width:
+                line = candidate
+                continue
+
+            if line:
+                lines.append(line)
+            line = ''
+            for char in word:
+                candidate = line + char
+                if line and hdc.GetTextExtent(candidate)[0] > max_width:
+                    lines.append(line)
+                    line = char
+                else:
+                    line = candidate
+        if line:
+            lines.append(line)
+
+    return lines or ['']
+
+
+def draw_label_text(hdc, text, sizes, bold, underline):
+    available_h = sizes['height_px'] - sizes['margin_y'] * 2
+    available_w = sizes['max_allowed_w']
+    best = None
+
+    for font_height in range(1, max(2, available_h + 1)):
+        font = win32ui.CreateFont({
+            'name': 'Arial',
+            'height': font_height,
+            'weight': win32con.FW_BOLD if bold else win32con.FW_NORMAL,
+            'underline': 1 if underline else 0,
+        })
+        hdc.SelectObject(font)
+        lines = wrap_text(hdc, text, available_w)
+        _, line_height = hdc.GetTextExtent('Ag')
+        total_height = line_height * len(lines)
+        if total_height > available_h:
+            break
+        best = (font, lines, line_height, total_height)
+
+    if best is None:
+        raise ValueError('Текст не помещается на выбранной этикетке')
+
+    font, lines, line_height, total_height = best
+    hdc.SelectObject(font)
+    y = (sizes['height_px'] - total_height) // 2
+    for line in lines:
+        line_width, _ = hdc.GetTextExtent(line)
+        x = (sizes['width_px'] - line_width) // 2
+        hdc.TextOut(x, y, line)
+        y += line_height
+
+
+def draw_code_image(hdc, image_data, sizes, show_code_text, text):
+    with Image.open(BytesIO(image_data)) as source:
+        if source.width > 4096 or source.height > 4096 or source.width * source.height > 8_000_000:
+            raise ValueError('Изображение кода слишком большое')
+        image = source.convert('RGB')
+
+    caption_height = max(1, int(sizes['height_px'] * 0.18)) if show_code_text else 0
+    max_width = sizes['max_allowed_w']
+    max_height = sizes['height_px'] - sizes['margin_y'] * 2 - caption_height
+    image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+
+    x = (sizes['width_px'] - image.width) // 2
+    y = sizes['margin_y'] + (max_height - image.height) // 2
+    ImageWin.Dib(image).draw(hdc.GetHandleOutput(), (x, y, x + image.width, y + image.height))
+
+    if show_code_text:
+        font_height = max(1, int(caption_height * 0.55))
+        font = win32ui.CreateFont({'name': 'Arial', 'height': font_height})
+        hdc.SelectObject(font)
+        caption = text.replace('\r', ' ').replace('\n', ' ')
+        while caption and hdc.GetTextExtent(caption)[0] > max_width and len(caption) > 1:
+            caption = caption[:-2] + '…'
+        text_width, text_height = hdc.GetTextExtent(caption)
+        hdc.TextOut(
+            (sizes['width_px'] - text_width) // 2,
+            sizes['height_px'] - sizes['margin_y'] - text_height,
+            caption,
+        )
+
+
+def print_label(content, content_type, code_image, config, bold=False, underline=False, show_code_text=False):
+    """Print a manually composed text or machine-readable-code label."""
+    hdc = win32ui.CreateDC()
+    hdc.CreatePrinterDC(config.get('printer'))
+
+    try:
+        hdc.StartDoc(f'Этикетка: {content[:80]}')
+        hdc.StartPage()
+        hdc.SetBkMode(win32con.TRANSPARENT)
+        sizes = calculate_dimensions(hdc, config.get('paper', '30*20'))
+
+        if content_type == 'text':
+            draw_label_text(hdc, content, sizes, bold, underline)
+        else:
+            draw_code_image(hdc, code_image, sizes, show_code_text, content)
+
+        hdc.EndPage()
+        hdc.EndDoc()
+    except Exception:
+        hdc.AbortDoc()
+        raise
     finally:
         hdc.DeleteDC()

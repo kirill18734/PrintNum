@@ -4,7 +4,6 @@ import {
   IconAlertCircle,
   IconCheck,
 } from "@tabler/icons-react";
-import { Item, ItemActions } from "@/components/ui/item";
 import { Button } from "@/components/ui/button";
 
 interface StatusCardProps {
@@ -36,7 +35,7 @@ export default function StatusCard({
       message: "Принтер недоступен!",
       hint: "Проверьте, что принтер включен и подключен к компьютеру.",
       icon: (
-        <IconAlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 animate-bounce" />
+        <IconAlertCircle className="w-5 h-5 text-red-600 dark:text-red-500" />
       ),
     };
   } else if (running && printerOnline) {
@@ -52,33 +51,28 @@ export default function StatusCard({
   }
 
   return (
-    <Item
-      data-tauri-drag-region
-      className="w-full max-w-sm rounded-2xl p-4 bg-neutral-50 dark:bg-neutral-900/50 transition-all duration-300"
-    >
-      {/* Мягкая плашка статуса без рамки */}
+    <section className="w-full rounded-xl border border-border bg-card p-2.5">
       <div
-        className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300 ${statusConfig.bgColor}`}
+        className={`flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 transition-colors ${statusConfig.bgColor}`}
       >
-        <div className="mt-0.5 shrink-0">{statusConfig.icon}</div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="shrink-0 [&>svg]:size-4">{statusConfig.icon}</span>
           <h3
-            className={`font-bold text-sm tracking-tight ${statusConfig.textColor}`}
+            className={`text-center text-[13px] font-bold leading-tight tracking-tight ${statusConfig.textColor}`}
           >
             {statusConfig.message}
           </h3>
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-normal">
-            {statusConfig.hint}
-          </p>
         </div>
+        <p className="text-center text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+          {statusConfig.hint}
+        </p>
       </div>
 
-      {/* Кнопка действия */}
-      <ItemActions className="mt-2 w-full">
+      <div className="mt-1.5 flex justify-center">
         <Button
-          size="lg"
+          size="default"
           onClick={onToggleRunning}
-          className={`w-full h-14 rounded-xl text-base font-semibold text-white shadow-lg transition-all active:scale-[0.98] ${
+          className={`h-9 w-full max-w-64 rounded-lg text-sm font-semibold text-white shadow-sm transition-colors active:scale-[0.98] ${
             running
               ? "bg-red-600 hover:bg-red-700 shadow-red-600/10"
               : "bg-green-600 hover:bg-green-700 shadow-green-600/10"
@@ -96,7 +90,7 @@ export default function StatusCard({
             </>
           )}
         </Button>
-      </ItemActions>
-    </Item>
+      </div>
+    </section>
   );
 }

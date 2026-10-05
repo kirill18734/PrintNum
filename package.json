@@ -22,6 +22,7 @@
     "@tauri-apps/plugin-shell": "^2.3.5",
     "@tauri-apps/plugin-store": "^2.4.3",
     "@tauri-apps/plugin-updater": "^2.10.0",
+    "bwip-js": "^4.11.4",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.0",
     "isbot": "^5",

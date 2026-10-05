@@ -8,4 +8,5 @@ export const defaultConfig = {
   expand: 500,
   theme: "system",
   themeStyle: "vercel",
+  excludedTexts: [],
 };
