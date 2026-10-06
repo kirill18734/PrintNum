@@ -1,3 +1,4 @@
+// Векторная иконка приложения, используемая в заголовке и экранах состояния.
 import { cn } from "@/lib/utils";
 
 export default function IconApp({ classN = "" }) {

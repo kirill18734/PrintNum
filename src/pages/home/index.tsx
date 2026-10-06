@@ -1,5 +1,6 @@
+// Собирает главный экран из верхней панели, рабочей области и нижней панели.
 import Header from "./header";
-import Main from "./main";
+import Main from "./main/index";
 import Footer from "./footer";
 
 export default function Home() {
@@ -13,3 +14,4 @@ export default function Home() {
     </div>
   );
 }
+// Собирает главный экран из верхней панели, рабочей области и нижней панели.

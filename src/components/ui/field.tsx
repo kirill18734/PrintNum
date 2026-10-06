@@ -1,3 +1,4 @@
+// Компоненты разметки поля формы, включая подписи и группы элементов.
 import { useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

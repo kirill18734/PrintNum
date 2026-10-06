@@ -1,3 +1,4 @@
+// Переключатель между режимами автопечати и создания этикетки.
 type Mode = "autoprint" | "create";
 
 interface ModeTabsProps {
@@ -47,3 +48,4 @@ export default function ModeTabs({ mode, onModeChange }: ModeTabsProps) {
     </div>
   );
 }
+// Переключатель между режимами автопечати и создания этикетки.

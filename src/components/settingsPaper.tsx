@@ -1,7 +1,19 @@
+// Настройки отображения ID, подчёркивания, гибридного формата и номера расширения этикетки.
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
+
+interface SettingsPaperProps {
+  idNum: boolean;
+  setIdNum: (value: boolean) => void;
+  endLine: boolean;
+  setEndLine: (value: boolean) => void;
+  hybrid: boolean;
+  setHybrid: (value: boolean) => void;
+  expand: number | "";
+  setExpand: (value: number | "") => void;
+}
 
 export default function SettingsPaper({
   idNum,
@@ -12,7 +24,7 @@ export default function SettingsPaper({
   setHybrid,
   expand,
   setExpand,
-}: any) {
+}: SettingsPaperProps) {
   return (
     <div data-tauri-drag-region className="w-fit max-w-full min-w-0">
       <div className="flex w-full flex-col items-start gap-y-0">
@@ -66,7 +78,7 @@ export default function SettingsPaper({
                   variant="outline"
                   size="icon"
                   className="h-7 w-7 rounded-md"
-                  onClick={() => setExpand((num: any) => Math.max(1, num - 1))}
+                  onClick={() => setExpand(Math.max(1, Number(expand) - 1))}
                 >
                   −
                 </Button>
@@ -101,7 +113,7 @@ export default function SettingsPaper({
                   variant="outline"
                   size="icon"
                   className="h-7 w-7 rounded-md"
-                  onClick={() => setExpand((e: any) => ++e)}
+                  onClick={() => setExpand(Number(expand) + 1)}
                 >
                   +
                 </Button>

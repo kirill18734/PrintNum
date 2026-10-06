@@ -1,3 +1,4 @@
+// Стилизованный компонент подписи для элементов формы.
 import * as React from "react"
 import { Label as LabelPrimitive } from "radix-ui"
 
@@ -20,3 +21,4 @@ function Label({
 }
 
 export { Label }
+// Стилизованный компонент подписи для элементов формы.

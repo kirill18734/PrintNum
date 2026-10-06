@@ -1,3 +1,4 @@
+// Индикатор загрузки для ожидания асинхронных операций.
 import { cn } from "@/lib/utils"
 import { Loader2Icon } from "lucide-react"
 
@@ -8,3 +9,4 @@ function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
 }
 
 export { Spinner }
+// Индикатор загрузки для ожидания асинхронных операций.

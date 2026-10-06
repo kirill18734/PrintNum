@@ -1,19 +1,53 @@
-import { defaultConfig } from "../config/defaultConfig";
+// Хранилище пользовательских настроек с реализацией для Tauri и браузера.
+import { defaultConfig, type AppSettings } from "../config/defaultConfig";
 
 const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
-// Интерфейс теперь полностью синхронный на чтение
-interface IStoreService {
-  get(key: string): any;
-  set(key: string, value: any): Promise<void>; // Запись остается асинхронной
-  getAll(): Record<string, any>;
+interface StoreService {
+  get<K extends keyof AppSettings>(key: K): AppSettings[K];
+  set<K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ): Promise<void>;
+  getAll(): AppSettings;
 }
 
-// Единый источник правды в оперативной памяти для быстрого синхронного доступа
 const memoryConfig = { ...defaultConfig };
 
-// Ссылка на инстанс Tauri Store
-let tauriStoreInstance: any = null;
+function isAppSettingsEntry(
+  key: string,
+  value: unknown,
+): key is keyof AppSettings {
+  switch (key) {
+    case "printer":
+    case "paper":
+    case "themeStyle":
+      return typeof value === "string";
+    case "running":
+    case "hybrid":
+    case "idNum":
+    case "endLine":
+      return typeof value === "boolean";
+    case "expand":
+      return typeof value === "number" || value === "";
+    case "theme":
+      return value === "system" || value === "light" || value === "dark";
+    case "excludedTexts":
+      return (
+        Array.isArray(value) &&
+        value.every((item): item is string => typeof item === "string")
+      );
+    default:
+      return false;
+  }
+}
+
+interface TauriStore {
+  entries(): Promise<[string, unknown][]>;
+  set(key: string, value: unknown): Promise<void>;
+}
+
+let tauriStoreInstance: TauriStore | null = null;
 
 /**
  * Инициализация хранилища.
@@ -28,14 +62,18 @@ export const initStoreService = async (): Promise<void> => {
 
   try {
     const { load } = await import("@tauri-apps/plugin-store");
-    tauriStoreInstance = await load("config.json", {
+    tauriStoreInstance = (await load("config.json", {
       autoSave: true,
-      defaults: defaultConfig,
-    });
+      defaults: { ...defaultConfig },
+    })) as TauriStore;
 
     // Выкачиваем все данные из файла в оперативную память для синхронного доступа
     const entries = await tauriStoreInstance.entries();
-    Object.assign(memoryConfig, Object.fromEntries(entries));
+    for (const [key, value] of entries) {
+      if (isAppSettingsEntry(key, value)) {
+        Object.assign(memoryConfig, { [key]: value });
+      }
+    }
     console.log("[Store] Успешно инициализировано хранилище Tauri");
   } catch (error) {
     console.error(
@@ -48,16 +86,11 @@ export const initStoreService = async (): Promise<void> => {
 // ─── ЕДИНАЯ РЕАЛИЗАЦИЯ СЕРВИСА ───
 // Больше нет нужды разделять web и tauri на два разных объекта,
 // так как чтение всегда идет из memoryConfig, а логика ветвится только при записи.
-export const storeService: IStoreService = {
-  get: (key) => {
-    return (memoryConfig as Record<string, any>)[key] ?? null;
-  },
-
+export const storeService: StoreService = {
+  get: (key) => memoryConfig[key],
   set: async (key, value) => {
-    // 1. Сразу синхронно обновляем оперативную память
-    (memoryConfig as Record<string, any>)[key] = value;
+    memoryConfig[key] = value;
 
-    // 2. Асинхронно сохраняем изменения в зависимости от среды
     if (isTauri) {
       if (tauriStoreInstance) {
         await tauriStoreInstance.set(key, value);
@@ -75,3 +108,4 @@ export const storeService: IStoreService = {
     return memoryConfig;
   },
 };
+// Хранилище пользовательских настроек с реализацией для Tauri и браузера.

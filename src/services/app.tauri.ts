@@ -1,16 +1,17 @@
+// Адаптер системных возможностей приложения для Tauri и браузерного режима.
 const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Описываем интерфейс, чтобы React всегда знал, какие методы доступны
 interface IAppService {
-  getAppVersion(): any;
-  openExternalUrl(url: string): any;
-  checkForUpdates(): any;
-  installAndRelaunch(): any;
-  initCloseHandler(): any;
-  closeWindow(): any;
-  initStartHandler(): any;
-  minWindow(): any;
-  visibleWindow(): any;
+  getAppVersion(): Promise<string>;
+  openExternalUrl(url: string): Promise<void>;
+  checkForUpdates(): Promise<boolean>;
+  installAndRelaunch(): Promise<void>;
+  initCloseHandler(): Promise<void>;
+  closeWindow(): Promise<void>;
+  initStartHandler(): Promise<void>;
+  minWindow(): Promise<void>;
+  visibleWindow(): Promise<void>;
 }
 
 // Переменные для веб-заглушки обновлений
@@ -33,7 +34,11 @@ const webAppService: IAppService = {
 };
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ TAURI V2 ───
-let realUpdateObject: any = null;
+interface UpdateHandle {
+  downloadAndInstall(): Promise<void>;
+}
+
+let realUpdateObject: UpdateHandle | null = null;
 let isUpdateCheckedReal = false;
 
 const tauriAppService: IAppService = {
@@ -90,8 +95,8 @@ const tauriAppService: IAppService = {
     const { Command } = await import("@tauri-apps/plugin-shell");
 
     // ---------- Остановка backend ----------
-    getCurrentWindow().onCloseRequested(() => {
-      Command.create("stop_backend").execute();
+    await getCurrentWindow().onCloseRequested(async () => {
+      await Command.create("stop_backend").execute();
     });
   },
   initStartHandler: async () => {
@@ -102,3 +107,4 @@ const tauriAppService: IAppService = {
 };
 
 export const appService = isTauri ? tauriAppService : webAppService;
+// Адаптер системных возможностей приложения для Tauri и браузерного режима.

@@ -1,3 +1,4 @@
+// Верхняя панель главного окна с названием приложения, темой и управлением окном.
 import IconApp from "@/assets/App";
 import { Button } from "@/components/ui/button";
 import { appService } from "@/services/app.tauri";
@@ -5,13 +6,11 @@ import { useAppStore } from "@/services/store";
 import { IconMinus, IconX, IconSun, IconMoon } from "@tabler/icons-react";
 
 export default function Header() {
-  const theme = useAppStore((state: any) => state.theme);
-  const updateStoreTauriValue = useAppStore(
-    (state: any) => state.updateStoreTauriValue,
-  );
+  const theme = useAppStore((state) => state.theme);
+  const setSetting = useAppStore((state) => state.setSetting);
 
   const toggleTheme = () => {
-    updateStoreTauriValue("theme", theme === "dark" ? "light" : "dark");
+    void setSetting("theme", theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -91,3 +90,4 @@ export default function Header() {
     </header>
   );
 }
+// Верхняя панель главного окна с названием приложения, темой и управлением окном.

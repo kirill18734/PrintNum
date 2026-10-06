@@ -1,3 +1,4 @@
+// Экран ожидания установки обновления и перезапуска приложения.
 import IconApp from "@/assets/App";
 
 export default function Updating() {
@@ -39,3 +40,4 @@ export default function Updating() {
     </div>
   );
 }
+// Экран ожидания установки обновления и перезапуска приложения.

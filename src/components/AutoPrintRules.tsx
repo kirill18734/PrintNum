@@ -1,3 +1,4 @@
+// Интерфейс управления текстовыми исключениями и уведомлением о пропуске печати.
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +10,8 @@ const suggestedRules = [
   "Продавцу",
 ];
 
-export interface SkippedPrintEvent {
-  id: string;
-  rule: string;
-  text: string;
-  timestamp: number;
-}
+import type { SkippedPrintEvent } from "@/features/auto-print/types";
+export type { SkippedPrintEvent } from "@/features/auto-print/types";
 
 interface AutoPrintRulesProps {
   rules: string[];

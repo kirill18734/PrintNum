@@ -1,6 +1,5 @@
 /**
- * Default theme that loads when no user preference is set
- * Change this value to set a different default theme
+ * Названия и идентификаторы визуальных тем, доступных в настройках интерфейса.
  */
 
 export const THEMES_STYLE = [

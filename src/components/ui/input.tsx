@@ -1,3 +1,4 @@
+// Базовое стилизованное поле ввода для форм приложения.
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -17,3 +18,4 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 }
 
 export { Input }
+// Базовое стилизованное поле ввода для форм приложения.

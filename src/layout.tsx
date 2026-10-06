@@ -1,145 +1,15 @@
-import { useEffect } from "react";
-
-import { appService } from "./services/app.tauri";
-import { initStoreService, storeService } from "./services/store.tauri";
+// Корневой layout выбирает экран загрузки, приложения или установки обновления.
+import { useAppRuntime } from "@/app/useAppRuntime";
 import { useAppStore } from "./services/store";
-import { sendServer } from "./services/api";
 
 import Home from "./pages/home";
 import Updating from "./pages/updating";
 import Loading from "./pages/loading";
 
-// ---------- Остановка backend ----------
-appService.initCloseHandler();
-
-// Инициализируем конфиг до гидратации Zustand: импортируемый store уже создан
-// к этому моменту и содержит только значения по умолчанию.
-await initStoreService();
-useAppStore.setState(storeService.getAll());
-
 export default function Layout() {
-  const serverOnline = useAppStore((state: any) => state.serverOnline);
-  const setServerOnline = useAppStore((state: any) => state.setServerOnline);
-
-  const theme = useAppStore((state: any) => state.theme);
-  const themeStyle = useAppStore((state: any) => state.themeStyle);
-  const installUpdate = useAppStore((state: any) => state.installUpdate);
-  const setPrinterOnline = useAppStore((state: any) => state.setPrinterOnline);
-  const setIsUpdate = useAppStore((state: any) => state.setIsUpdate);
-
-  const listPrinters = useAppStore((state: any) => state.listPrinters);
-  const setListPrinters = useAppStore((state: any) => state.setListPrinters);
-
-  const updateStoreTauriValue = useAppStore(
-    (state: any) => state.updateStoreTauriValue,
-  );
-
-  // запуск backend
-  useEffect(() => {
-    appService.initStartHandler();
-  }, []);
-
-  // стиль
-  useEffect(() => {
-    const currentThemeStyle =
-      document.documentElement.getAttribute("theme-style");
-    if (currentThemeStyle !== themeStyle) {
-      // Remove existing data-theme attribute
-      document.documentElement.setAttribute("theme-style", themeStyle);
-    }
-  }, [themeStyle]);
-
-  // тема
-  useEffect(() => {
-    const root = document.documentElement;
-    // 1. Если тема "system", определяем системную тему и перезаписываем ее в сторе
-    if (theme === "system") {
-      const systemIsDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      updateStoreTauriValue("theme", systemIsDark ? "dark" : "light");
-      return; // Прерываем выполнение, так как изменение темы вызовет этот useEffect снова
-    }
-
-    // 2. Обычная логика переключения классов для "dark" и "light"
-    const isDark = theme === "dark";
-    root.classList.toggle("dark", isDark);
-  }, [theme]);
-
-  // получаем список принтеров
-  const updateListPrinters = async () => {
-    try {
-      const response = await sendServer.get("listPrinters");
-      const body = await response.json();
-      const next = body.listPrinters;
-
-      // 1. Простая проверка по ссылке (быстрая)
-      if (listPrinters === next) return;
-
-      // 2. Более надёжная проверка (по содержимому)
-      if (JSON.stringify(listPrinters) === JSON.stringify(next)) return;
-
-      // Если список изменился, обновляем Zustand
-      setListPrinters(next);
-    } catch {
-      // Если произошла ошибка и текущий список не пуст — очищаем его
-      if (listPrinters.length !== 0) {
-        setListPrinters([]);
-      }
-    }
-  };
-
-  useEffect(() => {
-    updateListPrinters();
-
-    const interval = setInterval(updateListPrinters, 5000);
-
-    return () => clearInterval(interval);
-  }, [listPrinters]);
-
-  // проверка сервера/принтера на доступность
-  const checkStatus = async () => {
-    try {
-      const response = await sendServer.get("status-printer");
-      const body = await response.json();
-
-      setServerOnline(true);
-
-      const statePrinter = body.printerOnline;
-
-      setPrinterOnline(statePrinter);
-    } catch {
-      setServerOnline(true);
-      setPrinterOnline(false);
-    }
-  };
-
-  useEffect(() => {
-    checkStatus();
-
-    const interval = setInterval(checkStatus, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Проверка обновлений
-  useEffect(() => {
-    const fetchUpdates = async () => {
-      try {
-        const resUpdate = await appService.checkForUpdates();
-
-        setIsUpdate(resUpdate);
-      } catch (error) {
-        console.error("Failed to check for updates:", error);
-      }
-    };
-
-    fetchUpdates();
-  }, []);
-
-  // после запуска всех нужных компонентов показываем окно
-  useEffect(() => {
-    appService.visibleWindow();
-  }, []);
+  useAppRuntime();
+  const serverOnline = useAppStore((state) => state.serverOnline);
+  const installUpdate = useAppStore((state) => state.installUpdate);
 
   return (
     <>{installUpdate ? <Updating /> : serverOnline ? <Home /> : <Loading />}</>

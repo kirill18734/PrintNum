@@ -1,4 +1,4 @@
-/* Import individual theme files */
+/* Подключает темы оформления и задаёт общие CSS-токены интерфейса. */
 @import "./themes/claude.css";
 @import "./themes/neobrutualism.css";
 @import "./themes/supabase.css";

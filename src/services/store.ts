@@ -1,43 +1,67 @@
+// Типизированное глобальное состояние приложения и действия для его обновления.
 import { create } from "zustand";
+import type { AppSettings } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
 
-export const useAppStore = create((set) => ({
-  // 1. Инициализируем синхронными заглушками из Tauri JSON
-  ...storeService.getAll(),
+const listPapers = [
+  "30*20",
+  "40*30",
+  "43*25",
+  "50*70",
+  "58*40",
+  "60*40",
+  "75*120",
+  "100*150",
+];
 
+interface AppStore extends AppSettings {
+  serverOnline: boolean;
+  printerOnline: boolean;
+  isUpdate: boolean;
+  isUpdating: boolean;
+  installUpdate: boolean;
+  listPrinters: string[];
+  listPapers: string[];
+  setSetting<K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ): Promise<void>;
+  setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
+  setListPrinters(
+    printers: string[] | ((current: string[]) => string[]),
+  ): void;
+  setIsUpdate(isUpdate: boolean): void;
+  setIsUpdating(isUpdating: boolean): void;
+  setInstallUpdate(installUpdate: boolean): void;
+}
+
+export const useAppStore = create<AppStore>((set) => ({
+  ...storeService.getAll(),
   serverOnline: false,
   printerOnline: false,
   isUpdate: false,
   isUpdating: false,
   installUpdate: false,
   listPrinters: [],
-  listPapers: [
-    "30*20",
-    "40*30",
-    "43*25",
-    "50*70",
-    "58*40",
-    "60*40",
-    "75*120",
-    "100*150",
-  ],
-
-  // 2. Универсальный сеттер для ЛЮБЫХ данных, которые нужно сохранять на диск
-  updateStoreTauriValue: async (key: string, value: any) => {
+  listPapers,
+  setSetting: async (key, value) => {
     try {
-      await storeService.set(key, value); // Пишем в Tauri JSON
-      set({ [key]: value }); // Синхронно обновляем Zustand
+      await storeService.set(key, value);
+      set((state) => ({ ...state, [key]: value }));
     } catch (error) {
-      console.error(`Ошибка сохранения ключа "${key}" на диск:`, error);
+      console.error(`Ошибка сохранения настройки "${key}":`, error);
+      throw error;
     }
   },
-
-  // 3. Обычные сеттеры для локального стейта (не пишутся на диск)
-  setServerOnline: (serverOnline: boolean) => set({ serverOnline }),
-  setPrinterOnline: (printerOnline: boolean) => set({ printerOnline }),
-  setListPrinters: (listPrinters: any) => set({ listPrinters }),
-  setIsUpdate: (isUpdate: boolean) => set({ isUpdate }),
-  setIsUpdating: (isUpdating: boolean) => set({ isUpdating }),
-  setVersion: (version: string) => set({ version }),
-  setInstallUpdate: (installUpdate: boolean) => set({ installUpdate }),
+  setConnectionStatus: (serverOnline, printerOnline) =>
+    set({ serverOnline, printerOnline }),
+  setListPrinters: (printers) =>
+    set((state) => ({
+      listPrinters:
+        typeof printers === "function" ? printers(state.listPrinters) : printers,
+    })),
+  setIsUpdate: (isUpdate) => set({ isUpdate }),
+  setIsUpdating: (isUpdating) => set({ isUpdating }),
+  setInstallUpdate: (installUpdate) => set({ installUpdate }),
 }));
+// Типизированное глобальное состояние приложения и действия для его обновления.

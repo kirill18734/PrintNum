@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Light Green. */
 [theme-style="light-green"] {
   --background: oklch(0.9892 0.0054 117.9205);
   --foreground: oklch(0.2077 0.0398 265.7549);
@@ -176,3 +177,4 @@
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   }
 }
+/* Цветовые и типографические токены темы Light Green. */

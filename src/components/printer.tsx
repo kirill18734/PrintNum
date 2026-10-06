@@ -1,3 +1,4 @@
+// Поле выбора принтера из списка устройств, обнаруженных backend.
 import {
   Select,
   SelectContent,
@@ -7,11 +8,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface PrinterProps {
+  defaultPrinter: string;
+  setDefaultPrinter: (printer: string) => void;
+  defaultListPrinters: string[];
+}
+
 export default function Printer({
   defaultPrinter,
   setDefaultPrinter,
   defaultListPrinters,
-}: any) {
+}: PrinterProps) {
   return (
     <div className="flex min-w-0 flex-col items-start gap-1">
       <span className="text-xs font-medium leading-tight text-muted-foreground">Принтер</span>
@@ -21,8 +28,8 @@ export default function Printer({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {defaultListPrinters.map((printer: string, i: number) => (
-              <SelectItem value={printer} key={i}>
+            {defaultListPrinters.map((printer) => (
+              <SelectItem value={printer} key={printer}>
                 {printer}
               </SelectItem>
             ))}

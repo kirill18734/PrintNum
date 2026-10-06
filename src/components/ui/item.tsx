@@ -1,3 +1,4 @@
+// Компоненты для оформления строк и элементов в списках и панелях.
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
@@ -194,3 +195,4 @@ export {
   ItemHeader,
   ItemFooter,
 }
+// Компоненты для оформления строк и элементов в списках и панелях.

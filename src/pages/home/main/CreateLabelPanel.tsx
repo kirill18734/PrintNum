@@ -1,3 +1,4 @@
+// Вкладка создания этикетки и передача форме необходимых данных и обработчиков.
 import type { ReactNode } from "react";
 import LabelStudio, {
   type LabelContentType,
@@ -39,3 +40,4 @@ export default function CreateLabelPanel({
     </div>
   );
 }
+// Вкладка создания этикетки и передача форме необходимых данных и обработчиков.

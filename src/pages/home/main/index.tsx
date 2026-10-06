@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+// Главный экран рабочих режимов: связывает настройки, панели функций и предпросмотр.
+import { useState } from "react";
 import { useAppStore } from "@/services/store";
 import ThemeStyle from "@/components/theme-style";
 import type { LabelContentType } from "@/components/LabelStudio";
-import type { SkippedPrintEvent } from "@/components/AutoPrintRules";
 import PreviewPaper from "@/components/previewPaper";
-import { sendServer } from "@/services/api";
+import { useSkippedPrintEvents } from "@/features/auto-print/useSkippedPrintEvents";
+import { useLabelPrinting } from "@/features/label-creation/useLabelPrinting";
 import AutoPrintPanel from "./AutoPrintPanel";
 import CreateLabelPanel from "./CreateLabelPanel";
 import ModeTabs from "./ModeTabs";
@@ -24,142 +25,48 @@ export default function Main() {
   const [labelBold, setLabelBold] = useState(false);
   const [labelUnderline, setLabelUnderline] = useState(false);
   const [showCodeText, setShowCodeText] = useState(true);
-  const [isPrinting, setIsPrinting] = useState(false);
-  const [printError, setPrintError] = useState<string | null>(null);
-  const [lastSkipped, setLastSkipped] = useState<SkippedPrintEvent | null>(null);
-  const lastSkippedId = useRef<string | null>(null);
-  const skipPollErrorLogged = useRef(false);
-  const running = useAppStore((state: any) => state.running);
-  const printer = useAppStore((state: any) => state.printer);
-  const paper = useAppStore((state: any) => state.paper);
-  const idNum = useAppStore((state: any) => state.idNum);
-  const endLine = useAppStore((state: any) => state.endLine);
-  const hybrid = useAppStore((state: any) => state.hybrid);
-  const expand = useAppStore((state: any) => state.expand);
-  const themeStyle = useAppStore((state: any) => state.themeStyle);
-  const listPrinters = useAppStore((state: any) => state.listPrinters);
-  const listPapers = useAppStore((state: any) => state.listPapers);
-  const printerOnline = useAppStore((state: any) => state.printerOnline);
-  const serverOnline = useAppStore((state: any) => state.serverOnline);
-  const excludedTexts = useAppStore(
-    (state: any) => state.excludedTexts as string[],
+  const running = useAppStore((state) => state.running);
+  const printer = useAppStore((state) => state.printer);
+  const paper = useAppStore((state) => state.paper);
+  const idNum = useAppStore((state) => state.idNum);
+  const endLine = useAppStore((state) => state.endLine);
+  const hybrid = useAppStore((state) => state.hybrid);
+  const expand = useAppStore((state) => state.expand);
+  const themeStyle = useAppStore((state) => state.themeStyle);
+  const listPrinters = useAppStore((state) => state.listPrinters);
+  const listPapers = useAppStore((state) => state.listPapers);
+  const printerOnline = useAppStore((state) => state.printerOnline);
+  const serverOnline = useAppStore((state) => state.serverOnline);
+  const excludedTexts = useAppStore((state) => state.excludedTexts);
+  const setSetting = useAppStore((state) => state.setSetting);
+  const { isPrinting, printError, printLabel } = useLabelPrinting();
+  const { lastSkipped, dismissLastSkipped } = useSkippedPrintEvents(
+    mode === "autoprint" && serverOnline,
   );
 
-  const updateStoreTauriValue = useAppStore(
-    (state: any) => state.updateStoreTauriValue,
-  );
-
-  const changeRunning = () => updateStoreTauriValue("running", !running);
-  const changePrinter = (newPrinter: any) =>
-    updateStoreTauriValue("printer", newPrinter);
-  const changePaper = (newPaper: any) =>
-    updateStoreTauriValue("paper", newPaper);
-  const changeIdNum = (newIdNum: string) =>
-    updateStoreTauriValue("idNum", newIdNum);
-  const changeEndLine = (newEndLine: string) =>
-    updateStoreTauriValue("endLine", newEndLine);
-  const changeHybrid = (newHybrid: string) =>
-    updateStoreTauriValue("hybrid", newHybrid);
-  const changeExpand = (newExpand: string) =>
-    updateStoreTauriValue("expand", newExpand);
+  const changeRunning = () => setSetting("running", !running);
+  const changePrinter = (newPrinter: string) => setSetting("printer", newPrinter);
+  const changePaper = (newPaper: string) => setSetting("paper", newPaper);
+  const changeIdNum = (newIdNum: boolean) => setSetting("idNum", newIdNum);
+  const changeEndLine = (newEndLine: boolean) => setSetting("endLine", newEndLine);
+  const changeHybrid = (newHybrid: boolean) => setSetting("hybrid", newHybrid);
+  const changeExpand = (newExpand: number | "") =>
+    setSetting("expand", newExpand);
   const changeThemeStyle = (newThemeStyle: string) =>
-    updateStoreTauriValue("themeStyle", newThemeStyle);
+    setSetting("themeStyle", newThemeStyle);
   const changeExcludedTexts = (rules: string[]) =>
-    updateStoreTauriValue("excludedTexts", rules);
+    setSetting("excludedTexts", rules);
   const updateLabelContent = (value: string) =>
     setContentByType((current) => ({ ...current, [contentType]: value }));
 
-  const printLabel = async () => {
-    const content = contentByType[contentType];
-    if (!content.trim()) return;
-
-    setIsPrinting(true);
-    setPrintError(null);
-    try {
-      let codeImage: string | undefined;
-      if (contentType !== "text") {
-        const bwipjs = await import("bwip-js/browser");
-        const canvas = document.createElement("canvas");
-        const bcid =
-          contentType === "barcode"
-            ? "code128"
-            : contentType === "qr"
-              ? "qrcode"
-              : "datamatrix";
-        bwipjs.toCanvas(canvas, {
-          bcid,
-          text: content,
-          scale: 3,
-          padding: 0,
-          backgroundcolor: "FFFFFF",
-          barcolor: "000000",
-        });
-        codeImage = canvas.toDataURL("image/png").split(",")[1];
-      }
-
-      const response = await sendServer.post("print-label", {
-        contentType,
-        content,
-        codeImage,
-        bold: labelBold,
-        underline: labelUnderline,
-        showCodeText,
-      });
-      const body = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        throw new Error(body.error || `Ошибка печати (${response.status})`);
-      }
-    } catch (error) {
-      console.error("Не удалось напечатать этикетку:", error);
-      setPrintError(
-        error instanceof Error ? error.message : "Не удалось напечатать этикетку",
-      );
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  useEffect(() => {
-    if (mode !== "autoprint" || !serverOnline) return;
-
-    let cancelled = false;
-    const checkLastSkipped = async () => {
-      try {
-        const response = await sendServer.get("last-skipped");
-        if (!response.ok) {
-          throw new Error(`Skip status request failed: ${response.status}`);
-        }
-
-        const body: { event: SkippedPrintEvent | null } = await response.json();
-        if (cancelled) return;
-
-        const event = body.event;
-        if (
-          event &&
-          typeof event.id === "string" &&
-          typeof event.rule === "string" &&
-          typeof event.text === "string" &&
-          lastSkippedId.current !== event.id
-        ) {
-          lastSkippedId.current = event.id;
-          setLastSkipped(event);
-        }
-        skipPollErrorLogged.current = false;
-      } catch (error) {
-        if (!skipPollErrorLogged.current) {
-          console.error("Failed to retrieve skipped-print status:", error);
-          skipPollErrorLogged.current = true;
-        }
-      }
-    };
-
-    checkLastSkipped();
-    const interval = setInterval(checkLastSkipped, 1500);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [mode, serverOnline]);
+  const submitLabel = () =>
+    printLabel({
+      contentType,
+      content: contentByType[contentType],
+      bold: labelBold,
+      underline: labelUnderline,
+      showCodeText,
+    });
 
   const preview = (
     <PreviewPaper
@@ -199,7 +106,7 @@ export default function Main() {
             rules={Array.isArray(excludedTexts) ? excludedTexts : []}
             onRulesChange={changeExcludedTexts}
             lastSkipped={lastSkipped}
-            onDismissSkipped={() => setLastSkipped(null)}
+            onDismissSkipped={dismissLastSkipped}
             idNum={idNum}
             onIdNumChange={changeIdNum}
             endLine={endLine}
@@ -217,7 +124,7 @@ export default function Main() {
             printerSelected={Boolean(printer)}
             isPrinting={isPrinting}
             printError={printError}
-            onPrint={printLabel}
+            onPrint={submitLabel}
             contentType={contentType}
             onContentTypeChange={setContentType}
             content={contentByType[contentType]}
@@ -242,3 +149,4 @@ export default function Main() {
     </main>
   );
 }
+// Главный экран рабочих режимов: связывает настройки, панели функций и предпросмотр.

@@ -1,3 +1,4 @@
+// Строит масштабируемый предпросмотр этикетки с текстом и штрихкодом/QR-кодом.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType } from "./LabelStudio";
 

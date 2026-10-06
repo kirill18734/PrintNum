@@ -1,4 +1,17 @@
+// Объединяет параметры оформления этикетки с её предпросмотром.
 import SettingsPaper from "./settingsPaper";
+
+interface ShowPaperProps {
+  defaultIdNum: boolean;
+  setDefaultIdNum: (value: boolean) => void;
+  defaultEndLine: boolean;
+  setDefaultEndLine: (value: boolean) => void;
+  defaultHybrid: boolean;
+  setDefaultHybrid: (value: boolean) => void;
+  defaultExpand: number | "";
+  setDefaultExpand: (value: number | "") => void;
+  preview: React.ReactNode;
+}
 
 export default function ShowPaper({
   defaultIdNum,
@@ -10,7 +23,7 @@ export default function ShowPaper({
   defaultExpand,
   setDefaultExpand,
   preview,
-}: any) {
+}: ShowPaperProps) {
   return (
     <section className="w-full rounded-md border border-border bg-card p-1">
       <h2 className="mb-0.5 text-center text-xs font-semibold leading-tight">

@@ -1,3 +1,4 @@
+// Форма создания этикетки с выбором типа содержимого и параметров оформления.
 import type { ReactNode } from "react";
 import { Barcode, Grid3X3, QrCode, Text } from "lucide-react";
 import { Button } from "@/components/ui/button";

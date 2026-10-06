@@ -1,3 +1,4 @@
+// Выпадающий список для выбора оформления интерфейса.
 import { THEMES_STYLE } from "@/config/theme-style";
 import {
   Select,
@@ -8,10 +9,15 @@ import {
   SelectValue,
 } from "./ui/select";
 
+interface ThemeStyleProps {
+  defaultThemeStyle: string;
+  setDefaultThemeStyle: (themeStyle: string) => void;
+}
+
 export default function ThemeStyle({
   defaultThemeStyle,
   setDefaultThemeStyle,
-}: any) {
+}: ThemeStyleProps) {
   return (
     <div className="flex min-w-0 items-center gap-1.5 text-xs">
       <span className="font-medium text-muted-foreground">Стиль</span>

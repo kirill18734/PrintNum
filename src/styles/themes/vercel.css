@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Vercel. */
 [theme-style="vercel"] {
   --background: oklch(0.99 0 0);
   --foreground: oklch(0 0 0);
@@ -167,3 +168,4 @@
     --shadow-2xl: var(--shadow-2xl);
   }
 }
+/* Цветовые и типографические токены темы Vercel. */

@@ -1,3 +1,4 @@
+// Нижняя панель главного окна: версия приложения, обновление и внешние ссылки.
 import {
   IconBrandGithub,
   IconBrandTelegram,
@@ -8,16 +9,19 @@ import { appService } from "@/services/app.tauri";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
-  const isUpdate = useAppStore((state: any) => state.isUpdate);
-  const isUpdating = useAppStore((state: any) => state.isUpdating);
-  const setIsUpdating = useAppStore((state: any) => state.setIsUpdating);
-  const setInstallUpdate = useAppStore((state: any) => state.setInstallUpdate);
+  const isUpdate = useAppStore((state) => state.isUpdate);
+  const isUpdating = useAppStore((state) => state.isUpdating);
+  const setIsUpdating = useAppStore((state) => state.setIsUpdating);
+  const setInstallUpdate = useAppStore((state) => state.setInstallUpdate);
   const [version, setVersion] = useState("");
 
   useEffect(() => {
     const getVersion = async () => {
-      const curVersion = await appService.getAppVersion();
-      setVersion(curVersion);
+      try {
+        setVersion(await appService.getAppVersion());
+      } catch (error) {
+        console.error("Не удалось получить версию приложения:", error);
+      }
     };
 
     getVersion();
@@ -46,6 +50,9 @@ export default function Footer() {
                 setInstallUpdate(true);
                 setIsUpdating(true);
                 await appService.installAndRelaunch();
+              } catch (error) {
+                console.error("Не удалось установить обновление:", error);
+                setInstallUpdate(false);
               } finally {
                 // На случай веб-мока без перезапуска вернём состояние
                 setIsUpdating(false);
@@ -100,3 +107,4 @@ export default function Footer() {
     </footer>
   );
 }
+// Нижняя панель главного окна: версия приложения, обновление и внешние ссылки.

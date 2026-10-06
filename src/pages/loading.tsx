@@ -1,3 +1,4 @@
+// Экран ожидания доступности backend при запуске приложения.
 import IconApp from "@/assets/App";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -25,3 +26,4 @@ export default function Loading() {
     </div>
   );
 }
+// Экран ожидания доступности backend при запуске приложения.

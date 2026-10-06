@@ -1,3 +1,4 @@
+// Панель управления автопечатью, правилами исключения и настройками этикетки.
 import type { ReactNode } from "react";
 import AutoPrintRules, {
   type SkippedPrintEvent,
@@ -14,14 +15,14 @@ interface AutoPrintPanelProps {
   onRulesChange: (rules: string[]) => void;
   lastSkipped: SkippedPrintEvent | null;
   onDismissSkipped: () => void;
-  idNum: string;
-  onIdNumChange: (value: string) => void;
-  endLine: string;
-  onEndLineChange: (value: string) => void;
-  hybrid: string;
-  onHybridChange: (value: string) => void;
-  expand: string;
-  onExpandChange: (value: string) => void;
+  idNum: boolean;
+  onIdNumChange: (value: boolean) => void;
+  endLine: boolean;
+  onEndLineChange: (value: boolean) => void;
+  hybrid: boolean;
+  onHybridChange: (value: boolean) => void;
+  expand: number | "";
+  onExpandChange: (value: number | "") => void;
   preview: ReactNode;
 }
 
@@ -77,3 +78,4 @@ export default function AutoPrintPanel({
     </div>
   );
 }
+// Панель управления автопечатью, правилами исключения и настройками этикетки.

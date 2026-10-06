@@ -1,13 +1,14 @@
+// Компоновка настроек выбранного принтера и формата этикетки.
 import Paper from "@/components/paper";
 import Printer from "@/components/printer";
 
 interface PrinterSettingsProps {
-  printer: any;
-  printers: any;
-  paper: any;
-  papers: any;
-  onPrinterChange: (printer: any) => void;
-  onPaperChange: (paper: any) => void;
+  printer: string;
+  printers: string[];
+  paper: string;
+  papers: string[];
+  onPrinterChange: (printer: string) => void;
+  onPaperChange: (paper: string) => void;
 }
 
 export default function PrinterSettings({
@@ -38,3 +39,4 @@ export default function PrinterSettings({
     </section>
   );
 }
+// Компоновка настроек выбранного принтера и формата этикетки.
