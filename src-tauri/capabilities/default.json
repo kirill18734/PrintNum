@@ -26,14 +26,20 @@
           "name": "start_backend",
           "cmd": "powershell.exe",
           "args": [
-            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else {  Start-Process -FilePath './backend.exe' -WindowStyle Hidden }"
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$exe = if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { '../backend/output/backend.exe' } else { './backend.exe' }; try { Invoke-RestMethod -Uri 'http://127.0.0.1:5000/' -TimeoutSec 1 | Out-Null } catch { Start-Process -FilePath $exe -WindowStyle Hidden }"
           ]
         },
         {
           "name": "stop_backend",
-          "cmd": "powershell",
+          "cmd": "powershell.exe",
           "args": [
-            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue"
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "try { Invoke-RestMethod -Uri 'http://127.0.0.1:5000/shutdown' -Method Post -Headers @{'X-PrintNum-Shutdown'='local-client'} -TimeoutSec 2 | Out-Null } catch { Write-Output 'Backend shutdown endpoint is unavailable.' }"
           ]
         }
       ]

@@ -1,3 +1,4 @@
+# Зависимости Python для запуска, сборки и упаковки бэкенда Windows.
 auto-py-to-exe==2.50.1
 Flask==3.1.3
 flask-cors==6.0.5

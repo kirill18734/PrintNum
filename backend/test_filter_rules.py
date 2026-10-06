@@ -1,3 +1,5 @@
+"""Модульные тесты поиска исключений автопечати без учёта регистра."""
+
 import unittest
 
 from filter_rules import find_excluded_rule

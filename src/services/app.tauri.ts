@@ -102,7 +102,7 @@ const tauriAppService: IAppService = {
   initStartHandler: async () => {
     const { Command } = await import("@tauri-apps/plugin-shell");
 
-    Command.create("start_backend").execute();
+    await Command.create("start_backend").execute();
   },
 };
 

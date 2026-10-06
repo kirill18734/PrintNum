@@ -15,3 +15,4 @@ export default function Layout() {
     <>{installUpdate ? <Updating /> : serverOnline ? <Home /> : <Loading />}</>
   );
 }
+  
