@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "@/services/store";
-import StatusCard from "@/components/StatusCard";
-import Paper from "@/components/paper";
-import Printer from "@/components/printer";
-import ShowPaper from "@/components/showPaper";
 import ThemeStyle from "@/components/theme-style";
-import LabelStudio from "@/components/LabelStudio";
 import type { LabelContentType } from "@/components/LabelStudio";
-import AutoPrintRules, {
-  type SkippedPrintEvent,
-} from "@/components/AutoPrintRules";
+import type { SkippedPrintEvent } from "@/components/AutoPrintRules";
 import PreviewPaper from "@/components/previewPaper";
 import { sendServer } from "@/services/api";
+import AutoPrintPanel from "./AutoPrintPanel";
+import CreateLabelPanel from "./CreateLabelPanel";
+import ModeTabs from "./ModeTabs";
+import PrinterSettings from "./PrinterSettings";
 
 export default function Main() {
   const [mode, setMode] = useState<"autoprint" | "create">("autoprint");
@@ -182,126 +179,57 @@ export default function Main() {
 
   return (
     <main className="flex min-h-full w-full flex-col gap-2 bg-white p-2 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50">
-      <div className="w-full">
-        <div
-          role="tablist"
-          aria-label="Режим работы"
-          className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted/70 p-1"
-        >
-          <button
-            type="button"
-            role="tab"
-            id="mode-tab-autoprint"
-            aria-controls="mode-panel-autoprint"
-            aria-selected={mode === "autoprint"}
-            onClick={() => setMode("autoprint")}
-            className={`min-h-9 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
-              mode === "autoprint"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Автопечать
-          </button>
-          <button
-            type="button"
-            role="tab"
-            id="mode-tab-create"
-            aria-controls="mode-panel-create"
-            aria-selected={mode === "create"}
-            onClick={() => setMode("create")}
-            className={`min-h-9 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
-              mode === "create"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Создать этикетку
-          </button>
-        </div>
-      </div>
-
-      <section
-        aria-label="Параметры печати"
-        className="w-full rounded-xl border border-border bg-card p-2.5"
-      >
-        <div className="grid grid-cols-2 items-end gap-2.5">
-          <Printer
-            defaultPrinter={printer}
-            defaultListPrinters={listPrinters}
-            setDefaultPrinter={changePrinter}
-          />
-          <Paper
-            defaultPaper={paper}
-            setDefaultPaper={changePaper}
-            defaultListPapers={listPapers}
-          />
-        </div>
-      </section>
+      <ModeTabs mode={mode} onModeChange={setMode} />
+      <PrinterSettings
+        printer={printer}
+        papers={listPapers}
+        printers={listPrinters}
+        paper={paper}
+        onPrinterChange={changePrinter}
+        onPaperChange={changePaper}
+      />
 
       <div className="flex w-full flex-col gap-2">
         <div className="w-full min-w-0">
-          <div
-            id="mode-panel-autoprint"
-            role="tabpanel"
-            aria-labelledby="mode-tab-autoprint"
-            className={`flex flex-col gap-2 ${
-              mode === "autoprint" ? "" : "hidden"
-            }`}
-          >
-            <StatusCard
-              running={running}
-              printerOnline={printerOnline}
-              onToggleRunning={changeRunning}
-            />
-
-            <AutoPrintRules
-              rules={Array.isArray(excludedTexts) ? excludedTexts : []}
-              onRulesChange={changeExcludedTexts}
-              running={running}
-              lastSkipped={lastSkipped}
-              onDismissSkipped={() => setLastSkipped(null)}
-            />
-
-            <ShowPaper
-              defaultIdNum={idNum}
-              setDefaultIdNum={changeIdNum}
-              defaultEndLine={endLine}
-              setDefaultEndLine={changeEndLine}
-              defaultHybrid={hybrid}
-              setDefaultHybrid={changeHybrid}
-              defaultExpand={expand}
-              setDefaultExpand={changeExpand}
-              preview={preview}
-            />
-          </div>
-
-          <div
-            id="mode-panel-create"
-            role="tabpanel"
-            aria-labelledby="mode-tab-create"
-            className={mode === "create" ? "" : "hidden"}
-          >
-            <LabelStudio
-              printerReady={printerOnline && Boolean(printer)}
-              printerOnline={printerOnline}
-              printerSelected={Boolean(printer)}
-              isPrinting={isPrinting}
-              printError={printError}
-              onPrint={printLabel}
-              contentType={contentType}
-              onContentTypeChange={setContentType}
-              content={contentByType[contentType]}
-              onContentChange={updateLabelContent}
-              bold={labelBold}
-              onBoldChange={setLabelBold}
-              underline={labelUnderline}
-              onUnderlineChange={setLabelUnderline}
-              showCodeText={showCodeText}
-              onShowCodeTextChange={setShowCodeText}
-              preview={preview}
-            />
-          </div>
+          <AutoPrintPanel
+            active={mode === "autoprint"}
+            running={running}
+            printerOnline={printerOnline}
+            onToggleRunning={changeRunning}
+            rules={Array.isArray(excludedTexts) ? excludedTexts : []}
+            onRulesChange={changeExcludedTexts}
+            lastSkipped={lastSkipped}
+            onDismissSkipped={() => setLastSkipped(null)}
+            idNum={idNum}
+            onIdNumChange={changeIdNum}
+            endLine={endLine}
+            onEndLineChange={changeEndLine}
+            hybrid={hybrid}
+            onHybridChange={changeHybrid}
+            expand={expand}
+            onExpandChange={changeExpand}
+            preview={preview}
+          />
+          <CreateLabelPanel
+            active={mode === "create"}
+            printerReady={printerOnline && Boolean(printer)}
+            printerOnline={printerOnline}
+            printerSelected={Boolean(printer)}
+            isPrinting={isPrinting}
+            printError={printError}
+            onPrint={printLabel}
+            contentType={contentType}
+            onContentTypeChange={setContentType}
+            content={contentByType[contentType]}
+            onContentChange={updateLabelContent}
+            bold={labelBold}
+            onBoldChange={setLabelBold}
+            underline={labelUnderline}
+            onUnderlineChange={setLabelUnderline}
+            showCodeText={showCodeText}
+            onShowCodeTextChange={setShowCodeText}
+            preview={preview}
+          />
         </div>
       </div>
 
