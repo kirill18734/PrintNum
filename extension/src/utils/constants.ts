@@ -17,7 +17,7 @@ export const PATH = {
   all: "/orders",
   order: "/orders/session",
   recommendation: "/receiving-v2/main",
-  package: "/outbound"
+  package: "/outbound",
 };
 const cmd = (
   id: any,
@@ -134,6 +134,24 @@ export const qrCodes = [
     PATH.recommendation,
     [],
     "recommendation",
+    false,
+  ),
+  cmd(
+    "safe_package_xs",
+    "504816293750184627395016",
+    "Сейф-пакет XS",
+    PATH.package,
+    [],
+    "package_radio",
+    false,
+  ),
+  cmd(
+    "safe_package_s",
+    "504816293750184627395017",
+    "Сейф-пакет S",
+    PATH.package,
+    [],
+    "package_radio",
     false,
   ),
   cmd(

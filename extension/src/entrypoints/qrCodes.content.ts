@@ -74,7 +74,7 @@ export default defineContentScript({
         textValue,
         "",
         document,
-        5000,
+        500,
         true,
       );
       if (!label) return false;
@@ -84,14 +84,11 @@ export default defineContentScript({
         "",
         "",
         label,
-        3000,
+        300,
       );
 
-      if (input && (type !== "radio" || !input.checked)) {
+      if (input) {
         input.click();
-        if (type === "radio") {
-          await delay(300);
-        }
       }
       return true;
     }
