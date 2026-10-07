@@ -69,13 +69,29 @@ export default defineContentScript({
       textValue: string,
       type: "checkbox" | "radio",
     ) {
-      const label: any = await waitLoadElement(selector, textValue);
+      const label: any = await waitLoadElement(
+        selector,
+        textValue,
+        "",
+        document,
+        5000,
+        true,
+      );
       if (!label) return false;
 
-      const input = label.querySelector(`[type="${type}"]`);
+      const input: any = await waitLoadElement(
+        `[type="${type}"]`,
+        "",
+        "",
+        label,
+        3000,
+      );
 
-      if (input) {
+      if (input && (type !== "radio" || !input.checked)) {
         input.click();
+        if (type === "radio") {
+          await delay(300);
+        }
       }
       return true;
     }

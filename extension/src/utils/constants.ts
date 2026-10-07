@@ -146,6 +146,15 @@ export const qrCodes = [
     false,
   ),
   cmd(
+    "safe_package_l",
+    "504816293750184627395022",
+    "Сейф-пакет L",
+    PATH.package,
+    [],
+    "package_radio",
+    false,
+  ),
+  cmd(
     "safe_package_xl",
     "504816293750184627395019",
     "Сейф-пакет XL",
