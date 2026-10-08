@@ -2,7 +2,7 @@
 
 import unittest
 
-from filter_rules import find_excluded_rule
+from app.domain.filter_rules import find_excluded_rule
 
 
 class FindExcludedRuleTests(unittest.TestCase):

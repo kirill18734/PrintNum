@@ -3,7 +3,7 @@
 import base64
 import unittest
 
-from label_data import LabelRequestError, parse_label_request
+from app.domain.label_data import LabelRequestError, parse_label_request
 
 
 class ParseLabelRequestTests(unittest.TestCase):
