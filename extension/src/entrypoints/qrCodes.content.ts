@@ -63,15 +63,32 @@ export default defineContentScript({
       return true;
     }
 
-    // Вспомогательная функция для безопасного включения чекбокса
-    async function checkCheckboxOnly(selector: string, textValue: string) {
-      const label: any = await waitLoadElement(selector, textValue);
+    // Вспомогательная функция для выбора input внутри label
+    async function selectInputOnly(
+      selector: string,
+      textValue: string,
+      type: "checkbox" | "radio",
+    ) {
+      const label: any = await waitLoadElement(
+        selector,
+        textValue,
+        "",
+        document,
+        500,
+        true,
+      );
       if (!label) return false;
 
-      const checkbox = label.querySelector('[type="checkbox"]');
+      const input: any = await waitLoadElement(
+        `[type="${type}"]`,
+        "",
+        "",
+        label,
+        300,
+      );
 
-      if (checkbox) {
-        checkbox.click();
+      if (input) {
+        input.click();
       }
       return true;
     }
@@ -151,8 +168,13 @@ export default defineContentScript({
         // ========================================================
         // Рекомендации
         // ========================================================
-        if (command.group === "recommendation") {
-          await checkCheckboxOnly("label", command.name);
+        if (
+          command.group === "recommendation" ||
+          command.group === "package_radio"
+        ) {
+          const inputType =
+            command.group === "package_radio" ? "radio" : "checkbox";
+          await selectInputOnly("label", command.name, inputType);
           return;
         }
 
