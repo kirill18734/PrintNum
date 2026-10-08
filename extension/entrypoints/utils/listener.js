@@ -34,4 +34,4 @@ window.addEventListener("keydown", (e) => {
     }
     lastNumber = "";
   }
-});
+}, true);
