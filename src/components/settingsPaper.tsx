@@ -27,7 +27,7 @@ export default function SettingsPaper({
 }: SettingsPaperProps) {
   return (
     <div data-tauri-drag-region className="w-fit max-w-full min-w-0">
-      <div className="flex w-full flex-col items-start gap-y-0">
+      <div className="flex w-full flex-col items-start gap-y-0.5">
         {/* Показывать ID */}
         <Field orientation="horizontal" className="w-full items-center gap-1 px-0 py-0">
           <Checkbox
@@ -53,7 +53,7 @@ export default function SettingsPaper({
         </Field>
         {/* Гибридный формат */}
         <div
-          className={`flex w-full flex-wrap items-center gap-x-1 rounded px-0.5 ${
+          className={`flex w-full flex-wrap items-center gap-x-1 rounded px-0 ${
             hybrid ? "bg-muted/30" : ""
           }`}
         >
