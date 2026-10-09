@@ -1,20 +1,16 @@
-// Отправляет на печать новые ячейки из колонки «Новая ячейка» на странице Ozon Полки.
-// Значения, уже отображавшиеся при запуске, не отправляются.
-// отправка ячейки на печать
+// отправка Ozon Полка на печать
 (async function () {
   let observerPrint = null;
   let oldElements = new Set();
-  let isInitialized = false;
+  let firstRun = true;
 
   async function sendNumber(number) {
     try {
-      // Отправляем сообщение в Background Script и ждем промис
       const response = await chrome.runtime.sendMessage({
         action: "sendNumberToFlask",
         number: number,
       });
 
-      // Если фоновый скрипт вернул ошибку или статус неуспеха
       if (!response || !response.success) {
         console.error(
           `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
@@ -34,6 +30,7 @@
 
   function runScript() {
     const headers = Array.from(document.querySelectorAll("thead th"));
+
     const columnIndex = headers.findIndex(
       (header) => header.textContent?.trim() === "Новая ячейка",
     );
@@ -45,23 +42,53 @@
 
     rows.forEach((row) => {
       const targetCell = row.querySelectorAll("td")[columnIndex];
+
       if (targetCell) {
-        currentElements.push(targetCell.textContent?.trim() || "");
+        const value = targetCell.textContent?.trim() || "";
+
+        if (value) {
+          currentElements.push(value);
+        }
       }
     });
 
-    if (!isInitialized) {
-      oldElements = new Set(currentElements);
-      isInitialized = true;
+    const currentSet = new Set(currentElements);
+
+    // Первый запуск — просто запоминаем текущее состояние.
+    if (firstRun) {
+      oldElements = currentSet;
+      firstRun = false;
       return;
     }
 
-    currentElements.forEach((item) => {
-      if (item && !oldElements.has(item)) {
-        oldElements.add(item);
-        sendNumber(item);
-      }
-    });
+    // Находим элементы, которых не было в предыдущем состоянии.
+    const newElements = currentElements.filter(
+      (item) => !oldElements.has(item),
+    );
+
+    // Ничего нового не появилось.
+    if (newElements.length === 0) {
+      return;
+    }
+
+    // Появилось больше одного нового элемента.
+    // Сбрасываем старое состояние без отправки на сервер.
+    if (newElements.length > 1) {
+      console.warn(
+        `Обнаружено ${newElements.length} новых элементов. ` +
+          `Состояние сброшено без отправки на сервер.`,
+      );
+
+      oldElements = currentSet;
+      return;
+    }
+
+    // Появился ровно один новый элемент.
+    const newElement = newElements[0];
+
+    oldElements.add(newElement);
+
+    sendNumber(newElement);
   }
 
   function resetState() {
@@ -71,11 +98,10 @@
     }
 
     oldElements = new Set();
-    isInitialized = false;
+    firstRun = true;
   }
 
   function toggleState() {
-    // Исправлено: Гарантированный сброс состояния при любом переходе
     resetState();
 
     if (location.pathname !== PATH.shelf) {
