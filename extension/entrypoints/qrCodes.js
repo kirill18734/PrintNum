@@ -45,7 +45,17 @@
   // ============================================================
 
   async function clickByElem(selector, textValue, name) {
-    const btn = await waitLoadElement(selector, textValue, name);
+    const timeout =
+      name.startsWith("Оплатить заказ") || name.startsWith("Выдать заказ")
+        ? 1000
+        : 5000;
+    const btn = await waitLoadElement(
+      selector,
+      textValue,
+      name,
+      document,
+      timeout,
+    );
     if (!btn) return null;
 
     btn.click();
@@ -53,18 +63,24 @@
   }
 
   // Вспомогательная функция для безопасного включения чекбокса
-  async function selectInputOnly(selector, textValue, type) {
+  async function selectInputOnly(selector, textValue, type, timeout = 500) {
     const label = await waitLoadElement(
       selector,
       textValue,
       "",
       document,
-      500,
+      timeout,
       true,
     );
     if (!label) return false;
 
-    const input = await waitLoadElement(`[type="${type}"]`, "", "", label, 300);
+    const input = await waitLoadElement(
+      `[type="${type}"]`,
+      "",
+      "",
+      label,
+      timeout,
+    );
 
     if (input) {
       input.click();
@@ -152,7 +168,8 @@
       ) {
         const inputType =
           command.group === "package_radio" ? "radio" : "checkbox";
-        await selectInputOnly("label", command.name, inputType);
+        const timeout = command.group === "recommendation" ? 1000 : 500;
+        await selectInputOnly("label", command.name, inputType, timeout);
         return;
       }
 
