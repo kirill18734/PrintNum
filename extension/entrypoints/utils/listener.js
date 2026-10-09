@@ -1,12 +1,21 @@
 const listFunc = [];
+const keyListeners = [];
 let lastNumber = "";
 let resetTimeout = null;
 
-function listening(fn) {
-  listFunc.push(fn);
+function listening(fn, key = null) {
+  if (key) {
+    keyListeners.push({ fn, key });
+  } else {
+    listFunc.push(fn);
+  }
 }
 
 window.addEventListener("keydown", (e) => {
+  keyListeners.forEach(({ fn, key }) => {
+    if (e.key === key) fn(e);
+  });
+
   // Накопление символов от сканера
   if (e.key.length === 1) {
     // Очищаем предыдущий таймер только при вводе нового символа

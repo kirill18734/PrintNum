@@ -1,11 +1,4 @@
-function searchText(
-  selector,
-  container,
-  textValue,
-  name,
-  isInclude,
-  allowFallbacks,
-) {
+function searchText(selector, container, textValue, name, isInclude) {
   const elements = Array.from(container.querySelectorAll(selector));
   let element = elements.find((e) =>
     isInclude
@@ -13,17 +6,15 @@ function searchText(
       : e.textContent?.trim() === textValue,
   );
 
-  if (!element && allowFallbacks) {
-    const fallbackTexts = [];
+  if (!element) {
+    // для повторной попытки оплатить
     if (name.startsWith("Оплатить")) {
-      fallbackTexts.push(TEXT.payAgain);
+      let text = TEXT.payAgain;
+      // Ищем элемент только если для textValue нашелся запасной вариант текста
+      if (text) {
+        element = elements.find((e) => e.textContent?.trim() === text);
+      }
     }
-    if (name.startsWith("Оплатить") || name.startsWith("Выдать заказ")) {
-      fallbackTexts.push(TEXT.confirm);
-    }
-    element = elements.find((e) =>
-      fallbackTexts.includes(e.textContent?.trim()),
-    );
   }
 
   return element;
@@ -37,33 +28,17 @@ async function waitLoadElement(
   timeout = 5000,
   isInclude = false,
 ) {
-  const fallbackDeadline = Date.now() + 500;
-
   return new Promise((resolve, reject) => {
     // 1. Проверяем, может элемент уже есть на странице
     const element = textValue
-      ? searchText(
-          selector,
-          container,
-          textValue,
-          name,
-          isInclude,
-          Date.now() < fallbackDeadline,
-        )
+      ? searchText(selector, container, textValue, name, isInclude)
       : container.querySelector(selector);
     if (element) return resolve(element);
 
     // 2. Если элемента нет, запускаем слежку за DOM
     const observerFind = new MutationObserver(() => {
       const el = textValue
-        ? searchText(
-            selector,
-            container,
-            textValue,
-            name,
-            isInclude,
-            Date.now() < fallbackDeadline,
-          )
+        ? searchText(selector, container, textValue, name, isInclude)
         : container.querySelector(selector);
       if (el) {
         clearTimeout(timer);

@@ -43,7 +43,8 @@
         "entrypoints/hideMenuNotification.js",
         "entrypoints/hideReturns.js",
         "entrypoints/autoscriptBox.js",
-        "entrypoints/autoscriptPackage.js"
+        "entrypoints/autoscriptPackage.js",
+        "entrypoints/confirmOnEnter.js"
       ]
     }
   ]
