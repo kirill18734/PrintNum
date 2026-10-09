@@ -1,4 +1,4 @@
-// Адрес вашего Flask сервера (замените на ваш реальный URL, если он другой)
+// Forwards print requests from content scripts to the local Flask service.
 const API_BASE = "http://127.0.0.1:5000/print-number";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

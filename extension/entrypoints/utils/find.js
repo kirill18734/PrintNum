@@ -1,3 +1,4 @@
+// Finds DOM elements by selector and text, optionally waiting for their appearance.
 function searchText(selector, container, textValue, name, isInclude) {
   const elements = Array.from(container.querySelectorAll(selector));
   let element = elements.find((e) =>

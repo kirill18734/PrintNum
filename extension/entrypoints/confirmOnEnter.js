@@ -1,3 +1,4 @@
+// Clicks the confirmation button after Tab then Enter on order pages.
 (async () => {
   let tabPressedTimeout;
 

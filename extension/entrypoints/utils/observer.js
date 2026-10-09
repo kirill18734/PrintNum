@@ -1,3 +1,4 @@
+// Notifies subscribers when client-side navigation changes the current URL.
 const listeners = [];
 
 let lastURL = "";

@@ -1,3 +1,5 @@
+"""Load and cache the local printer configuration from config.json."""
+
 import os
 import json
 from threading import Lock

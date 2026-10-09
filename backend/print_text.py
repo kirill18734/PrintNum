@@ -1,3 +1,5 @@
+"""Format label text and render print jobs for Windows printers."""
+
 import win32ui
 import win32con
 from data import load_config

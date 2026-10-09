@@ -1,3 +1,5 @@
+"""Check printer availability and manage its Windows print queue."""
+
 import win32print
 import win32timezone  # модуль для компиляции, нужен для очистки очереди
 from data import load_config

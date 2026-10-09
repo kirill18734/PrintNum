@@ -1,3 +1,4 @@
+// Shares one keyboard listener between scanner input and registered key handlers.
 const listFunc = [];
 const keyListeners = [];
 let lastNumber = "";

@@ -1,3 +1,4 @@
+// Shares a single chrome.storage listener with registered local-storage handlers.
 const storageListeners = [];
 
 // Инициализируем один единый слушатель для chrome.storage

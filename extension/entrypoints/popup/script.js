@@ -1,3 +1,4 @@
+// Controls popup status, download links, and saved feature toggles.
 (async function () {
   let downloadUrl = null;
   let isDownloadClicked = false;

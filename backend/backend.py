@@ -1,3 +1,5 @@
+"""Flask API for printer status checks and label-print requests."""
+
 from flask import Flask, request, jsonify
 from data import load_config
 from utils import status_printer

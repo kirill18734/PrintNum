@@ -1,3 +1,4 @@
+// Shared HTTP helpers for requests to the local service.
 const sendServer = {
   get: async (domain = API_BASE, endpoint = "") =>
     fetch(`${domain}/${endpoint}`),

@@ -1,4 +1,4 @@
-// Асинхронное получение данных из хранилища
+// Provides asynchronous helpers for reading and writing extension local storage.
 async function get_local_storage(key) {
   // chrome.storage.local.get возвращает объект вида { [key]: value }
   const result = await chrome.storage.local.get(key);

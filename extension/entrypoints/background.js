@@ -1,3 +1,4 @@
+// Initializes and synchronizes extension feature settings in local storage.
 (async function () {
   try {
     // Собираем актуальные имена из новой структуры констант
