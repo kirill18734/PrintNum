@@ -5,6 +5,8 @@ import ThemeStyle from "@/components/theme-style";
 import type { LabelContentType } from "@/components/LabelStudio";
 import PreviewPaper from "@/components/previewPaper";
 import { useLabelPrinting } from "@/features/label-creation/useLabelPrinting";
+import { useLatestAutoPrintStatus } from "@/features/auto-print/useLatestAutoPrintStatus";
+import { isTauri } from "@/services/app.tauri";
 import AutoPrintPanel from "./AutoPrintPanel";
 import CreateLabelPanel from "./CreateLabelPanel";
 import ModeTabs from "./ModeTabs";
@@ -35,9 +37,13 @@ export default function Main() {
   const listPrinters = useAppStore((state) => state.listPrinters);
   const listPapers = useAppStore((state) => state.listPapers);
   const printerOnline = useAppStore((state) => state.printerOnline);
+  const serverOnline = useAppStore((state) => state.serverOnline);
   const excludedTexts = useAppStore((state) => state.excludedTexts);
   const setSetting = useAppStore((state) => state.setSetting);
   const { isPrinting, printError, printLabel } = useLabelPrinting();
+  const latestStatus = useLatestAutoPrintStatus(
+    mode === "autoprint" && serverOnline && isTauri,
+  );
   const changeRunning = () => setSetting("running", !running);
   const changePrinter = (newPrinter: string) => setSetting("printer", newPrinter);
   const changePaper = (newPaper: string) => setSetting("paper", newPaper);
@@ -96,6 +102,8 @@ export default function Main() {
             active={mode === "autoprint"}
             running={running}
             printerOnline={printerOnline}
+            latestStatus={latestStatus}
+            showDemo={!isTauri}
             onToggleRunning={changeRunning}
             rules={Array.isArray(excludedTexts) ? excludedTexts : []}
             onRulesChange={changeExcludedTexts}

@@ -1,5 +1,5 @@
 // Адаптер системных возможностей приложения для Tauri и браузерного режима.
-const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
+export const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // Описываем интерфейс, чтобы React всегда знал, какие методы доступны
 interface IAppService {

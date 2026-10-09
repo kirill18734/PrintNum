@@ -91,12 +91,32 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(skipped.json["status"], "skipped")
         self.assertEqual(skipped.json["rule"], "skip")
         self.assertEqual(self.printer.printed_numbers, [])
+        event = self.client.get("/auto-print-status").json["event"]
+        self.assertEqual(event["text"], "Skip this")
+        self.assertEqual(event["status"], "skipped")
+        self.assertEqual(
+            [step["message"] for step in event["steps"]],
+            [
+                "Текст получен",
+                "Найдено исключение «skip»",
+                "Не напечатан: текст соответствует исключению",
+            ],
+        )
 
         printed = self.client.post("/print-number", json={"text": "Order 123"})
         self.assertEqual(printed.data, b"OK")
         self.assertEqual(self.printer.printed_numbers[0][0], "Order 123")
         self.assertEqual(self.printer.cleared_queues, ["Test printer"])
-        self.assertEqual(self.client.get("/last-skipped").status_code, 404)
+        event = self.client.get("/auto-print-status").json["event"]
+        self.assertEqual(event["text"], "Order 123")
+        self.assertEqual(event["status"], "printed")
+        self.assertEqual(event["steps"][-1]["message"], "Отправлен на печать")
+
+    def test_auto_print_status_is_empty_until_text_is_received(self):
+        self.assertEqual(
+            self.client.get("/auto-print-status").json,
+            {"event": None},
+        )
 
     def test_queue_is_cleared_before_each_print_job(self):
         self.client.post("/print-number", json={"text": "Order 1"})
@@ -133,6 +153,10 @@ class BackendApiTests(unittest.TestCase):
 
         self.assertEqual(label_response.status_code, 500)
         self.assertEqual(number_response.status_code, 500)
+        event = self.client.get("/auto-print-status").json["event"]
+        self.assertEqual(event["text"], "Order 1")
+        self.assertEqual(event["status"], "error")
+        self.assertEqual(event["steps"][-1]["status"], "error")
         self.assertEqual(self.printer.printed_labels, [])
         self.assertEqual(self.printer.printed_numbers, [])
 

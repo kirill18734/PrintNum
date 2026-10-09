@@ -3,11 +3,14 @@ import type { ReactNode } from "react";
 import AutoPrintRules from "@/components/AutoPrintRules";
 import ShowPaper from "@/components/showPaper";
 import StatusCard from "@/components/StatusCard";
+import type { LatestAutoPrintStatus } from "@/features/auto-print/types";
 
 interface AutoPrintPanelProps {
   active: boolean;
   running: boolean;
   printerOnline: boolean;
+  latestStatus: LatestAutoPrintStatus | null;
+  showDemo: boolean;
   onToggleRunning: () => void;
   rules: string[];
   onRulesChange: (rules: string[]) => void;
@@ -26,6 +29,8 @@ export default function AutoPrintPanel({
   active,
   running,
   printerOnline,
+  latestStatus,
+  showDemo,
   onToggleRunning,
   rules,
   onRulesChange,
@@ -49,6 +54,8 @@ export default function AutoPrintPanel({
       <StatusCard
         running={running}
         printerOnline={printerOnline}
+        latestStatus={latestStatus}
+        showDemo={showDemo}
         onToggleRunning={onToggleRunning}
       />
       <AutoPrintRules

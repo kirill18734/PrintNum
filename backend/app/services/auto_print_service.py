@@ -10,19 +10,77 @@ class AutoPrintService:
 
     def process(self, text):
         if not text:
-            return {"status": "ignored"}
+            return {
+                "status": "ignored",
+                "steps": [
+                    {"status": "complete", "message": "Текст получен"},
+                    {"status": "skipped", "message": "Получен пустой текст"},
+                ],
+            }
 
         config = self.config_repository.load()
         if not config.get("running"):
-            return {"status": "ignored"}
+            return {
+                "status": "ignored",
+                "steps": [
+                    {"status": "complete", "message": "Текст получен"},
+                    {
+                        "status": "blocked",
+                        "message": "Не напечатан: автопечать выключена",
+                    },
+                ],
+            }
 
         matched_rule = find_excluded_rule(text, config.get("excludedTexts", []))
         if matched_rule:
-            return {"status": "skipped", "rule": matched_rule}
+            return {
+                "status": "skipped",
+                "rule": matched_rule,
+                "steps": [
+                    {"status": "complete", "message": "Текст получен"},
+                    {
+                        "status": "skipped",
+                        "message": f"Найдено исключение «{matched_rule}»",
+                    },
+                    {
+                        "status": "skipped",
+                        "message": "Не напечатан: текст соответствует исключению",
+                    },
+                ],
+            }
 
-        if config.get("printer") and self.printer_service.is_online(
-            config["printer"]
-        ):
-            self.printer_service.print_number(text, config)
-            return {"status": "printed"}
-        return {"status": "ignored"}
+        steps = [
+            {"status": "complete", "message": "Текст получен"},
+            {"status": "complete", "message": "Исключений не найдено"},
+        ]
+        printer_name = config.get("printer")
+        if not printer_name:
+            return {
+                "status": "ignored",
+                "steps": steps
+                + [
+                    {
+                        "status": "blocked",
+                        "message": "Не напечатан: принтер не выбран",
+                    }
+                ],
+            }
+        if not self.printer_service.is_online(printer_name):
+            return {
+                "status": "ignored",
+                "steps": steps
+                + [
+                    {
+                        "status": "blocked",
+                        "message": "Не напечатан: принтер недоступен",
+                    }
+                ],
+            }
+
+        steps.append({"status": "complete", "message": "Принтер доступен"})
+        self.printer_service.print_number(text, config)
+        return {
+            "status": "printed",
+            "steps": steps
+            + [{"status": "complete", "message": "Отправлен на печать"}],
+        }

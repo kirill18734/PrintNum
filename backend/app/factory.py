@@ -15,6 +15,7 @@ from app.infrastructure.config_repository import ConfigRepository
 from app.infrastructure.runtime_activity import RuntimeActivity
 from app.infrastructure.windows_printer import WindowsPrinterAdapter
 from app.services.auto_print_service import AutoPrintService
+from app.services.auto_print_status import AutoPrintStatus
 from app.services.label_service import LabelService
 from app.services.printer_service import PrinterService
 
@@ -31,12 +32,14 @@ def create_app(
 
     repository = config_repository or ConfigRepository()
     printer = PrinterService(printer_adapter or WindowsPrinterAdapter())
+    auto_print_status = AutoPrintStatus()
     activity = RuntimeActivity(idle_timeout=idle_timeout)
 
     app.extensions["printnum"] = {
         "config": repository,
         "printers": printer,
         "auto_print": AutoPrintService(repository, printer),
+        "auto_print_status": auto_print_status,
         "labels": LabelService(repository, printer),
         "activity": activity,
     }
