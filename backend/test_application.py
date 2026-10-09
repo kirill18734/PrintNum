@@ -85,16 +85,18 @@ class BackendApiTests(unittest.TestCase):
             {"printerOnline": True},
         )
 
-    def test_auto_print_records_skips_and_sends_unmatched_text_to_printer(self):
+    def test_auto_print_skips_excluded_text_silently_and_prints_other_text(self):
         skipped = self.client.post("/print-number", json={"text": "Skip this"})
         self.assertEqual(skipped.status_code, 200)
         self.assertEqual(skipped.json["status"], "skipped")
-        self.assertEqual(self.client.get("/last-skipped").json["event"]["rule"], "skip")
+        self.assertEqual(skipped.json["rule"], "skip")
+        self.assertEqual(self.printer.printed_numbers, [])
 
         printed = self.client.post("/print-number", json={"text": "Order 123"})
         self.assertEqual(printed.data, b"OK")
         self.assertEqual(self.printer.printed_numbers[0][0], "Order 123")
         self.assertEqual(self.printer.cleared_queues, ["Test printer"])
+        self.assertEqual(self.client.get("/last-skipped").status_code, 404)
 
     def test_queue_is_cleared_before_each_print_job(self):
         self.client.post("/print-number", json={"text": "Order 1"})

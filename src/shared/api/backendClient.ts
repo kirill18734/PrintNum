@@ -1,6 +1,5 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 import type { LabelContentType } from "@/components/LabelStudio";
-import type { SkippedPrintEvent } from "@/features/auto-print/types";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -61,33 +60,6 @@ export const backendClient = {
       throw new Error("Backend вернул некорректный статус принтера");
     }
     return body.printerOnline;
-  },
-
-  async getLastSkippedPrint(): Promise<SkippedPrintEvent | null> {
-    const body = await readJson<unknown>(
-      await request("last-skipped"),
-    );
-    if (!isRecord(body)) {
-      throw new Error("Backend вернул некорректный статус автопечати");
-    }
-    if (body.event === null) return null;
-
-    const event = body.event;
-    if (
-      !isRecord(event) ||
-      typeof event.id !== "string" ||
-      typeof event.rule !== "string" ||
-      typeof event.text !== "string" ||
-      typeof event.timestamp !== "number"
-    ) {
-      throw new Error("Backend вернул некорректное событие пропущенной печати");
-    }
-    return {
-      id: event.id,
-      rule: event.rule,
-      text: event.text,
-      timestamp: event.timestamp,
-    };
   },
 
   async printLabel(label: PrintLabelRequest): Promise<void> {

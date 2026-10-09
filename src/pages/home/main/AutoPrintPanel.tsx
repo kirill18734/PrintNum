@@ -1,8 +1,6 @@
-// Панель управления автопечатью, правилами исключения и настройками этикетки.
+// Панель управления автопечатью, исключениями и настройками этикетки.
 import type { ReactNode } from "react";
-import AutoPrintRules, {
-  type SkippedPrintEvent,
-} from "@/components/AutoPrintRules";
+import AutoPrintRules from "@/components/AutoPrintRules";
 import ShowPaper from "@/components/showPaper";
 import StatusCard from "@/components/StatusCard";
 
@@ -13,8 +11,6 @@ interface AutoPrintPanelProps {
   onToggleRunning: () => void;
   rules: string[];
   onRulesChange: (rules: string[]) => void;
-  lastSkipped: SkippedPrintEvent | null;
-  onDismissSkipped: () => void;
   idNum: boolean;
   onIdNumChange: (value: boolean) => void;
   endLine: boolean;
@@ -33,8 +29,6 @@ export default function AutoPrintPanel({
   onToggleRunning,
   rules,
   onRulesChange,
-  lastSkipped,
-  onDismissSkipped,
   idNum,
   onIdNumChange,
   endLine,
@@ -61,8 +55,6 @@ export default function AutoPrintPanel({
         rules={rules}
         onRulesChange={onRulesChange}
         running={running}
-        lastSkipped={lastSkipped}
-        onDismissSkipped={onDismissSkipped}
       />
       <ShowPaper
         defaultIdNum={idNum}

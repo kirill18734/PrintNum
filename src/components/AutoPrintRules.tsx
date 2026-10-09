@@ -1,4 +1,4 @@
-// Интерфейс управления текстовыми исключениями и уведомлением о пропуске печати.
+// Интерфейс настройки текстовых исключений автопечати.
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,23 +10,16 @@ const suggestedRules = [
   "Продавцу",
 ];
 
-import type { SkippedPrintEvent } from "@/features/auto-print/types";
-export type { SkippedPrintEvent } from "@/features/auto-print/types";
-
 interface AutoPrintRulesProps {
   rules: string[];
   onRulesChange: (rules: string[]) => void;
   running: boolean;
-  lastSkipped: SkippedPrintEvent | null;
-  onDismissSkipped: () => void;
 }
 
 export default function AutoPrintRules({
   rules,
   onRulesChange,
   running,
-  lastSkipped,
-  onDismissSkipped,
 }: AutoPrintRulesProps) {
   const [newRule, setNewRule] = useState("");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -241,31 +234,6 @@ export default function AutoPrintRules({
         )}
       </div>
 
-      {lastSkipped && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <p className="min-w-0 leading-snug">
-              <span className="font-semibold">Не напечатано:</span> найдено
-              исключение «{lastSkipped.rule}».
-              <span className="mt-0.5 block break-words text-muted-foreground">
-                {lastSkipped.text}
-              </span>
-            </p>
-            <button
-              type="button"
-              aria-label="Скрыть уведомление о пропуске"
-              onClick={onDismissSkipped}
-              className="flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-amber-500/20 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

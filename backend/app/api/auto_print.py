@@ -1,4 +1,4 @@
-"""HTTP-маршруты приёма заданий автопечати и получения событий пропуска."""
+"""HTTP-маршрут приёма заданий автопечати."""
 
 import logging
 
@@ -9,12 +9,6 @@ from app.domain.label_data import PrintNumberRequestError, parse_print_number_re
 
 logger = logging.getLogger(__name__)
 blueprint = Blueprint("auto_print", __name__)
-
-
-@blueprint.get("/last-skipped")
-def last_skipped():
-    services = current_app.extensions["printnum"]
-    return jsonify({"event": services["skipped_events"].latest()})
 
 
 @blueprint.post("/print-number")

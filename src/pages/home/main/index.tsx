@@ -4,7 +4,6 @@ import { useAppStore } from "@/services/store";
 import ThemeStyle from "@/components/theme-style";
 import type { LabelContentType } from "@/components/LabelStudio";
 import PreviewPaper from "@/components/previewPaper";
-import { useSkippedPrintEvents } from "@/features/auto-print/useSkippedPrintEvents";
 import { useLabelPrinting } from "@/features/label-creation/useLabelPrinting";
 import AutoPrintPanel from "./AutoPrintPanel";
 import CreateLabelPanel from "./CreateLabelPanel";
@@ -36,14 +35,9 @@ export default function Main() {
   const listPrinters = useAppStore((state) => state.listPrinters);
   const listPapers = useAppStore((state) => state.listPapers);
   const printerOnline = useAppStore((state) => state.printerOnline);
-  const serverOnline = useAppStore((state) => state.serverOnline);
   const excludedTexts = useAppStore((state) => state.excludedTexts);
   const setSetting = useAppStore((state) => state.setSetting);
   const { isPrinting, printError, printLabel } = useLabelPrinting();
-  const { lastSkipped, dismissLastSkipped } = useSkippedPrintEvents(
-    mode === "autoprint" && serverOnline,
-  );
-
   const changeRunning = () => setSetting("running", !running);
   const changePrinter = (newPrinter: string) => setSetting("printer", newPrinter);
   const changePaper = (newPaper: string) => setSetting("paper", newPaper);
@@ -105,8 +99,6 @@ export default function Main() {
             onToggleRunning={changeRunning}
             rules={Array.isArray(excludedTexts) ? excludedTexts : []}
             onRulesChange={changeExcludedTexts}
-            lastSkipped={lastSkipped}
-            onDismissSkipped={dismissLastSkipped}
             idNum={idNum}
             onIdNumChange={changeIdNum}
             endLine={endLine}

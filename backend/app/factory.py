@@ -14,7 +14,7 @@ from app.domain.label_data import MAX_CODE_IMAGE_SIZE
 from app.infrastructure.config_repository import ConfigRepository
 from app.infrastructure.runtime_activity import RuntimeActivity
 from app.infrastructure.windows_printer import WindowsPrinterAdapter
-from app.services.auto_print_service import AutoPrintService, SkippedPrintEvents
+from app.services.auto_print_service import AutoPrintService
 from app.services.label_service import LabelService
 from app.services.printer_service import PrinterService
 
@@ -31,14 +31,12 @@ def create_app(
 
     repository = config_repository or ConfigRepository()
     printer = PrinterService(printer_adapter or WindowsPrinterAdapter())
-    skipped_events = SkippedPrintEvents()
     activity = RuntimeActivity(idle_timeout=idle_timeout)
 
     app.extensions["printnum"] = {
         "config": repository,
         "printers": printer,
-        "skipped_events": skipped_events,
-        "auto_print": AutoPrintService(repository, printer, skipped_events),
+        "auto_print": AutoPrintService(repository, printer),
         "labels": LabelService(repository, printer),
         "activity": activity,
     }
