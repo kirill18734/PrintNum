@@ -38,6 +38,7 @@
         "entrypoints/background.js",
         "entrypoints/qrCodes.js",
         "entrypoints/sendPrintNum.js",
+        "entrypoints/sendOzonShelf.js",
         "entrypoints/hideBanner.js",
         "entrypoints/hideMenuNotification.js",
         "entrypoints/hideReturns.js",

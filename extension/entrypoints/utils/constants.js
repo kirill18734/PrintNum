@@ -33,6 +33,7 @@ const PATH = {
   order: "/orders/session",
   recommendation: "/receiving-v2/main",
   package: "/outbound",
+  shelf: "/outbound/selection",
 };
 const cmd = (id, code, name, path, actions, group, isLoop) => ({
   id,
