@@ -1,8 +1,7 @@
-// отправка Ozon Полка на печать
+// отправка Ozon Полка на печать при подсветке строки
 (async function () {
   let observerPrint = null;
-  let oldElements = new Set();
-  let firstRun = true;
+  let lastProcessedId = null; // Храним ID последней обработанной строки, чтобы не отправлять дубли
 
   async function sendNumber(number) {
     try {
@@ -10,14 +9,12 @@
         action: "sendNumberToFlask",
         number: number,
       });
-
       if (!response || !response.success) {
         console.error(
           `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
         );
         return false;
       }
-
       return true;
     } catch (error) {
       console.error(
@@ -31,64 +28,49 @@
   function runScript() {
     const headers = Array.from(document.querySelectorAll("thead th"));
 
-    const columnIndex = headers.findIndex(
-      (header) => header.textContent?.trim() === "Новая ячейка",
+    // Находим индексы нужных колонок
+    const newCellIndex = headers.findIndex(
+      (h) => h.textContent?.trim() === "Новая ячейка",
+    );
+    const currentCellIndex = headers.findIndex(
+      (h) => h.textContent?.trim() === "Текущая ячейка",
     );
 
-    if (columnIndex === -1) return;
+    // Если колонки не найдены, выходим
+    if (newCellIndex === -1 || currentCellIndex === -1) return;
 
-    const rows = document.querySelectorAll("tbody tr");
-    const currentElements = [];
+    // Быстрый поиск подсвеченной строки (ищет класс в любом месте списка классов строки)
+    const highlightedRow = document.querySelector(
+      'tbody tr[class*="_highlightedRow_"]',
+    );
 
-    rows.forEach((row) => {
-      const targetCell = row.querySelectorAll("td")[columnIndex];
+    // Если подсвеченной строки сейчас нет на экране, сбрасываем ID и выходим
+    if (!highlightedRow) {
+      lastProcessedId = null;
+      return;
+    }
 
-      if (targetCell) {
-        const value = targetCell.textContent?.trim() || "";
+    const cells = highlightedRow.querySelectorAll("td");
+    const targetCellNew = cells[newCellIndex];
+    const targetCellCurrent = cells[currentCellIndex];
 
-        if (value) {
-          currentElements.push(value);
+    if (targetCellNew && targetCellCurrent) {
+      const currentId = targetCellCurrent.textContent?.trim() || "";
+      const rawNewValue = targetCellNew.textContent?.trim() || "";
+
+      // Проверяем, изменился ли ID по сравнению с прошлым сканированием и что колонка не пустая
+      if (currentId && currentId !== lastProcessedId && rawNewValue) {
+        lastProcessedId = currentId;
+
+        // Упрощенное разбиение: из "Ozon Полка-12" получаем "12"
+        const shelfNumber = rawNewValue.split("-")[1]?.trim();
+
+        if (shelfNumber) {
+          console.log(shelfNumber);
+          sendNumber(`П ${shelfNumber}`); // Отправит "П 12"
         }
       }
-    });
-
-    const currentSet = new Set(currentElements);
-
-    // Первый запуск — просто запоминаем текущее состояние.
-    if (firstRun) {
-      oldElements = currentSet;
-      firstRun = false;
-      return;
     }
-
-    // Находим элементы, которых не было в предыдущем состоянии.
-    const newElements = currentElements.filter(
-      (item) => !oldElements.has(item),
-    );
-
-    // Ничего нового не появилось.
-    if (newElements.length === 0) {
-      return;
-    }
-
-    // Появилось больше одного нового элемента.
-    // Сбрасываем старое состояние без отправки на сервер.
-    if (newElements.length > 1) {
-      console.warn(
-        `Обнаружено ${newElements.length} новых элементов. ` +
-          `Состояние сброшено без отправки на сервер.`,
-      );
-
-      oldElements = currentSet;
-      return;
-    }
-
-    // Появился ровно один новый элемент.
-    const newElement = newElements[0];
-
-    oldElements.add(newElement);
-
-    sendNumber(newElement);
   }
 
   function resetState() {
@@ -96,26 +78,22 @@
       observerPrint.disconnect();
       observerPrint = null;
     }
-
-    oldElements = new Set();
-    firstRun = true;
+    lastProcessedId = null;
   }
 
   function toggleState() {
     resetState();
-
     if (location.pathname !== PATH.shelf) {
       return;
     }
-
+    // Настраиваем observer на отслеживание добавления классов подсветки
     observerPrint = new MutationObserver(runScript);
-
     observerPrint.observe(document.body, {
       childList: true,
       subtree: true,
-      characterData: true,
+      attributes: true,
+      attributeFilter: ["class"], // Реагируем только на изменение классов на странице
     });
-
     runScript();
   }
 
