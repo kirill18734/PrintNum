@@ -121,7 +121,9 @@
 
       // Очищаем список кнопок и удаляем старые кастомные счетчики, если они были
       buttonsListContainer.innerHTML = "";
-      accordion.querySelector(".returns-count-badge")?.remove();
+      accordion
+        .querySelectorAll(".returns-count-badge, .returns-status-count")
+        .forEach((counter) => counter.remove());
 
       // Сбрасываем классы глобальной кнопки (скрываем её до проверки данных)
       if (globalToggleBtn) {
@@ -132,30 +134,42 @@
 
       if (typeof chrome !== "undefined" && chrome.storage?.local) {
         chrome.storage.local.get([storageKey, offStorageKey], (result) => {
-          let itemsList = result[storageKey] || [];
-          let offList = result[offStorageKey] || [];
+          const itemsList = Array.isArray(result[storageKey])
+            ? result[storageKey]
+            : [];
+          const offList = Array.isArray(result[offStorageKey])
+            ? result[offStorageKey]
+            : [];
+
+          if (storageKey === "returns") {
+            const disabledCount = itemsList.filter((item) =>
+              offList.includes(item),
+            ).length;
+            const totalCount = itemsList.length;
+            const totalBadge = document.createElement("span");
+            totalBadge.className = "returns-count-badge";
+            totalBadge.textContent = `Всего в списке: ${totalCount}`;
+
+            const statusBadge = document.createElement("span");
+            statusBadge.className = "returns-status-count";
+            statusBadge.textContent = `Включено: ${totalCount - disabledCount} · Выключено: ${disabledCount}`;
+
+            const counterContainer = freshGlobalBtn?.parentNode;
+            counterContainer?.insertBefore(totalBadge, freshGlobalBtn);
+            counterContainer?.insertBefore(statusBadge, freshGlobalBtn);
+          }
 
           if (Array.isArray(itemsList) && itemsList.length > 0) {
-            // Специфичный вывод счетчика для секции возвратов
-            if (storageKey === "returns") {
-              const countBadge = document.createElement("span");
-              countBadge.className = "returns-count-badge";
-              countBadge.textContent = `Всего в списке: ${itemsList.length}`;
-              // Вставляем счетчик в самое начало перед глобальной кнопкой
-              freshGlobalBtn.parentNode.insertBefore(
-                countBadge,
-                freshGlobalBtn,
-              );
-            }
-
             const uniqueItems = [...new Set(itemsList)];
+            const itemsForStatusCount =
+              storageKey === "returns" ? itemsList : uniqueItems;
 
             // --- НАСТРОЙКА И ОТОБРАЖЕНИЕ ГЛОБАЛЬНОЙ КНОПКИ ИЗ HTML ---
-            const disabledUniqueCount = uniqueItems.filter((item) =>
+            const disabledCount = itemsForStatusCount.filter((item) =>
               offList.includes(item),
             ).length;
             const shouldEnableAll =
-              disabledUniqueCount >= uniqueItems.length / 2;
+              disabledCount >= itemsForStatusCount.length / 2;
 
             if (freshGlobalBtn) {
               if (shouldEnableAll) {

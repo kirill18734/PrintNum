@@ -237,7 +237,8 @@ details[open] > summary::after {
 }
 
 /* Стили для кастомных текстовых плашек и счетчиков */
-.returns-count-badge {
+.returns-count-badge,
+.returns-status-count {
   font-size: 11px;
   color: var(--text-muted);
   padding-bottom: 4px;
