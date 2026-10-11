@@ -20,7 +20,7 @@ export default function StatusPrinting() {
       // Получаем актуальную ссылку на установщик
       try {
         const response: any = await sendServer.get(
-          "https://printnum-kirill123451.amvera.io/latest.json",
+          "https://raw.githubusercontent.com/kirill18734/printnum/main/latest.json",
         );
 
         const data = await response.json();
