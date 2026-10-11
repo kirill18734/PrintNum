@@ -1,5 +1,8 @@
 // отправка Ozon Полка на печать при подсветке строки
 (async function () {
+  const { PATH } = window.PrintNum.config;
+  const { subscribe } = window.PrintNum.navigation;
+
   let observerPrint = null;
   let lastProcessedId = null; // Храним ID последней обработанной строки, чтобы не отправлять дубли
 

@@ -1,16 +1,17 @@
 // Shares a single chrome.storage listener with registered local-storage handlers.
-const storageListeners = [];
+(function () {
+  const storageListeners = [];
 
-// Инициализируем один единый слушатель для chrome.storage
-chrome.storage.onChanged.addListener((changes, areaName) => {
-  // Фильтруем только локальные изменения
-  if (areaName === "local") {
-    // Передаем объект изменений в каждую подписанную функцию
-    storageListeners.forEach((fn) => fn(changes));
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "local") {
+      storageListeners.forEach((listener) => listener(changes));
+    }
+  });
+
+  function subscribe(listener) {
+    storageListeners.push(listener);
   }
-});
 
-// Функция для подписки других модулей
-function subscribeStorage(fn) {
-  storageListeners.push(fn);
-}
+  window.PrintNum = window.PrintNum || {};
+  window.PrintNum.storageEvents = { subscribe };
+})();

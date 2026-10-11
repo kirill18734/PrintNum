@@ -1,5 +1,9 @@
 // Clicks the confirmation button after Tab then Enter on order pages.
 (async () => {
+  const { PATH, TEXT } = window.PrintNum.config;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { listen: listening } = window.PrintNum.keyboard;
+
   let tabPressedTimeout;
 
   listening((event) => {

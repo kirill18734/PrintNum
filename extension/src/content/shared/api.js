@@ -1,13 +1,18 @@
 // Shared HTTP helpers for requests to the local service.
-const sendServer = {
-  get: async (domain = API_BASE, endpoint = "") =>
-    fetch(`${domain}/${endpoint}`),
-  post: async (endpoint, body) =>
-    fetch(`${API_BASE}/${endpoint}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    }),
-};
+(function () {
+  const sendServer = {
+    get: async (domain = window.PrintNum.config.API_BASE, endpoint = "") =>
+      fetch(`${domain}/${endpoint}`),
+    post: async (endpoint, body) =>
+      fetch(`${window.PrintNum.config.API_BASE}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }),
+  };
+
+  window.PrintNum = window.PrintNum || {};
+  window.PrintNum.api = { sendServer };
+})();

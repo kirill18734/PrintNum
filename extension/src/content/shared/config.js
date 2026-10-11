@@ -1,4 +1,5 @@
 // Shared API settings, selectors, UI text, routes, and automation definitions.
+(function () {
 const API_BASE = "http://127.0.0.1:5000";
 
 const SELECTOR = {
@@ -263,3 +264,15 @@ const banners = [
     selector: SELECTOR.bannerOrder,
   },
 ];
+
+  window.PrintNum = window.PrintNum || {};
+  window.PrintNum.config = {
+    API_BASE,
+    SELECTOR,
+    TEXT,
+    PATH,
+    qrCodes,
+    autoscripts,
+    banners,
+  };
+})();

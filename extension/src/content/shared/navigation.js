@@ -1,21 +1,25 @@
 // Notifies subscribers when client-side navigation changes the current URL.
-const listeners = [];
+(function () {
+  const listeners = [];
+  let lastURL = "";
 
-let lastURL = "";
+  const observer = new MutationObserver(() => {
+    const currentURL = location.href;
+    if (lastURL !== currentURL) {
+      lastURL = currentURL;
+      listeners.forEach((listener) => listener());
+    }
+  });
 
-const observer = new MutationObserver(() => {
-  const curURL = location.href;
-  if (lastURL !== curURL) {
-    lastURL = curURL;
-    listeners.forEach((fn) => fn());
+  function subscribe(listener) {
+    listeners.push(listener);
   }
-});
 
-function subscribe(fn) {
-  listeners.push(fn);
-}
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+  });
 
-observer.observe(document.body, {
-  subtree: true,
-  childList: true,
-});
+  window.PrintNum = window.PrintNum || {};
+  window.PrintNum.navigation = { subscribe };
+})();

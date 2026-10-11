@@ -1,47 +1,50 @@
 // Shares one keyboard listener between scanner input and registered key handlers.
-const listFunc = [];
-const keyListeners = [];
-let lastNumber = "";
-let resetTimeout = null;
+(function () {
+  const scannerListeners = [];
+  const keyListeners = [];
+  let scanBuffer = "";
+  let resetTimeout = null;
 
-function listening(fn, key = null) {
-  if (key) {
-    keyListeners.push({ fn, key });
-  } else {
-    listFunc.push(fn);
-  }
-}
-
-window.addEventListener("keydown", (e) => {
-  keyListeners.forEach(({ fn, key }) => {
-    if (e.key === key) fn(e);
-  });
-
-  // Накопление символов от сканера
-  if (e.key.length === 1) {
-    // Очищаем предыдущий таймер только при вводе нового символа
-    if (resetTimeout) clearTimeout(resetTimeout);
-
-    lastNumber += e.key;
-
-    // Сброс буфера через 500 мс
-    resetTimeout = setTimeout(() => {
-      lastNumber = "";
-    }, 500);
-    return;
-  }
-
-  // Финализация ввода при нажатии Enter
-  if (e.key === "Enter") {
-    // ОБЯЗАТЕЛЬНО: Отменяем фоновый таймер сброса, так как ввод завершен
-    if (resetTimeout) {
-      clearTimeout(resetTimeout);
-      resetTimeout = null;
+  function listen(listener, key = null) {
+    if (key) {
+      keyListeners.push({ listener, key });
+    } else {
+      scannerListeners.push(listener);
     }
-
-    if (lastNumber) {
-      listFunc.forEach((fn) => fn(lastNumber));
-    }
-    lastNumber = "";
   }
-}, true);
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      keyListeners.forEach(({ listener, key }) => {
+        if (event.key === key) listener(event);
+      });
+
+      if (event.key.length === 1) {
+        if (resetTimeout) clearTimeout(resetTimeout);
+
+        scanBuffer += event.key;
+        resetTimeout = setTimeout(() => {
+          scanBuffer = "";
+        }, 500);
+        return;
+      }
+
+      if (event.key === "Enter") {
+        if (resetTimeout) {
+          clearTimeout(resetTimeout);
+          resetTimeout = null;
+        }
+
+        if (scanBuffer) {
+          scannerListeners.forEach((listener) => listener(scanBuffer));
+        }
+        scanBuffer = "";
+      }
+    },
+    true,
+  );
+
+  window.PrintNum = window.PrintNum || {};
+  window.PrintNum.keyboard = { listen };
+})();

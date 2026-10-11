@@ -1,5 +1,10 @@
 // автоскрипт Упаковки Ozon нет в наличии
 (async function () {
+  const { autoscripts } = window.PrintNum.config;
+  const { getLocal: get_local_storage } = window.PrintNum.storage;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { subscribe } = window.PrintNum.navigation;
+
   let isRunning = false;
   let observerPackage = null;
   const autoscriptPackage = autoscripts.find((item) => item.id == "package");

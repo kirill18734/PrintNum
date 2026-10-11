@@ -1,7 +1,8 @@
 // Controls popup status, download links, and saved feature toggles.
-(async function () {
+(function () {
   let downloadUrl = null;
   let isDownloadClicked = false;
+  let downloadUrlError = false;
 
   const openLink = (url) => {
     if (!url) return;
@@ -36,33 +37,51 @@
     return "off" + key.charAt(0).toUpperCase() + key.slice(1);
   }
 
-  // 1. Проверка локального сервера
-  try {
-    const API_URL = "http://127.0.0.1:5000";
-    const res = await fetch(API_URL);
-    updateStatus(res.ok);
-  } catch (e) {
-    updateStatus(false);
-  }
-
-  // 2. Ссылка на скачивание
-  try {
-    const res = await fetch(
-      "https://printnum-kirill123451.amvera.io/latest.json",
-    );
-    const data = await res.json();
-    downloadUrl = data.platforms?.["windows-x86_64"]?.url;
-    if (isDownloadClicked && downloadUrl) openLink(downloadUrl);
-  } catch (e) {
-    console.error("Не удалось получить ссылку", e);
-    if (isDownloadClicked) {
-      const desc = document.getElementById("statusDesc");
-      if (desc)
-        desc.innerHTML =
-          "<span style='color:red'>Ошибка загрузки ссылки</span>";
-      isDownloadClicked = false;
+  async function checkPrintService() {
+    try {
+      const response = await fetch("http://127.0.0.1:5000");
+      updateStatus(response.ok);
+    } catch {
+      updateStatus(false);
     }
   }
+
+  async function loadDownloadUrl() {
+    try {
+      const response = await fetch(
+        "https://printnum-kirill123451.amvera.io/latest.json",
+      );
+      if (!response.ok) {
+        throw new Error(`Не удалось получить ссылку: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const url = data.platforms?.["windows-x86_64"]?.url;
+      if (typeof url !== "string" || !url) {
+        throw new Error("В ответе сервера отсутствует ссылка на загрузку");
+      }
+
+      downloadUrl = url;
+      if (isDownloadClicked) openLink(downloadUrl);
+    } catch (error) {
+      console.error("Не удалось получить ссылку", error);
+      downloadUrlError = true;
+      if (isDownloadClicked) showDownloadUrlError();
+    }
+  }
+
+  function showDownloadUrlError() {
+    const desc = document.getElementById("statusDesc");
+    if (desc) {
+      desc.innerHTML =
+        "<span style='color:red'>Ошибка загрузки ссылки</span>";
+    }
+    isDownloadClicked = false;
+  }
+
+  // Network checks run independently; neither delays popup controls.
+  checkPrintService();
+  loadDownloadUrl();
 
   document.getElementById("downloadBtn")?.addEventListener("click", () => {
     if (isDownloadClicked) return;
@@ -71,6 +90,7 @@
     if (desc)
       desc.innerHTML = "<span style='color:gray'>скачивание началось...</span>";
     if (downloadUrl) openLink(downloadUrl);
+    else if (downloadUrlError) showDownloadUrlError();
     else if (desc)
       desc.innerHTML =
         "<span style='color:orange'>Получение ссылки... Ожидайте.</span>";
@@ -80,7 +100,7 @@
   document.getElementById("print-pdf")?.addEventListener("click", (e) => {
     e.stopPropagation(); // Важно: предотвращает раскрытие/закрытие аккордеона при клике на принтер
     e.preventDefault();
-    openLink("/qrCodes.pdf");
+    openLink("/assets/qrCodes.pdf");
   });
 
   // 3. Динамические аккордеоны

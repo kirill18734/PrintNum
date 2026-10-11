@@ -1,10 +1,16 @@
 // автоскрипт Перенести таринки в перевозку
 (async function () {
+  const { SELECTOR, TEXT, autoscripts } = window.PrintNum.config;
+  const { getLocal: get_local_storage } = window.PrintNum.storage;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { subscribe } = window.PrintNum.navigation;
+  const { subscribe: subscribeStorage } = window.PrintNum.storageEvents;
+
   let isRunning = false;
   const autoscriptBox = autoscripts.find((item) => item.id == "box");
 
   async function runScript() {
-    
+
     if (!location.href.includes(autoscriptBox.path)) return;
 
     if (isRunning) return;

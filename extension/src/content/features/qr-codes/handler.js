@@ -1,5 +1,11 @@
 // обработчики qr-кодов
 (async function () {
+  const { SELECTOR, qrCodes } = window.PrintNum.config;
+  const { getLocal: get_local_storage, setLocal: set_local_storage } =
+    window.PrintNum.storage;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { listen: listening } = window.PrintNum.keyboard;
+
   let isRunning = false;
 
   const packageCycle = [null, SELECTOR.packageM, SELECTOR.packageL];

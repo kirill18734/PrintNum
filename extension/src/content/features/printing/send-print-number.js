@@ -1,5 +1,8 @@
 // отправка ячейки на печать
 (async function () {
+  const { SELECTOR, PATH } = window.PrintNum.config;
+  const { subscribe } = window.PrintNum.navigation;
+
   let firstRun = false;
   let observerPrint = null;
 

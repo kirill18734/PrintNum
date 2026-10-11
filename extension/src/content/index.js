@@ -1,5 +1,9 @@
 // Initializes and synchronizes extension feature settings in local storage.
 (async function () {
+  const { banners, autoscripts, qrCodes } = window.PrintNum.config;
+  const { getLocal: get_local_storage, setLocal: set_local_storage } =
+    window.PrintNum.storage;
+
   try {
     // Собираем актуальные имена из новой структуры констант
     const namesBanners = banners.map((item) => item.name);

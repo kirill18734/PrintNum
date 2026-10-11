@@ -1,5 +1,11 @@
 // скрытие банеров
 (async function () {
+  const { banners } = window.PrintNum.config;
+  const { getLocal: get_local_storage } = window.PrintNum.storage;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { subscribe } = window.PrintNum.navigation;
+  const { subscribe: subscribeStorage } = window.PrintNum.storageEvents;
+
   // Хранилище флагов выполнения для каждого баннера отдельно (чтобы они не блокировали друг друга)
   const runningTasks = new Set();
 

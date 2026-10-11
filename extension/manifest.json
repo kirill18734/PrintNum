@@ -4,11 +4,11 @@
   "description": "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
   "version": "2.0.7",
   "icons": {
-    "16": "icon/16.png",
-    "32": "icon/32.png",
-    "48": "icon/48.png",
-    "96": "icon/96.png",
-    "128": "icon/128.png"
+    "16": "assets/icons/16.png",
+    "32": "assets/icons/32.png",
+    "48": "assets/icons/48.png",
+    "96": "assets/icons/96.png",
+    "128": "assets/icons/128.png"
   },
   "permissions": ["storage"],
   "host_permissions": [
@@ -18,33 +18,33 @@
 
   "action": {
     "default_title": "PrintNum",
-    "default_popup": "entrypoints/popup/index.html"
+    "default_popup": "src/popup/index.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/index.js"
   },
 
   "content_scripts": [
     {
       "matches": ["https://turbo-pvz.ozon.ru/*"],
       "js": [
-        "entrypoints/utils/constants.js",
-        "entrypoints/utils/storage.js",
-        "entrypoints/utils/find.js",
-        "entrypoints/utils/api.js",
-        "entrypoints/utils/observer.js",
-        "entrypoints/utils/listener.js",
-        "entrypoints/utils/storageListener.js",
-        "entrypoints/background.js",
-        "entrypoints/qrCodes.js",
-        "entrypoints/sendPrintNum.js",
-        "entrypoints/sendOzonShelf.js",
-        "entrypoints/hideBanner.js",
-        "entrypoints/hideMenuNotification.js",
-        "entrypoints/hideReturns.js",
-        "entrypoints/autoscriptBox.js",
-        "entrypoints/autoscriptPackage.js",
-        "entrypoints/confirmOnEnter.js"
+        "src/content/shared/config.js",
+        "src/content/shared/storage.js",
+        "src/content/shared/dom.js",
+        "src/content/shared/api.js",
+        "src/content/shared/navigation.js",
+        "src/content/shared/keyboard.js",
+        "src/content/shared/storage-events.js",
+        "src/content/index.js",
+        "src/content/features/qr-codes/handler.js",
+        "src/content/features/printing/send-print-number.js",
+        "src/content/features/printing/send-ozon-shelf.js",
+        "src/content/features/banners/hide-banner.js",
+        "src/content/features/navigation/hide-menu-notification.js",
+        "src/content/features/navigation/hide-returns.js",
+        "src/content/features/autoscripts/box.js",
+        "src/content/features/autoscripts/package.js",
+        "src/content/features/navigation/confirm-on-enter.js"
       ]
     }
   ]
