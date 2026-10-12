@@ -7,7 +7,7 @@ export default defineConfig({
     permissions: ["storage"],
     host_permissions: [
       "http://127.0.0.1/*",
-      "https://printnum-kirill123451.amvera.io/*",
+      "https://update.printnum.ru/*",
     ],
     action: {},
     name: "PrintNum - Печать Ячеек (Ozon)",

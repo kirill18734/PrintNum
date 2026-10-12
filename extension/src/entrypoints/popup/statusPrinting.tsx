@@ -2,43 +2,6 @@ import { useEffect, useState } from "react";
 import { sendServer } from "@/utils/api";
 import { openUrl } from "@/components/opeTabURL";
 
-const RELEASE_MANIFEST_URLS = [
-  "https://printnum-kirill123451.amvera.io/latest.json",
-  "https://raw.githubusercontent.com/kirill18734/printnum/main/latest.json",
-];
-
-async function getWindowsDownloadUrl(
-  manifestUrl: string,
-  signal?: AbortSignal,
-): Promise<string> {
-  const response = await fetch(manifestUrl, { signal });
-
-  if (!response.ok) {
-    throw new Error(
-      `Запрос latest.json завершился с HTTP-статусом ${response.status}`,
-    );
-  }
-
-  const data: unknown = await response.json();
-  if (
-    typeof data !== "object" ||
-    data === null ||
-    !("platforms" in data) ||
-    typeof data.platforms !== "object" ||
-    data.platforms === null ||
-    !("windows-x86_64" in data.platforms) ||
-    typeof data.platforms["windows-x86_64"] !== "object" ||
-    data.platforms["windows-x86_64"] === null ||
-    !("url" in data.platforms["windows-x86_64"]) ||
-    typeof data.platforms["windows-x86_64"].url !== "string" ||
-    data.platforms["windows-x86_64"].url.length === 0
-  ) {
-    throw new Error("В latest.json отсутствует ссылка на установщик Windows");
-  }
-
-  return data.platforms["windows-x86_64"].url;
-}
-
 export default function StatusPrinting() {
   const [isActive, setIsActive] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -55,29 +18,25 @@ export default function StatusPrinting() {
       }
 
       // Получаем актуальную ссылку на установщик
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1500);
       try {
-        try {
-          const url = await getWindowsDownloadUrl(
-            RELEASE_MANIFEST_URLS[0],
-            controller.signal,
-          );
-          setDownloadUrl(url);
-          return;
-        } catch (error) {
-          console.warn(
-            "Не удалось получить ссылку с Amvera, пробуем GitHub",
-            error,
-          );
+        const response = await fetch("https://update.printnum.ru/latest.json");
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
 
-        const url = await getWindowsDownloadUrl(RELEASE_MANIFEST_URLS[1]);
-        setDownloadUrl(url);
+        const data: {
+          platforms?: Record<string, { url?: unknown } | undefined>;
+        } = await response.json();
+
+        const url = data.platforms?.["windows-x86_64"]?.url;
+
+        if (typeof url === "string" && url.length > 0) {
+          setDownloadUrl(url);
+        } else {
+          throw new Error("В latest.json отсутствует ссылка на установщик Windows");
+        }
       } catch (e) {
         console.error("Не удалось получить ссылку на скачивание", e);
-      } finally {
-        clearTimeout(timeoutId);
       }
     };
 
