@@ -7,7 +7,7 @@ export default defineConfig({
     permissions: ["storage"],
     host_permissions: [
       "http://127.0.0.1/*",
-      "https://update.printnum.ru/*",
+      "https://printnum.s3.cloud.ru/*",
     ],
     action: {},
     name: "PrintNum - Печать Ячеек (Ozon)",
