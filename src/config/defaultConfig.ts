@@ -5,6 +5,7 @@ export interface AppSettings {
   hybrid: boolean;
   idNum: boolean;
   endLine: boolean;
+  bold: boolean;
   paper: string;
   expand: number | "";
   theme: "system" | "light" | "dark";
@@ -18,6 +19,7 @@ export const defaultConfig: AppSettings = {
   hybrid: false,
   idNum: false,
   endLine: false,
+  bold: false,
   paper: "30*20",
   expand: 500,
   theme: "system",

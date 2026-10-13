@@ -31,6 +31,7 @@ export default function Main() {
   const paper = useAppStore((state) => state.paper);
   const idNum = useAppStore((state) => state.idNum);
   const endLine = useAppStore((state) => state.endLine);
+  const bold = useAppStore((state) => state.bold);
   const hybrid = useAppStore((state) => state.hybrid);
   const expand = useAppStore((state) => state.expand);
   const themeStyle = useAppStore((state) => state.themeStyle);
@@ -49,6 +50,7 @@ export default function Main() {
   const changePaper = (newPaper: string) => setSetting("paper", newPaper);
   const changeIdNum = (newIdNum: boolean) => setSetting("idNum", newIdNum);
   const changeEndLine = (newEndLine: boolean) => setSetting("endLine", newEndLine);
+  const changeBold = (newBold: boolean) => setSetting("bold", newBold);
   const changeHybrid = (newHybrid: boolean) => setSetting("hybrid", newHybrid);
   const changeExpand = (newExpand: number | "") =>
     setSetting("expand", newExpand);
@@ -78,7 +80,7 @@ export default function Main() {
       expand={expand}
       contentType={contentType}
       content={contentByType[contentType]}
-      bold={labelBold}
+      bold={mode === "autoprint" ? bold : labelBold}
       underline={labelUnderline}
       showCodeText={showCodeText}
     />
@@ -111,6 +113,8 @@ export default function Main() {
             onIdNumChange={changeIdNum}
             endLine={endLine}
             onEndLineChange={changeEndLine}
+            bold={bold}
+            onBoldChange={changeBold}
             hybrid={hybrid}
             onHybridChange={changeHybrid}
             expand={expand}

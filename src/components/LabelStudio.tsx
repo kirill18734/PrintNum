@@ -157,7 +157,7 @@ export default function LabelStudio({
                     onChange={(event) => onBoldChange(event.target.checked)}
                     className="size-4 shrink-0 accent-primary"
                   />
-                  Жирный текст
+                  Жирный шрифт
                 </label>
                 <label className="inline-flex min-h-5 items-center gap-2 text-xs text-muted-foreground">
                   <input

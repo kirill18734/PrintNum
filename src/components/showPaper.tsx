@@ -6,6 +6,8 @@ interface ShowPaperProps {
   setDefaultIdNum: (value: boolean) => void;
   defaultEndLine: boolean;
   setDefaultEndLine: (value: boolean) => void;
+  defaultBold: boolean;
+  setDefaultBold: (value: boolean) => void;
   defaultHybrid: boolean;
   setDefaultHybrid: (value: boolean) => void;
   defaultExpand: number | "";
@@ -18,6 +20,8 @@ export default function ShowPaper({
   setDefaultIdNum,
   defaultEndLine,
   setDefaultEndLine,
+  defaultBold,
+  setDefaultBold,
   defaultHybrid,
   setDefaultHybrid,
   defaultExpand,
@@ -36,6 +40,8 @@ export default function ShowPaper({
             setIdNum={setDefaultIdNum}
             endLine={defaultEndLine}
             setEndLine={setDefaultEndLine}
+            bold={defaultBold}
+            setBold={setDefaultBold}
             hybrid={defaultHybrid}
             setHybrid={setDefaultHybrid}
             expand={defaultExpand}

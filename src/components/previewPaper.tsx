@@ -34,7 +34,7 @@ interface FittedTextProps {
   className?: string;
   singleLine?: boolean;
   preserveLineBreaks?: boolean;
-  align?: "center" | "right";
+  align?: "center" | "right" | "left";
 }
 
 function FittedText({
@@ -221,8 +221,8 @@ export default function PreviewPaper({
       {automatic ? (
         <>
           {(idNum || (hybrid && secondHybridLabel)) && (
-            <div className="h-[22%] min-h-0 w-full shrink-0 text-right">
-              <FittedText align="right" singleLine>
+            <div className={`h-[22%] min-h-0 w-full shrink-0 ${hybrid && secondHybridLabel ? "text-left" : "text-right"}`}>
+              <FittedText align={hybrid && secondHybridLabel ? "left" : "right"} singleLine>
                 {hybrid && secondHybridLabel ? `${expand}−` : "−47"}
               </FittedText>
             </div>
@@ -230,7 +230,7 @@ export default function PreviewPaper({
           <div className="flex min-h-0 w-full flex-1 items-center justify-center">
             <FittedText
               className={`${
-                hybrid && secondHybridLabel ? "font-bold" : "font-normal"
+                (bold || (hybrid && secondHybridLabel)) ? "font-bold" : "font-normal"
               } ${endLine ? "underline decoration-2 underline-offset-2" : ""}`}
               singleLine
             >

@@ -1,4 +1,4 @@
-// Настройки отображения ID, подчёркивания, гибридного формата и номера расширения этикетки.
+// Настройки отображения ID, подчёркивания, жирного шрифта, гибридного формата и номера расширения этикетки.
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Field, FieldLabel } from "./ui/field";
@@ -9,6 +9,8 @@ interface SettingsPaperProps {
   setIdNum: (value: boolean) => void;
   endLine: boolean;
   setEndLine: (value: boolean) => void;
+  bold: boolean;
+  setBold: (value: boolean) => void;
   hybrid: boolean;
   setHybrid: (value: boolean) => void;
   expand: number | "";
@@ -20,6 +22,8 @@ export default function SettingsPaper({
   setIdNum,
   endLine,
   setEndLine,
+  bold,
+  setBold,
   hybrid,
   setHybrid,
   expand,
@@ -49,6 +53,18 @@ export default function SettingsPaper({
           />
           <FieldLabel className="whitespace-nowrap text-[11px]" htmlFor="checkbox-line">
             Подчёркивание
+          </FieldLabel>
+        </Field>
+
+        {/* Жирный шрифт */}
+        <Field orientation="horizontal" className="w-full items-center gap-1 px-0 py-0">
+          <Checkbox
+            id="checkbox-bold"
+            checked={bold}
+            onCheckedChange={setBold}
+          />
+          <FieldLabel className="whitespace-nowrap text-[11px]" htmlFor="checkbox-bold">
+            Жирный шрифт
           </FieldLabel>
         </Field>
         {/* Гибридный формат */}

@@ -18,6 +18,8 @@ interface AutoPrintPanelProps {
   onIdNumChange: (value: boolean) => void;
   endLine: boolean;
   onEndLineChange: (value: boolean) => void;
+  bold: boolean;
+  onBoldChange: (value: boolean) => void;
   hybrid: boolean;
   onHybridChange: (value: boolean) => void;
   expand: number | "";
@@ -38,6 +40,8 @@ export default function AutoPrintPanel({
   onIdNumChange,
   endLine,
   onEndLineChange,
+  bold,
+  onBoldChange,
   hybrid,
   onHybridChange,
   expand,
@@ -68,6 +72,8 @@ export default function AutoPrintPanel({
         setDefaultIdNum={onIdNumChange}
         defaultEndLine={endLine}
         setDefaultEndLine={onEndLineChange}
+        defaultBold={bold}
+        setDefaultBold={onBoldChange}
         defaultHybrid={hybrid}
         setDefaultHybrid={onHybridChange}
         defaultExpand={expand}

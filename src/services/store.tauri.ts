@@ -27,6 +27,7 @@ function isAppSettingsEntry(
     case "hybrid":
     case "idNum":
     case "endLine":
+    case "bold":
       return typeof value === "boolean";
     case "expand":
       return typeof value === "number" || value === "";

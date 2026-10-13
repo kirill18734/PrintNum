@@ -6,6 +6,7 @@ def prepare_label_data(text, config):
     id_num = config.get("idNum", True)
     hybrid = config.get("hybrid", False)
     expand = config.get("expand", 0)
+    bold_always = config.get("bold", False)
 
     text_split = text.split("-")
     raw_main = text_split[0] if text_split else ""
@@ -14,8 +15,11 @@ def prepare_label_data(text, config):
     is_numeric = raw_main.isdigit()
     main_text_val = int(raw_main) if is_numeric else 0
     is_kgt = raw_main.upper() == "КГТ" and raw_header.isdigit()
-    is_bold = (hybrid and is_numeric and main_text_val >= expand) or is_kgt
-    is_swapped = is_bold
+
+    # Выделение по правилам гибрида/КГТ влияет на перестановку, но не блокирует ручное "Жирный шрифт"
+    emphasize_by_rule = (hybrid and is_numeric and main_text_val >= expand) or is_kgt
+    is_swapped = emphasize_by_rule
+    style_bold = bold_always or emphasize_by_rule
 
     if is_swapped:
         header_text = raw_main
@@ -41,5 +45,5 @@ def prepare_label_data(text, config):
         "show_header": show_header,
         "force_left_header": force_left_header,
         "is_underlined": is_underlined,
-        "is_bold": is_bold,
+        "is_bold": style_bold,
     }
