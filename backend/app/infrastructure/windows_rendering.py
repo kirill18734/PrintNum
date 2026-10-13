@@ -178,12 +178,21 @@ def wrap_text(hdc, text, max_width):
 
 
 def draw_label_text(hdc, text, sizes, bold, underline):
+    """Рисует текст этикетки для ручной печати так же, как в предпросмотре:
+    - если пользователь ввёл переносы строк — сохраняем их и не переносим автоматически;
+    - если переносов нет — весь текст в одну строку, подбираем размер шрифта, чтобы уместить по ширине/высоте.
+    """
     import win32con
     import win32ui
 
     available_h = sizes['height_px'] - sizes['margin_y'] * 2
     available_w = sizes['max_allowed_w']
-    best = None
+
+    # Разбиваем только по явным переводам строк; без переносов оставляем одну строку
+    raw_lines = text.splitlines() or ['']
+
+    best_height = None
+    best_line_height = None
 
     for font_height in range(1, max(2, available_h + 1)):
         font = win32ui.CreateFont({
@@ -193,24 +202,45 @@ def draw_label_text(hdc, text, sizes, bold, underline):
             'underline': 1 if underline else 0,
         })
         hdc.SelectObject(font)
-        lines = wrap_text(hdc, text, available_w)
-        _, line_height = hdc.GetTextExtent('Ag')
-        total_height = line_height * len(lines)
-        if total_height > available_h:
-            break
-        best = (font, lines, line_height, total_height)
 
-    if best is None:
+        # Высота строки для текущего шрифта
+        _, line_h = hdc.GetTextExtent('Ag')
+        total_h = line_h * len(raw_lines)
+        if total_h > available_h:
+            break
+
+        # Проверяем, что каждая строка умещается по ширине без автопереноса
+        too_wide = False
+        for ln in raw_lines:
+            w, _ = hdc.GetTextExtent(ln)
+            if w > available_w:
+                too_wide = True
+                break
+        if too_wide:
+            # увеличиваем шрифт дальше бессмысленно? Нет, чем больше, тем шире — пропускаем этот размер
+            continue
+
+        best_height = font_height
+        best_line_height = line_h
+
+    if best_height is None or best_line_height is None:
         raise ValueError('Текст не помещается на выбранной этикетке')
 
-    font, lines, line_height, total_height = best
-    hdc.SelectObject(font)
+    final_font = win32ui.CreateFont({
+        'name': 'Arial',
+        'height': best_height,
+        'weight': win32con.FW_BOLD if bold else win32con.FW_NORMAL,
+        'underline': 1 if underline else 0,
+    })
+    hdc.SelectObject(final_font)
+
+    total_height = best_line_height * len(raw_lines)
     y = (sizes['height_px'] - total_height) // 2
-    for line in lines:
+    for line in raw_lines:
         line_width, _ = hdc.GetTextExtent(line)
         x = (sizes['width_px'] - line_width) // 2
         hdc.TextOut(x, y, line)
-        y += line_height
+        y += best_line_height
 
 
 def draw_code_image(hdc, image_data, sizes, show_code_text, text):
