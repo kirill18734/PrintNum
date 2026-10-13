@@ -286,7 +286,7 @@ http://127.0.0.1:5000
 ```
 
 Для сетевых запросов расширению предоставлен доступ к `http://127.0.0.1/*`
-(сервис печати) и `https://update.printnum.ru/latest.json`
+(сервис печати) и `https://printnum.s3.cloud.ru/latest.json`
 (получение ссылки на установщик). Доступ к `turbo-pvz.ozon.ru` задаётся
 правилом `matches` у content scripts.
 
