@@ -3,6 +3,7 @@ import { get_local_storage, set_local_storage } from "@/utils/storage";
 import { SELECTOR } from "@/utils/constants";
 import { qrCodes } from "@/utils/constants";
 import { listening } from "@/utils/listener";
+import type { QrCommand } from "@/types/qr-command";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
@@ -19,9 +20,13 @@ export default defineContentScript({
     // затем снова 0
     // ============================================================
 
-    const packageCycle = [null, SELECTOR.packageM, SELECTOR.packageL];
+    const packageCycle: (string | null)[] = [
+      null,
+      SELECTOR.packageM,
+      SELECTOR.packageL,
+    ];
 
-    const delay = (ms: any) =>
+    const delay = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
 
     // ============================================================
@@ -30,16 +35,13 @@ export default defineContentScript({
 
     async function getNextPackage() {
       // Достаем актуальный индекс из хранилища (если его там нет, по дефолту 0)
-      let packageCycleIndex =
+      const packageCycleIndex =
         (await get_local_storage("packageCycleIndex")) || 0;
-
-      // Приводим к числу на всякий случай
-      packageCycleIndex = Number(packageCycleIndex);
 
       const packageSelector = packageCycle[packageCycleIndex];
 
       // Вычисляем следующий индекс
-      const nextIndex: any = (packageCycleIndex + 1) % packageCycle.length;
+      const nextIndex = (packageCycleIndex + 1) % packageCycle.length;
 
       // Сохраняем новый индекс в хранилище для всех вкладок
       await set_local_storage("packageCycleIndex", nextIndex);
@@ -97,7 +99,7 @@ export default defineContentScript({
     // Выполнение действий
     // ============================================================
 
-    async function executeActions(actions: any, commandName: string) {
+    async function executeActions(actions: string[], commandName: string) {
       for (const action of actions) {
         const isPackageSelector = [
           SELECTOR.packageL,
@@ -122,7 +124,9 @@ export default defineContentScript({
     // Получить действия текущей итерации
     // ============================================================
 
-    async function getActionsForIteration(command: any) {
+    async function getActionsForIteration(
+      command: QrCommand,
+    ): Promise<string[]> {
       const actions = [...(command.actions || [])];
 
       // Обычная команда
@@ -152,7 +156,7 @@ export default defineContentScript({
     // ============================================================
     // Основная логика
     // ============================================================
-    async function runScript(command: any) {
+    async function runScript(command: QrCommand) {
       // Защита от параллельного запуска
       if (isRunning) return;
 

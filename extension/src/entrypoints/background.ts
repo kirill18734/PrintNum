@@ -1,7 +1,13 @@
-declare const chrome: any;
+import type { ChromeApi } from "@/types/chrome-api";
+import {
+  isSendPrintNumberMessage,
+  type SendPrintNumberResponse,
+} from "@/types/messages";
 
 import { API_BASE, qrCodes } from "@/utils/constants";
 import { get_local_storage, set_local_storage } from "@/utils/storage";
+
+declare const chrome: ChromeApi;
 
 export default defineBackground({
   main() {
@@ -9,8 +15,8 @@ export default defineBackground({
     // 1. СЛУШАТЕЛЬ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ И ОТПРАВКА НА BACKEND (Flask)
     // ==========================================
     chrome.runtime.onMessage.addListener(
-      (message: any, sender: any, sendResponse: any) => {
-        if (message.action === "sendNumberToFlask") {
+      (message, _sender, sendResponse) => {
+        if (isSendPrintNumberMessage(message)) {
           fetch(`${API_BASE}/print-number`, {
             method: "POST",
             headers: {
@@ -19,17 +25,23 @@ export default defineBackground({
             body: JSON.stringify({ text: message.number }),
           })
             .then((response) => {
+              let result: SendPrintNumberResponse;
               if (!response.ok) {
-                sendResponse({
+                result = {
                   success: false,
                   error: `${response.status} ${response.statusText}`,
-                });
+                };
               } else {
-                sendResponse({ success: true });
+                result = { success: true };
               }
+              sendResponse(result);
             })
             .catch((error) => {
-              sendResponse({ success: false, error: error.message });
+              sendResponse({
+                success: false,
+                error:
+                  error instanceof Error ? error.message : String(error),
+              });
             });
 
           return true;
@@ -42,7 +54,7 @@ export default defineBackground({
     // ==========================================
     chrome.runtime.onInstalled.addListener(async () => {
       try {
-        const namesQrCommands = qrCodes.map((item: any) => item.name);
+        const namesQrCommands = qrCodes.map((item) => item.name);
         const isInitialized = await get_local_storage("isInitialized");
 
         // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище
@@ -58,8 +70,11 @@ export default defineBackground({
         const storageOffQrCodes = await get_local_storage("offQrCodes");
 
         // Хелпер для основного списка QR-кодов
-        const syncArray = (current: any, targetNames: any) => {
-          const currentArr = Array.isArray(current) ? current : [];
+        const syncArray = (
+          current: string[] | false,
+          targetNames: string[],
+        ): string[] => {
+          const currentArr = current || [];
           const targetSet = new Set(targetNames);
           const filtered = currentArr.filter((item) => targetSet.has(item));
           const filteredSet = new Set(filtered);
@@ -73,13 +88,13 @@ export default defineBackground({
 
         // Хелпер для списка отключений (новые элементы выключаются по умолчанию)
         const syncOffArraySmart = (
-          currentOff: any,
-          targetNames: any,
-          mainStorage: any,
-          autoOff: boolean, // Сделали явным типом, так как передается true
-        ) => {
-          const currentOffArr = Array.isArray(currentOff) ? currentOff : [];
-          const mainStorageArr = Array.isArray(mainStorage) ? mainStorage : [];
+          currentOff: string[] | false,
+          targetNames: string[],
+          mainStorage: string[] | false,
+          autoOff: boolean,
+        ): string[] => {
+          const currentOffArr = currentOff || [];
+          const mainStorageArr = mainStorage || [];
           const targetSet = new Set(targetNames);
           const mainStorageSet = new Set(mainStorageArr);
 
@@ -97,8 +112,8 @@ export default defineBackground({
         };
 
         // Хелпер проверки изменений
-        const isChanged = (arr1: any, arr2: any) => {
-          if (!Array.isArray(arr1) || !Array.isArray(arr2)) return true;
+        const isChanged = (arr1: string[] | false, arr2: string[]) => {
+          if (arr1 === false) return true;
           if (arr1.length !== arr2.length) return true;
           const set1 = new Set(arr1);
           return arr2.some((item) => !set1.has(item));

@@ -1,7 +1,10 @@
-declare const chrome: any;
+import type { ChromeApi } from "@/types/chrome-api";
+import { isSendPrintNumberResponse } from "@/types/messages";
 
 import { PATH, SELECTOR } from "../utils/constants";
 import { subscribe } from "../utils/observer";
+
+declare const chrome: ChromeApi;
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
@@ -10,9 +13,9 @@ export default defineContentScript({
     let firstRun = false;
     let observerPrint: any = null;
 
-    let previousTexts: any = [];
+    let previousTexts: string[] = [];
 
-    async function sendNumber(number: any) {
+    async function sendNumber(number: string) {
       try {
         // Отправляем сообщение в Background Script и ждем промис
         const response = await chrome.runtime.sendMessage({
@@ -20,10 +23,14 @@ export default defineContentScript({
           number: number,
         });
 
+        if (!isSendPrintNumberResponse(response)) {
+          throw new Error("Некорректный ответ фонового скрипта");
+        }
+
         // Если фоновый скрипт вернул ошибку или статус неуспеха
-        if (!response || !response.success) {
+        if (!response.success) {
           console.error(
-            `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
+            `Ошибка сервера (через BG): ${response.error}`,
           );
           return false;
         }
@@ -47,12 +54,12 @@ export default defineContentScript({
         .slice(0, 10);
     }
 
-    function areListsEqual(first: any, second: any) {
+    function areListsEqual(first: string[], second: string[]) {
       if (first.length !== second.length) {
         return false;
       }
 
-      return first.every((text: any, index: any) => text === second[index]);
+      return first.every((text, index) => text === second[index]);
     }
 
     function runScript() {

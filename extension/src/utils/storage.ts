@@ -1,16 +1,29 @@
-// Асинхронное получение данных из хранилища
-declare const chrome: any;
+import type { ChromeApi } from "@/types/chrome-api";
+import { isStorageValue } from "@/types/storage";
+import type { StorageKey, StorageValue } from "@/types/storage";
 
-export async function get_local_storage(key: any) {
-  // chrome.storage.local.get возвращает объект вида { [key]: value }
+declare const chrome: ChromeApi;
+
+export async function get_local_storage<Key extends StorageKey>(
+  key: Key,
+): Promise<StorageValue<Key> | false> {
   const result = await chrome.storage.local.get(key);
 
-  // Если ключ существует, возвращаем его значение, иначе false
-  return result.hasOwnProperty(key) ? result[key] : false;
+  if (!Object.prototype.hasOwnProperty.call(result, key)) {
+    return false;
+  }
+
+  const value = result[key];
+  if (!isStorageValue(key, value)) {
+    throw new Error(`Некорректное значение в хранилище для ключа "${key}"`);
+  }
+
+  return value;
 }
 
-// Асинхронная запись данных в хранилище
-export async function set_local_storage(name: any, cfg: any) {
-  // chrome.storage автоматически преобразует объекты в строку, JSON.stringify не нужен
-  await chrome.storage.local.set({ [name]: cfg });
+export async function set_local_storage<Key extends StorageKey>(
+  key: Key,
+  value: StorageValue<Key>,
+): Promise<void> {
+  await chrome.storage.local.set({ [key]: value });
 }

@@ -1,3 +1,5 @@
+import type { QrCommand } from "@/types/qr-command";
+
 export const API_BASE = "http://127.0.0.1:5000";
 
 export const SELECTOR = {
@@ -20,14 +22,14 @@ export const PATH = {
   package: "/outbound",
 };
 const cmd = (
-  id: any,
-  code: any,
-  name: any,
-  path: any,
-  actions: any,
-  group: any,
-  isLoop: any,
-) => ({
+ id: string,
+ code: string,
+ name: string,
+ path: string,
+ actions: string[],
+ group: QrCommand["group"],
+ isLoop: boolean,
+): QrCommand => ({
   id,
   code,
   name,
@@ -38,7 +40,7 @@ const cmd = (
 });
 
 // QR-Codes
-export const qrCodes = [
+export const qrCodes: QrCommand[] = [
   // Группа: Выдача всех отправлений
   cmd(
     "all",
