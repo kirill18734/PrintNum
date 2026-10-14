@@ -5,24 +5,33 @@ import { get_local_storage, set_local_storage } from "@/utils/storage";
 
 export function useStorageState(key: string, initialValue: string[]) {
   const [state, setState] = useState<string[]>(initialValue);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
 
   // 1. Загружаем данные из хранилища при старте или смене ключа
   useEffect(() => {
+    let isActive = true;
+
     async function loadData() {
       const storedValue = await get_local_storage(key);
-      if (storedValue !== false) {
-        setState(storedValue);
-      }
+      if (!isActive) return;
+
+      setState(storedValue !== false ? storedValue : initialValue);
+      setLoadedKey(key);
     }
-    loadData();
+
+    void loadData();
+
+    return () => {
+      isActive = false;
+    };
   }, [key]);
 
   // 2. Автоматически сохраняем изменения в chrome.storage при изменении state
   useEffect(() => {
-    // Пропускаем запись дефолтного значения, если это необходимо,
-    // либо пишем всегда, чтобы синхронизировать состояние
-    set_local_storage(key, state);
-  }, [key, state]);
+    if (loadedKey !== key) return;
+
+    void set_local_storage(key, state);
+  }, [key, state, loadedKey]);
 
   // Переключатель элемента (только обновляет состояние React)
   const toggleItem = (item: string) => {
