@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { sendServer } from "@/shared/api/client";
-import { openUrl } from "./ui/openTabURL";
+import { openUrl } from "../ui/openTabURL";
 
 const RELEASE_MANIFEST_URLS = [
   "https://printnum.s3.cloud.ru/latest.json",

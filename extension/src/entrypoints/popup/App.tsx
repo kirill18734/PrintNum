@@ -5,8 +5,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import StatusPrinting from "./statusPrinting";
-import QrCommands from "./qrCommands";
+import StatusPrinting from "./components/StatusPrinting";
+import QrCommands from "./components/QrCommands";
 import { Github, Send } from "lucide-react";
 
 function App() {
