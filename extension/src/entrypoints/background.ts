@@ -4,7 +4,8 @@ import {
   type SendPrintNumberResponse,
 } from "@/types/messages";
 
-import { API_BASE, qrCodes } from "@/utils/constants";
+import { qrCommands } from "@/features/qr-automation/commands";
+import { API_BASE } from "@/utils/constants";
 import { get_local_storage, set_local_storage } from "@/utils/storage";
 
 declare const chrome: ChromeApi;
@@ -54,7 +55,7 @@ export default defineBackground({
     // ==========================================
     chrome.runtime.onInstalled.addListener(async () => {
       try {
-        const namesQrCommands = qrCodes.map((item) => item.name);
+        const namesQrCommands = qrCommands.map((item) => item.name);
         const isInitialized = await get_local_storage("isInitialized");
 
         // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище
