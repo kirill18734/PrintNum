@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PrintNum",
   "description": "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
-  "version": "2.0.7",
+  "version": "2.0.11",
   "icons": {
     "16": "assets/icons/16.png",
     "32": "assets/icons/32.png",
@@ -11,10 +11,7 @@
     "128": "assets/icons/128.png"
   },
   "permissions": ["storage"],
-  "host_permissions": [
-    "http://127.0.0.1/*",
-    "https://printnum-kirill123451.amvera.io/*"
-  ],
+  "host_permissions": ["http://127.0.0.1/*", "https://printnum.s3.cloud.ru/*"],
 
   "action": {
     "default_title": "PrintNum",

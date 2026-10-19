@@ -48,9 +48,7 @@
 
   async function loadDownloadUrl() {
     try {
-      const response = await fetch(
-        "https://printnum-kirill123451.amvera.io/latest.json",
-      );
+      const response = await fetch("https://printnum.s3.cloud.ru/latest.json");
       if (!response.ok) {
         throw new Error(`Не удалось получить ссылку: ${response.status}`);
       }
@@ -73,8 +71,7 @@
   function showDownloadUrlError() {
     const desc = document.getElementById("statusDesc");
     if (desc) {
-      desc.innerHTML =
-        "<span style='color:red'>Ошибка загрузки ссылки</span>";
+      desc.innerHTML = "<span style='color:red'>Ошибка загрузки ссылки</span>";
     }
     isDownloadClicked = false;
   }
