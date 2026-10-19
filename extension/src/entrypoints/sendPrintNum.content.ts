@@ -1,10 +1,7 @@
-import type { ChromeApi } from "@/shared/types/chrome-api";
-import { isSendPrintNumberResponse } from "@/shared/types/messages";
+declare const chrome: any;
 
-import { PATH, SELECTOR } from "@/shared/constants";
-import { subscribe } from "@/shared/dom/observer";
-
-declare const chrome: ChromeApi;
+import { PATH, SELECTOR } from "../utils/constants";
+import { subscribe } from "../utils/observer";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],
@@ -13,10 +10,9 @@ export default defineContentScript({
     let firstRun = false;
     let observerPrint: any = null;
 
-    let previousTexts: string[] = [];
-    let lastSentOrderTag = "";
+    let previousTexts: any = [];
 
-    async function sendNumber(number: string) {
+    async function sendNumber(number: any) {
       try {
         // Отправляем сообщение в Background Script и ждем промис
         const response = await chrome.runtime.sendMessage({
@@ -24,13 +20,11 @@ export default defineContentScript({
           number: number,
         });
 
-        if (!isSendPrintNumberResponse(response)) {
-          throw new Error("Некорректный ответ фонового скрипта");
-        }
-
         // Если фоновый скрипт вернул ошибку или статус неуспеха
-        if (!response.success) {
-          console.error(`Ошибка сервера (через BG): ${response.error}`);
+        if (!response || !response.success) {
+          console.error(
+            `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
+          );
           return false;
         }
 
@@ -53,12 +47,12 @@ export default defineContentScript({
         .slice(0, 10);
     }
 
-    function areListsEqual(first: string[], second: string[]) {
+    function areListsEqual(first: any, second: any) {
       if (first.length !== second.length) {
         return false;
       }
 
-      return first.every((text, index) => text === second[index]);
+      return first.every((text: any, index: any) => text === second[index]);
     }
 
     function runScript() {
@@ -88,29 +82,6 @@ export default defineContentScript({
       sendNumber(newText);
     }
 
-    function runOrderScript() {
-      const tagElement = document.querySelector(SELECTOR.shelfTagOrder);
-      if (!tagElement) return;
-
-      // Используем абсолютно то же форматирование, что и в getTexts()
-      const currentText = tagElement.textContent?.trim() || "";
-
-      // Если после форматирования строка оказалась пустой или совпадает с прошлой — выходим
-      if (!currentText || currentText === lastSentOrderTag) return;
-
-      lastSentOrderTag = currentText;
-      sendNumber(currentText);
-    }
-
-    // Главный обработчик изменений на страницах
-    function handleMutations() {
-      if (location.pathname === PATH.recommendation) {
-        runScript();
-      } else if (location.pathname.startsWith(PATH.order)) {
-        runOrderScript();
-      }
-    }
-
     function resetState() {
       if (observerPrint) {
         observerPrint.disconnect();
@@ -119,22 +90,18 @@ export default defineContentScript({
 
       firstRun = false;
       previousTexts = [];
-      lastSentOrderTag = ""; // Сбрасываем при смене страницы
     }
 
     function toggleState() {
       // Исправлено: Гарантированный сброс состояния при любом переходе
       resetState();
 
-      // Проверяем, находимся ли мы на одной из двух целевых страниц
-      const isRecommendation = location.pathname === PATH.recommendation;
-      const isOrder = location.pathname.startsWith(PATH.order);
-
-      if (!isRecommendation && !isOrder) {
+      if (location.pathname !== PATH.recommendation) {
         return;
       }
-      // Создаем единый observerPrint для отслеживания изменений DOM
-      observerPrint = new MutationObserver(() => handleMutations());
+
+      // Создаем новый observerPrint
+      observerPrint = new MutationObserver(() => runScript());
 
       observerPrint.observe(document.body, {
         childList: true,
@@ -142,7 +109,7 @@ export default defineContentScript({
       });
 
       // Первичный запуск для фиксации исходного состояния элементов
-      handleMutations();
+      runScript();
     }
 
     subscribe(toggleState);

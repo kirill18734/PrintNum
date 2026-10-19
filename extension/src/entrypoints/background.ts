@@ -1,88 +1,48 @@
-import type { ChromeApi } from "@/shared/types/chrome-api";
-import {
-  isSendPrintNumberMessage,
-  type SendPrintNumberResponse,
-  isSendShelfMessage,
-} from "@/shared/types/messages";
+declare const chrome: any;
 
-import { API_BASE, qrCodes } from "@/shared/constants";
-import { get_local_storage, set_local_storage } from "@/shared/storage";
-
-declare const chrome: ChromeApi;
+import { API_BASE, qrCodes } from "@/utils/constants";
+import { get_local_storage, set_local_storage } from "@/utils/storage";
 
 export default defineBackground({
   main() {
     // ==========================================
     // 1. СЛУШАТЕЛЬ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ И ОТПРАВКА НА BACKEND (Flask)
     // ==========================================
-    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (isSendPrintNumberMessage(message)) {
-        fetch(`${API_BASE}/print-number`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text: message.number }),
-        })
-          .then((response) => {
-            let result: SendPrintNumberResponse;
-            if (!response.ok) {
-              result = {
-                success: false,
-                error: `${response.status} ${response.statusText}`,
-              };
-            } else {
-              result = { success: true };
-            }
-            sendResponse(result);
+    chrome.runtime.onMessage.addListener(
+      (message: any, sender: any, sendResponse: any) => {
+        if (message.action === "sendNumberToFlask") {
+          fetch(`${API_BASE}/print-number`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: message.number }),
           })
-          .catch((error) => {
-            sendResponse({
-              success: false,
-              error: error instanceof Error ? error.message : String(error),
+            .then((response) => {
+              if (!response.ok) {
+                sendResponse({
+                  success: false,
+                  error: `${response.status} ${response.statusText}`,
+                });
+              } else {
+                sendResponse({ success: true });
+              }
+            })
+            .catch((error) => {
+              sendResponse({ success: false, error: error.message });
             });
-          });
 
-        return true;
-      }
-
-      if (isSendShelfMessage(message)) {
-        fetch(`${API_BASE}/ozon-shelf`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text: message.text }),
-        })
-          .then((response) => {
-            let result: SendPrintNumberResponse;
-            if (!response.ok) {
-              result = {
-                success: false,
-                error: `${response.status} ${response.statusText}`,
-              };
-            } else {
-              result = { success: true };
-            }
-            sendResponse(result);
-          })
-          .catch((error) => {
-            sendResponse({
-              success: false,
-              error: error instanceof Error ? error.message : String(error),
-            });
-          });
-
-        return true;
-      }
-    });
+          return true;
+        }
+      },
+    );
 
     // ==========================================
     // 2. СИНХРОНИЗАЦИЯ ХРАНИЛИЩА (Только QR-коды)
     // ==========================================
     chrome.runtime.onInstalled.addListener(async () => {
       try {
-        const namesQrCommands = qrCodes.map((item) => item.name);
+        const namesQrCommands = qrCodes.map((item: any) => item.name);
         const isInitialized = await get_local_storage("isInitialized");
 
         // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище
@@ -98,11 +58,8 @@ export default defineBackground({
         const storageOffQrCodes = await get_local_storage("offQrCodes");
 
         // Хелпер для основного списка QR-кодов
-        const syncArray = (
-          current: string[] | false,
-          targetNames: string[],
-        ): string[] => {
-          const currentArr = current || [];
+        const syncArray = (current: any, targetNames: any) => {
+          const currentArr = Array.isArray(current) ? current : [];
           const targetSet = new Set(targetNames);
           const filtered = currentArr.filter((item) => targetSet.has(item));
           const filteredSet = new Set(filtered);
@@ -116,13 +73,13 @@ export default defineBackground({
 
         // Хелпер для списка отключений (новые элементы выключаются по умолчанию)
         const syncOffArraySmart = (
-          currentOff: string[] | false,
-          targetNames: string[],
-          mainStorage: string[] | false,
-          autoOff: boolean,
-        ): string[] => {
-          const currentOffArr = currentOff || [];
-          const mainStorageArr = mainStorage || [];
+          currentOff: any,
+          targetNames: any,
+          mainStorage: any,
+          autoOff: boolean, // Сделали явным типом, так как передается true
+        ) => {
+          const currentOffArr = Array.isArray(currentOff) ? currentOff : [];
+          const mainStorageArr = Array.isArray(mainStorage) ? mainStorage : [];
           const targetSet = new Set(targetNames);
           const mainStorageSet = new Set(mainStorageArr);
 
@@ -140,8 +97,8 @@ export default defineBackground({
         };
 
         // Хелпер проверки изменений
-        const isChanged = (arr1: string[] | false, arr2: string[]) => {
-          if (arr1 === false) return true;
+        const isChanged = (arr1: any, arr2: any) => {
+          if (!Array.isArray(arr1) || !Array.isArray(arr2)) return true;
           if (arr1.length !== arr2.length) return true;
           const set1 = new Set(arr1);
           return arr2.some((item) => !set1.has(item));

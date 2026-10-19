@@ -1,0 +1,11 @@
+@hostname = 127.0.0.1
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+@getConfig  = {{host}}/get-config
+
+GET {{host}}
+###
+GET {{host}}/status-printer
+###
+GET {{host}}/listPrinters
