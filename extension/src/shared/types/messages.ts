@@ -34,7 +34,9 @@ export interface SendShelfMessage {
   text: string;
 }
 
-export function isSendShelfMessage(message: unknown): message is SendShelfMessage {
+export function isSendShelfMessage(
+  message: unknown,
+): message is SendShelfMessage {
   if (typeof message !== "object" || message === null) return false;
   const m = message as Partial<Record<string, unknown>>;
   return m.action === "sendShelfToFlask" && typeof m.text === "string";

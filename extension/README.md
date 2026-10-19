@@ -107,7 +107,7 @@
   ├── wxt.config.ts
   └── README.md
   ```
-[(Вернуться к началу)](#-printnum-extension)
+  [(Вернуться к началу)](#-printnum-extension)
 
 ## QR-команды
 
