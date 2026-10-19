@@ -1,0 +1,21 @@
+@hostname = 127.0.0.1
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+@printNumber = {{host}}/print-number
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "500-1"
+}
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "КГТ-23"
+}
