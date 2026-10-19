@@ -1,4 +1,4 @@
-import type { QrCommand } from "@/types/qr-command";
+import type { QrCommand } from "@/shared/types/qr-command";
 
 export const API_BASE = "http://127.0.0.1:5000";
 
@@ -6,6 +6,7 @@ export const SELECTOR = {
   packageM: 'div:nth-child(1) > [class^="ozi__input__root__"] button',
   packageL: 'div:nth-child(2) > [class^="ozi__input__root__"] button',
   printNumber: 'div[class^="_list_"] div[class^="_shelfTag_"]',
+  shelfTagOrder: 'div[class^="_shelfTag_"]',
 };
 
 export const TEXT = {
@@ -21,14 +22,15 @@ export const PATH = {
   recommendation: "/receiving-v2/main",
   package: "/outbound",
 };
+
 const cmd = (
- id: string,
- code: string,
- name: string,
- path: string,
- actions: string[],
- group: QrCommand["group"],
- isLoop: boolean,
+  id: string,
+  code: string,
+  name: string,
+  path: string,
+  actions: string[],
+  group: QrCommand["group"],
+  isLoop: boolean,
 ): QrCommand => ({
   id,
   code,

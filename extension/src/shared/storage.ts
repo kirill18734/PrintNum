@@ -1,6 +1,6 @@
-import type { ChromeApi } from "@/types/chrome-api";
-import { isStorageValue } from "@/types/storage";
-import type { StorageKey, StorageValue } from "@/types/storage";
+import type { ChromeApi } from "@/shared/types/chrome-api";
+import { isStorageValue } from "@/shared/types/storage";
+import type { StorageKey, StorageValue } from "@/shared/types/storage";
 
 declare const chrome: ChromeApi;
 
@@ -15,10 +15,10 @@ export async function get_local_storage<Key extends StorageKey>(
 
   const value = result[key];
   if (!isStorageValue(key, value)) {
-    throw new Error(`Некорректное значение в хранилище для ключа "${key}"`);
+    throw new Error(`Некорректное значение в хранилище для ключа "${String(key)}"`);
   }
 
-  return value;
+  return value as StorageValue<Key>;
 }
 
 export async function set_local_storage<Key extends StorageKey>(

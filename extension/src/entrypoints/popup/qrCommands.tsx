@@ -1,8 +1,7 @@
 import { SettingSection } from "./SettingSection";
-import { Ban, QrCode } from "lucide-react";
-import { Accordion } from "@/components/ui/accordion";
-import { Printer } from "lucide-react";
-import { UniversalLinkButton } from "@/components/opeTabURL";
+import { Ban, QrCode, Printer } from "lucide-react";
+import { Accordion } from "./ui/accordion";
+import { UniversalLinkButton } from "./ui/openTabURL";
 import { useStorageState } from "@/hooks/useStorageState";
 
 export default function QrCommands() {
@@ -35,12 +34,7 @@ export default function QrCommands() {
           HiddenIcon={Ban}
         />
       </Accordion>
-      {/* Передаем пропс fileUrl, который вы указали в вызове */}
-      <UniversalLinkButton
-        fileUrl="/qrCodes.pdf"
-        icon={Printer}
-        variant="ghost"
-      />
+      <UniversalLinkButton fileUrl="/qrCodes.pdf" icon={Printer} variant="ghost" />
     </div>
   );
 }

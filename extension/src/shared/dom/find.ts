@@ -1,4 +1,4 @@
-import { TEXT } from "@/utils/constants";
+import { TEXT } from "@/shared/constants";
 
 function searchText(
   selector: string,
@@ -15,10 +15,8 @@ function searchText(
   );
 
   if (!element) {
-    // для повторной попытки оплатить
     if (name.startsWith("Оплатить")) {
-      let text = TEXT.payAgain;
-      // Ищем элемент только если для textValue нашелся запасной вариант текста
+      const text = TEXT.payAgain;
       if (text) {
         element = elements.find((e: any) => e.textContent?.trim() === text);
       }
@@ -36,14 +34,12 @@ export async function waitLoadElement(
   timeout = 5000,
   isInclude = false,
 ) {
-  return new Promise((resolve, reject) => {
-    // 1. Проверяем, может элемент уже есть на странице
+  return new Promise((resolve) => {
     const element = textValue
       ? searchText(selector, container, textValue, name, isInclude)
       : container.querySelector(selector);
     if (element) return resolve(element);
 
-    // 2. Если элемента нет, запускаем слежку за DOM
     const observerFind = new MutationObserver(() => {
       const el = textValue
         ? searchText(selector, container, textValue, name, isInclude)
@@ -57,10 +53,9 @@ export async function waitLoadElement(
 
     observerFind.observe(document.body, { childList: true, subtree: true });
 
-    // 3. Ограничиваем время ожидания
     const timer = setTimeout(() => {
       observerFind.disconnect();
-      resolve(null); // Мягкий выход вместо reject - чтобы не вызывать необработанные ошибки
+      resolve(null);
     }, timeout);
   });
 }

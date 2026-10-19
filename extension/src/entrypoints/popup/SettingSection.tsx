@@ -2,10 +2,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+} from "./ui/accordion";
+import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { FolderOpen, LucideIcon } from "lucide-react";
+import { FolderOpen, type LucideIcon } from "lucide-react";
 
 interface SettingRowProps {
   label: string;
@@ -96,7 +96,6 @@ export function SettingSection({
             {toggleAllLabel}
           </Button>
         )}
-        {/* Проверка на пустой список */}
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-lg border border-dashed border-muted text-center text-muted-foreground/60 select-none">
             <FolderOpen className="h-4 w-4 stroke-[1.5]" />

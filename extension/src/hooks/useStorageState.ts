@@ -1,8 +1,8 @@
 declare const chrome: any;
 
 import { useEffect, useState } from "react";
-import { get_local_storage, set_local_storage } from "@/utils/storage";
-import type { StorageArrayKey } from "@/types/storage";
+import { get_local_storage, set_local_storage } from "@/shared/storage";
+import type { StorageArrayKey } from "@/shared/types/storage";
 
 export function useStorageState<Key extends StorageArrayKey>(
   key: Key,

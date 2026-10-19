@@ -1,11 +1,11 @@
-import type { ChromeApi } from "@/types/chrome-api";
+import type { ChromeApi } from "@/shared/types/chrome-api";
 import {
   isSendPrintNumberMessage,
   type SendPrintNumberResponse,
-} from "@/types/messages";
+} from "@/shared/types/messages";
 
-import { API_BASE, qrCodes } from "@/utils/constants";
-import { get_local_storage, set_local_storage } from "@/utils/storage";
+import { API_BASE, qrCodes } from "@/shared/constants";
+import { get_local_storage, set_local_storage } from "@/shared/storage";
 
 declare const chrome: ChromeApi;
 

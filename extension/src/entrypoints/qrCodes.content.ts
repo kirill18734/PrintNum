@@ -1,9 +1,9 @@
-import { waitLoadElement } from "@/utils/find";
-import { get_local_storage, set_local_storage } from "@/utils/storage";
-import { SELECTOR } from "@/utils/constants";
-import { qrCodes } from "@/utils/constants";
-import { listening } from "@/utils/listener";
-import type { QrCommand } from "@/types/qr-command";
+import { waitLoadElement } from "@/shared/dom/find";
+import { get_local_storage, set_local_storage } from "@/shared/storage";
+import { SELECTOR } from "@/shared/constants";
+import { qrCodes } from "@/shared/constants";
+import { listening } from "@/shared/dom/listener";
+import type { QrCommand } from "@/shared/types/qr-command";
 
 export default defineContentScript({
   matches: ["https://turbo-pvz.ozon.ru/*"],

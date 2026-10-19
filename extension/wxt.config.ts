@@ -18,14 +18,12 @@ export default defineConfig({
 
   srcDir: "src",
   vite: () => ({
-    plugins: [react()],
+    plugins: (react() as any),
     build: {
-      // Указываем Vite компилировать под современные стандарты
       target: "es2022",
     },
     esbuild: {
-      // Запрещаем внутреннему esbuild транспилировать приватные поля в функции .call()
       target: "es2022",
     },
-  }),
+  }) as any,
 });

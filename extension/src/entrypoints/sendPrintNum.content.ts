@@ -1,8 +1,8 @@
-import type { ChromeApi } from "@/types/chrome-api";
-import { isSendPrintNumberResponse } from "@/types/messages";
+import type { ChromeApi } from "@/shared/types/chrome-api";
+import { isSendPrintNumberResponse } from "@/shared/types/messages";
 
-import { PATH, SELECTOR } from "../utils/constants";
-import { subscribe } from "../utils/observer";
+import { PATH, SELECTOR } from "@/shared/constants";
+import { subscribe } from "@/shared/dom/observer";
 
 declare const chrome: ChromeApi;
 
@@ -14,6 +14,7 @@ export default defineContentScript({
     let observerPrint: any = null;
 
     let previousTexts: string[] = [];
+    let lastSentOrderTag = "";
 
     async function sendNumber(number: string) {
       try {
@@ -29,9 +30,7 @@ export default defineContentScript({
 
         // Если фоновый скрипт вернул ошибку или статус неуспеха
         if (!response.success) {
-          console.error(
-            `Ошибка сервера (через BG): ${response.error}`,
-          );
+          console.error(`Ошибка сервера (через BG): ${response.error}`);
           return false;
         }
 
@@ -89,6 +88,29 @@ export default defineContentScript({
       sendNumber(newText);
     }
 
+    function runOrderScript() {
+      const tagElement = document.querySelector(SELECTOR.shelfTagOrder);
+      if (!tagElement) return;
+
+      // Используем абсолютно то же форматирование, что и в getTexts()
+      const currentText = tagElement.textContent?.trim() || "";
+
+      // Если после форматирования строка оказалась пустой или совпадает с прошлой — выходим
+      if (!currentText || currentText === lastSentOrderTag) return;
+
+      lastSentOrderTag = currentText;
+      sendNumber(currentText);
+    }
+
+    // Главный обработчик изменений на страницах
+    function handleMutations() {
+      if (location.pathname === PATH.recommendation) {
+        runScript();
+      } else if (location.pathname.startsWith(PATH.order)) {
+        runOrderScript();
+      }
+    }
+
     function resetState() {
       if (observerPrint) {
         observerPrint.disconnect();
@@ -97,18 +119,22 @@ export default defineContentScript({
 
       firstRun = false;
       previousTexts = [];
+      lastSentOrderTag = ""; // Сбрасываем при смене страницы
     }
 
     function toggleState() {
       // Исправлено: Гарантированный сброс состояния при любом переходе
       resetState();
 
-      if (location.pathname !== PATH.recommendation) {
+      // Проверяем, находимся ли мы на одной из двух целевых страниц
+      const isRecommendation = location.pathname === PATH.recommendation;
+      const isOrder = location.pathname.startsWith(PATH.order);
+
+      if (!isRecommendation && !isOrder) {
         return;
       }
-
-      // Создаем новый observerPrint
-      observerPrint = new MutationObserver(() => runScript());
+      // Создаем единый observerPrint для отслеживания изменений DOM
+      observerPrint = new MutationObserver(() => handleMutations());
 
       observerPrint.observe(document.body, {
         childList: true,
@@ -116,7 +142,7 @@ export default defineContentScript({
       });
 
       // Первичный запуск для фиксации исходного состояния элементов
-      runScript();
+      handleMutations();
     }
 
     subscribe(toggleState);

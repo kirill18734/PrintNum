@@ -5,9 +5,7 @@ import type {
 
 export interface ChromeApi {
   runtime: {
-    sendMessage(
-      message: SendPrintNumberMessage,
-    ): Promise<unknown>;
+    sendMessage(message: SendPrintNumberMessage): Promise<unknown>;
     onMessage: {
       addListener(
         listener: (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { sendServer } from "@/utils/api";
-import { openUrl } from "@/components/opeTabURL";
+import { sendServer } from "@/shared/api/client";
+import { openUrl } from "./ui/openTabURL";
 
 const RELEASE_MANIFEST_URLS = [
   "https://printnum.s3.cloud.ru/latest.json",
@@ -24,19 +24,19 @@ async function getWindowsDownloadUrl(
     typeof data !== "object" ||
     data === null ||
     !("platforms" in data) ||
-    typeof data.platforms !== "object" ||
-    data.platforms === null ||
-    !("windows-x86_64" in data.platforms) ||
-    typeof data.platforms["windows-x86_64"] !== "object" ||
-    data.platforms["windows-x86_64"] === null ||
-    !("url" in data.platforms["windows-x86_64"]) ||
-    typeof data.platforms["windows-x86_64"].url !== "string" ||
-    data.platforms["windows-x86_64"].url.length === 0
+    typeof (data as any).platforms !== "object" ||
+    (data as any).platforms === null ||
+    !("windows-x86_64" in (data as any).platforms) ||
+    typeof (data as any).platforms["windows-x86_64"] !== "object" ||
+    (data as any).platforms["windows-x86_64"] === null ||
+    !("url" in (data as any).platforms["windows-x86_64"]) ||
+    typeof (data as any).platforms["windows-x86_64"].url !== "string" ||
+    (data as any).platforms["windows-x86_64"].url.length === 0
   ) {
     throw new Error("В latest.json отсутствует ссылка на установщик Windows");
   }
 
-  return data.platforms["windows-x86_64"].url;
+  return (data as any).platforms["windows-x86_64"].url;
 }
 
 export default function StatusPrinting() {
@@ -46,7 +46,6 @@ export default function StatusPrinting() {
 
   useEffect(() => {
     const init = async () => {
-      // Проверяем доступность сервиса печати
       try {
         const res = await sendServer.get();
         setIsActive(!!res?.ok);
@@ -54,7 +53,6 @@ export default function StatusPrinting() {
         setIsActive(false);
       }
 
-      // Получаем актуальную ссылку на установщик
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 1500);
       try {
@@ -81,17 +79,15 @@ export default function StatusPrinting() {
       }
     };
 
-    init();
+    void init();
   }, []);
 
-  // Если пользователь уже нажал кнопку и ссылка появилась —
-  // автоматически открываем ее.
   useEffect(() => {
     if (!downloadClicked || !downloadUrl) {
       return;
     }
 
-    void openUrl(downloadUrl).catch((error) =>
+    void openUrl(downloadUrl).catch((error: unknown) =>
       console.error("Не удалось открыть ссылку для скачивания", error),
     );
   }, [downloadClicked, downloadUrl]);
@@ -100,10 +96,6 @@ export default function StatusPrinting() {
     if (downloadClicked) {
       return;
     }
-
-    // Блокируем кнопку сразу после первого клика.
-    // Если ссылка уже есть — useEffect откроет ее сразу.
-    // Если ссылки еще нет — дождется ее получения.
     setDownloadClicked(true);
   };
 
@@ -115,7 +107,6 @@ export default function StatusPrinting() {
           : "bg-red-500/10 border-red-500/20"
       }`}
     >
-      {/* Индикатор */}
       <div className="relative flex h-3 w-3">
         {isActive && (
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -150,7 +141,7 @@ export default function StatusPrinting() {
             "Сервис печати работает"
           ) : (
             <>
-              Проверьте, что приложение PrintNum запущено или{" "}
+              Проверьте, что приложение PrintNum запущено или {""}
               {downloadClicked ? (
                 <span className="font-medium text-gray-500">
                   скачивание началось...

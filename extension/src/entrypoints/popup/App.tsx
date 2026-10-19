@@ -4,7 +4,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "./ui/accordion";
 import StatusPrinting from "./statusPrinting";
 import QrCommands from "./qrCommands";
 import { Github, Send } from "lucide-react";
@@ -37,9 +37,7 @@ function App() {
         </AccordionItem>
       </Accordion>
 
-      {/* Нижняя панель с кнопками. Добавлены боковые отступы px-4, чтобы не прижиматься к краям */}
       <div className="grid grid-cols-2 gap-2.5 w-full px-4 pt-1 pb-2">
-        {/* Кнопка Telegram (Кастомный нео-модерн стиль) */}
         <a
           href="https://t.me/printnum"
           target="_blank"
@@ -59,7 +57,6 @@ function App() {
           </div>
         </a>
 
-        {/* Кнопка GitHub (Кастомный нео-модерн стиль) */}
         <a
           href="https://github.com/kirill18734/PrintNum/tree/main/extension"
           target="_blank"
