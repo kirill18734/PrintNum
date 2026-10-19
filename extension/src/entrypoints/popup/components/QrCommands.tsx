@@ -5,6 +5,8 @@ import { useStorageState } from "@/hooks/useStorageState";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
+import { qrCodes as ALL_QR } from "@/shared/constants";
+import type { QrCommandGroup } from "@/shared/types/qr-command";
 
 function SettingRow({
   label,
@@ -63,6 +65,38 @@ export default function QrCommands() {
   ).length;
   const shouldEnableAll = disabledQrCodesCount > qrCodes.length / 2;
 
+  // Сопоставление name -> group из списка команд
+  const nameToGroup = new Map<string, QrCommandGroup>();
+  for (const c of ALL_QR) nameToGroup.set(c.name, c.group);
+
+  // Заголовки групп и порядок отображения
+  const GROUP_LABELS: Record<QrCommandGroup | "other", string> = {
+    issue_all: "Выдача всех заказов (оплаченных)",
+    issue_order: "Выдача заказа",
+    pay_order: "Оплата заказа",
+    recommendation: "Приемка",
+    package_radio: "Выбор упаковки",
+    package_cycle: "Автоматическая выдача (автовыбор пакета)",
+    other: "Прочее",
+  };
+  const ORDER: Array<QrCommandGroup | "other"> = [
+    "issue_all",
+    "issue_order",
+    "pay_order",
+    "recommendation",
+    "package_radio",
+    "package_cycle",
+    "other",
+  ];
+
+  // Группируем видимые названия по группе
+  const grouped = new Map<QrCommandGroup | "other", string[]>();
+  for (const name of qrCodes) {
+    const group = nameToGroup.get(name) ?? "other";
+    if (!grouped.has(group)) grouped.set(group, []);
+    grouped.get(group)!.push(name);
+  }
+
   return (
     <div className="bg-background flex items-start justify-between gap-1 w-full">
       <Accordion
@@ -73,7 +107,7 @@ export default function QrCommands() {
         <div className="px-4 py-3 text-xs font-semibold text-muted-foreground">
           Обработчики QR-кодов
         </div>
-        <div className="px-4 pb-3 pt-0 flex flex-col gap-1.5">
+        <div className="px-4 pb-3 pt-0 flex flex-col gap-3">
           {qrCodes.length > 0 && (
             <Button
               type="button"
@@ -85,17 +119,54 @@ export default function QrCommands() {
             </Button>
           )}
 
-          {qrCodes.map((element) => {
-            const isHidden = offQrCodes.includes(element);
+          {ORDER.map((key) => {
+            const items = grouped.get(key) ?? [];
+            if (items.length === 0) return null;
+            const groupAllOff = items.every((name) =>
+              offQrCodes.includes(name),
+            );
+            const toggleLabel = groupAllOff ? "Включить все" : "Выключить все";
+            const onToggleGroup = () => {
+              setOffQrCodes((prev) => {
+                if (groupAllOff) {
+                  // Включить все в группе: удалить элементы группы из off
+                  return prev.filter((n) => !items.includes(n));
+                }
+                // Выключить все в группе: добавить все элементы группы в off (без дублей)
+                const set = new Set(prev);
+                items.forEach((n) => set.add(n));
+                return Array.from(set);
+              });
+            };
             return (
-              <SettingRow
-                key={element}
-                label={element}
-                isHidden={isHidden}
-                onToggle={() => setOffQrId(element)}
-                VisibleIcon={QrCode}
-                HiddenIcon={Ban}
-              />
+              <div key={key} className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground">
+                    {GROUP_LABELS[key]}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-6 px-2 text-[10px]"
+                    onClick={onToggleGroup}
+                  >
+                    {toggleLabel}
+                  </Button>
+                </div>
+                {items.map((element) => {
+                  const isHidden = offQrCodes.includes(element);
+                  return (
+                    <SettingRow
+                      key={element}
+                      label={element}
+                      isHidden={isHidden}
+                      onToggle={() => setOffQrId(element)}
+                      VisibleIcon={QrCode}
+                      HiddenIcon={Ban}
+                    />
+                  );
+                })}
+              </div>
             );
           })}
         </div>
