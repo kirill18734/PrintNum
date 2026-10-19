@@ -100,7 +100,11 @@ export default function QrCommands() {
           })}
         </div>
       </Accordion>
-      <UniversalLinkButton fileUrl="/qrCodes.pdf" icon={Printer} variant="ghost" />
+      <UniversalLinkButton
+        fileUrl="/qrCodes.pdf"
+        icon={Printer}
+        variant="ghost"
+      />
     </div>
   );
 }
