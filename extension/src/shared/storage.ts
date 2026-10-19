@@ -15,7 +15,9 @@ export async function get_local_storage<Key extends StorageKey>(
 
   const value = result[key];
   if (!isStorageValue(key, value)) {
-    throw new Error(`Некорректное значение в хранилище для ключа "${String(key)}"`);
+    throw new Error(
+      `Некорректное значение в хранилище для ключа "${String(key)}"`,
+    );
   }
 
   return value as StorageValue<Key>;

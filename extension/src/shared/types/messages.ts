@@ -12,9 +12,7 @@ export function isSendPrintNumberMessage(
 ): message is SendPrintNumberMessage {
   if (typeof message !== "object" || message === null) return false;
   const m = message as Partial<Record<string, unknown>>;
-  return (
-    m.action === "sendNumberToFlask" && typeof m.number === "string"
-  );
+  return m.action === "sendNumberToFlask" && typeof m.number === "string";
 }
 
 export function isSendPrintNumberResponse(
@@ -25,5 +23,7 @@ export function isSendPrintNumberResponse(
     success?: unknown;
   };
   if (typeof r.success !== "boolean") return false;
-  return r.success === true || (r.success === false && typeof r.error === "string");
+  return (
+    r.success === true || (r.success === false && typeof r.error === "string")
+  );
 }

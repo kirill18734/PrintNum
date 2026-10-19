@@ -34,7 +34,11 @@ export default function QrCommands() {
           HiddenIcon={Ban}
         />
       </Accordion>
-      <UniversalLinkButton fileUrl="/qrCodes.pdf" icon={Printer} variant="ghost" />
+      <UniversalLinkButton
+        fileUrl="/qrCodes.pdf"
+        icon={Printer}
+        variant="ghost"
+      />
     </div>
   );
 }

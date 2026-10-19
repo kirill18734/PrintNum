@@ -14,7 +14,9 @@ declare const chrome: {
 };
 
 export function openUrl(url: string): Promise<unknown> {
-  const target = url.startsWith("/") ? chrome.runtime.getURL(url.slice(1)) : url;
+  const target = url.startsWith("/")
+    ? chrome.runtime.getURL(url.slice(1))
+    : url;
   return chrome.tabs.create({ url: target });
 }
 

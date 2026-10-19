@@ -14,40 +14,37 @@ export default defineBackground({
     // ==========================================
     // 1. СЛУШАТЕЛЬ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ И ОТПРАВКА НА BACKEND (Flask)
     // ==========================================
-    chrome.runtime.onMessage.addListener(
-      (message, _sender, sendResponse) => {
-        if (isSendPrintNumberMessage(message)) {
-          fetch(`${API_BASE}/print-number`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text: message.number }),
-          })
-            .then((response) => {
-              let result: SendPrintNumberResponse;
-              if (!response.ok) {
-                result = {
-                  success: false,
-                  error: `${response.status} ${response.statusText}`,
-                };
-              } else {
-                result = { success: true };
-              }
-              sendResponse(result);
-            })
-            .catch((error) => {
-              sendResponse({
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (isSendPrintNumberMessage(message)) {
+        fetch(`${API_BASE}/print-number`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: message.number }),
+        })
+          .then((response) => {
+            let result: SendPrintNumberResponse;
+            if (!response.ok) {
+              result = {
                 success: false,
-                error:
-                  error instanceof Error ? error.message : String(error),
-              });
+                error: `${response.status} ${response.statusText}`,
+              };
+            } else {
+              result = { success: true };
+            }
+            sendResponse(result);
+          })
+          .catch((error) => {
+            sendResponse({
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
             });
+          });
 
-          return true;
-        }
-      },
-    );
+        return true;
+      }
+    });
 
     // ==========================================
     // 2. СИНХРОНИЗАЦИЯ ХРАНИЛИЩА (Только QR-коды)

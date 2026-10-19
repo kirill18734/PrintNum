@@ -17,13 +17,14 @@ export default defineConfig({
   },
 
   srcDir: "src",
-  vite: () => ({
-    plugins: (react() as any),
-    build: {
-      target: "es2022",
-    },
-    esbuild: {
-      target: "es2022",
-    },
-  }) as any,
+  vite: () =>
+    ({
+      plugins: react() as any,
+      build: {
+        target: "es2022",
+      },
+      esbuild: {
+        target: "es2022",
+      },
+    }) as any,
 });
