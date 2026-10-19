@@ -1,6 +1,6 @@
-import { Button, ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonProps } from "./button";
 import { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils"; // Импортируем утилиту слияния классов shadcn
+import { cn } from "@/lib/utils";
 
 interface UniversalLinkButtonProps extends ButtonProps {
   fileUrl: string;
@@ -14,7 +14,9 @@ declare const chrome: {
 };
 
 export function openUrl(url: string): Promise<unknown> {
-  const target = url.startsWith("/") ? chrome.runtime.getURL(url.slice(1)) : url;
+  const target = url.startsWith("/")
+    ? chrome.runtime.getURL(url.slice(1))
+    : url;
   return chrome.tabs.create({ url: target });
 }
 
@@ -29,7 +31,6 @@ export function UniversalLinkButton({
   return (
     <Button
       variant={variant}
-      // Используем cn(), чтобы дефолтные стили не ломали кастомные
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
         className,
@@ -41,10 +42,7 @@ export function UniversalLinkButton({
       }}
       {...props}
     >
-      {/* Теперь у иконки есть жесткие размеры */}
       {Icon && <Icon className="h-4 w-4 shrink-0" />}
-
-      {/* Текст отображается с правильным отступом gap-2 от иконки */}
       {text && <span>{text}</span>}
     </Button>
   );
