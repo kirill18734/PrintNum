@@ -1,11 +1,12 @@
 import type {
   SendPrintNumberMessage,
   SendPrintNumberResponse,
+  SendShelfMessage,
 } from "./messages";
 
 export interface ChromeApi {
   runtime: {
-    sendMessage(message: SendPrintNumberMessage): Promise<unknown>;
+    sendMessage(message: SendPrintNumberMessage | SendShelfMessage): Promise<unknown>;
     onMessage: {
       addListener(
         listener: (

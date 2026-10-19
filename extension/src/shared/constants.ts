@@ -21,6 +21,7 @@ export const PATH = {
   order: "/orders/session",
   recommendation: "/receiving-v2/main",
   package: "/outbound",
+  shelf: "/outbound/selection",
 };
 
 const cmd = (

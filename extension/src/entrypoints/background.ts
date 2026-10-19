@@ -2,6 +2,7 @@ import type { ChromeApi } from "@/shared/types/chrome-api";
 import {
   isSendPrintNumberMessage,
   type SendPrintNumberResponse,
+  isSendShelfMessage,
 } from "@/shared/types/messages";
 
 import { API_BASE, qrCodes } from "@/shared/constants";
@@ -22,6 +23,36 @@ export default defineBackground({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ text: message.number }),
+        })
+          .then((response) => {
+            let result: SendPrintNumberResponse;
+            if (!response.ok) {
+              result = {
+                success: false,
+                error: `${response.status} ${response.statusText}`,
+              };
+            } else {
+              result = { success: true };
+            }
+            sendResponse(result);
+          })
+          .catch((error) => {
+            sendResponse({
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          });
+
+        return true;
+      }
+
+      if (isSendShelfMessage(message)) {
+        fetch(`${API_BASE}/ozon-shelf`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: message.text }),
         })
           .then((response) => {
             let result: SendPrintNumberResponse;
