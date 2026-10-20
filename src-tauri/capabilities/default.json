@@ -15,28 +15,18 @@
     "log:allow-log",
     "store:default",
     {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "../backend/output/backend",
+          "sidecar": true
+        }
+      ]
+    },
+    {
       "identifier": "core:window:allow-start-dragging",
       "windows": ["*"],
       "permissions": ["core:window:allow-start-dragging"]
-    },
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "name": "start_backend",
-          "cmd": "powershell.exe",
-          "args": [
-            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue; if ((Split-Path -Leaf (Get-Location)) -eq 'src-tauri') { Start-Process -FilePath '../backend/output/backend.exe' -WindowStyle Hidden } else {  Start-Process -FilePath './backend.exe' -WindowStyle Hidden }"
-          ]
-        },
-        {
-          "name": "stop_backend",
-          "cmd": "powershell",
-          "args": [
-            "Stop-Process -Name backend -Force -ErrorAction SilentlyContinue"
-          ]
-        }
-      ]
     }
   ]
 }

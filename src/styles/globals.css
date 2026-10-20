@@ -1,3 +1,4 @@
+/* Подключает базовые стили Tailwind и задаёт общие правила оформления приложения. */
 @import "tailwindcss";
 
 @import "tw-animate-css";
@@ -78,3 +79,4 @@
   /* Apply the reveal animation */
   animation: reveal 0.4s ease-in-out forwards;
 }
+/* Подключает базовые стили Tailwind и задаёт общие правила оформления приложения. */

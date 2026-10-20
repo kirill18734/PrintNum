@@ -1,42 +1,55 @@
-import PreviewPaper from "./previewPaper";
+// Объединяет параметры оформления этикетки с её предпросмотром.
 import SettingsPaper from "./settingsPaper";
+
+interface ShowPaperProps {
+  defaultIdNum: boolean;
+  setDefaultIdNum: (value: boolean) => void;
+  defaultEndLine: boolean;
+  setDefaultEndLine: (value: boolean) => void;
+  defaultBold: boolean;
+  setDefaultBold: (value: boolean) => void;
+  defaultHybrid: boolean;
+  setDefaultHybrid: (value: boolean) => void;
+  defaultExpand: number | "";
+  setDefaultExpand: (value: number | "") => void;
+  preview: React.ReactNode;
+}
 
 export default function ShowPaper({
   defaultIdNum,
   setDefaultIdNum,
   defaultEndLine,
   setDefaultEndLine,
+  defaultBold,
+  setDefaultBold,
   defaultHybrid,
   setDefaultHybrid,
   defaultExpand,
   setDefaultExpand,
-}: any) {
+  preview,
+}: ShowPaperProps) {
   return (
-    <div data-tauri-drag-region className="flex flex-col gap-1">
-      <span className="font-medium text-center">Оформление этикетки</span>
-      <div
-        data-tauri-drag-region
-        className="flex items-start justify-center w-full"
-      >
-        {/* Настройки */}
-        <SettingsPaper
-          idNum={defaultIdNum}
-          setIdNum={setDefaultIdNum}
-          endLine={defaultEndLine}
-          setEndLine={setDefaultEndLine}
-          hybrid={defaultHybrid}
-          setHybrid={setDefaultHybrid}
-          expand={defaultExpand}
-          setExpand={setDefaultExpand}
-        />
-        {/* Превью */}
-        <PreviewPaper
-          idNum={defaultIdNum}
-          endLine={defaultEndLine}
-          hybrid={defaultHybrid}
-          expand={defaultExpand}
-        />
+    <section className="w-full rounded-md border border-border bg-card p-1">
+      <h2 className="mb-0.5 text-center text-xs font-semibold leading-tight">
+        Оформление этикетки
+      </h2>
+      <div className="mx-auto grid w-full max-w-[560px] grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-center gap-2">
+        <div className="min-w-0 justify-self-center">
+          <SettingsPaper
+            idNum={defaultIdNum}
+            setIdNum={setDefaultIdNum}
+            endLine={defaultEndLine}
+            setEndLine={setDefaultEndLine}
+            bold={defaultBold}
+            setBold={setDefaultBold}
+            hybrid={defaultHybrid}
+            setHybrid={setDefaultHybrid}
+            expand={defaultExpand}
+            setExpand={setDefaultExpand}
+          />
+        </div>
+        <div className="min-w-0 w-full justify-self-center">{preview}</div>
       </div>
-    </div>
+    </section>
   );
 }

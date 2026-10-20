@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Cyberpunk. */
 [theme-style="cyberpunk"] {
   --background: oklch(0.1418 0.0662 295.8049);
   --foreground: oklch(0.8803 0.2083 157.334);
@@ -186,3 +187,4 @@
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   }
 }
+/* Цветовые и типографические токены темы Cyberpunk. */

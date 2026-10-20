@@ -1,80 +1,34 @@
-import os
-import time
+"""Запускает локальный сервер Flask и штатно останавливает его при простое."""
+
+import logging
 import threading
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from data import load_config
-from utils import listPrinters, status_printer
-from print_text import print_text
+from werkzeug.serving import make_server
 
-app = Flask(__name__)
-CORS(app)  # Включаем CORS для всего приложения
+from app.factory import create_app
 
-# Время последнего запроса
-last_request_time = time.time()
 
-# Через сколько секунд убивать сервер
-TIMEOUT = 10
+logger = logging.getLogger(__name__)
 
-printerOnline = False
 
-@app.before_request
-def update_activity():
-    """
-    Обновляем время активности
-    перед каждым запросом
-    """
-    global last_request_time
+def run_server(host="127.0.0.1", port=5000, idle_timeout=10):
+    app = create_app(idle_timeout=idle_timeout)
+    server = make_server(host, port, app, threaded=True)
+    activity = app.extensions["printnum"]["activity"]
+    watcher = threading.Thread(
+        target=activity.watch,
+        args=(server.shutdown,),
+        name="backend-idle-watchdog",
+        daemon=True,
+    )
+    watcher.start()
+    try:
+        server.serve_forever()
+    finally:
+        activity.stop()
+        server.server_close()
 
-    last_request_time = time.time()
-
-def watchdog():
-    """
-    Следит за неактивностью
-    """
-    global last_request_time
-
-    while True:
-        inactive_time = time.time() - last_request_time
-
-        if inactive_time > TIMEOUT:
-            print(f"Нет запросов {TIMEOUT} секунд")
-            print("Flask сервер завершен")
-        
-            os._exit(0)
-
-        time.sleep(1)
-
-@app.get("/")
-def hello_world():
-      return jsonify({"status": True})
-
-@app.get('/status-printer')
-def statusPrinter():
-    global printerOnline
-    printerOnline = status_printer()
-    return jsonify({'printerOnline': printerOnline})
-
-@app.get('/listPrinters')
-def listPrinter():
-    printers = listPrinters()
-    return jsonify({'listPrinters': printers})
-
-@app.post('/print-number')
-def printNumber():
-    body = request.get_json()
-    config = load_config().copy()
-    text = body.get("text").strip()
-    if (text) and config.get('running') and config.get('printer') and printerOnline:
-        print_text(text)
-    return "OK"
 
 if __name__ == "__main__":
-    # Запускаем watchdog
-    threading.Thread(
-        target=watchdog,
-        daemon=True
-    ).start()
-
-    app.run()
+    logging.basicConfig(level=logging.INFO)
+    run_server()

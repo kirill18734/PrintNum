@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Notebook. */
 [theme-style="notebook"] {
   --background: oklch(0.9821 0 0);
   --foreground: oklch(0.3485 0 0);
@@ -181,3 +182,4 @@
 [theme-style="notebook"] body {
   letter-spacing: var(--tracking-normal);
 }
+/* Цветовые и типографические токены темы Notebook. */

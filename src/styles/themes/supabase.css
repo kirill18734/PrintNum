@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Supabase. */
 [theme-style="supabase"] {
   --background: oklch(0.9911 0 0);
   --foreground: oklch(0.2046 0 0);
@@ -175,3 +176,4 @@
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   }
 }
+/* Цветовые и типографические токены темы Supabase. */

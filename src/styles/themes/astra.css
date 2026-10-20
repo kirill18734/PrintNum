@@ -1,3 +1,4 @@
+/* Цветовые и типографические токены темы Astra. */
 [theme-style="astra"] {
   --background: oklch(0.9714 0.0141 343.1982);
   --foreground: oklch(0.2827 0.1351 291.0894);
@@ -186,3 +187,4 @@
     --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   }
 }
+/* Цветовые и типографические токены темы Astra. */

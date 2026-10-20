@@ -1,3 +1,4 @@
+// Векторная иконка приложения, используемая в заголовке и экранах состояния.
 import { cn } from "@/lib/utils";
 
 export default function IconApp({ classN = "" }) {
@@ -8,7 +9,6 @@ export default function IconApp({ classN = "" }) {
       preserveAspectRatio="xMidYMid meet"
       className={cn("size-10", classN)}
     >
-      s
       <g
         transform="translate(0.000000,1024) scale(0.100000,-0.100000)"
         fill="currentColor"

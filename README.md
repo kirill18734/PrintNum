@@ -143,11 +143,11 @@
       <td><img src="./public/dark/home.png" alt="Главная — тёмная" /></td>
     </tr>
     <tr>
-      <td colspan="2" style="font-weight: bold; text-align: center;">Настройки</td>
+      <td colspan="2" style="font-weight: bold; text-align: center;">Создание этикетки</td>
     </tr>
     <tr>
-      <td><img src="./public/light/settings.png" alt="Настройки — светлая" /></td>
-      <td><img src="./public/dark/settings.png" alt="Настройки — тёмная" /></td>
+      <td><img src="./public/light/create_label.png" alt="Создание этикетки — светлая" /></td>
+      <td><img src="./public/dark/create_label.png" alt="Создание этикетки — тёмная" /></td>
     </tr>
   </tbody>
 </table>
@@ -260,12 +260,15 @@ PrintNum автоматически проверяет наличие новых
 
 Backend предоставляет REST API на Flask на порту `5000`.
 
-| Метод    | Эндпоинт          | Описание                     | Ответ                            |
-| -------- | ----------------- | ---------------------------- | -------------------------------- |
-| **GET**  | `/`               | Проверка доступности сервера | `{"status": true}`               |
-| **GET**  | `/status-printer` | Проверка состояния принтера  | `{"printerOnline": true/false}`  |
-| **GET**  | `/listPrinters`   | Получение списка принтеров   | `{"listPrinters": ["Принтер1"]}` |
-| **POST** | `/print-number`   | Печать номера ячейки         | `OK`                             |
+| Метод    | Эндпоинт             | Описание                                   | Ответ                                       |
+| -------- | -------------------- | ------------------------------------------ | ------------------------------------------- |
+| **GET**  | `/`                  | Проверка доступности сервера               | `{"status": true}`                         |
+| **GET**  | `/status-printer`    | Проверка состояния принтера                | `{"printerOnline": true/false}`            |
+| **GET**  | `/listPrinters`      | Получение списка принтеров                 | `{"listPrinters": ["Принтер1"]}`           |
+| **GET**  | `/auto-print-status` | Статус последнего события автопечати       | `{"event": {...}}`                         |
+| **POST** | `/print-number`      | Печать номера ячейки (автопечать)          | `OK`                                         |
+| **POST** | `/ozon-shelf`        | Печать по данным полки Ozon (автопечать)   | `OK` или `{"status":"skipped","rule":"..."}` |
+| **POST** | `/print-label`       | Печать пользовательской этикетки вручную  | `{"status":"printed"}`                    |
 
 **Базовый URL**: `http://127.0.0.1:5000`
 
@@ -331,11 +334,10 @@ Backend предоставляет REST API на Flask на порту `5000`.
 [(Вернуться к началу)](#printnum--печать-ячеек-ozon)
 
 - **Backend в EXE**: Используйте [auto-py-to-exe](https://github.com/brentyi/auto-py-to-exe):
-  1. Откройте auto-py-to-exe в папке `backend/`
-  2. Выберите `backend.py` как основной скрипт
-  3. Добавьте как Icons: `icon.ico` [опционально]
-  4. Добавьте как "Additional files": `data.py`, `print_text.py`, `utils.py`
-  5. Build → готовый EXE будет в `backend/output/backend/`
+  1. Запустите из папки `backend/` и укажите `backend.py` как основной скрипт.
+  2. Добавьте в "Additional files" директорию `app/` целиком (все подмодули API/сервисов).
+  3. Режим сборки: onefile; Console: windowed; имя бинарника: `backend`.
+  4. Сохраните файл как `backend/output/backend(.exe)` — путь совпадает с `externalBin` в Tauri (`src-tauri/tauri.conf.json`).
 - **Полная сборка приложения**:
 
   ```bash
@@ -353,70 +355,36 @@ Backend предоставляет REST API на Flask на порту `5000`.
 
 ```
 PrintNum/
-├── .gitignore
-├── .vscode/                      # Настройки редактора
-├── DriverPrinter_CHITENG-CT221B.exe  # Внимание: драйвер для Термопринтера CHITENG-CT221B
-├── backend/                      # Python Flask сервер и логика печати
-│   ├── backend.py               # Запуск API сервера
-│   ├── data.py                  # Чтение/запись конфигурации
-│   ├── print_text.py            # Алгоритм печати на Windows
-│   ├── utils.py                 # Утилиты принтера и статус
-│   ├── requirements.txt         # Python зависимости
+├── backend/                      # Flask-бэкенд и упаковка sidecar
+│   ├── backend.py               # Точка входа (HTTP-сервер + idle-watchdog)
+│   ├── requirements.txt         # Зависимости Python
+│   ├── app/
+│   │   ├── api/                 # Маршруты: health, printers, auto_print, labels, lifecycle
+│   │   ├── domain/              # Модели и валидация данных
+│   │   ├── infrastructure/      # Адаптеры Windows-принтера, конфигурация, активность
+│   │   ├── services/            # Бизнес-логика печати и автопечати
+│   │   └── factory.py           # Инициализация Flask-приложения
 │   ├── get.http                 # Примеры GET-запросов
 │   ├── post.http                # Примеры POST-запросов
-│   └── icon.ico                 # Иконка приложения для backend
-├── extension/                   # WXT расширение для Ozon
-│   ├── package.json             # Зависимости расширения
-│   ├── package-lock.json        # Фиксация зависимостей Node
-│   ├── pnpm-lock.yaml           # Фиксация зависимостей pnpm
-│   ├── wxt.config.ts            # Конфигурация WXT сборки
-│   ├── tailwind.config.js       # Конфиг Tailwind
-│   ├── tsconfig.json            # TypeScript конфигурация
-│   ├── README.md                # Документация расширения
-│   ├── src/
-│   │   ├── entrypoints/         # Content scripts и popup
-│   │   ├── components/          # Компоненты UI
-│   │   ├── hooks/
-│   │   ├── lib/
-│   │   ├── utils/
-│   │   └── public/              # Статические ресурсы расширения
-│   ├── components.json          # WXT компоненты
-│   ├── eslint.config.js         # ESLint правила
-│   └── postcss.config.js        # PostCSS для Tailwind
+│   └── output/                  # Скомпилированный EXE: backend(.exe)
+├── extension/                   # Браузерное расширение (WXT + React 18)
+│   ├── package.json
+│   └── src/ ...
 ├── public/                      # Статические ассеты приложения
 │   ├── favicon.ico
-│   ├── light/
-│   └── dark/
-├── src/                         # React интерфейс Tauri приложения
-│   ├── index.tsx
-│   ├── layout.tsx
-│   ├── components/
-│   ├── config/
-│   ├── context/
-│   ├── hooks/
-│   ├── lib/
+│   ├── light/ (home-1280x800.png, create_label-1280x800.png)
+│   └── dark/  (home-1280x800.png, create_label-1280x800.png)
+├── src/                         # React 19 интерфейс Tauri-приложения
+│   ├── index.tsx, layout.tsx
 │   ├── pages/
-│   ├── services/
-│   └── styles/
-├── src-tauri/                   # Tauri и Rust приложение
-│   ├── Cargo.toml               # Rust зависимости и сборка
-│   ├── Cargo.lock               # Зафиксированные версии Rust
-│   ├── tauri.conf.json          # Настройки Tauri приложения
-│   ├── build.rs                 # Скрипт сборки
-│   ├── capabilities/
-│   ├── icons/
-│   └── src/
-│       ├── main.rs
-│       └── lib.rs
-├── index.html                   # Точка входа веб-приложения
-├── latest.json                  # Информация о последнем релизе
-├── package.json                 # Node.js зависимости и скрипты
-├── package-lock.json            # Зафиксированные версии npm
-├── privateKey.txt               # Внимание: ключ подписи обновлений
-├── README.md                    # Документация проекта
-├── tsconfig.json                # TypeScript конфигурация
-├── tsconfig.node.json           # Конфиг для Node/сборки
-└── vite.config.ts               # Конфигурация Vite
+│   │   └── home/ (CreateLabelPanel.tsx, PrinterSettings.tsx, ...)
+│   └── services/ (app.tauri.ts, store.ts, ...)
+├── src-tauri/                   # Tauri 2 (Rust)
+│   ├── Cargo.toml, tauri.conf.json
+│   └── src/ (main.rs, lib.rs)
+├── package.json                 # Скрипты сборки Vite/Tauri
+├── vite.config.ts               # Конфиг Vite 7
+└── README.md
 ```
 
 ## Помощь
