@@ -3,7 +3,7 @@
   "note": "Современная, быстрая, оптимизированная, надежная, удобная и бесплатная, ваша программа PrintNum.\n\n\nВАЖНО: после установки не забудьте перезапустить браузер или обновить расширение, чтобы активировать новые функции",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVgxU3crMzFsZUxXWmQrTXI0TDBMRm9mQmkrMk5QZ3R1MXZuWWtRZXB6TDJKR0lFWFZFRnVXTWhuTGMvVzBkcTZLbDFFaXVubXNxYTJUREVMVHpZeXcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg4Mjk4MjY3CWZpbGU6UHJpbnROdW1fMi4wLjJfeDY0LXNldHVwLmV4ZQpsbUI1SEQ4QUM1d2FYV2FldTVlbDVSK1NkaHF6eTF2a2orSnlmQXZUUmNkOTFva25Xc0lPK2EvcTZZT1N2VHhFeWg0YUVWQmF4VTVTN3YxVFFiVzNCdz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWZ0TUx0NUVWeFIxOXlOdHZoUndYWWl4TlZZWjlNUDBiZk1MT1l3cHVYTG1kY3NNeFRzM0JZbVZqeTVsZUxLcGd5SmFpbnhHOHZabVliaUJYS3FCZXdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNTE5MzUzCWZpbGU6UHJpbnROdW1fMi4wLjNfeDY0LXNldHVwLmV4ZQo5UWRVMmJEWmNNdE9UY09NTU8vK2dFcTNCVFBIMS9OMkVBN2M3VVJFcXdqSjFOQWM1VjM1bGdYNzVzZmZIMkFNTlNvVk9SVDlDTEpUMHhWNmxiMFdDZz09Cg==",
       "url": "https://github.com/kirill18734/PrintNum/releases/download/v2.0.3/PrintNum_2.0.3_x64-setup.exe"
     }
   }
