@@ -16,6 +16,8 @@ def printer_status():
     printer_name = config.get("printer")
     try:
         online = services["printers"].is_online(printer_name)
+        # Обновляем кэш статуса, чтобы печать использовала последний опрошенный UI-статус
+        services["printer_status"].set(online)
     except Exception:
         logger.exception("Не удалось проверить состояние принтера")
         return jsonify({"error": "Не удалось проверить состояние принтера"}), 500

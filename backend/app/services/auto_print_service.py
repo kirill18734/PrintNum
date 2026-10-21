@@ -4,9 +4,10 @@ from app.domain.filter_rules import find_excluded_rule
 
 
 class AutoPrintService:
-    def __init__(self, config_repository, printer_service):
+    def __init__(self, config_repository, printer_service, status_cache):
         self.config_repository = config_repository
         self.printer_service = printer_service
+        self.status_cache = status_cache
 
     def process(self, text, print_text=None):
         if not text:
@@ -72,7 +73,15 @@ class AutoPrintService:
                     }
                 ],
             }
-        if not self.printer_service.is_online(printer_name):
+        # Берём статус принтера из кэша (обновляется UI-запросами /status-printer).
+        cached_status = self.status_cache.get()
+        if cached_status is None:
+            # Нет ещё кэша — делаем одноразовую проверку для совместимости
+            is_online = self.printer_service.is_online(printer_name)
+        else:
+            is_online = cached_status
+
+        if not is_online:
             return {
                 "status": "ignored",
                 "steps": steps

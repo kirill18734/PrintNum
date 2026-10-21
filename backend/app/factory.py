@@ -18,6 +18,7 @@ from app.services.auto_print_service import AutoPrintService
 from app.services.auto_print_status import AutoPrintStatus
 from app.services.label_service import LabelService
 from app.services.printer_service import PrinterService
+from app.services.status_cache import PrinterStatusCache
 
 
 def create_app(
@@ -31,16 +32,25 @@ def create_app(
     app.logger.setLevel(logging.INFO)
 
     repository = config_repository or ConfigRepository()
+    # Первичная загрузка конфига при старте
+    try:
+        repository.load()
+    except Exception:
+        app_logger = logging.getLogger(__name__)
+        app_logger.exception("Не удалось выполнить первичную загрузку конфига")
+
     printer = PrinterService(printer_adapter or WindowsPrinterAdapter())
     auto_print_status = AutoPrintStatus()
+    status_cache = PrinterStatusCache()
     activity = RuntimeActivity(idle_timeout=idle_timeout)
 
     app.extensions["printnum"] = {
         "config": repository,
         "printers": printer,
-        "auto_print": AutoPrintService(repository, printer),
+        "printer_status": status_cache,
+        "auto_print": AutoPrintService(repository, printer, status_cache),
         "auto_print_status": auto_print_status,
-        "labels": LabelService(repository, printer),
+        "labels": LabelService(repository, printer, status_cache),
         "activity": activity,
     }
 
