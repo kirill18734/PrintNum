@@ -36,6 +36,8 @@ class RuntimeActivity:
             if self._shutdown_requested.is_set():
                 shutdown()
                 return
+            if self.idle_timeout is None:
+                continue
             with self._lock:
                 idle_for = time.monotonic() - self._last_activity
                 has_active_requests = self._active_requests > 0

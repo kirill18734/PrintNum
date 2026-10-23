@@ -26,6 +26,7 @@ def create_app(
     printer_adapter=None,
     idle_timeout=10,
     enable_cors=True,
+    standalone=False,
 ):
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = MAX_CODE_IMAGE_SIZE + 2 * 1024 * 1024
@@ -42,15 +43,19 @@ def create_app(
     printer = PrinterService(printer_adapter or WindowsPrinterAdapter())
     auto_print_status = AutoPrintStatus()
     status_cache = PrinterStatusCache()
-    activity = RuntimeActivity(idle_timeout=idle_timeout)
+    activity = RuntimeActivity(idle_timeout=None if standalone else idle_timeout)
 
     app.extensions["printnum"] = {
         "config": repository,
         "printers": printer,
         "printer_status": status_cache,
-        "auto_print": AutoPrintService(repository, printer, status_cache),
+        "auto_print": AutoPrintService(
+            repository, printer, status_cache, refresh_status_before_print=standalone
+        ),
         "auto_print_status": auto_print_status,
-        "labels": LabelService(repository, printer, status_cache),
+        "labels": LabelService(
+            repository, printer, status_cache, refresh_status_before_print=standalone
+        ),
         "activity": activity,
     }
 
