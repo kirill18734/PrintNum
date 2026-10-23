@@ -14,6 +14,7 @@ from pathlib import Path
 
 from werkzeug.serving import make_server
 
+import backend
 from app.factory import create_app
 from app.infrastructure.config_repository import ConfigRepository
 from app.infrastructure.runtime_activity import RuntimeActivity
@@ -239,7 +240,139 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(number_response.status_code, 500)
 
 
+class StandaloneModeTests(unittest.TestCase):
+    print_requests = (
+        ("/print-number", {"text": "Order 1"}),
+        ("/ozon-shelf", {"text": "Ozon Полка - 123"}),
+        ("/print-label", {"contentType": "text", "content": "Label 1"}),
+    )
+
+    def make_app(self, standalone):
+        self.config = {
+            "printer": "Test printer", "running": True, "excludedTexts": ["skip"]
+        }
+        self.printer = FakePrinter()
+        app = create_app(
+            config_repository=types.SimpleNamespace(load=lambda: self.config.copy()),
+            printer_adapter=self.printer,
+            enable_cors=False,
+            idle_timeout=0.01,
+            standalone=standalone,
+        )
+        self.services = app.extensions["printnum"]
+        self.cache = self.services["printer_status"]
+        return app.test_client()
+
+    def test_each_print_refreshes_status_without_external_polling(self):
+        for route, body in self.print_requests:
+            with self.subTest(route=route):
+                client = self.make_app(standalone=True)
+                self.assertIsNone(self.services["activity"].idle_timeout)
+                self.cache.set(True)
+                with patch.object(
+                    self.printer, "is_online", wraps=self.printer.is_online
+                ) as check:
+                    for index, online in enumerate((False, True, True, False), 1):
+                        self.printer.online = online
+                        response = client.post(route, json=body)
+                        expected_http = 503 if route == "/print-label" and not online else 200
+                        self.assertEqual(response.status_code, expected_http)
+                        self.assertEqual(check.call_count, index)
+                        check.assert_called_with("Test printer")
+                        self.assertIs(self.cache.get(), online)
+                        self.assertIsNotNone(self.cache.last_updated_at())
+                        if route != "/print-label":
+                            self.assertEqual(
+                                self.services["auto_print_status"].latest()["status"],
+                                "printed" if online else "ignored",
+                            )
+                        printed = self.printer.printed_numbers + self.printer.printed_labels
+                        self.assertEqual(len(printed), min(index - 1, 2))
+                        self.assertEqual(len(self.printer.cleared_queues), len(printed))
+
+    def test_default_mode_preserves_cached_status_and_timeout(self):
+        for route, body in self.print_requests:
+            for cached_status in (False, True):
+                with self.subTest(route=route, cached_status=cached_status):
+                    client = self.make_app(standalone=False)
+                    self.assertEqual(self.services["activity"].idle_timeout, 0.01)
+                    self.cache.set(cached_status)
+                    self.printer.online = not cached_status
+                    with patch.object(self.printer, "is_online") as check:
+                        client.post(route, json=body)
+                        check.assert_not_called()
+                    printed = self.printer.printed_numbers + self.printer.printed_labels
+                    self.assertEqual(len(printed), int(cached_status))
+                    self.assertIs(self.cache.get(), cached_status)
+
+    def test_status_check_errors_never_submit_print_jobs(self):
+        for route, body in self.print_requests:
+            with self.subTest(route=route):
+                client = self.make_app(standalone=True)
+                self.cache.set(True)
+                with patch.object(
+                    self.printer, "is_online", side_effect=RuntimeError("status error")
+                ) as check:
+                    response = client.post(route, json=body)
+                self.assertEqual(response.status_code, 500)
+                check.assert_called_once_with("Test printer")
+                self.assertEqual(self.printer.operations, [])
+
+    def test_rejected_requests_do_not_check_printer(self):
+        client = self.make_app(standalone=True)
+        with patch.object(self.printer, "is_online") as check:
+            client.post("/print-number", json={"text": "skip this"})
+            client.post("/print-number", json={"text": 42})
+            client.post("/print-label", json={})
+            self.config["running"] = False
+            client.post("/print-number", json={"text": "Order 1"})
+            self.config["running"] = True
+            self.config["printer"] = ""
+            for route, body in self.print_requests:
+                client.post(route, json=body)
+            check.assert_not_called()
+        self.assertEqual(self.printer.operations, [])
+
+    def test_cli_passes_standalone_flag(self):
+        for args, standalone in (([], False), (["--standalone"], True)):
+            with self.subTest(args=args), patch.object(backend, "run_server") as run:
+                backend.main(args)
+                run.assert_called_once_with(standalone=standalone)
+
+    def test_server_passes_mode_to_factory(self):
+        for standalone in (False, True):
+            with self.subTest(standalone=standalone), patch.object(
+                backend, "create_app"
+            ) as factory, patch.object(backend, "make_server") as make, patch.object(
+                backend.threading, "Thread"
+            ) as thread:
+                backend.run_server(standalone=standalone)
+                factory.assert_called_once_with(idle_timeout=10, standalone=standalone)
+                thread.return_value.start.assert_called_once_with()
+                make.return_value.serve_forever.assert_called_once_with()
+                make.return_value.server_close.assert_called_once_with()
+
+
 class RuntimeActivityTests(unittest.TestCase):
+    def test_disabled_idle_timeout_still_allows_explicit_shutdown(self):
+        activity = RuntimeActivity(idle_timeout=None)
+        activity._last_activity = time.monotonic() - 3600
+        shutdown_requested = threading.Event()
+        watcher = threading.Thread(
+            target=activity.watch,
+            args=(shutdown_requested.set, 0.002),
+        )
+        watcher.start()
+        try:
+            self.assertFalse(shutdown_requested.wait(timeout=0.03))
+            self.assertTrue(watcher.is_alive())
+            activity.request_shutdown()
+            self.assertTrue(shutdown_requested.wait(timeout=1))
+        finally:
+            activity.stop()
+            watcher.join(timeout=1)
+        self.assertFalse(watcher.is_alive())
+
     def test_idle_watch_requests_graceful_shutdown(self):
         activity = RuntimeActivity(idle_timeout=0.01)
         shutdown_requested = threading.Event()
@@ -301,10 +434,17 @@ class RuntimeActivityTests(unittest.TestCase):
         self.assertEqual(rejected_origin.status_code, 403)
 
     def test_shutdown_endpoint_stops_the_werkzeug_server_gracefully(self):
+        self.check_server_shutdown(standalone=False)
+
+    def test_shutdown_endpoint_stops_standalone_server_gracefully(self):
+        self.check_server_shutdown(standalone=True)
+
+    def check_server_shutdown(self, standalone):
         app = create_app(
             config_repository=type("Config", (), {"load": lambda self: {}})(),
             printer_adapter=FakePrinter(),
             enable_cors=False,
+            standalone=standalone,
         )
         server = make_server("127.0.0.1", 0, app, threaded=True)
         activity = app.extensions["printnum"]["activity"]
