@@ -1,4 +1,4 @@
-// Объединяет параметры оформления этикетки с её предпросмотром.
+import PreviewPaper from "./previewPaper";
 import SettingsPaper from "./settingsPaper";
 
 interface ShowPaperProps {
@@ -12,10 +12,7 @@ interface ShowPaperProps {
   setDefaultHybrid: (value: boolean) => void;
   defaultExpand: number | "";
   setDefaultExpand: (value: number | "") => void;
-  preview: React.ReactNode;
-  singleColumn?: boolean;
 }
-
 export default function ShowPaper({
   defaultIdNum,
   setDefaultIdNum,
@@ -27,28 +24,36 @@ export default function ShowPaper({
   setDefaultHybrid,
   defaultExpand,
   setDefaultExpand,
-  preview,
-  singleColumn = false,
 }: ShowPaperProps) {
   return (
-    <section aria-label="Настройки оформления автопечати" className="w-full min-w-0">
-      <SettingsPaper
-        idNum={defaultIdNum}
-        setIdNum={setDefaultIdNum}
-        endLine={defaultEndLine}
-        setEndLine={setDefaultEndLine}
-        bold={defaultBold}
-        setBold={setDefaultBold}
-        hybrid={defaultHybrid}
-        setHybrid={setDefaultHybrid}
-        expand={defaultExpand}
-        setExpand={setDefaultExpand}
-        preview={preview}
-        singleColumn={singleColumn}
-      />
-      <p id="hybrid-format-hint" className="mt-2 text-[11px] leading-snug text-muted-foreground">
-        Гибридный формат: с указанного номера меняет местами номер ячейки и ID, выделяя основной текст жирным.
-      </p>
-    </section>
+    <div data-tauri-drag-region className="flex flex-col gap-1">
+      <span className="font-medium text-center">Оформление этикетки</span>
+      <div
+        data-tauri-drag-region
+        className="flex items-start justify-center w-full"
+      >
+        {/* Настройки */}
+        <SettingsPaper
+          idNum={defaultIdNum}
+          setIdNum={setDefaultIdNum}
+          endLine={defaultEndLine}
+          setEndLine={setDefaultEndLine}
+          bold={defaultBold}
+          setBold={setDefaultBold}
+          hybrid={defaultHybrid}
+          setHybrid={setDefaultHybrid}
+          expand={defaultExpand}
+          setExpand={setDefaultExpand}
+        />
+        {/* Превью */}
+        <PreviewPaper
+          idNum={defaultIdNum}
+          endLine={defaultEndLine}
+          bold={defaultBold}
+          hybrid={defaultHybrid}
+          expand={defaultExpand}
+        />
+      </div>
+    </div>
   );
 }

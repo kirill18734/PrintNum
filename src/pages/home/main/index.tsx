@@ -1,12 +1,15 @@
 // Главный экран рабочих режимов: связывает настройки, панели функций и предпросмотр.
 import { useAppStore } from "@/services/store";
 import ThemeStyle from "@/components/theme-style";
-import PipelineStage from "./PipelineStage";
+import PipelineStage from "../../../components/PipelineStage";
 import PrinterSettings from "./PrinterSettings";
 import ModeTabs from "./ModeTabs";
 import { useState } from "react";
 import { AutoPrint } from "./AutoPrint";
 import { Label } from "./Label";
+// import { AutoPrint } from "./AutoPrint";
+// import { Label } from "./Label";
+
 export default function Main() {
   const [mode, setMode] = useState<"autoprint" | "create">("autoprint");
   //get
@@ -26,12 +29,11 @@ export default function Main() {
     setSetting("themeStyle", newThemeStyle);
 
   return (
-    <main className="flex min-h-0 w-full min-w-0 flex-col gap-2 overflow-y-auto overscroll-contain bg-white p-2 text-neutral-900 [scrollbar-gutter:stable_both-edges] dark:bg-neutral-950 dark:text-neutral-50">
+    <main className="flex flex-col flex-1 justify-center">
       <div className="mt-auto flex w-full justify-end pt-1.5">
         <ol className="w-full min-w-0">
           <PipelineStage
             number={1}
-            title=""
             state={printerOnline ? "complete" : "error"}
           >
             <PrinterSettings
@@ -54,7 +56,7 @@ export default function Main() {
             number={3}
             title="Результат"
             state={"complete"}
-            last
+            last={true}
           ></PipelineStage>
         </ol>
       </div>

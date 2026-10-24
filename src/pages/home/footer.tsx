@@ -27,6 +27,23 @@ export default function Footer() {
     getVersion();
   }, []);
 
+  // Функция установки обновления и перезапуска приложения
+  const handleUpdate = async () => {
+    try {
+      // Переключаем приложение в режим установки обновления,
+      // чтобы Layout отрисовал компонент <Updating />
+      setInstallUpdate(true);
+      setIsUpdating(true);
+      await appService.installAndRelaunch();
+    } catch (error) {
+      // Ошибка установки обновления — вернём состояние без логов в консоль
+      setInstallUpdate(false);
+    } finally {
+      // На случай веб-мока без перезапуска вернём состояние
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <footer
       data-tauri-drag-region
@@ -42,21 +59,7 @@ export default function Footer() {
         {isUpdate && (
           <button
             disabled={isUpdating}
-            onClick={async () => {
-              try {
-                // Переключаем приложение в режим установки обновления,
-                // чтобы Layout отрисовал компонент <Updating />
-                setInstallUpdate(true);
-                setIsUpdating(true);
-                await appService.installAndRelaunch();
-              } catch (error) {
-                // Ошибка установки обновления — вернём состояние без логов в консоль
-                setInstallUpdate(false);
-              } finally {
-                // На случай веб-мока без перезапуска вернём состояние
-                setIsUpdating(false);
-              }
-            }}
+            onClick={handleUpdate}
             className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
           >
             <IconDownload
@@ -106,4 +109,3 @@ export default function Footer() {
     </footer>
   );
 }
-// Нижняя панель главного окна: версия приложения, обновление и внешние ссылки.

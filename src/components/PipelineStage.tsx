@@ -35,10 +35,7 @@ const iconStyles: Record<StageState, string> = {
 interface PipelineStageProps {
   number: number;
   title?: string;
-  description?: string;
-  state: StageState; // Заменили string на StageState
-  message?: string; // Вынесли message в отдельный проп
-  waiting?: boolean;
+  state: StageState;
   last?: boolean;
   children?: ReactNode;
 }
@@ -46,10 +43,7 @@ interface PipelineStageProps {
 export default function PipelineStage({
   number,
   title,
-  description,
   state = "idle",
-  message,
-  waiting,
   last,
   children,
 }: PipelineStageProps) {
@@ -66,9 +60,7 @@ export default function PipelineStage({
           ? Minus
           : state === "pending"
             ? LoaderCircle
-            : waiting
-              ? Radio
-              : null;
+            : null;
 
   return (
     <li
@@ -91,7 +83,7 @@ export default function PipelineStage({
       >
         {Icon ? (
           <Icon
-            className={`size-3.5 ${state === "pending" ? "animate-spin motion-reduce:animate-none" : waiting ? "animate-pulse motion-reduce:animate-none" : ""}`}
+            className={`size-3.5 ${state === "pending" ? "animate-spin motion-reduce:animate-none" : ""}`}
           />
         ) : (
           number
@@ -105,20 +97,7 @@ export default function PipelineStage({
         {title && (
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         )}
-        {description && (
-          <p className="mt-1 text-xs leading-snug text-muted-foreground">
-            {description}
-          </p>
-        )}
-        {/* Исправленная проверка сообщения */}
-        {message && message.trim().length > 0 && (
-          <p
-            role="status"
-            className="mt-0.5 text-xs leading-snug text-muted-foreground"
-          >
-            {message}
-          </p>
-        )}
+
         {children && <div className="min-w-0 text-foreground">{children}</div>}
       </section>
     </li>

@@ -8,8 +8,8 @@ export function AutoPrint() {
   const bold = useAppStore((state) => state.bold);
   const hybrid = useAppStore((state) => state.hybrid);
   const expand = useAppStore((state) => state.expand);
+  
   //change
-
   const setSetting = useAppStore((state) => state.setSetting);
   const changeIdNum = (newIdNum: boolean) => setSetting("idNum", newIdNum);
   const changeBold = (newBold: boolean) => setSetting("bold", newBold);
@@ -20,9 +20,6 @@ export function AutoPrint() {
   const changeExpand = (newExpand: number | "") =>
     setSetting("expand", newExpand);
 
-
-  
-  
   return (
     <>
       <ShowPaper
@@ -36,8 +33,6 @@ export function AutoPrint() {
         setDefaultHybrid={changeHybrid}
         defaultExpand={expand}
         setDefaultExpand={changeExpand}
-        preview={preview}
-        singleColumn
       />
     </>
   );
