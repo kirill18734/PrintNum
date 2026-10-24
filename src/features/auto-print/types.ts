@@ -6,7 +6,15 @@ export type AutoPrintStepStatus =
   | "blocked"
   | "error";
 
+export type AutoPrintStage =
+  | "received"
+  | "readiness"
+  | "exclusions"
+  | "formatting"
+  | "result";
+
 export interface AutoPrintStep {
+  stage?: AutoPrintStage;
   status: AutoPrintStepStatus;
   message: string;
 }

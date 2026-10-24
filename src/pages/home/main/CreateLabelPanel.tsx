@@ -10,7 +10,6 @@ interface CreateLabelPanelProps {
   printerOnline: boolean;
   printerSelected: boolean;
   isPrinting: boolean;
-  printError: string | null;
   onPrint: () => void;
   contentType: LabelContentType;
   onContentTypeChange: (contentType: LabelContentType) => void;
@@ -34,7 +33,7 @@ export default function CreateLabelPanel({
       id="mode-panel-create"
       role="tabpanel"
       aria-labelledby="mode-tab-create"
-      className={active ? "" : "hidden"}
+      className={active ? "appearance-panel" : "hidden"}
     >
       <LabelStudio {...labelStudioProps} />
     </div>

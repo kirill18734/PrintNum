@@ -1,9 +1,11 @@
 // Строит масштабируемый предпросмотр этикетки с текстом и штрихкодом/QR-кодом.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType } from "./LabelStudio";
+import { prepareAutoPrintLabel } from "@/features/auto-print/labelPreview";
 
 interface PreviewPaperProps {
   mode: "autoprint" | "create";
+  autoPrintText: string | null;
   paper: string;
   idNum: boolean;
   endLine: boolean;
@@ -108,8 +110,10 @@ function FittedText({
   );
 }
 
+
 export default function PreviewPaper({
   mode,
+  autoPrintText,
   paper,
   idNum,
   endLine,
@@ -123,22 +127,15 @@ export default function PreviewPaper({
 }: PreviewPaperProps) {
   const previewFrameRef = useRef<HTMLDivElement>(null);
   const [frameSize, setFrameSize] = useState({ width: 240, height: 244 });
+  const parsedMain = (() => { const [m] = (autoPrintText ?? "").split("-"); return /^\d+$/.test(m) ? Number(m) : null; })();
   const [rawWidth, rawHeight] = paper.split("*").map(Number);
   const width = Number.isFinite(rawWidth) && rawWidth > 0 ? rawWidth : 30;
   const height = Number.isFinite(rawHeight) && rawHeight > 0 ? rawHeight : 20;
   const automatic = mode === "autoprint";
-  const hybridAutomatic = automatic && hybrid;
-  const labelAreaWidth = hybridAutomatic
-    ? (frameSize.width - 6) / 2
-    : frameSize.width;
-  const labelAreaHeight = Math.max(
-    1,
-    frameSize.height - (hybridAutomatic ? 20 : 0),
-  );
-  const previewScale =
-    (automatic
-      ? Math.min(labelAreaWidth / width, labelAreaHeight / height)
-      : Math.min(frameSize.width / width, frameSize.height / height));
+  const autoLabel = autoPrintText !== null
+    ? prepareAutoPrintLabel(autoPrintText, { idNum, endLine, hybrid, expand, bold })
+    : null;
+  const previewScale = Math.min(frameSize.width / width, frameSize.height / height);
   const previewWidth = width * previewScale;
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({
     svg: null,
@@ -209,35 +206,38 @@ export default function PreviewPaper({
     };
   }, [automatic, content, contentType]);
 
-  const renderLabel = (secondHybridLabel = false) => (
+  const renderLabel = () => (
     <div
       className="flex min-w-0 flex-col items-center justify-center overflow-hidden rounded-md border border-neutral-300 bg-white p-1.5 text-center text-neutral-950 shadow-sm"
       style={{
         aspectRatio: `${width}/${height}`,
         width: `${previewWidth}px`,
         maxWidth: "100%",
+        fontFamily: automatic ? "Arial, sans-serif" : undefined,
       }}
     >
       {automatic ? (
-        <>
-          {(idNum || (hybrid && secondHybridLabel)) && (
-            <div className={`h-[22%] min-h-0 w-full shrink-0 ${hybrid && secondHybridLabel ? "text-left" : "text-right"}`}>
-              <FittedText align={hybrid && secondHybridLabel ? "left" : "right"} singleLine>
-                {hybrid && secondHybridLabel ? `${expand}−` : "−47"}
+        autoLabel ? (
+          <>
+            {autoLabel.headerText && (
+              <div className="h-[22%] min-h-0 w-full shrink-0">
+                <FittedText align={autoLabel.headerLeft ? "left" : "right"} singleLine>
+                  {autoLabel.headerText}
+                </FittedText>
+              </div>
+            )}
+            <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+              <FittedText
+                className={`${autoLabel.bold ? "font-bold" : "font-normal"} ${autoLabel.underline ? "underline decoration-2 underline-offset-2" : ""}`}
+                singleLine
+              >
+                {autoLabel.mainText}
               </FittedText>
             </div>
-          )}
-          <div className="flex min-h-0 w-full flex-1 items-center justify-center">
-            <FittedText
-              className={`${
-                (bold || (hybrid && secondHybridLabel)) ? "font-bold" : "font-normal"
-              } ${endLine ? "underline decoration-2 underline-offset-2" : ""}`}
-              singleLine
-            >
-              {`123${endLine ? "" : "."}`}
-            </FittedText>
-          </div>
-        </>
+          </>
+        ) : (
+          <p className="text-xs text-neutral-400">Ожидание обработанного текста</p>
+        )
       ) : contentType === "text" ? (
         <FittedText
           className={`${
@@ -287,28 +287,46 @@ export default function PreviewPaper({
     </div>
   );
 
+  const renderHybridVariant = (variant: 'before'|'after') => {
+    if (!autoPrintText) return renderLabel();
+    const exp = Number(expand) || 1;
+    const overrideExpand = variant === 'before' ? Math.max((parsedMain ?? exp) + 1, exp + 1) : 1;
+    const label = prepareAutoPrintLabel(autoPrintText, { idNum, endLine, hybrid: true, expand: overrideExpand, bold });
+    const active = variant === 'after' ? (parsedMain !== null && parsedMain >= Number(expand)) : (parsedMain !== null && parsedMain < Number(expand));
+    const twoColScale = Math.min(((frameSize.width - 8) / 2) / width, frameSize.height / height);
+    return (
+      <div className={`flex min-w-0 flex-col items-center gap-0.5 rounded-lg p-1 ${active ? 'ring-2 ring-primary/60' : ''}`}>
+        <span className="text-[10px] leading-tight text-muted-foreground">{variant === 'before' ? `До № ${Number(expand) - 1}` : `С № ${expand}`}</span>
+        <div className="flex min-w-0 flex-1 items-center justify-center">
+          <div className="flex min-w-0 flex-col items-center justify-center overflow-hidden rounded-md border border-neutral-300 bg-white p-1.5 text-center text-neutral-950 shadow-sm" style={{ aspectRatio: `${width}/${height}`, width: `${twoColScale * width}px`, maxWidth: '100%', fontFamily: 'Arial, sans-serif' }}>
+            {label.headerText && (
+              <div className="h-[22%] min-h-0 w-full shrink-0">
+                <FittedText align={label.headerLeft ? 'left' : 'right'} singleLine>{label.headerText}</FittedText>
+              </div>
+            )}
+            <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+              <FittedText className={`${label.bold ? 'font-bold' : 'font-normal'} ${label.underline ? 'underline decoration-2 underline-offset-2' : ''}`} singleLine>{label.mainText}</FittedText>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section className="w-full min-w-0">
       <div
         ref={previewFrameRef}
-        className={`flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-muted/50 p-2 ${
-          automatic ? "h-[140px]" : "h-[260px]"
-        }`}
+        className="flex h-[140px] min-w-0 items-center justify-center gap-1.5 rounded-lg bg-muted/50 p-2"
       >
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5">
-          {automatic && hybrid && (
-            <span className="text-[10px] leading-tight text-muted-foreground">
-              1–{Number(expand) - 1 < 1 ? expand : Number(expand) - 1}
-            </span>
-          )}
-          {renderLabel()}
-        </div>
-        {automatic && hybrid && (
+        {automatic && hybrid && autoPrintText ? (
+          <div className="grid w-full grid-cols-2 items-start gap-1 max-[460px]:grid-cols-1">
+            {renderHybridVariant('before')}
+            {renderHybridVariant('after')}
+          </div>
+        ) : (
           <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5">
-            <span className="text-[10px] leading-tight text-muted-foreground">
-              от {expand}
-            </span>
-            {renderLabel(true)}
+            {renderLabel()}
           </div>
         )}
       </div>

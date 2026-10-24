@@ -19,10 +19,9 @@ void bootstrapApp()
     );
   })
   .catch((error: unknown) => {
-    console.error("Не удалось инициализировать приложение:", error);
     root.render(
       <div role="alert" className="p-4 text-sm text-red-700">
-        Не удалось запустить приложение. Подробности доступны в консоли.
+        Не удалось запустить приложение.
       </div>,
     );
   });

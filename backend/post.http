@@ -11,6 +11,14 @@ POST {{printNumber}}
 content-type: application/json
 
 {
+    "text": "300-1"
+}
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
     "text": "500-1"
 }
 
@@ -19,7 +27,15 @@ POST {{printNumber}}
 content-type: application/json
 
 {
-    "text": "КГТ-23"
+    "text": "Возврат-1"
+}
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "КГТ-23-1"
 }
 
 ###
@@ -27,7 +43,7 @@ POST {{ozonShelf}}
 content-type: application/json
 
 {
-    "text": "Ozon Полка - 1"
+    "text": "Ozon Полка-1"
 }
 
 ###

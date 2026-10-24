@@ -9,6 +9,7 @@ interface PrinterSettingsProps {
   papers: string[];
   onPrinterChange: (printer: string) => void;
   onPaperChange: (paper: string) => void;
+  printerOnline?: boolean;
 }
 
 export default function PrinterSettings({
@@ -18,17 +19,19 @@ export default function PrinterSettings({
   papers,
   onPrinterChange,
   onPaperChange,
+  printerOnline,
 }: PrinterSettingsProps) {
   return (
     <section
       aria-label="Параметры печати"
-      className="w-full rounded-xl border border-border bg-card p-2.5"
+      className="w-full min-w-0"
     >
-      <div className="grid grid-cols-2 items-end gap-2.5">
+      <div className="grid grid-cols-2 items-end gap-2 max-[380px]:grid-cols-1">
         <Printer
           defaultPrinter={printer}
           defaultListPrinters={printers}
           setDefaultPrinter={onPrinterChange}
+          online={printerOnline}
         />
         <Paper
           defaultPaper={paper}

@@ -20,7 +20,7 @@ export default function Footer() {
       try {
         setVersion(await appService.getAppVersion());
       } catch (error) {
-        console.error("Не удалось получить версию приложения:", error);
+        // Ошибка получения версии — скрываем в UI, версия останется пустой
       }
     };
 
@@ -50,7 +50,7 @@ export default function Footer() {
                 setIsUpdating(true);
                 await appService.installAndRelaunch();
               } catch (error) {
-                console.error("Не удалось установить обновление:", error);
+                // Ошибка установки обновления — вернём состояние без логов в консоль
                 setInstallUpdate(false);
               } finally {
                 // На случай веб-мока без перезапуска вернём состояние

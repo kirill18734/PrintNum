@@ -1,5 +1,7 @@
 """Обрабатывает автопечать и применяет правила исключения текста."""
 
+from copy import deepcopy
+
 from app.domain.filter_rules import find_excluded_rule
 
 
@@ -12,70 +14,39 @@ class AutoPrintService:
         self.status_cache = status_cache
         self.refresh_status_before_print = refresh_status_before_print
 
-    def process(self, text, print_text=None):
+    def process(self, text, print_text=None, on_progress=None):
+        """Publish accumulated step snapshots; propagate processing errors to the caller."""
+        steps = []
+
+        def report(stage, status, message):
+            steps.append({"stage": stage, "status": status, "message": message})
+            if on_progress is not None:
+                on_progress(deepcopy(steps))
+
+        def blocked(message):
+            report("readiness", "blocked", message)
+            report("result", "blocked", f"Не напечатан: {message.lower()}")
+            return {"status": "ignored", "steps": steps}
+
+        report("received", "complete", "Текст получен")
+        if print_text is not None and print_text != text:
+            report("received", "complete", f"Переименовано в {print_text}")
         if not text:
-            return {
-                "status": "ignored",
-                "steps": [
-                    {"status": "complete", "message": "Текст получен"},
-                    {"status": "skipped", "message": "Получен пустой текст"},
-                ],
-            }
+            report("result", "skipped", "Получен пустой текст")
+            return {"status": "ignored", "steps": steps}
 
         config = self.config_repository.load()
-        if not config.get("running"):
-            return {
-                "status": "ignored",
-                "steps": [
-                    {"status": "complete", "message": "Текст получен"},
-                    {
-                        "status": "blocked",
-                        "message": "Не напечатан: автопечать выключена",
-                    },
-                ],
-            }
 
         matched_rule = find_excluded_rule(text, config.get("excludedTexts", []))
         if matched_rule:
-            return {
-                "status": "skipped",
-                "rule": matched_rule,
-                "steps": [
-                    {"status": "complete", "message": "Текст получен"},
-                    {
-                        "status": "skipped",
-                        "message": f"Найдено исключение «{matched_rule}»",
-                    },
-                    {
-                        "status": "skipped",
-                        "message": "Не напечатан: текст соответствует исключению",
-                    },
-                ],
-            }
+            report("exclusions", "skipped", f"Найдено исключение «{matched_rule}»")
+            report("result", "skipped", "Не напечатан: текст соответствует исключению")
+            return {"status": "skipped", "rule": matched_rule, "steps": steps}
 
-        steps = [
-            {"status": "complete", "message": "Текст получен"},
-        ]
-        if print_text is not None and print_text != text:
-            steps.append(
-                {
-                    "status": "complete",
-                    "message": f"Переименовано в {print_text}",
-                }
-            )
-        steps.append({"status": "complete", "message": "Исключений не найдено"})
+        report("exclusions", "complete", "Исключений не найдено")
         printer_name = config.get("printer")
         if not printer_name:
-            return {
-                "status": "ignored",
-                "steps": steps
-                + [
-                    {
-                        "status": "blocked",
-                        "message": "Не напечатан: принтер не выбран",
-                    }
-                ],
-            }
+            return blocked("Принтер не выбран")
         cached_status = self.status_cache.get()
         if self.refresh_status_before_print or cached_status is None:
             is_online = self.printer_service.is_online(printer_name)
@@ -85,31 +56,18 @@ class AutoPrintService:
             is_online = cached_status
 
         if not is_online:
-            return {
-                "status": "ignored",
-                "steps": steps
-                + [
-                    {
-                        "status": "blocked",
-                        "message": "Не напечатан: принтер недоступен",
-                    }
-                ],
-            }
+            return blocked("Принтер недоступен")
 
-        steps.append({"status": "complete", "message": "Принтер доступен"})
+        report("readiness", "complete", "Принтер доступен")
         output_text = print_text if print_text is not None else text
         self.printer_service.print_number(output_text, config)
-        return {
-            "status": "printed",
-            "steps": steps
-            + [
-                {
-                    "status": "complete",
-                    "message": (
-                        f"Отправлен на печать: {output_text}"
-                        if print_text is not None
-                        else "Отправлен на печать"
-                    ),
-                }
-            ],
-        }
+        # Formatting happens inside the adapter, so it is confirmed only after return.
+        report("formatting", "complete", "Форматирование выполнено")
+        report(
+            "result",
+            "complete",
+            f"Отправлен на печать: {output_text}"
+            if print_text is not None
+            else "Отправлен на печать",
+        )
+        return {"status": "printed", "steps": steps}

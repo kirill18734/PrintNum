@@ -1,5 +1,6 @@
 // Генерирует графику кодов и отправляет запрос на печать этикетки.
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { ManualPrintJob } from "./types";
 import { backendClient } from "@/shared/api/backendClient";
 import type { LabelContentType } from "@/components/LabelStudio";
 
@@ -12,8 +13,8 @@ interface PrintLabelOptions {
 }
 
 export function useLabelPrinting() {
-  const [isPrinting, setIsPrinting] = useState(false);
-  const [printError, setPrintError] = useState<string | null>(null);
+  const [manualJob, setManualJob] = useState<ManualPrintJob | null>(null);
+  const printing = useRef(false);
 
   const printLabel = async ({
     contentType,
@@ -22,10 +23,13 @@ export function useLabelPrinting() {
     underline,
     showCodeText,
   }: PrintLabelOptions) => {
-    if (!content.trim()) return;
+    if (!content.trim() || printing.current) return;
 
-    setIsPrinting(true);
-    setPrintError(null);
+    printing.current = true;
+    const job: ManualPrintJob = {
+      startedAt: Date.now(), content, status: "processing", message: "Отправка этикетки…",
+    };
+    setManualJob(job);
     try {
       let codeImage: string | undefined;
       if (contentType !== "text") {
@@ -56,17 +60,18 @@ export function useLabelPrinting() {
         underline,
         showCodeText,
       });
+      setManualJob({ ...job, status: "printed", message: "Успешно отправлено на печать" });
     } catch (error) {
       console.error("Не удалось напечатать этикетку:", error);
-      setPrintError(
-        error instanceof Error
-          ? error.message
-          : "Не удалось напечатать этикетку",
-      );
+      setManualJob({
+        ...job,
+        status: "error",
+        message: error instanceof Error ? error.message : "Не удалось напечатать этикетку",
+      });
     } finally {
-      setIsPrinting(false);
+      printing.current = false;
     }
   };
 
-  return { isPrinting, printError, printLabel };
+  return { isPrinting: manualJob?.status === "processing", manualJob, printLabel };
 }

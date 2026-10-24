@@ -72,7 +72,8 @@ class PrintNumberRequestError(ValueError):
 def parse_print_number_request(body):
     if not isinstance(body, dict) or not isinstance(body.get("text"), str):
         raise PrintNumberRequestError("Поле text должно быть строкой")
-    return body["text"].strip()
+    # Не обрезаем пробелы: сохраняем исходный ввод как есть
+    return body["text"]
 
 
 def parse_ozon_shelf_request(body):

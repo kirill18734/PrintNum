@@ -91,7 +91,15 @@ function parseLatestAutoPrintStatus(value: unknown): LatestAutoPrintStatus | nul
     ) {
       throw new Error("Backend вернул некорректный этап автопечати");
     }
-    return { status: step.status, message: step.message };
+    const stage = step.stage;
+    return {
+      status: step.status,
+      message: step.message,
+      ...(stage === "received" || stage === "readiness" ||
+      stage === "exclusions" || stage === "formatting" || stage === "result"
+        ? { stage }
+        : {}),
+    };
   });
 
   return {

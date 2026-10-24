@@ -8,16 +8,16 @@ def prepare_label_data(text, config):
     expand = config.get("expand", 0)
     bold_always = config.get("bold", False)
 
-    text_split = text.split("-")
-    raw_main = text_split[0] if text_split else ""
-    raw_header = text_split[1] if len(text_split) > 1 else ""
+    parts = text.split("-", 1)
+    raw_main = parts[0] if parts else ""
+    raw_header = parts[1] if len(parts) > 1 else ""
 
     # Специальный случай для Ozon полки: печатать как «П-<номер>» без точки
     is_ozon_shelf = raw_main.upper() == "П" and raw_header.isdigit()
 
     is_numeric = raw_main.isdigit()
     main_text_val = int(raw_main) if is_numeric else 0
-    is_kgt = raw_main.upper() == "КГТ" and raw_header.isdigit()
+    is_kgt = raw_main.upper() == "КГТ"
 
     # Выделение по правилам гибрида/КГТ влияет на перестановку, но не блокирует ручное "Жирный шрифт"
     emphasize_by_rule = (hybrid and is_numeric and main_text_val >= expand) or is_kgt
@@ -44,8 +44,9 @@ def prepare_label_data(text, config):
     if show_header and header_text:
         header_text = f"{header_text}-" if force_left_header else f"-{header_text}"
 
-    is_underlined = bool(end_line)
-    # Для Ozon полки точку не добавляем
+    # Подчёркивание: по конфигу для всех, кроме Ozon-полки
+    is_underlined = False if is_ozon_shelf else bool(end_line)
+    # Точка: как раньше, но для Ozon-полки никогда не добавляем
     if not end_line and not is_ozon_shelf:
         main_text += "."
 

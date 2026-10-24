@@ -13,6 +13,7 @@ interface ShowPaperProps {
   defaultExpand: number | "";
   setDefaultExpand: (value: number | "") => void;
   preview: React.ReactNode;
+  singleColumn?: boolean;
 }
 
 export default function ShowPaper({
@@ -27,29 +28,27 @@ export default function ShowPaper({
   defaultExpand,
   setDefaultExpand,
   preview,
+  singleColumn = false,
 }: ShowPaperProps) {
   return (
-    <section className="w-full rounded-md border border-border bg-card p-1">
-      <h2 className="mb-0.5 text-center text-xs font-semibold leading-tight">
-        Оформление этикетки
-      </h2>
-      <div className="mx-auto grid w-full max-w-[560px] grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-center gap-2">
-        <div className="min-w-0 justify-self-center">
-          <SettingsPaper
-            idNum={defaultIdNum}
-            setIdNum={setDefaultIdNum}
-            endLine={defaultEndLine}
-            setEndLine={setDefaultEndLine}
-            bold={defaultBold}
-            setBold={setDefaultBold}
-            hybrid={defaultHybrid}
-            setHybrid={setDefaultHybrid}
-            expand={defaultExpand}
-            setExpand={setDefaultExpand}
-          />
-        </div>
-        <div className="min-w-0 w-full justify-self-center">{preview}</div>
-      </div>
+    <section aria-label="Настройки оформления автопечати" className="w-full min-w-0">
+      <SettingsPaper
+        idNum={defaultIdNum}
+        setIdNum={setDefaultIdNum}
+        endLine={defaultEndLine}
+        setEndLine={setDefaultEndLine}
+        bold={defaultBold}
+        setBold={setDefaultBold}
+        hybrid={defaultHybrid}
+        setHybrid={setDefaultHybrid}
+        expand={defaultExpand}
+        setExpand={setDefaultExpand}
+        preview={preview}
+        singleColumn={singleColumn}
+      />
+      <p id="hybrid-format-hint" className="mt-2 text-[11px] leading-snug text-muted-foreground">
+        Гибридный формат: с указанного номера меняет местами номер ячейки и ID, выделяя основной текст жирным.
+      </p>
     </section>
   );
 }

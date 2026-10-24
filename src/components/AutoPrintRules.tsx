@@ -8,6 +8,7 @@ const suggestedRules = [
   "Расходники",
   "Возврат",
   "Продавцу",
+  "Ozon Полка",
 ];
 
 interface AutoPrintRulesProps {
@@ -29,7 +30,9 @@ export default function AutoPrintRules({
     suggestion.toLocaleLowerCase().includes(normalizedInput),
   );
   const allSuggestionsSelected = suggestedRules.every((suggestion) =>
-    rules.some((rule) => rule.toLocaleLowerCase() === suggestion.toLocaleLowerCase()),
+    rules.some(
+      (rule) => rule.toLocaleLowerCase() === suggestion.toLocaleLowerCase(),
+    ),
   );
 
   const addRule = (ruleText = newRule) => {
@@ -55,25 +58,16 @@ export default function AutoPrintRules({
     onRulesChange(
       isSelected
         ? rules.filter(
-            (rule) => rule.toLocaleLowerCase() !== suggestion.toLocaleLowerCase(),
+            (rule) =>
+              rule.toLocaleLowerCase() !== suggestion.toLocaleLowerCase(),
           )
         : [...rules, suggestion],
     );
   };
 
   return (
-    <section
-      aria-labelledby="auto-print-rules-title"
-      className={`w-full rounded-xl border p-2.5 ${
-        rules.length
-          ? "border-amber-500/40 bg-amber-500/[0.06] dark:bg-amber-500/[0.05]"
-          : "border-border bg-card"
-      }`}
-    >
+    <section aria-label="Настройка исключений" className="w-full min-w-0">
       <div className="flex items-center justify-between gap-2">
-        <h2 id="auto-print-rules-title" className="text-sm font-semibold leading-tight">
-          Исключения
-        </h2>
         {rules.length > 0 && (
           <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-amber-800 dark:text-amber-300">
             {running ? "Активны" : "Сохранены"} · {rules.length}
@@ -120,7 +114,9 @@ export default function AutoPrintRules({
       <div
         className="relative mt-2"
         onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          if (
+            !event.currentTarget.contains(event.relatedTarget as Node | null)
+          ) {
             setSuggestionsOpen(false);
           }
         }}
@@ -160,9 +156,7 @@ export default function AutoPrintRules({
             className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg"
           >
             <div className="mb-1 flex items-center justify-between gap-2 px-1">
-              <span className="text-xs font-semibold">
-                Готовые исключения
-              </span>
+              <span className="text-xs font-semibold">Готовые исключения</span>
               <button
                 type="button"
                 disabled={allSuggestionsSelected}
@@ -233,7 +227,6 @@ export default function AutoPrintRules({
           </div>
         )}
       </div>
-
     </section>
   );
 }

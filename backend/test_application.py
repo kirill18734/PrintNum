@@ -61,7 +61,7 @@ class BackendApiTests(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         config_path = Path(self.temp_dir.name) / "config.json"
         config_path.write_text(
-            '{"printer":"Test printer","running":true,"excludedTexts":["skip"]}',
+            '{"printer":"Test printer","excludedTexts":["skip"]}',
             encoding="utf-8",
         )
         self.printer = FakePrinter()
@@ -136,6 +136,7 @@ class BackendApiTests(unittest.TestCase):
                 "Переименовано в П-123",
                 "Исключений не найдено",
                 "Принтер доступен",
+                "Форматирование выполнено",
                 "Отправлен на печать: П-123",
             ],
         )
@@ -324,9 +325,7 @@ class StandaloneModeTests(unittest.TestCase):
             client.post("/print-number", json={"text": "skip this"})
             client.post("/print-number", json={"text": 42})
             client.post("/print-label", json={})
-            self.config["running"] = False
             client.post("/print-number", json={"text": "Order 1"})
-            self.config["running"] = True
             self.config["printer"] = ""
             for route, body in self.print_requests:
                 client.post(route, json=body)

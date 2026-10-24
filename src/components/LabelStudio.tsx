@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Barcode, Grid3X3, QrCode, Text } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LabelPreviewLayout from "./LabelPreviewLayout";
 
 export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
@@ -11,7 +12,6 @@ interface LabelStudioProps {
   printerOnline: boolean;
   printerSelected: boolean;
   isPrinting: boolean;
-  printError: string | null;
   onPrint: () => void;
   contentType: LabelContentType;
   onContentTypeChange: (value: LabelContentType) => void;
@@ -38,14 +38,14 @@ const contentTypes = [
 }[];
 
 const contentLabels: Record<LabelContentType, string> = {
-  text: "Текст на этикетке",
+  text: "Текст этикетки",
   barcode: "Данные для штрихкода",
   qr: "Данные для QR-кода",
   datamatrix: "Данные для Data Matrix",
 };
 
 const placeholders: Record<LabelContentType, string> = {
-  text: "Например: Заказ № 12345",
+  text: "Введите свой текст…",
   barcode: "Введите цифры или текст",
   qr: "Вставьте текст или ссылку",
   datamatrix: "Введите данные для кода",
@@ -58,7 +58,6 @@ export default function LabelStudio({
   printerOnline,
   printerSelected,
   isPrinting,
-  printError,
   onPrint,
   contentType,
   onContentTypeChange,
@@ -73,22 +72,13 @@ export default function LabelStudio({
   preview,
 }: LabelStudioProps) {
   return (
-    <section className="w-full rounded-xl border border-border bg-card p-2.5">
-      <div className="mb-2">
-        <h2 className="text-center text-sm font-semibold leading-tight">
-          Создать этикетку
-        </h2>
-        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-          Выберите тип содержимого и задайте его параметры.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start justify-items-center gap-3 max-[380px]:grid-cols-1">
+    <section aria-label="Создание этикетки" className="w-full min-w-0">
         <div className="min-w-0">
+          <p className="mb-1 text-xs font-medium">Содержимое</p>
           <div
             role="tablist"
             aria-label="Тип содержимого этикетки"
-            className="grid grid-cols-2 gap-1 rounded-lg bg-muted/70 p-1"
+            className="grid grid-cols-4 gap-1 rounded-lg bg-muted/70 p-1 max-[400px]:grid-cols-2"
           >
             {contentTypes.map(({ id, label, icon: Icon }) => (
               <button
@@ -148,49 +138,30 @@ export default function LabelStudio({
               {content.length}/{maxContentLength}
             </p>
 
-            {contentType === "text" ? (
-              <div className="mt-2 flex flex-col items-start gap-1.5">
-                <label className="inline-flex min-h-5 items-center gap-2 text-xs text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={bold}
-                    onChange={(event) => onBoldChange(event.target.checked)}
-                    className="size-4 shrink-0 accent-primary"
-                  />
-                  Жирный шрифт
-                </label>
-                <label className="inline-flex min-h-5 items-center gap-2 text-xs text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={underline}
-                    onChange={(event) => onUnderlineChange(event.target.checked)}
-                    className="size-4 shrink-0 accent-primary"
-                  />
-                  Подчёркивание
-                </label>
-              </div>
-            ) : (
-              <label className="mt-2 inline-flex min-h-5 items-center gap-2 text-xs text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={showCodeText}
-                  onChange={(event) =>
-                    onShowCodeTextChange(event.target.checked)
-                  }
-                  className="size-4 shrink-0 accent-primary"
-                />
-                Показывать текст под кодом
-              </label>
-            )}
           </div>
         </div>
 
-        <div className="min-w-0 w-full justify-self-center">
-          <p className="mb-1 text-center text-xs leading-snug text-muted-foreground">
-            Так будет выглядеть распечатанная этикетка
-          </p>
-          {preview}
-        </div>
+      <div className="mt-2">
+        <LabelPreviewLayout
+          preview={preview}
+          left={contentType === "text" ? (
+            <label className="inline-flex items-center gap-1 text-[11px] leading-tight">
+              <input type="checkbox" checked={bold} onChange={(event) => onBoldChange(event.target.checked)} className="size-4 shrink-0 accent-primary" />
+              Жирный шрифт
+            </label>
+          ) : null}
+          right={contentType === "text" ? (
+            <label className="inline-flex items-center gap-1 text-[11px] leading-tight">
+              <input type="checkbox" checked={underline} onChange={(event) => onUnderlineChange(event.target.checked)} className="size-4 shrink-0 accent-primary" />
+              Подчёркивание
+            </label>
+          ) : (
+            <label className="inline-flex items-center gap-1 text-[11px] leading-tight">
+              <input type="checkbox" checked={showCodeText} onChange={(event) => onShowCodeTextChange(event.target.checked)} className="size-4 shrink-0 accent-primary" />
+              Текст под кодом
+            </label>
+          )}
+        />
       </div>
 
       <div className="mt-2 flex flex-col gap-1.5 border-t border-border pt-2 sm:flex-row sm:items-center sm:justify-between">
@@ -214,14 +185,9 @@ export default function LabelStudio({
           onClick={onPrint}
           className="h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto"
         >
-          {isPrinting ? "Печать…" : "Распечатать"}
+          {isPrinting ? "Печать…" : "Напечатать этикетку"}
         </Button>
       </div>
-      {printError && (
-        <p role="alert" className="mt-2 text-xs text-destructive">
-          {printError}
-        </p>
-      )}
     </section>
   );
 }

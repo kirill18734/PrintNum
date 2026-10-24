@@ -45,7 +45,11 @@ def _process_auto_print(text, print_text=None):
     services = current_app.extensions["printnum"]
     event_id = services["auto_print_status"].start(text, print_text)
     try:
-        result = services["auto_print"].process(text, print_text)
+        result = services["auto_print"].process(
+            text,
+            print_text,
+            on_progress=lambda steps: services["auto_print_status"].progress(event_id, steps),
+        )
     except Exception:
         services["auto_print_status"].fail(event_id)
         logger.exception("Не удалось обработать запрос автопечати")
