@@ -1,1 +1,2 @@
-"""Пакет локального сервиса печати PrintNum."""
+
+"""PrintNum application package."""

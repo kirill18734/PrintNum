@@ -7,8 +7,6 @@ import ModeTabs from "./ModeTabs";
 import { useState } from "react";
 import { AutoPrint } from "./AutoPrint";
 import { Label } from "./Label";
-// import { AutoPrint } from "./AutoPrint";
-// import { Label } from "./Label";
 
 export default function Main() {
   const [mode, setMode] = useState<"autoprint" | "create">("autoprint");
