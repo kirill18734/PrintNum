@@ -1,7 +1,10 @@
 // Finds DOM elements by selector and text, optionally waiting for their appearance.
 (function () {
+  const { TEXT, PATH } = window.PrintNum.config;
+
   function searchText(selector, container, textValue, name, isInclude) {
     const elements = Array.from(container.querySelectorAll(selector));
+
     let element = elements.find((e) =>
       isInclude
         ? e.textContent?.trim().includes(textValue)
@@ -10,9 +13,22 @@
 
     if (!element) {
       if (name.startsWith("Оплатить")) {
-        const text = window.PrintNum.config.TEXT.payAgain;
-        if (text) {
-          element = elements.find((e) => e.textContent?.trim() === text);
+        element = Array.from(container.querySelectorAll("button")).find(
+          (e) => e.textContent?.trim() === TEXT.payAgain,
+        );
+      }
+
+      if (
+        name === "Автосценарий" &&
+        location.pathname.startsWith(PATH.order) &&
+        textValue === TEXT.issue
+      ) {
+        element = elements.find((e) => e.textContent?.trim() === TEXT.pay);
+
+        if (!element) {
+          element = elements.find(
+            (e) => e.textContent?.trim() === TEXT.payAgain,
+          );
         }
       }
     }

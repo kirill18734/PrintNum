@@ -1,6 +1,6 @@
 // обработчики qr-кодов
 (async function () {
-  const { SELECTOR, qrCodes } = window.PrintNum.config;
+  const { SELECTOR, PATH, TEXT, qrCodes } = window.PrintNum.config;
   const { getLocal: get_local_storage, setLocal: set_local_storage } =
     window.PrintNum.storage;
   const { waitForElement: waitLoadElement } = window.PrintNum.dom;
@@ -123,26 +123,23 @@
   // ============================================================
 
   async function getActionsForIteration(command) {
-    const actions = [...(command.actions || [])];
+    let actions = [...(command.actions || [])];
 
-    // Обычная команда
-    if (command.group !== "package_cycle") {
+    if (command.group === "package_cycle_workflow") {
+      if (location.pathname.startsWith(PATH.order)) {
+        actions = [TEXT.issue];
+      } else if (location.pathname === PATH.all) {
+        actions = [TEXT.ready, TEXT.issue];
+      } else {
+        return [];
+      }
+    } else if (command.group !== "package_cycle") {
       return actions;
     }
 
-    // package_cycle:
-    // null → обычные actions
-    // M    → вставляем M перед последним действием
-    // L    → вставляем L перед последним действием
-
-    // Ждем актуальный селектор из хранилища
     const packageSelector = await getNextPackage();
 
-    if (!packageSelector) {
-      return actions;
-    }
-
-    if (actions.length > 0) {
+    if (packageSelector && actions.length > 0) {
       actions.splice(actions.length - 1, 0, packageSelector);
     }
 
@@ -182,10 +179,14 @@
       // ========================================================
       // Единый цикл для всех команд
       // ========================================================
+      const shouldLoop =
+        command.isLoop &&
+        (command.group !== "package_cycle_workflow" ||
+          location.pathname === PATH.all);
+
       let maxLoops = 50;
 
       do {
-        // Добавлено ключевое слово await, так как функция стала асинхронной
         const actions = await getActionsForIteration(command);
 
         const success = await executeActions(actions, command.name);
@@ -196,11 +197,11 @@
         }
 
         // Для циклических команд ждём секунду
-        if (command.isLoop) {
+        if (shouldLoop) {
           await delay(1000);
           maxLoops--;
         }
-      } while (command.isLoop && maxLoops > 0);
+      } while (shouldLoop && maxLoops > 0);
     } catch (err) {
       console.error(err);
     } finally {
@@ -213,9 +214,12 @@
     if (!command) return;
 
     const isPathValid =
-      command.group === "issue_all" || command.id == "auto_all"
-        ? location.pathname === command.path
-        : location.pathname.startsWith(command.path);
+      command.group === "package_cycle_workflow"
+        ? location.pathname === PATH.all ||
+          location.pathname.startsWith(PATH.order)
+        : command.group === "issue_all" || command.id === "auto_all"
+          ? location.pathname === command.path
+          : location.pathname.startsWith(command.path);
 
     if (!isPathValid) return;
 

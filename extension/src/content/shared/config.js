@@ -246,6 +246,16 @@
       "package_cycle",
       false,
     ),
+    // Объединённый автоматический сценарий
+    cmd(
+      "auto_workflow",
+      "62849173520618492735160",
+      "Автосценарий",
+      PATH.all,
+      [TEXT.ready, TEXT.issue],
+      "package_cycle_workflow",
+      true,
+    ),
   ];
 
   const autoscripts = [
