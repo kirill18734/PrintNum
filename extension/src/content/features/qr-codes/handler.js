@@ -52,7 +52,9 @@
 
   async function clickByElem(selector, textValue, name) {
     const timeout =
-      name.startsWith("Оплатить заказ") || name.startsWith("Выдать заказ")
+      name.startsWith("Оплатить заказ") ||
+      name.startsWith("Выдать заказ") ||
+      name == "Автосценарий"
         ? 1000
         : 5000;
     const btn = await waitLoadElement(
