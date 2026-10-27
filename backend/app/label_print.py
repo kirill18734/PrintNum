@@ -8,7 +8,7 @@ import win32ui
 import win32con
 
 from app.data import load_config
-from app.printer_common import calculate_dimensions
+from app.utils import calculate_dimensions
 
 
 CONTENT_TYPES = ("text", "barcode", "qr", "datamatrix")

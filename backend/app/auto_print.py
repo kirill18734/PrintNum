@@ -1,10 +1,8 @@
-
 import win32ui
 import win32con
 
 from app.data import load_config
-from app.utils import clear_printer_queue, find_excluded_rule
-from app.printer_common import calculate_dimensions
+from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
 
 
 def prepare_label_data(text, config):
@@ -32,8 +30,8 @@ def prepare_label_data(text, config):
         is_kgt = raw_main.upper() == "КГТ"
 
         is_swapped = (
-            (hybrid and main_text_val >= expand)
-            or is_kgt
+                (hybrid and main_text_val >= expand)
+                or is_kgt
         )
 
         if is_swapped:
@@ -108,8 +106,8 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
         width, height = hdc.GetTextExtent(text)
 
         if (
-            width > sizes["max_allowed_w"]
-            or height > available_h
+                width > sizes["max_allowed_w"]
+                or height > available_h
         ):
             optimal_height -= 1
             break
