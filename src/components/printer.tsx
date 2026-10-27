@@ -25,15 +25,19 @@ export default function Printer({
   const showUnavailable = online === false;
   const showReady = online === true;
   return (
-    <div className="flex min-w-0 flex-col items-start gap-1">
+    <div className="flex w-full flex-col items-start gap-1">
       <div className="flex items-center gap-1.5 text-xs font-medium leading-tight text-muted-foreground">
         <PrinterIcon className="size-3.5" aria-hidden="true" />
         <span>Принтер</span>
         {showReady && (
-          <span className="ml-1 font-semibold uppercase text-green-600 dark:text-green-300">ГОТОВ</span>
+          <span className="ml-1 font-semibold uppercase text-green-600 dark:text-green-300">
+            ГОТОВ
+          </span>
         )}
         {showUnavailable && (
-          <span className="ml-1 font-semibold uppercase text-red-600 dark:text-red-300">НЕДОСТУПЕН</span>
+          <span className="ml-1 font-semibold uppercase text-red-600 dark:text-red-300">
+            НЕДОСТУПЕН
+          </span>
         )}
       </div>
       <Select defaultValue={defaultPrinter} onValueChange={setDefaultPrinter}>

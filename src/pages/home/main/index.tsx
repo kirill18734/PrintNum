@@ -7,6 +7,8 @@ import ModeTabs from "./ModeTabs";
 import { useState } from "react";
 import { AutoPrint } from "./AutoPrint";
 import { Label } from "./Label";
+import Printer from "@/components/printer";
+import Paper from "@/components/paper";
 
 export default function Main() {
   const [mode, setMode] = useState<"autoprint" | "create">("autoprint");
@@ -34,7 +36,24 @@ export default function Main() {
             number={1}
             state={printerOnline ? "complete" : "error"}
           >
-            <PrinterSettings
+            <div
+              data-tauri-drag-region
+              className="flex items-center justify-between gap-2"
+            >
+              {/* Принтер */}
+              <Printer
+                defaultPrinter={printer}
+                defaultListPrinters={listPrinters}
+                setDefaultPrinter={changePrinter}
+              />
+              {/* Бумага */}
+              <Paper
+                defaultPaper={paper}
+                setDefaultPaper={changePaper}
+                defaultListPapers={listPapers}
+              />
+            </div>
+            {/* <PrinterSettings
               printer={printer}
               papers={listPapers}
               printers={listPrinters}
@@ -42,7 +61,7 @@ export default function Main() {
               onPrinterChange={changePrinter}
               onPaperChange={changePaper}
               printerOnline={printerOnline}
-            />
+            /> */}
           </PipelineStage>
 
           {/* Этап 2: контейнер без заголовка с двумя вкладками */}

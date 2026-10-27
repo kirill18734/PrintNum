@@ -21,13 +21,19 @@ export default function Paper({
   setDefaultPaper,
 }: PaperProps) {
   return (
-    <div data-tauri-drag-region className="flex min-w-0 flex-col items-start gap-1">
+    <div
+      data-tauri-drag-region
+      className="flex w-full flex-col items-start gap-1"
+    >
       <div className="flex items-center gap-1.5 text-xs font-medium leading-tight text-muted-foreground">
         <Tag className="size-3.5" aria-hidden="true" />
         <span>Этикетка (мм)</span>
       </div>
       <Select defaultValue={defaultPaper} onValueChange={setDefaultPaper}>
-        <SelectTrigger className="h-9 w-full rounded-lg px-2.5 text-sm" title="Ширина × высота">
+        <SelectTrigger
+          className="h-9 w-full rounded-lg px-2.5 text-sm"
+          title="Ширина × высота"
+        >
           <SelectValue placeholder="Выберете этикетку" />
         </SelectTrigger>
         <SelectContent>
