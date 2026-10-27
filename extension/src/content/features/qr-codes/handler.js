@@ -50,19 +50,16 @@
   // Клик по элементу
   // ============================================================
 
-  async function clickByElem(selector, textValue, name) {
-    const timeout =
-      name.startsWith("Оплатить заказ") ||
-      name.startsWith("Выдать заказ") ||
-      name == "Автосценарий"
-        ? 1000
-        : 5000;
+  async function clickByElem(selector, textValue, name, isLoop) {
+    const timeout = isLoop ? 5000 : 1000;
     const btn = await waitLoadElement(
       selector,
       textValue,
       name,
       document,
       timeout,
+      false,
+      isLoop,
     );
     if (!btn) return null;
 
@@ -100,7 +97,7 @@
   // Выполнение действий
   // ============================================================
 
-  async function executeActions(actions, commandName) {
+  async function executeActions(actions, commandName, isLoop) {
     for (const action of actions) {
       const isPackageSelector = [SELECTOR.packageL, SELECTOR.packageM].includes(
         action,
@@ -110,7 +107,7 @@
 
       const text = isPackageSelector ? "" : action;
 
-      const success = await clickByElem(selector, text, commandName);
+      const success = await clickByElem(selector, text, commandName, isLoop);
 
       if (!success) {
         return false;
@@ -181,17 +178,14 @@
       // ========================================================
       // Единый цикл для всех команд
       // ========================================================
-      const shouldLoop =
-        command.isLoop &&
-        (command.group !== "package_cycle_workflow" ||
-          location.pathname === PATH.all);
+      const isLoop = command.isLoop && location.pathname === PATH.all;
 
       let maxLoops = 50;
 
       do {
         const actions = await getActionsForIteration(command);
 
-        const success = await executeActions(actions, command.name);
+        const success = await executeActions(actions, command.name, isLoop);
 
         // Если действие не выполнилось — прекращаем цикл
         if (!success) {
@@ -199,11 +193,11 @@
         }
 
         // Для циклических команд ждём секунду
-        if (shouldLoop) {
+        if (isLoop) {
           await delay(1000);
           maxLoops--;
         }
-      } while (shouldLoop && maxLoops > 0);
+      } while (isLoop && maxLoops > 0);
     } catch (err) {
       console.error(err);
     } finally {

@@ -1,8 +1,8 @@
 // Finds DOM elements by selector and text, optionally waiting for their appearance.
 (function () {
-  const { TEXT, PATH } = window.PrintNum.config;
+  const { TEXT, SELECTOR } = window.PrintNum.config;
 
-  function searchText(selector, container, textValue, name, isInclude) {
+  function searchText(selector, container, textValue, name, isInclude, isLoop) {
     const elements = Array.from(container.querySelectorAll(selector));
 
     let element = elements.find((e) =>
@@ -18,17 +18,18 @@
         );
       }
 
-      if (
-        name === "Автосценарий" &&
-        location.pathname.startsWith(PATH.order) &&
-        textValue === TEXT.issue
-      ) {
-        element = elements.find((e) => e.textContent?.trim() === TEXT.pay);
-
-        if (!element) {
-          element = elements.find(
-            (e) => e.textContent?.trim() === TEXT.payAgain,
-          );
+      if (name == "Автосценарий" && !isLoop) {
+        if (
+          textValue === TEXT.issue ||
+          [SELECTOR.packageM, SELECTOR.packageL].includes(selector)
+        ) {
+          const buttons = Array.from(container.querySelectorAll("button"));
+          element = buttons.find((e) => e.textContent?.trim() === TEXT.pay);
+          if (!element) {
+            element = buttons.find(
+              (e) => e.textContent?.trim() === TEXT.payAgain,
+            );
+          }
         }
       }
     }
@@ -43,16 +44,17 @@
     container = document,
     timeout = 5000,
     isInclude = false,
+    isLoop = false,
   ) {
     return new Promise((resolve) => {
       const element = textValue
-        ? searchText(selector, container, textValue, name, isInclude)
+        ? searchText(selector, container, textValue, name, isInclude, isLoop)
         : container.querySelector(selector);
       if (element) return resolve(element);
 
       const observerFind = new MutationObserver(() => {
         const el = textValue
-          ? searchText(selector, container, textValue, name, isInclude)
+          ? searchText(selector, container, textValue, name, isInclude, isLoop)
           : container.querySelector(selector);
         if (el) {
           clearTimeout(timer);
