@@ -6,11 +6,11 @@
   let observerPrint = null;
   let lastProcessedId = null; // Храним ID последней обработанной строки, чтобы не отправлять дубли
 
-  async function sendNumber(number) {
+  async function sendNumber(shelf) {
     try {
       const response = await chrome.runtime.sendMessage({
-        action: "sendNumberToFlask",
-        number: number,
+        action: "sendShelfToFlask",
+        number: shelf,
       });
       if (!response || !response.success) {
         console.error(
@@ -21,7 +21,7 @@
       return true;
     } catch (error) {
       console.error(
-        `Ошибка отправки номера ячейки "${number}" через фоновый скрипт: `,
+        `Ошибка отправки номера ячейки "${shelf}" через фоновый скрипт: `,
         error,
       );
       return false;
@@ -64,14 +64,7 @@
       // Проверяем, изменился ли ID по сравнению с прошлым сканированием и что колонка не пустая
       if (currentId && currentId !== lastProcessedId && rawNewValue) {
         lastProcessedId = currentId;
-
-        // Упрощенное разбиение: из "Ozon Полка-12" получаем "12"
-        const shelfNumber = rawNewValue.split("-")[1]?.trim();
-
-        if (shelfNumber) {
-          console.log(shelfNumber);
-          sendNumber(`П ${shelfNumber}`); // Отправит "П 12"
-        }
+        sendNumber(rawNewValue);
       }
     }
   }

@@ -3,38 +3,42 @@
   const { TEXT, SELECTOR } = window.PrintNum.config;
 
   function searchText(selector, container, textValue, name, isInclude, isLoop) {
+    // 1. Стандартный поиск по селектору и тексту
     const elements = Array.from(container.querySelectorAll(selector));
-
     let element = elements.find((e) =>
       isInclude
         ? e.textContent?.trim().includes(textValue)
         : e.textContent?.trim() === textValue,
     );
 
-    if (!element) {
-      if (name.startsWith("Оплатить")) {
-        element = Array.from(container.querySelectorAll("button")).find(
-          (e) => e.textContent?.trim() === TEXT.payAgain,
-        );
-      }
+    // Если стандартный элемент найден, сразу возвращаем его
+    if (element) return element;
 
-      if (name == "Автосценарий" && !isLoop) {
-        if (
-          textValue === TEXT.issue ||
-          [SELECTOR.packageM, SELECTOR.packageL].includes(selector)
-        ) {
-          const buttons = Array.from(container.querySelectorAll("button"));
-          element = buttons.find((e) => e.textContent?.trim() === TEXT.pay);
-          if (!element) {
-            element = buttons.find(
-              (e) => e.textContent?.trim() === TEXT.payAgain,
-            );
-          }
-        }
+    // Вспомогательная функция для быстрого поиска кнопок по тексту
+    const findButtonByText = (text) =>
+      Array.from(container.querySelectorAll("button")).find(
+        (e) => e.textContent?.trim() === text,
+      );
+
+    // 2. Резервное условие для операций оплаты ("Оплатить...")
+    if (name && name.startsWith("Оплатить")) {
+      return findButtonByText(TEXT.payAgain);
+    }
+
+    // 3. Резервное условие для Автосценария
+    if (name === "Автосценарий" && !isLoop) {
+      const isTargetContext =
+        textValue === TEXT.issue ||
+        selector === SELECTOR.packageM ||
+        selector === SELECTOR.packageL;
+
+      if (isTargetContext) {
+        // Сначала пытаемся найти кнопку "Оплатить", если её нет — "Оплатить повторно"
+        return findButtonByText(TEXT.pay) || findButtonByText(TEXT.payAgain);
       }
     }
 
-    return element;
+    return null;
   }
 
   async function waitForElement(

@@ -1,8 +1,18 @@
+# Примеры HTTP-запросов автопечати и печати созданных вручную этикеток.
 @hostname = 127.0.0.1
 @port = 5000
 @host = http://{{hostname}}:{{port}}
 
 @printNumber = {{host}}/print-number
+@ozonShelf = {{host}}/ozon-shelf
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "300-1"
+}
 
 ###
 POST {{printNumber}}
@@ -17,5 +27,32 @@ POST {{printNumber}}
 content-type: application/json
 
 {
-    "text": "КГТ-23"
+    "text": "Возврат-1"
+}
+
+###
+POST {{printNumber}}
+content-type: application/json
+
+{
+    "text": "КГТ-23-1"
+}
+
+###
+POST {{ozonShelf}}
+content-type: application/json
+
+{
+    "text": "Ozon Полка-1"
+}
+
+###
+POST {{host}}/print-label
+content-type: application/json
+
+{
+    "contentType": "text",
+    "content": "Заказ № 12345",
+    "bold": true,
+    "underline": false
 }

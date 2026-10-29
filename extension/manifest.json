@@ -10,7 +10,7 @@
     "96": "assets/icons/96.png",
     "128": "assets/icons/128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": ["http://127.0.0.1/*", "https://printnum.s3.cloud.ru/*"],
 
   "action": {
