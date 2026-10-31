@@ -1,4 +1,3 @@
-
 import sys
 import time
 import threading
@@ -62,16 +61,28 @@ def set_printer_online(value):
 
 
 def watchdog():
-    """Останавливает сервер по запросу или тайм-ауту простоя."""
+    """Останавливает сервер по запросу или тайм-ауту простоя с защитой от спящего режима."""
+    global _last_request_time
+    
     while True:
-        # Ожидание запроса остановки не блокирует её обработку
-        # дольше одной секунды.
+        # Фиксируем время перед уходом в ожидание
+        loop_start = time.monotonic()
+        
+        # Ожидание запроса остановки не блокирует её обработку дольше одной секунды.
         if _shutdown_requested.wait(1):
             print("Получен запрос на остановку сервера")
             break
 
-        # В автономном режиме тайм-аут отключён,
-        # но запрос /shutdown продолжает работать.
+        # Вычисляем, сколько реального времени прошло за одну итерацию .wait(1).
+        # Если прошло сильно больше 1.5-2 секунд, значит ПК спал.
+        actual_elapsed = time.monotonic() - loop_start
+        if actual_elapsed > 2.0:
+            print(f"Обнаружено пробуждение ПК из спящего режима (пропущено {actual_elapsed:.1f} сек). Сброс таймера активности.")
+            with _state_lock:
+                _last_request_time = time.monotonic()
+            continue
+
+        # В автономном режиме тайм-аут отключён, но запрос /shutdown продолжает работать.
         if STANDALONE:
             continue
 
@@ -85,8 +96,7 @@ def watchdog():
     print("Остановка Flask-сервера")
 
     if _server is not None:
-        # shutdown() вызывается из watchdog-потока,
-        # а serve_forever() работает в основном потоке.
+        # shutdown() вызывается из watchdog-потока, а serve_forever() работает в основном потоке.
         _server.shutdown()
 
 
