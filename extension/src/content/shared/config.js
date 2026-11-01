@@ -29,6 +29,7 @@
     checking: "На проверке",
     reason: "Изменил решение о покупке/Товар не подошёл",
     move: "Переместить",
+    confirmPlacement: "Подтвердить размещение",
   };
 
   const PATH = {
@@ -261,6 +262,16 @@
   const autoscripts = [
     { id: "package", name: "Упаковки Ozon нет в наличии", path: PATH.package },
     { id: "box", name: "Перенести тарники в перевозку", path: PATH.package },
+    {
+      id: "confirm",
+      name: "Подтверждение выдачи (2x Enter)",
+      path: PATH.order,
+    },
+    {
+      id: "confirm-placement",
+      name: "Автоподтверждение размещения",
+      path: PATH.order,
+    },
   ];
 
   const banners = [

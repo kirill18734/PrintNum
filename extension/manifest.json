@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PrintNum",
   "description": "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "icons": {
     "16": "assets/icons/16.png",
     "32": "assets/icons/32.png",
@@ -41,7 +41,8 @@
         "src/content/features/navigation/hide-returns.js",
         "src/content/features/autoscripts/box.js",
         "src/content/features/autoscripts/package.js",
-        "src/content/features/navigation/confirm-on-enter.js"
+        "src/content/features/autoscripts/confirm-on-enter.js",
+        "src/content/features/autoscripts/confirm-placement.js"
       ]
     }
   ]

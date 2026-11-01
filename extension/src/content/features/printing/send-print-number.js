@@ -94,12 +94,6 @@
 
     lastSentOrderTag = currentText;
     sendNumber(currentText);
-    
-    const btn = await waitLoadElement("button", "Подтвердить размещение");
-
-    if (btn) {
-      btn.click();
-    }
   }
 
   // Главный обработчик изменений на страницах
