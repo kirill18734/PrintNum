@@ -2,6 +2,7 @@
 (async function () {
   const { SELECTOR, PATH } = window.PrintNum.config;
   const { subscribe } = window.PrintNum.navigation;
+  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
 
   let firstRun = false;
   let observerPrint = null;
@@ -81,7 +82,7 @@
   }
 
   // отправка ячеек (Выдача заказов)
-  function runOrderScript() {
+  async function runOrderScript() {
     const tagElement = document.querySelector(SELECTOR.shelfTagOrder);
     if (!tagElement) return;
 
@@ -93,6 +94,12 @@
 
     lastSentOrderTag = currentText;
     sendNumber(currentText);
+    
+    const btn = await waitLoadElement("button", "Подтвердить размещение");
+
+    if (btn) {
+      btn.click();
+    }
   }
 
   // Главный обработчик изменений на страницах
