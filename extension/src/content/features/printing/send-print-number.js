@@ -2,7 +2,7 @@
 (async function () {
   const { SELECTOR, PATH } = window.PrintNum.config;
   const { subscribe } = window.PrintNum.navigation;
-  const { waitForElement: waitLoadElement } = window.PrintNum.dom;
+  const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
 
   let firstRun = false;
   let observerPrint = null;
@@ -94,6 +94,7 @@
 
     lastSentOrderTag = currentText;
     sendNumber(currentText);
+    confirmPlacement();
   }
 
   // Главный обработчик изменений на страницах
