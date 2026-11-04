@@ -16,31 +16,17 @@ export default function Header() {
   return (
     <header
       data-tauri-drag-region
-      className="sticky top-0 z-50 flex justify-between items-center h-(--header-height) border-0 bg-white dark:bg-neutral-950"
+      className="flex justify-between items-center h-(--header-height)"
     >
       {/* Левая часть: Иконка + Название + Брендинг */}
-      <div
-        data-tauri-drag-region
-        className="flex items-center gap-2 border-0 h-full select-none"
-      >
-        <div
-          data-tauri-drag-region
-          className="flex items-center text-blue-600 dark:text-blue-400"
-        >
+      <div data-tauri-drag-region className="flex items-center gap-1">
+        <div data-tauri-drag-region className="flex items-center">
           <IconApp />
         </div>
-        <span
-          data-tauri-drag-region
-          className="font-medium text-sm text-neutral-700 dark:text-neutral-300"
-        >
+        <span data-tauri-drag-region className="font-medium text-sm">
           Печать ячеек
         </span>
-        <span
-          data-tauri-drag-region
-          className="text-neutral-300 dark:text-neutral-700 text-xs"
-        >
-          •
-        </span>
+
         <span
           data-tauri-drag-region
           className="font-black tracking-wider text-blue-600 dark:text-blue-400 text-xs px-1.5 py-0.5 rounded bg-blue-500/10 dark:bg-blue-500/5"
@@ -54,37 +40,35 @@ export default function Header() {
         {/* Общепринятая интерактивная кнопка смены темы */}
         <Button
           variant="ghost"
-          className="relative rounded-md p-6 border-0 mr-2 text-muted-foreground hover:text-foreground"
+          className="p-5 mr-2 hover:text-foreground"
           size="icon-sm"
           title="Сменить тему"
           onClick={toggleTheme}
         >
-          {/* Солнце: уменьшается и поворачивается в темной теме */}
-          <IconSun className="size-9 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500 fill-amber-500/10 stroke-[1.8]" />
-
-          {/* Луна: абсолютно позиционирована, появляется и закручивается только в темной теме */}
-          <IconMoon className="absolute size-9 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-sky-400 fill-sky-400/10 stroke-[1.8]" />
-
-          <span className="sr-only">Переключить тему</span>
+          {theme == "dark" ? (
+            <IconMoon className="size-8 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-sky-400 fill-sky-400/10 stroke-[1.8]" />
+          ) : (
+            <IconSun className="size-8 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-amber-500 fill-amber-500/10 stroke-[1.8]" />
+          )}
         </Button>
 
         <Button
           variant="ghost"
-          className="rounded-none p-6 border-0 h-full flex items-center justify-center"
-          size="icon-sm"
+          className="rounded-none p-5 border-0 h-full flex items-center justify-center"
+          size="icon-xs"
           title="Свернуть"
           onClick={() => appService.minWindow()}
         >
-          <IconMinus className="size-10" />
+          <IconMinus className="size-9" />
         </Button>
         <Button
           variant="ghost"
-          className="rounded-none p-6 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0 h-full flex items-center justify-center"
-          size="icon-sm"
+          className="rounded-none p-5 dark:hover:bg-red-600 hover:bg-red-600 hover:text-white border-0 h-full flex items-center justify-center"
+          size="icon-xs"
           title="Закрыть"
           onClick={() => appService.closeWindow()}
         >
-          <IconX className="size-10" />
+          <IconX className="size-9" />
         </Button>
       </div>
     </header>

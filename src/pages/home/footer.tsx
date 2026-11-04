@@ -30,15 +30,15 @@ export default function Footer() {
   return (
     <footer
       data-tauri-drag-region
-      className="sticky bottom-0 z-50 grid grid-cols-3 items-center w-full h-(--header-height) px-4 bg-white dark:bg-neutral-950 select-none"
+      className="flex  justify-between items-center w-full h-(--header-footer)"
     >
       {/* ЛЕВАЯ ЧАСТЬ: Версия приложения */}
-      <div className="flex items-center justify-start h-9 text-[11px] font-medium text-neutral-400 dark:text-neutral-500 z-20">
+      <div className="flex items-center justify-start text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
         v{version}
       </div>
 
       {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления по центру */}
-      <div className="flex justify-center items-center h-9 z-10">
+      <div className="flex justify-center items-center">
         {isUpdate && (
           <button
             disabled={isUpdating}
@@ -69,7 +69,7 @@ export default function Footer() {
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ: Анимированные кнопки Bento */}
-      <div className="flex items-center gap-2 h-9 z-20 justify-end">
+      <div className="flex items-center gap-2 justify-end">
         {/* КНОПКА 1: GitHub Документация */}
         <button
           onClick={() =>

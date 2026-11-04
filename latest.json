@@ -1,6 +1,6 @@
 {
-  "version": "2.0.3",
-  "note": "Современная, быстрая, оптимизированная, надежная, удобная и бесплатная, ваша программа PrintNum.\n\n\nВАЖНО: после установки не забудьте перезапустить браузер или обновить расширение, чтобы активировать новые функции",
+  "version": "2.0.4",
+  "note": "current version",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWZ0TUx0NUVWeFIxOXlOdHZoUndYWWl4TlZZWjlNUDBiZk1MT1l3cHVYTG1kY3NNeFRzM0JZbVZqeTVsZUxLcGd5SmFpbnhHOHZabVliaUJYS3FCZXdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNTE5MzUzCWZpbGU6UHJpbnROdW1fMi4wLjNfeDY0LXNldHVwLmV4ZQo5UWRVMmJEWmNNdE9UY09NTU8vK2dFcTNCVFBIMS9OMkVBN2M3VVJFcXdqSjFOQWM1VjM1bGdYNzVzZmZIMkFNTlNvVk9SVDlDTEpUMHhWNmxiMFdDZz09Cg==",

@@ -21,7 +21,9 @@ export default function Printer({
 }: PrinterProps) {
   return (
     <div className="flex min-w-0 flex-col items-start gap-1">
-      <span className="text-xs font-medium leading-tight text-muted-foreground">Принтер</span>
+      <span className="text-xs font-medium leading-tight text-muted-foreground">
+        Принтер
+      </span>
       <Select defaultValue={defaultPrinter} onValueChange={setDefaultPrinter}>
         <SelectTrigger className="h-9 w-full rounded-lg px-2.5 text-sm">
           <SelectValue placeholder="Выберите принтер" />
