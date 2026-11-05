@@ -34,15 +34,15 @@
         "src/content/shared/storage-events.js",
         "src/content/index.js",
         "src/content/features/qr-codes/handler.js",
-        "src/content/features/printing/send-print-number.js",
-        "src/content/features/printing/send-ozon-shelf.js",
-        "src/content/features/banners/hide-banner.js",
-        "src/content/features/navigation/hide-menu-notification.js",
-        "src/content/features/navigation/hide-returns.js",
         "src/content/features/autoscripts/box.js",
         "src/content/features/autoscripts/package.js",
         "src/content/features/autoscripts/confirm-on-enter.js",
-        "src/content/features/autoscripts/confirm-placement.js"
+        "src/content/features/autoscripts/confirm-placement.js",
+        "src/content/features/printing/send-print-number.js",
+        "src/content/features/printing/send-ozon-shelf.js",
+        "src/content/features/navigation/hide-menu-notification.js",
+        "src/content/features/navigation/hide-returns.js",
+        "src/content/features/banners/hide-banner.js"
       ]
     }
   ]
