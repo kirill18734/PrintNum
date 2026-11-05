@@ -1,13 +1,16 @@
-import Paper from "@/components/paper";
-import Printer from "@/components/printer";
-import { useAppStore } from "@/services/store";
 import { useState } from "react";
+import { useAppStore } from "@/services/store";
+import {
+  SectionNavigation,
+  type AppSection,
+} from "@/components/sectionNavigation";
+import AutoPrint from "./autoPrint";
+import CreateLabel from "./createLabel";
 
 export default function Main() {
-  const [mode, setMode] = useState<"autoprint" | "create">("autoprint");
-
-  const printer = useAppStore((state) => state.printer);
+  const [section, setSection] = useState<AppSection>("auto-print");
   const paper = useAppStore((state) => state.paper);
+  const printer = useAppStore((state) => state.printer);
   const listPrinters = useAppStore((state) => state.listPrinters);
   const listPapers = useAppStore((state) => state.listPapers);
 
@@ -16,22 +19,25 @@ export default function Main() {
   const setPaper = (newPaper: string) => setSetting("paper", newPaper);
 
   return (
-    <main className="flex flex-col flex-1 justify-center">
-      {/* Параметры печати */}
-      <div className="flex items-center justify-center gap-10">
-        {/* Принтер */}
-        <Printer
-          defaultPrinter={printer}
-          defaultListPrinters={listPrinters}
-          setDefaultPrinter={setPrinter}
+    <main className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col gap-6">
+      {/* Навигация с передачей состояния */}
+      <SectionNavigation activeSection={section} onSectionChange={setSection} />
+
+      {/* Контент вкладки Автопечать */}
+      {section === "auto-print" && (
+        
+        <AutoPrint
+          printer={printer}
+          listPrinters={listPrinters}
+          setPrinter={setPrinter}
+          paper={paper}
+          setPaper={setPaper}
+          listPapers={listPapers}
         />
-        {/* Бумага */}
-        <Paper
-          defaultPaper={paper}
-          setDefaultPaper={setPaper}
-          defaultListPapers={listPapers}
-        />
-      </div>
+      )}
+
+      {/* Контент вкладки Создать этикетку */}
+      {section === "create-label" && <CreateLabel />}
     </main>
   );
 }

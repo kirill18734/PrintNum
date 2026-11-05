@@ -27,9 +27,7 @@ interface AppStore extends AppSettings {
     value: AppSettings[K],
   ): Promise<void>;
   setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
-  setListPrinters(
-    printers: string[] | ((current: string[]) => string[]),
-  ): void;
+  setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
   setInstallUpdate(installUpdate: boolean): void;
@@ -58,7 +56,9 @@ export const useAppStore = create<AppStore>((set) => ({
   setListPrinters: (printers) =>
     set((state) => ({
       listPrinters:
-        typeof printers === "function" ? printers(state.listPrinters) : printers,
+        typeof printers === "function"
+          ? printers(state.listPrinters)
+          : printers,
     })),
   setIsUpdate: (isUpdate) => set({ isUpdate }),
   setIsUpdating: (isUpdating) => set({ isUpdating }),

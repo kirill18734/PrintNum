@@ -7,7 +7,7 @@ export interface AppSettings {
   endLine: boolean;
   bold: boolean;
   paper: string;
-  expand: number | "";
+  expand: number;
   theme: "system" | "light" | "dark";
   themeStyle: string;
   excludedTexts: string[];
