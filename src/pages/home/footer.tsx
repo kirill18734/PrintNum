@@ -15,6 +15,22 @@ export default function Footer() {
   const setInstallUpdate = useAppStore((state) => state.setInstallUpdate);
   const [version, setVersion] = useState("");
 
+  const handleUpdate = async () => {
+    try {
+      // Переключаем приложение в режим установки обновления,
+      // чтобы Layout отрисовал компонент <Updating />
+      setInstallUpdate(true);
+      setIsUpdating(true);
+      await appService.installAndRelaunch();
+    } catch (error) {
+      console.error("Не удалось установить обновление:", error);
+      setInstallUpdate(false);
+    } finally {
+      // На случай веб-мока без перезапуска вернём состояние
+      setIsUpdating(false);
+    }
+  };
+
   useEffect(() => {
     const getVersion = async () => {
       try {
@@ -42,21 +58,7 @@ export default function Footer() {
         {isUpdate && (
           <button
             disabled={isUpdating}
-            onClick={async () => {
-              try {
-                // Переключаем приложение в режим установки обновления,
-                // чтобы Layout отрисовал компонент <Updating />
-                setInstallUpdate(true);
-                setIsUpdating(true);
-                await appService.installAndRelaunch();
-              } catch (error) {
-                console.error("Не удалось установить обновление:", error);
-                setInstallUpdate(false);
-              } finally {
-                // На случай веб-мока без перезапуска вернём состояние
-                setIsUpdating(false);
-              }
-            }}
+            onClick={handleUpdate}
             className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
           >
             <IconDownload

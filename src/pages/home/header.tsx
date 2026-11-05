@@ -9,9 +9,8 @@ export default function Header() {
   const theme = useAppStore((state) => state.theme);
   const setSetting = useAppStore((state) => state.setSetting);
 
-  const toggleTheme = () => {
-    void setSetting("theme", theme === "dark" ? "light" : "dark");
-  };
+  const toggleTheme = () =>
+    setSetting("theme", theme === "dark" ? "light" : "dark");
 
   return (
     <header
