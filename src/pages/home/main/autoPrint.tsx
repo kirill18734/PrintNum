@@ -12,7 +12,7 @@ export default function AutoPrint({
   paper,
   setPaper,
   listPapers,
-}) {
+}: any) {
   const excludedTexts = useAppStore((state) => state.excludedTexts);
   const idNum = useAppStore((state) => state.idNum);
   const endLine = useAppStore((state) => state.endLine);
@@ -41,14 +41,14 @@ export default function AutoPrint({
       />
       <LatestTextCard status="waiting" />
       <AutoPrintRules rules={excludedTexts} onRulesChange={setExcludedTexts} />
-      <div data-tauri-drag-region className="flex flex-col gap-1 w-full">
+      <div data-tauri-drag-region className="flex flex-col gap-1 size-full">
         {/* Замените h-[180px] на нужную вам фиксированную высоту */}
         <span className="font-semibold text-[10px] uppercase tracking-wider text-center text-muted-foreground">
           Оформление этикетки
         </span>
         <div
           data-tauri-drag-region
-          className="flex items-center justify-between border p-1.5 rounded-lg bg-card gap-2"
+          className="flex items-center justify-between border p-1.5 rounded-lg bg-card"
         >
           {/* Настройки */}
           <SettingsPaper

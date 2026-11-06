@@ -58,7 +58,7 @@ export default function SettingsPaper({
   return (
     <div
       data-tauri-drag-region
-      className="flex items-center justify-end w-full"
+      className="flex items-center justify-center size-full"
     >
       <div
         data-tauri-drag-region
