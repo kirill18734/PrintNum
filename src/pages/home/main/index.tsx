@@ -10,6 +10,7 @@ import ThemeStyle from "@/components/theme-style";
 
 export default function Main() {
   const [section, setSection] = useState<AppSection>("auto-print");
+
   const themeStyle = useAppStore((state) => state.themeStyle);
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
@@ -17,29 +18,50 @@ export default function Main() {
   const listPapers = useAppStore((state) => state.listPapers);
 
   const setSetting = useAppStore((state) => state.setSetting);
+
   const setPrinter = (newPrinter: string) => setSetting("printer", newPrinter);
+
   const setPaper = (newPaper: string) => setSetting("paper", newPaper);
+
   const setThemeStyle = (newThemeStyle: string) =>
     setSetting("themeStyle", newThemeStyle);
 
   return (
     <main className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col gap-6">
-      {/* Навигация с передачей состояния */}
-      <SectionNavigation activeSection={section} onSectionChange={setSection} />
-
-      {/* Контент вкладки Автопечать */}
-      {section === "auto-print" ? (
-        <AutoPrint
-          printer={printer}
-          listPrinters={listPrinters}
-          setPrinter={setPrinter}
-          paper={paper}
-          setPaper={setPaper}
-          listPapers={listPapers}
+      {/* Навигация и рабочая область */}
+      <div className="flex w-full flex-col">
+        <SectionNavigation
+          activeSection={section}
+          onSectionChange={setSection}
         />
-      ) : (
-        <CreateLabel />
-      )}
+
+        {/* Рабочая область объединена с активной вкладкой */}
+        <div
+          className={`
+            min-w-0 border border-border/60 border-t-0 bg-card
+            ${
+              section === "auto-print"
+                ? "rounded-b-xl rounded-tr-xl"
+                : "rounded-b-xl rounded-tl-xl"
+            }
+          `}
+        >
+          {section === "auto-print" ? (
+            <AutoPrint
+              printer={printer}
+              listPrinters={listPrinters}
+              setPrinter={setPrinter}
+              paper={paper}
+              setPaper={setPaper}
+              listPapers={listPapers}
+            />
+          ) : (
+            <CreateLabel />
+          )}
+        </div>
+      </div>
+
+      {/* Выбор стиля остаётся на прежнем месте */}
       <div className="flex items-center justify-end">
         <ThemeStyle
           defaultThemeStyle={themeStyle}
