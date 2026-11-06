@@ -7,7 +7,7 @@ from PIL import Image, ImageWin
 import win32ui
 import win32con
 
-from app.data import load_config
+from app.config import load_config
 from app.utils import calculate_dimensions
 
 

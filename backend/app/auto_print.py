@@ -1,7 +1,11 @@
 import win32ui
 import win32con
 
-from app.data import load_config
+from app.config import   load_config
+from app.resources import (
+    resource_session,
+    get_font_name
+)
 from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
 
 
@@ -62,10 +66,11 @@ def prepare_label_data(text, config):
     }
 
 
-def draw_header(hdc, text, sizes, force_left):
+def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
     """Рисует верхний колонтитул."""
+
     font_top = win32ui.CreateFont({
-        "name": "Arial",
+        "name": font_name,
         "height": int(sizes["height_px"] * 0.20),
         "weight": win32con.FW_NORMAL,
     })
@@ -85,8 +90,14 @@ def draw_header(hdc, text, sizes, force_left):
     return y + text_h
 
 
-def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
-    """Рисует центральный текст с прежним алгоритмом подбора шрифта."""
+
+def draw_main_text(
+    hdc, text, sizes, y_start,
+    is_underlined, is_bold,
+    font_name="Arial"
+):
+    """Рисует центральный текст с подбором оптимального размера."""
+
     available_h = sizes["height_px"] - y_start - sizes["margin_y"]
     optimal_height = 10
 
@@ -96,7 +107,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
 
     while True:
         test_font = win32ui.CreateFont({
-            "name": "Arial",
+            "name": font_name,
             "height": optimal_height,
             "weight": font_weight,
             "underline": 1 if is_underlined else 0,
@@ -106,8 +117,8 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
         width, height = hdc.GetTextExtent(text)
 
         if (
-                width > sizes["max_allowed_w"]
-                or height > available_h
+            width > sizes["max_allowed_w"]
+            or height > available_h
         ):
             optimal_height -= 1
             break
@@ -115,7 +126,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
         optimal_height += 1
 
     final_font = win32ui.CreateFont({
-        "name": "Arial",
+        "name": font_name,
         "height": optimal_height,
         "weight": font_weight,
         "underline": 1 if is_underlined else 0,
@@ -132,6 +143,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold):
     return optimal_height
 
 
+
 def print_text(text):
     """Главная функция автоматической печати."""
     config = load_config()
@@ -140,7 +152,7 @@ def print_text(text):
         text,
         config.get("excludedTexts", []),
     )
-    print(excluded_rule)
+
     if excluded_rule:
         print(
             "Печать пропущена. "
@@ -157,60 +169,66 @@ def print_text(text):
     clear_printer_queue()
     data = prepare_label_data(text, config)
 
-    hdc = win32ui.CreateDC()
-    document_started = False
+    # Загружаем выбранный шрифт.
+    with resource_session():
 
-    try:
-        hdc.CreatePrinterDC(printer_name)
+        font_name = get_font_name(config.get("font"))
 
-        hdc.StartDoc(f"PrintNum: {text}")
-        document_started = True
-
-        hdc.StartPage()
-        hdc.SetBkMode(win32con.TRANSPARENT)
-
-        sizes = calculate_dimensions(
-            hdc,
-            config.get("paper", "30*20"),
-        )
-
-        y_start_center = sizes["margin_y"]
-
-        if data["show_header"] and data["header_text"]:
-            y_start_center = draw_header(
-                hdc,
-                text=data["header_text"],
-                sizes=sizes,
-                force_left=data["force_left_header"],
-            )
-
-        opt_h = draw_main_text(
-            hdc,
-            text=data["main_text"],
-            sizes=sizes,
-            y_start=y_start_center,
-            is_underlined=data["is_underlined"],
-            is_bold=data["is_bold"],
-        )
-
-        hdc.EndPage()
-        hdc.EndDoc()
+        hdc = win32ui.CreateDC()
         document_started = False
 
-        print(
-            f"Отправлено. Шрифт: {opt_h}px. "
-            f"Жирный: {data['is_bold']}. "
-            f"Текст хедера: '{data['header_text']}'"
-        )
+        try:
+            hdc.CreatePrinterDC(printer_name)
 
-    except Exception:
-        if document_started:
-            try:
-                hdc.AbortDoc()
-            except Exception:
-                pass
+            hdc.StartDoc(f"PrintNum: {text}")
+            document_started = True
 
-        raise
+            hdc.StartPage()
+            hdc.SetBkMode(win32con.TRANSPARENT)
 
-    finally:
-        hdc.DeleteDC()
+            sizes = calculate_dimensions(
+                hdc,
+                config.get("paper", "30*20"),
+            )
+
+            y_start_center = sizes["margin_y"]
+
+            if data["show_header"] and data["header_text"]:
+                y_start_center = draw_header(
+                    hdc,
+                    text=data["header_text"],
+                    sizes=sizes,
+                    force_left=data["force_left_header"],
+                    font_name=font_name,
+                )
+
+            opt_h = draw_main_text(
+                hdc,
+                text=data["main_text"],
+                sizes=sizes,
+                y_start=y_start_center,
+                is_underlined=data["is_underlined"],
+                is_bold=data["is_bold"],
+                font_name=font_name,
+            )
+
+            hdc.EndPage()
+            hdc.EndDoc()
+            document_started = False
+
+            print(
+                f"Отправлено. Шрифт: {font_name}, "
+                f"размер: {opt_h}px."
+            )
+
+        except Exception:
+            if document_started:
+                try:
+                    hdc.AbortDoc()
+                except Exception:
+                    pass
+
+            raise
+
+        finally:
+            hdc.DeleteDC()

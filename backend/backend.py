@@ -13,6 +13,16 @@ from app.label_print import (
     LabelRequestError,
     PrinterNotConfiguredError,
 )
+from app.config import load_config, save_config
+
+from app.resources import (
+    init_resources,
+    shutdown_resources,
+    load_font,
+    get_font_name,
+    get_image,
+    resource_session,
+)
 
 
 app = Flask(__name__)
@@ -216,30 +226,50 @@ def print_number_route():
 
 
 if __name__ == "__main__":
-    # make_server позволяет штатно остановить цикл serve_forever().
-    _server = make_server(
-        "127.0.0.1",
-        5000,
-        app,
-        threaded=True,
-    )
+    try:
+        # 1. Загружаем конфигурацию.
+        config = load_config()
 
-    if STANDALONE:
-        print("Запуск в standalone-режиме")
-        print("Автоматическое завершение по простою отключено")
-    else:
-        print(
-            f"Запуск с автоматическим завершением "
-            f"через {TIMEOUT} секунд простоя"
+        # 2. Загружаем все шрифты и изображения в RAM.
+        print("Инициализация ресурсов...")
+        init_resources()
+
+        # 3. Создаём HTTP-сервер.
+        _server = make_server(
+            "127.0.0.1",
+            5000,
+            app,
+            threaded=True,
         )
 
-    threading.Thread(
-        target=watchdog,
-        daemon=True,
-    ).start()
+        if STANDALONE:
+            print("Запуск в standalone-режиме")
+            print("Автоматическое завершение по простою отключено")
+        else:
+            print(
+                f"Запуск с автоматическим завершением "
+                f"через {TIMEOUT} секунд простоя"
+            )
 
-    try:
+        threading.Thread(
+            target=watchdog,
+            daemon=True,
+        ).start()
+
+        # 4. Запускаем сервер.
         _server.serve_forever()
+
+    except KeyboardInterrupt:
+        print("Получен сигнал завершения")
+
     finally:
-        _server.server_close()
-        print("HTTP-сервер остановлен")
+        print("Завершение приложения...")
+
+        # 5. Закрываем HTTP-сервер.
+        if _server is not None:
+            _server.server_close()
+
+        # 6. Освобождаем зарегистрированные шрифты и кеш.
+        shutdown_resources()
+
+        print("Приложение завершено")

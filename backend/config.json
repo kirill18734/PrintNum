@@ -1,0 +1,20 @@
+{
+  "expand": 500,
+  "paper": "30*20",
+  "bold": true,
+  "idNum": false,
+  "running": true,
+  "endLine": false,
+  "excludedTexts": [
+    "Прямой поток",
+    "Расходники",
+    "Продавцу",
+    "Ozon Полка",
+    "Возврат"
+  ],
+  "theme": "dark",
+  "themeStyle": "vercel",
+  "printer": "CHITENG-CT221B",
+  "hybrid": true,
+  "font": "Lobster-Regular"
+}

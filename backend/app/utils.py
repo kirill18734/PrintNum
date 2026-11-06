@@ -1,7 +1,7 @@
 
 import win32print
 import win32timezone  # Нужен для сборки приложения и работы с очередью.
-from app.data import load_config
+from app.config import load_config
 import win32con
 
 def find_excluded_rule(text, rules):
