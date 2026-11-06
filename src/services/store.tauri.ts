@@ -21,6 +21,7 @@ function isAppSettingsEntry(
   switch (key) {
     case "printer":
     case "paper":
+    case "font":
     case "themeStyle":
       return typeof value === "string";
     case "running":
