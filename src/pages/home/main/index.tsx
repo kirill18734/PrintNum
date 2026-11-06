@@ -56,7 +56,14 @@ export default function Main() {
               listPapers={listPapers}
             />
           ) : (
-            <CreateLabel />
+            <CreateLabel
+              printer={printer}
+              listPrinters={listPrinters}
+              setPrinter={setPrinter}
+              paper={paper}
+              setPaper={setPaper}
+              listPapers={listPapers}
+            />
           )}
         </div>
       </div>
