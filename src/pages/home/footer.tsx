@@ -46,14 +46,14 @@ export default function Footer() {
   return (
     <footer
       data-tauri-drag-region
-      className="flex  justify-between items-center w-full h-(--header-footer)"
+      className="grid grid-cols-[1fr_auto_1fr] p-1 items-center w-full h-(--header-footer)"
     >
       {/* ЛЕВАЯ ЧАСТЬ: Версия приложения */}
       <div className="flex items-center justify-start text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
         v{version}
       </div>
 
-      {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления по центру */}
+      {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления */}
       <div className="flex justify-center items-center">
         {isUpdate && (
           <button
@@ -70,9 +70,9 @@ export default function Footer() {
         )}
       </div>
 
-      {/* ПРАВАЯ ЧАСТЬ: Анимированные кнопки Bento */}
+      {/* ПРАВАЯ ЧАСТЬ: Внешние ссылки */}
       <div className="flex items-center gap-2 justify-end">
-        {/* КНОПКА 1: GitHub Документация */}
+        {/* КНОПКА 1: GitHub */}
         <button
           onClick={() =>
             appService.openExternalUrl(
@@ -90,7 +90,7 @@ export default function Footer() {
           </span>
         </button>
 
-        {/* КНОПКА 2: Telegram Канал */}
+        {/* КНОПКА 2: Telegram */}
         <button
           onClick={() => appService.openExternalUrl("https://t.me/printnum")}
           className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-sky-500/20 bg-gradient-to-b from-sky-500/5 to-sky-500/[0.12] text-sky-600 dark:text-sky-400 hover:from-sky-500 hover:to-sky-500 hover:text-white dark:hover:text-white shadow-sm shadow-sky-500/[0.03] active:scale-[0.97] cursor-pointer"

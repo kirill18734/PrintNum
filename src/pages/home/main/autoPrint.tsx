@@ -30,7 +30,7 @@ export default function AutoPrint({
   const setBold = (newBold: boolean) => setSetting("bold", newBold);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 w-full">
+    <div className="flex flex-col items-center justify-center gap-3 w-full">
       <LatestTextCard status="waiting" />
 
       <SettingsPrinter
@@ -49,7 +49,7 @@ export default function AutoPrint({
         </span>
         <div
           data-tauri-drag-region
-          className="flex items-center justify-between border p-1.5 rounded-lg bg-card"
+          className="flex items-center justify-between p-1.5 rounded-lg bg-card"
         >
           {/* Настройки */}
           <SettingsPaper
