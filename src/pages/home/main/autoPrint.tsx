@@ -31,6 +31,8 @@ export default function AutoPrint({
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
+      <LatestTextCard status="waiting" />
+
       <SettingsPrinter
         printer={printer}
         listPrinters={listPrinters}
@@ -39,7 +41,6 @@ export default function AutoPrint({
         setPaper={setPaper}
         listPapers={listPapers}
       />
-      <LatestTextCard status="waiting" />
       <AutoPrintRules rules={excludedTexts} onRulesChange={setExcludedTexts} />
       <div data-tauri-drag-region className="flex flex-col gap-1 size-full">
         {/* Замените h-[180px] на нужную вам фиксированную высоту */}
