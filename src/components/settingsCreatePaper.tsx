@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Barcode,
   Grid3X3,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react";
 import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
+import Font from "./font";
 
 export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
@@ -27,6 +27,9 @@ interface LabelStudioProps {
   updateSequence: any;
   textInputMode: string;
   setTextInputMode: any;
+  font: string;
+  setFont: any;
+  listFonts: string[];
 }
 
 const contentTypes = [
@@ -55,6 +58,9 @@ export default function SettingsCreatePaper({
   updateSequence,
   textInputMode,
   setTextInputMode,
+  font,
+  setFont,
+  listFonts,
 }: LabelStudioProps) {
   const inputClass =
     "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
@@ -63,7 +69,7 @@ export default function SettingsCreatePaper({
   const fieldClass = "flex min-w-0 flex-col gap-1";
 
   const textareaClass = `
-    block min-h-[64px] w-full resize-y
+    block min-h-[64px] w-full resize-none
     rounded-md border border-input bg-background
     px-2.5 py-2 text-xs outline-none
     placeholder:text-muted-foreground/70
@@ -244,7 +250,7 @@ export default function SettingsCreatePaper({
         )}
 
         {/* Настройки форматирования */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/50 pt-2">
+        <div className="flex flex-wrap items-center gap-1 border-t border-border/50 pt-2">
           {contentType === "text" ? (
             <>
               <Field
@@ -302,6 +308,9 @@ export default function SettingsCreatePaper({
               </FieldLabel>
             </Field>
           )}
+
+          {/* Шрифт */}
+          <Font font={font} setFont={setFont} listFonts={listFonts} />
         </div>
       </div>
     </div>

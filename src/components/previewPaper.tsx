@@ -14,8 +14,8 @@ interface PreviewPaperProps {
   content?: string;
   underline?: boolean;
   showCodeText?: boolean;
-  textInputMode: string;
-  sequenceValue: string;
+  textInputMode?: string;
+  sequenceValue?: string;
 }
 
 interface GeneratedCode {

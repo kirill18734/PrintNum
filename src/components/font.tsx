@@ -1,4 +1,3 @@
-// Выпадающий список для выбора оформления интерфейса.
 import {
   Select,
   SelectContent,
@@ -15,19 +14,19 @@ interface FontProps {
 }
 
 export default function Font({ font, setFont, listFonts }: FontProps) {
-  console.log(listFonts);
-
   return (
-    <div className="flex items-center gap-1.5 text-xs">
-      <span className="font-medium text-muted-foreground">Шрифт</span>
-      <Select defaultValue={font} onValueChange={setFont}>
-        <SelectTrigger className="h-5 w-full max-w-38 rounded-lg px-2.5 text-xs p-2">
-          <SelectValue placeholder="Выберете шрифт" />
+    <div className="flex items-center gap-1 text-xs">
+      <span className="text-muted-foreground whitespace-nowrap">Шрифт</span>
+
+      <Select value={font} onValueChange={setFont}>
+        <SelectTrigger className="w-35 px-1.5 text-xs gap-1">
+          <SelectValue placeholder="Выберите шрифт" />
         </SelectTrigger>
+
         <SelectContent>
           <SelectGroup>
             {listFonts.map((value) => (
-              <SelectItem value={value} key={value}>
+              <SelectItem value={value} key={value} className="text-xs">
                 {value}
               </SelectItem>
             ))}

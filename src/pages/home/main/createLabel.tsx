@@ -1,6 +1,8 @@
 import PreviewPaper from "@/components/previewPaper";
 import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
+import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/services/store";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -49,6 +51,8 @@ export default function CreateLabel({
 
   const [contentType, setContentType] = useState<LabelContentType>("text");
   const [labelBold, setLabelBold] = useState(false);
+  const [font, setFont] = useState("Arial");
+  const listFonts = useAppStore((state) => state.listFonts);
   const [labelUnderline, setLabelUnderline] = useState(false);
   const [showCodeText, setShowCodeText] = useState(true);
   const [sequenceValues, setSequenceValues] = useState<string[]>([]);
@@ -156,12 +160,7 @@ export default function CreateLabel({
         setPaper={setPaper}
         listPapers={listPapers}
       />
-      <div className="w-full rounded-xl border border-border bg-card p-2.5">
-        <div className="mb-2">
-          <h2 className="text-center text-sm font-semibold leading-tight">
-            Создать этикетку
-          </h2>
-        </div>
+      <div className="flex flex-col w-full rounded-xl border border-border bg-card p-2.5 gap-2">
         <div className="flex items-center justify-center gap-1">
           <SettingsCreatePaper
             contentType={contentType}
@@ -178,6 +177,9 @@ export default function CreateLabel({
             updateSequence={updateSequence}
             textInputMode={textInputMode}
             setTextInputMode={setTextInputMode}
+            font={font}
+            setFont={setFont}
+            listFonts={listFonts}
           />
           <div className="flex flex-col w-full gap-2">
             <PreviewPaper
@@ -188,6 +190,7 @@ export default function CreateLabel({
               content={contentByType[contentType]}
               showCodeText={showCodeText}
               textInputMode={textInputMode}
+              font={font}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
             />
             {/* Предпросмотр */}
@@ -223,7 +226,7 @@ export default function CreateLabel({
                     <div className="my-2 border-t border-primary/10" />
 
                     <div className="flex flex-wrap gap-1.5">
-                      {sequenceValues.slice(0, 6).map((value, index) => (
+                      {sequenceValues.slice(0, 5).map((value, index) => (
                         <span
                           key={index}
                           className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground"
@@ -244,6 +247,13 @@ export default function CreateLabel({
             )}
           </div>
         </div>
+        <Button
+          type="button"
+          onClick={() => {}}
+          className="h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto"
+        >
+          Распечатать
+        </Button>
       </div>
     </div>
   );

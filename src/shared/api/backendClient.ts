@@ -1,10 +1,16 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
+import { LabelContentType } from "@/components/settingsCreatePaper";
+
 const API_BASE = "http://127.0.0.1:5000";
 
-async function apiClient(endpoint, data = null, customMethod = null) {
+async function apiClient(
+  endpoint: string,
+  data: any = null,
+  customMethod = null,
+) {
   const method = customMethod || (data ? "POST" : "GET");
-  const options = { method };
+  const options: any = { method };
 
   if (data) {
     options.headers = { "Content-Type": "application/json" };
@@ -29,7 +35,7 @@ async function apiClient(endpoint, data = null, customMethod = null) {
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     // Сюда попадают и ошибки сети (сервер выключен), и ошибки из блока выше
     console.error(
       `[API Error] Запрос к ${endpoint} завершился неудачно:`,
@@ -45,6 +51,7 @@ interface PrintLabelRequest {
   codeImage?: string;
   bold: boolean;
   underline: boolean;
+  font: string;
   showCodeText: boolean;
 }
 
