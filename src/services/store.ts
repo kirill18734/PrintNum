@@ -21,6 +21,7 @@ interface AppStore extends AppSettings {
   isUpdating: boolean;
   installUpdate: boolean;
   listPrinters: string[];
+  listFonts: string[];
   listPapers: string[];
   setSetting<K extends keyof AppSettings>(
     key: K,
@@ -28,6 +29,7 @@ interface AppStore extends AppSettings {
   ): Promise<void>;
   setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
+  setListFonts(fonts: string[] | ((current: string[]) => string[])): void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
   setInstallUpdate(installUpdate: boolean): void;
@@ -41,6 +43,7 @@ export const useAppStore = create<AppStore>((set) => ({
   isUpdating: false,
   installUpdate: false,
   listPrinters: [],
+  listFonts: [],
   listPapers,
   setSetting: async (key, value) => {
     try {
@@ -59,6 +62,10 @@ export const useAppStore = create<AppStore>((set) => ({
         typeof printers === "function"
           ? printers(state.listPrinters)
           : printers,
+    })),
+  setListFonts: (fonts) =>
+    set((state) => ({
+      listFonts: typeof fonts === "function" ? fonts(state.listFonts) : fonts,
     })),
   setIsUpdate: (isUpdate) => set({ isUpdate }),
   setIsUpdating: (isUpdating) => set({ isUpdating }),

@@ -20,31 +20,19 @@ interface IAppService {
   getAvailableImages(): Promise<string[]>;
 }
 
-// ─── КЭШ РЕСУРСОВ ───
-
-let fontsCache: string[] | null = null;
-let imagesCache: string[] | null = null;
-
 // ─── ПОЛУЧЕНИЕ СПИСКА РЕСУРСОВ ───
-
 const getResourceFiles = async (
   folder: "fonts" | "images",
   extensions: string[],
 ): Promise<string[]> => {
   try {
-    const { readDir } = await import("@tauri-apps/plugin-fs");
-    const { localDataDir } = await import("@tauri-apps/api/path");
+    const { readDir, BaseDirectory } = await import("@tauri-apps/plugin-fs");
 
-    // %LOCALAPPDATA%
-    const basePath = await localDataDir();
+    const entries = await readDir(`resources\\${folder}`, {
+      baseDir: BaseDirectory.AppLocalData,
+    });
 
-    // %LOCALAPPDATA%/PrintNum/resources/fonts
-    // %LOCALAPPDATA%/PrintNum/resources/images
-    const resourcePath = `${basePath}/PrintNum/resources/${folder}`;
-
-    const entries = await readDir(resourcePath);
-
-    return entries
+    const files = entries
       .filter((entry) => {
         if (!entry.isFile || !entry.name) return false;
 
@@ -52,12 +40,15 @@ const getResourceFiles = async (
 
         return extension ? extensions.includes(extension) : false;
       })
-      .map((entry) => entry.name!.replace(/\.[^.]+$/, ""))
-      .sort((a, b) => a.localeCompare(b));
+      .map((entry) => entry.name!.replace(/\.[^.]+$/, ""));
+
+    const result = folder === "fonts" ? [...files, "Arial"] : files;
+
+    return [...new Set(result)].sort((a, b) => a.localeCompare(b));
   } catch (error) {
     console.error(`Не удалось получить список ресурсов (${folder}):`, error);
 
-    return [];
+    return folder === "fonts" ? ["Arial"] : [];
   }
 };
 
@@ -83,7 +74,7 @@ const webAppService: IAppService = {
   initStartHandler: async () => {},
 
   // Ресурсы в браузерном режиме недоступны
-  getAvailableFonts: async () => [],
+  getAvailableFonts: async () => ["Arial"],
   getAvailableImages: async () => [],
 };
 
@@ -121,8 +112,6 @@ const tauriAppService: IAppService = {
 
     try {
       const update = await check();
-
-      console.log(update);
 
       if (!update) {
         return false;
@@ -252,21 +241,11 @@ const tauriAppService: IAppService = {
   // ─── РЕСУРСЫ ───
 
   getAvailableFonts: async () => {
-    if (fontsCache !== null) {
-      return fontsCache;
-    }
-
-    fontsCache = await getResourceFiles("fonts", ["ttf"]);
-
-    return fontsCache;
+    return await getResourceFiles("fonts", ["ttf"]);
   },
 
   getAvailableImages: async () => {
-    if (imagesCache !== null) {
-      return imagesCache;
-    }
-
-    imagesCache = await getResourceFiles("images", [
+    const imagesCache = await getResourceFiles("images", [
       "png",
       "jpg",
       "jpeg",

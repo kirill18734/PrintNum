@@ -1,3 +1,4 @@
+import Font from "./font";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Field, FieldLabel } from "./ui/field";
@@ -10,6 +11,9 @@ interface SettingsPaperProps {
   setEndLine: (checked: boolean) => void;
   bold: boolean;
   setBold: (checked: boolean) => void;
+  font: string;
+  setFont: (font: string) => void;
+  listFonts: string[];
   hybrid: boolean;
   setHybrid: (checked: boolean) => void;
   expand: number | string;
@@ -20,9 +24,12 @@ export default function SettingsPaper({
   idNum,
   setIdNum,
   endLine,
+  setEndLine,
   bold,
   setBold,
-  setEndLine,
+  font,
+  setFont,
+  listFonts,
   hybrid,
   setHybrid,
   expand,
@@ -186,6 +193,8 @@ export default function SettingsPaper({
             </div>
           )}
         </div>
+        {/* Шрифт */}
+        <Font font={font} setFont={setFont} listFonts={listFonts} />
       </div>
     </div>
   );

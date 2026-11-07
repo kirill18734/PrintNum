@@ -20,11 +20,11 @@ export function useAppRuntime(): void {
   useEffect(() => {
     const root = document.documentElement;
     if (theme === "system") {
-      const isDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       root.classList.toggle("dark", isDark);
-      void useAppStore.getState().setSetting("theme", isDark ? "dark" : "light");
+      void useAppStore
+        .getState()
+        .setSetting("theme", isDark ? "dark" : "light");
       return;
     }
     root.classList.toggle("dark", theme === "dark");
@@ -37,7 +37,10 @@ export function useAppRuntime(): void {
 
     const runPlatformTask = (name: string, task: () => Promise<unknown>) => {
       void task().catch((error: unknown) => {
-        console.error(`Не удалось выполнить действие платформы (${name}):`, error);
+        console.error(
+          `Не удалось выполнить действие платформы (${name}):`,
+          error,
+        );
       });
     };
 
@@ -55,17 +58,74 @@ export function useAppRuntime(): void {
       try {
         const printers = await backendClient.getPrinters();
         if (!active) return;
-        useAppStore.getState().setListPrinters((current) =>
-          JSON.stringify(current) === JSON.stringify(printers)
-            ? current
-            : printers,
-        );
+        useAppStore
+          .getState()
+          .setListPrinters((current) =>
+            JSON.stringify(current) === JSON.stringify(printers)
+              ? current
+              : printers,
+          );
         printerErrorLogged = false;
       } catch (error) {
         if (!active) return;
         useAppStore.getState().setListPrinters([]);
         if (!printerErrorLogged) {
           console.error("Не удалось получить список принтеров:", error);
+          printerErrorLogged = true;
+        }
+      }
+    };
+
+    const loadGoogleFonts = (fonts) => {
+      const id = "google-fonts";
+
+      let link = document.getElementById(id);
+
+      const families = [
+        ...new Set(
+          fonts
+            .map((font) => font.split("-")[0])
+            .filter((font) => font !== "Arial")
+            .map((font) => font.replace(/([a-z])([A-Z])/g, "$1 $2")),
+        ),
+      ].map((font) => `family=${encodeURIComponent(font)}`);
+
+      if (!families.length) {
+        link?.remove();
+        return;
+      }
+
+      if (!link) {
+        link = document.createElement("link");
+        link.id = id;
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+      }
+
+      link.href = `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
+    };
+
+    const refreshFonts = async () => {
+      try {
+        const fonts = await appService.getAvailableFonts();
+        if (!active) return;
+
+        loadGoogleFonts(fonts);
+
+        useAppStore
+          .getState()
+          .setListFonts((current) =>
+            JSON.stringify(current) === JSON.stringify(fonts) ? current : fonts,
+          );
+
+        printerErrorLogged = false;
+      } catch (error) {
+        if (!active) return;
+
+        useAppStore.getState().setListFonts([]);
+
+        if (!printerErrorLogged) {
+          console.error("Не удалось получить список шрифтов:", error);
           printerErrorLogged = true;
         }
       }
@@ -88,13 +148,16 @@ export function useAppRuntime(): void {
     };
 
     void refreshPrinters();
+    void refreshFonts();
     void refreshStatus();
     const printerInterval = setInterval(refreshPrinters, 5000);
+    const fontInterval = setInterval(refreshFonts, 5000);
     const statusInterval = setInterval(refreshStatus, 1000);
 
     return () => {
       active = false;
       clearInterval(printerInterval);
+      clearInterval(fontInterval);
       clearInterval(statusInterval);
     };
   }, []);

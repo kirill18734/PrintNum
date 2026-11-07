@@ -12,6 +12,7 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
             tauri_plugin_log::Builder::new()

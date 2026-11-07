@@ -46,7 +46,6 @@ _shutdown_requested = threading.Event()
 # Экземпляр HTTP-сервера Werkzeug.
 _server = None
 
-
 @app.before_request
 def update_activity():
     """Обновляет время активности приложения."""
@@ -55,12 +54,10 @@ def update_activity():
     with _state_lock:
         _last_request_time = time.monotonic()
 
-
 def get_printer_online():
     """Возвращает последнее известное состояние принтера."""
     with _state_lock:
         return printerOnline
-
 
 def set_printer_online(value):
     """Обновляет сохранённое состояние принтера."""
@@ -68,7 +65,6 @@ def set_printer_online(value):
 
     with _state_lock:
         printerOnline = bool(value)
-
 
 def watchdog():
     """Останавливает сервер по запросу или тайм-ауту простоя с защитой от спящего режима."""
@@ -114,7 +110,6 @@ def watchdog():
 def hello_world():
     return jsonify({"status": True})
 
-
 @app.post("/shutdown")
 def shutdown_route():
     """Запрашивает штатную остановку HTTP-сервера."""
@@ -140,7 +135,6 @@ def shutdown_route():
         "message": "Запрошена остановка сервера",
     })
 
-
 @app.get("/status-printer")
 def status_printer_route():
     """Проверяет принтер и сохраняет его состояние."""
@@ -149,8 +143,7 @@ def status_printer_route():
 
     return jsonify({"printerOnline": online})
 
-
-@app.get("/lisPtrinters")
+@app.get("/listPrinters")
 def list_printers_route():
     return jsonify({"listPrinters": list_printers()})
 

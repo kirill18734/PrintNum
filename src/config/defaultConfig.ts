@@ -21,7 +21,7 @@ export const defaultConfig: AppSettings = {
   idNum: false,
   endLine: false,
   bold: false,
-  font: "",
+  font: "Arial",
   paper: "30*20",
   expand: 500,
   theme: "system",

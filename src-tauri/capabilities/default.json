@@ -12,10 +12,17 @@
     "core:window:allow-close",
     "core:window:allow-minimize",
     "core:window:allow-show",
-    "fs:allow-read-dir",
-    "fs:allow-stat",
     "log:allow-log",
     "store:default",
+    "fs:default",
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": ["$APPLOCALDATA/resources/**"]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": ["$APPLOCALDATA/resources/**"]
+    },
     {
       "identifier": "shell:allow-spawn",
       "allow": [

@@ -15,6 +15,7 @@ export default function Main() {
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
   const listPrinters = useAppStore((state) => state.listPrinters);
+  const listFonts = useAppStore((state) => state.listFonts);
   const listPapers = useAppStore((state) => state.listPapers);
 
   const setSetting = useAppStore((state) => state.setSetting);
@@ -50,6 +51,7 @@ export default function Main() {
             <AutoPrint
               printer={printer}
               listPrinters={listPrinters}
+              listFonts={listFonts}
               setPrinter={setPrinter}
               paper={paper}
               setPaper={setPaper}
