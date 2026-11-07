@@ -1,3 +1,4 @@
+import Background from "./background";
 import Font from "./font";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
@@ -13,7 +14,10 @@ interface SettingsPaperProps {
   setBold: (checked: boolean) => void;
   font: string;
   setFont: (font: string) => void;
+  background: string;
+  setBackground: (background: string) => void;
   listFonts: string[];
+  listBackgrounds: string[];
   hybrid: boolean;
   setHybrid: (checked: boolean) => void;
   expand: number | string;
@@ -30,6 +34,9 @@ export default function SettingsPaper({
   font,
   setFont,
   listFonts,
+  background,
+  setBackground,
+  listBackgrounds,
   hybrid,
   setHybrid,
   expand,
@@ -195,6 +202,12 @@ export default function SettingsPaper({
         </div>
         {/* Шрифт */}
         <Font font={font} setFont={setFont} listFonts={listFonts} />
+        {/* Фон */}
+        <Background
+          background={background}
+          setBackground={setBackground}
+          listBackgrounds={listBackgrounds}
+        />
       </div>
     </div>
   );

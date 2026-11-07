@@ -39,6 +39,8 @@ export default function CreateLabel({
   paper,
   setPaper,
   listPapers,
+  listBackgrounds,
+  dataBackgrounds,
 }: any) {
   const [contentByType, setContentByType] = useState<
     Record<LabelContentType, string>
@@ -52,6 +54,7 @@ export default function CreateLabel({
   const [contentType, setContentType] = useState<LabelContentType>("text");
   const [labelBold, setLabelBold] = useState(false);
   const [font, setFont] = useState("Arial");
+  const [background, setBackground] = useState("Без фона");
   const listFonts = useAppStore((state) => state.listFonts);
   const [labelUnderline, setLabelUnderline] = useState(false);
   const [showCodeText, setShowCodeText] = useState(true);
@@ -180,6 +183,9 @@ export default function CreateLabel({
             font={font}
             setFont={setFont}
             listFonts={listFonts}
+            background={background}
+            setBackground={setBackground}
+            listBackgrounds={listBackgrounds}
           />
           <div className="flex flex-col w-full gap-2">
             <PreviewPaper
@@ -192,6 +198,8 @@ export default function CreateLabel({
               textInputMode={textInputMode}
               font={font}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
+              background={background}
+              dataBackgrounds={dataBackgrounds}
             />
             {/* Предпросмотр */}
 

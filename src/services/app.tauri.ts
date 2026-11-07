@@ -2,8 +2,8 @@
 
 export const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
-// Описываем интерфейс, чтобы React всегда знал,
-// какие методы доступны.
+// ─── ИНТЕРФЕЙС СИСТЕМНОГО СЕРВИСА ───
+
 interface IAppService {
   getAppVersion(): Promise<string>;
   openExternalUrl(url: string): Promise<void>;
@@ -17,10 +17,23 @@ interface IAppService {
 
   // Ресурсы приложения
   getAvailableFonts(): Promise<string[]>;
-  getAvailableImages(): Promise<string[]>;
+  getAvailableBackgrounds(): Promise<string[]>;
+  getDataBackgrounds(): Promise<Record<string, string>>;
 }
 
+// ─── КОНСТАНТЫ ИЗОБРАЖЕНИЙ ───
+
+const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
+
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+};
+
 // ─── ПОЛУЧЕНИЕ СПИСКА РЕСУРСОВ ───
+
 const getResourceFiles = async (
   folder: "fonts" | "images",
   extensions: string[],
@@ -28,7 +41,7 @@ const getResourceFiles = async (
   try {
     const { readDir, BaseDirectory } = await import("@tauri-apps/plugin-fs");
 
-    const entries = await readDir(`resources\\${folder}`, {
+    const entries = await readDir(`resources/${folder}`, {
       baseDir: BaseDirectory.AppLocalData,
     });
 
@@ -42,13 +55,87 @@ const getResourceFiles = async (
       })
       .map((entry) => entry.name!.replace(/\.[^.]+$/, ""));
 
-    const result = folder === "fonts" ? [...files, "Arial"] : files;
+    const defaultResource = {
+      fonts: "Arial",
+      images: "Без фона",
+    };
+
+    const result = [...files, defaultResource[folder]];
 
     return [...new Set(result)].sort((a, b) => a.localeCompare(b));
   } catch (error) {
     console.error(`Не удалось получить список ресурсов (${folder}):`, error);
 
-    return folder === "fonts" ? ["Arial"] : [];
+    return folder === "fonts" ? ["Arial"] : ["Без фона"];
+  }
+};
+
+// ─── ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЙ В BASE64 ───
+
+const getDataBackgrounds = async (): Promise<Record<string, string>> => {
+  try {
+    const { readDir, readFile, BaseDirectory } =
+      await import("@tauri-apps/plugin-fs");
+
+    const entries = await readDir("resources/images", {
+      baseDir: BaseDirectory.AppLocalData,
+    });
+
+    const imageEntries = entries.filter((entry) => {
+      if (!entry.isFile || !entry.name) return false;
+
+      const extension = entry.name.split(".").pop()?.toLowerCase();
+
+      return extension ? IMAGE_EXTENSIONS.includes(extension) : false;
+    });
+
+    const images: Record<string, string> = {};
+
+    // Читаем изображения параллельно
+    await Promise.all(
+      imageEntries.map(async (entry) => {
+        try {
+          const fileName = entry.name!;
+          const extension = fileName.split(".").pop()!.toLowerCase();
+
+          const resourceName = fileName.replace(/\.[^.]+$/, "");
+
+          // Получаем содержимое изображения
+          const bytes = await readFile(`resources/images/${fileName}`, {
+            baseDir: BaseDirectory.AppLocalData,
+          });
+
+          // Uint8Array -> Base64
+          let binary = "";
+
+          const chunkSize = 0x8000;
+
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+
+            binary += String.fromCharCode(...chunk);
+          }
+
+          const base64 = btoa(binary);
+
+          const mimeType = IMAGE_MIME_TYPES[extension];
+
+          // Формируем Data URL
+          images[resourceName] = `data:${mimeType};base64,${base64}`;
+        } catch (error) {
+          console.error(
+            `Не удалось загрузить изображение ${entry.name}:`,
+            error,
+          );
+        }
+      }),
+    );
+
+    return images;
+  } catch (error) {
+    console.error("Не удалось получить изображения:", error);
+
+    return {};
   }
 };
 
@@ -75,7 +162,10 @@ const webAppService: IAppService = {
 
   // Ресурсы в браузерном режиме недоступны
   getAvailableFonts: async () => ["Arial"],
-  getAvailableImages: async () => [],
+
+  getAvailableBackgrounds: async () => ["Без фона"],
+
+  getDataBackgrounds: async () => ({}),
 };
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ TAURI V2 ───
@@ -89,6 +179,8 @@ let realUpdateObject: UpdateHandle | null = null;
 let backendChild: import("@tauri-apps/plugin-shell").Child | null = null;
 
 const tauriAppService: IAppService = {
+  // ─── ВЕРСИЯ ПРИЛОЖЕНИЯ ───
+
   getAppVersion: async () => {
     const { invoke } = await import("@tauri-apps/api/core");
 
@@ -97,15 +189,17 @@ const tauriAppService: IAppService = {
     return message ? `${message}` : "";
   },
 
+  // ─── ОТКРЫТИЕ ВНЕШНЕЙ ССЫЛКИ ───
+
   openExternalUrl: async (url) => {
     const { open } = await import("@tauri-apps/plugin-shell");
 
     await open(url);
   },
 
+  // ─── ПРОВЕРКА ОБНОВЛЕНИЙ ───
+
   checkForUpdates: async () => {
-    // Если уже есть объект обновления,
-    // повторно сеть не дергаем.
     if (realUpdateObject) return true;
 
     const { check } = await import("@tauri-apps/plugin-updater");
@@ -120,12 +214,14 @@ const tauriAppService: IAppService = {
       realUpdateObject = update;
 
       return true;
-    } catch (e) {
-      console.error("Update check failed:", e);
+    } catch (error) {
+      console.error("Update check failed:", error);
 
       return false;
     }
   },
+
+  // ─── УСТАНОВКА ОБНОВЛЕНИЯ ───
 
   installAndRelaunch: async () => {
     if (!realUpdateObject) {
@@ -136,7 +232,7 @@ const tauriAppService: IAppService = {
 
     const { relaunch } = await import("@tauri-apps/plugin-process");
 
-    // Пытаемся корректно остановить backend без PowerShell.
+    // Останавливаем backend через HTTP
     try {
       await fetch("http://127.0.0.1:5000/shutdown", {
         method: "POST",
@@ -146,9 +242,11 @@ const tauriAppService: IAppService = {
       });
     } catch {}
 
+    // Fallback: завершаем дочерний процесс
     try {
       if (backendChild) {
         await backendChild.kill();
+
         backendChild = null;
       }
     } catch {}
@@ -158,16 +256,18 @@ const tauriAppService: IAppService = {
     await relaunch();
   },
 
+  // ─── УПРАВЛЕНИЕ ОКНОМ ───
+
   visibleWindow: async () => {
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
 
-    getCurrentWindow().show();
+    await getCurrentWindow().show();
   },
 
   minWindow: async () => {
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
 
-    getCurrentWindow().minimize();
+    await getCurrentWindow().minimize();
   },
 
   closeWindow: async () => {
@@ -178,11 +278,13 @@ const tauriAppService: IAppService = {
     await window.close();
   },
 
+  // ─── ОБРАБОТЧИК ЗАКРЫТИЯ ───
+
   initCloseHandler: async () => {
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
 
     await getCurrentWindow().onCloseRequested(async () => {
-      // Сигналим бэкенду завершиться через HTTP.
+      // Сигналим backend завершиться через HTTP
       try {
         await fetch("http://127.0.0.1:5000/shutdown", {
           method: "POST",
@@ -192,15 +294,18 @@ const tauriAppService: IAppService = {
         });
       } catch {}
 
-      // Fallback: убиваем дочерний процесс sidecar.
+      // Fallback: завершаем sidecar
       try {
         if (backendChild) {
           await backendChild.kill();
+
           backendChild = null;
         }
       } catch {}
     });
   },
+
+  // ─── ЗАПУСК BACKEND ───
 
   initStartHandler: async () => {
     const { Command } = await import("@tauri-apps/plugin-shell");
@@ -212,18 +317,18 @@ const tauriAppService: IAppService = {
         .then(() => true)
         .catch(() => false);
 
+    // Если backend уже работает, повторно не запускаем
     if (await isReachable()) return;
 
     try {
-      // Стартуем sidecar.
       backendChild = await Command.sidecar("../backend/output/backend").spawn();
-    } catch (e) {
-      console.error("Не удалось запустить backend sidecar:", e);
+    } catch (error) {
+      console.error("Не удалось запустить backend sidecar:", error);
 
       return;
     }
 
-    // Дожидаемся готовности HTTP-сервера.
+    // Ожидаем готовности HTTP-сервера
     const maxAttempts = 40;
 
     const delay = (ms: number) =>
@@ -244,18 +349,17 @@ const tauriAppService: IAppService = {
     return await getResourceFiles("fonts", ["ttf"]);
   },
 
-  getAvailableImages: async () => {
-    const imagesCache = await getResourceFiles("images", [
-      "png",
-      "jpg",
-      "jpeg",
-      "webp",
-    ]);
+  getAvailableBackgrounds: async () => {
+    return await getResourceFiles("images", IMAGE_EXTENSIONS);
+  },
 
-    return imagesCache;
+  getDataBackgrounds: async () => {
+    return await getDataBackgrounds();
   },
 };
 
 // ─── ЭКСПОРТ СЕРВИСА ───
 
-export const appService = isTauri ? tauriAppService : webAppService;
+export const appService: IAppService = isTauri
+  ? tauriAppService
+  : webAppService;

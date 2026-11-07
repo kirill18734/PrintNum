@@ -16,6 +16,8 @@ interface PreviewPaperProps {
   showCodeText?: boolean;
   textInputMode?: string;
   sequenceValue?: string;
+  background?: string;
+  dataBackgrounds?: Record<string, string>;
 }
 
 interface GeneratedCode {
@@ -39,11 +41,17 @@ export default function PreviewPaper({
   showCodeText = false,
   textInputMode = "single",
   sequenceValue = "",
+  background = "Без фона",
+  dataBackgrounds = {},
 }: PreviewPaperProps) {
   // Применение выбранного шрифта
   const fontStyle = {
     fontFamily: `"${font.split("-")[0].replace(/([a-z])([A-Z])/g, "$1 $2")}", sans-serif`,
   };
+
+  // Получаем изображение выбранного фона
+  const backgroundImage =
+    background !== "Без фона" ? dataBackgrounds[background] : undefined;
 
   // Состояние генерации кода
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({
@@ -116,78 +124,97 @@ export default function PreviewPaper({
     };
   }, [mode, content, contentType]);
 
+  // Общий слой фонового изображения
+  const backgroundLayer = backgroundImage && (
+    <div
+      className="absolute inset-0 z-0 pointer-events-none"
+      style={{
+        backgroundImage: `url("${backgroundImage}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        opacity: 0.5,
+      }}
+    />
+  );
+
   // Общая разметка этикетки
   const label = (
     <div
       style={fontStyle}
-      className={`flex flex-col justify-center items-center
+      className={`relative flex flex-col justify-center items-center
         ${hybrid && mode === "autoprint" ? "w-25 h-15 p-1.5" : "w-36 h-24 p-2"}
         rounded-lg border border-border
         bg-white text-black shadow-sm overflow-hidden`}
     >
-      {/* Номер этикетки */}
-      {idNum && (
-        <div className="flex justify-end items-center w-full h-[0.5rem] shrink-0">
-          <span className="text-[0.6rem]">−47</span>
-        </div>
-      )}
+      {backgroundLayer}
 
-      {/* Режим автоматической печати */}
-      {mode === "autoprint" ? (
-        <div className="flex justify-center items-center leading-none flex-1 min-h-0">
-          <span
-            className={`${hybrid ? "text-4xl" : "text-6xl"}
-              ${endLine ? "underline decoration-3" : ""}
-              ${bold ? "font-bold" : ""}`}
-          >
-            123{!endLine && "."}
-          </span>
-        </div>
-      ) : contentType === "text" ? (
-        /* Обычный текст */
-        <div className="flex justify-center items-center leading-none flex-1 min-h-0 w-full">
-          <span
-            className={`text-center whitespace-pre-wrap break-words max-w-full md:text-base
-              ${bold ? "font-bold" : ""}
-              ${underline ? "underline decoration-2" : ""}`}
-          >
-            {textInputMode == "single"
-              ? content || "Ваш текст появится здесь"
-              : sequenceValue}
-          </span>
-        </div>
-      ) : (
-        /* Штрихкод / QR / Data Matrix */
-        <div className="flex flex-col justify-center items-center flex-1 min-h-0 w-full gap-1">
-          {generatedCode.svg ? (
-            <img
-              src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
-              alt="Сгенерированный код"
-              className={`block min-h-0 max-h-full max-w-full flex-1 object-contain
-                ${contentType === "barcode" ? "w-full" : ""}`}
-            />
-          ) : (
-            <div
-              role={generatedCode.error ? "alert" : undefined}
-              className={`flex flex-1 min-h-0 w-full items-center justify-center text-center text-xs
-                ${generatedCode.error ? "text-red-600" : "text-muted-foreground"}`}
+      {/* Содержимое этикетки */}
+      <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
+        {/* Номер этикетки */}
+        {idNum && (
+          <div className="flex justify-end items-center w-full h-[0.5rem] shrink-0">
+            <span className="text-[0.6rem]">−47</span>
+          </div>
+        )}
+
+        {/* Режим автоматической печати */}
+        {mode === "autoprint" ? (
+          <div className="flex justify-center items-center leading-none flex-1 min-h-0">
+            <span
+              className={`${hybrid ? "text-4xl" : "text-6xl"}
+                ${endLine ? "underline decoration-3" : ""}
+                ${bold ? "font-bold" : ""}`}
             >
-              {generatedCode.loading
-                ? "Создаём код…"
-                : generatedCode.error
-                  ? `Ошибка генерации: ${generatedCode.error}`
-                  : "Введите данные для генерации кода"}
-            </div>
-          )}
-
-          {/* Исходный текст под кодом */}
-          {showCodeText && content.trim() && (
-            <span className="text-xs text-center text-black shrink-0 max-w-full truncate">
-              {content}
+              123{!endLine && "."}
             </span>
-          )}
-        </div>
-      )}
+          </div>
+        ) : contentType === "text" ? (
+          /* Обычный текст */
+          <div className="flex justify-center items-center leading-none flex-1 min-h-0 w-full">
+            <span
+              className={`text-center whitespace-pre-wrap break-words max-w-full md:text-base
+                ${bold ? "font-bold" : ""}
+                ${underline ? "underline decoration-2" : ""}`}
+            >
+              {textInputMode == "single"
+                ? content || "Ваш текст появится здесь"
+                : sequenceValue}
+            </span>
+          </div>
+        ) : (
+          /* Штрихкод / QR / Data Matrix */
+          <div className="flex flex-col justify-center items-center flex-1 min-h-0 w-full gap-1">
+            {generatedCode.svg ? (
+              <img
+                src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
+                alt="Сгенерированный код"
+                className={`block min-h-0 max-h-full max-w-full flex-1 object-contain
+                  ${contentType === "barcode" ? "w-full" : ""}`}
+              />
+            ) : (
+              <div
+                role={generatedCode.error ? "alert" : undefined}
+                className={`flex flex-1 min-h-0 w-full items-center justify-center text-center text-xs
+                  ${generatedCode.error ? "text-red-600" : "text-muted-foreground"}`}
+              >
+                {generatedCode.loading
+                  ? "Создаём код…"
+                  : generatedCode.error
+                    ? `Ошибка генерации: ${generatedCode.error}`
+                    : "Введите данные для генерации кода"}
+              </div>
+            )}
+
+            {/* Исходный текст под кодом */}
+            {showCodeText && content.trim() && (
+              <span className="text-xs text-center text-black shrink-0 max-w-full truncate">
+                {content}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -195,21 +222,25 @@ export default function PreviewPaper({
   const hybridLabel = (
     <div
       style={fontStyle}
-      className="flex flex-col justify-center items-center
+      className="relative flex flex-col justify-center items-center
         w-25 h-15 p-1.5 rounded-lg
         border border-border bg-white text-black shadow-sm overflow-hidden"
     >
-      <div className="flex justify-start items-center w-full h-[0.5rem] shrink-0">
-        <span className="text-[0.6rem]">{expand}−</span>
-      </div>
+      {backgroundLayer}
 
-      <div className="flex justify-center items-center leading-none flex-1 min-h-0">
-        <span
-          className={`text-4xl font-bold
-            ${endLine ? "underline decoration-3" : ""}`}
-        >
-          123{!endLine && "."}
-        </span>
+      <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
+        <div className="flex justify-start items-center w-full h-[0.5rem] shrink-0">
+          <span className="text-[0.6rem]">{expand}−</span>
+        </div>
+
+        <div className="flex justify-center items-center leading-none flex-1 min-h-0">
+          <span
+            className={`text-4xl font-bold
+              ${endLine ? "underline decoration-3" : ""}`}
+          >
+            123{!endLine && "."}
+          </span>
+        </div>
       </div>
     </div>
   );

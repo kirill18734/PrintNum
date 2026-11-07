@@ -17,13 +17,13 @@ export default function Main() {
   const listPrinters = useAppStore((state) => state.listPrinters);
   const listFonts = useAppStore((state) => state.listFonts);
   const listPapers = useAppStore((state) => state.listPapers);
+  const listBackgrounds = useAppStore((state) => state.listBackgrounds);
+  const dataBackgrounds = useAppStore((state) => state.dataBackgrounds);
 
   const setSetting = useAppStore((state) => state.setSetting);
 
   const setPrinter = (newPrinter: string) => setSetting("printer", newPrinter);
-
   const setPaper = (newPaper: string) => setSetting("paper", newPaper);
-
   const setThemeStyle = (newThemeStyle: string) =>
     setSetting("themeStyle", newThemeStyle);
 
@@ -56,6 +56,8 @@ export default function Main() {
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
+              listBackgrounds={listBackgrounds}
+              dataBackgrounds={dataBackgrounds}
             />
           ) : (
             <CreateLabel
@@ -65,6 +67,8 @@ export default function Main() {
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
+              listBackgrounds={listBackgrounds}
+              dataBackgrounds={dataBackgrounds}
             />
           )}
         </div>

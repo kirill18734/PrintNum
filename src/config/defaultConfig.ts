@@ -8,6 +8,7 @@ export interface AppSettings {
   bold: boolean;
   paper: string;
   font: string;
+  background: string;
   expand: number;
   theme: "system" | "light" | "dark";
   themeStyle: string;
@@ -21,6 +22,7 @@ export const defaultConfig: AppSettings = {
   idNum: false,
   endLine: false,
   bold: false,
+  background: "Без фона",
   font: "Arial",
   paper: "30*20",
   expand: 500,

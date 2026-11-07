@@ -9,6 +9,7 @@ import {
 import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
 import Font from "./font";
+import Background from "./background";
 
 export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
@@ -30,6 +31,9 @@ interface LabelStudioProps {
   font: string;
   setFont: any;
   listFonts: string[];
+  background: string;
+  setBackground: (value: string) => void;
+  listBackgrounds: string[];
 }
 
 const contentTypes = [
@@ -61,6 +65,9 @@ export default function SettingsCreatePaper({
   font,
   setFont,
   listFonts,
+  background,
+  setBackground,
+  listBackgrounds,
 }: LabelStudioProps) {
   const inputClass =
     "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
@@ -311,6 +318,12 @@ export default function SettingsCreatePaper({
 
           {/* Шрифт */}
           <Font font={font} setFont={setFont} listFonts={listFonts} />
+          {/* Фон */}
+          <Background
+            background={background}
+            setBackground={setBackground}
+            listBackgrounds={listBackgrounds}
+          />
         </div>
       </div>
     </div>

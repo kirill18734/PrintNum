@@ -76,19 +76,19 @@ export function useAppRuntime(): void {
       }
     };
 
-    const loadGoogleFonts = (fonts) => {
+    const loadGoogleFonts = (fonts: any) => {
       const id = "google-fonts";
 
-      let link = document.getElementById(id);
+      let link: any = document.getElementById(id);
 
       const families = [
         ...new Set(
           fonts
-            .map((font) => font.split("-")[0])
-            .filter((font) => font !== "Arial")
-            .map((font) => font.replace(/([a-z])([A-Z])/g, "$1 $2")),
+            .map((font: string) => font.split("-")[0])
+            .filter((font: string) => font !== "Arial")
+            .map((font: string) => font.replace(/([a-z])([A-Z])/g, "$1 $2")),
         ),
-      ].map((font) => `family=${encodeURIComponent(font)}`);
+      ].map((font: any) => `family=${encodeURIComponent(font)}`);
 
       if (!families.length) {
         link?.remove();
@@ -131,6 +131,45 @@ export function useAppRuntime(): void {
       }
     };
 
+    const refreshBackgrounds = async () => {
+      try {
+        const background = await appService.getAvailableBackgrounds();
+
+        if (!active) return;
+
+        const store = useAppStore.getState();
+
+        const isChanged =
+          JSON.stringify(store.listBackgrounds) !== JSON.stringify(background);
+
+        if (isChanged) {
+          // Обновляем список фонов
+          store.setListBackgrounds(background);
+
+          // Загружаем изображения только при изменении списка
+          const dataBackgrounds = await appService.getDataBackgrounds();
+
+          if (!active) return;
+
+          // Обновляем изображения
+          useAppStore.getState().setDataBackgrounds(dataBackgrounds);
+        }
+
+        printerErrorLogged = false;
+      } catch (error) {
+        if (!active) return;
+
+        const store = useAppStore.getState();
+
+        store.setListBackgrounds([]);
+
+        if (!printerErrorLogged) {
+          console.error("Не удалось получить список фонов:", error);
+          printerErrorLogged = true;
+        }
+      }
+    };
+
     const refreshStatus = async () => {
       try {
         const printerOnline = await backendClient.getPrinterStatus();
@@ -149,15 +188,18 @@ export function useAppRuntime(): void {
 
     void refreshPrinters();
     void refreshFonts();
+    void refreshBackgrounds();
     void refreshStatus();
     const printerInterval = setInterval(refreshPrinters, 5000);
     const fontInterval = setInterval(refreshFonts, 5000);
+    const backgroundInterval = setInterval(refreshBackgrounds, 5000);
     const statusInterval = setInterval(refreshStatus, 1000);
 
     return () => {
       active = false;
       clearInterval(printerInterval);
       clearInterval(fontInterval);
+      clearInterval(backgroundInterval);
       clearInterval(statusInterval);
     };
   }, []);

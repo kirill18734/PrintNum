@@ -22,6 +22,8 @@ interface AppStore extends AppSettings {
   installUpdate: boolean;
   listPrinters: string[];
   listFonts: string[];
+  listBackgrounds: string[];
+  dataBackgrounds: {};
   listPapers: string[];
   setSetting<K extends keyof AppSettings>(
     key: K,
@@ -30,6 +32,14 @@ interface AppStore extends AppSettings {
   setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
   setListFonts(fonts: string[] | ((current: string[]) => string[])): void;
+  setListBackgrounds(
+    backgrounds: string[] | ((current: string[]) => string[]),
+  ): void;
+  setDataBackgrounds(
+    dataBackgrounds:
+      | Record<string, string>
+      | ((current: Record<string, string>) => Record<string, string>),
+  ): void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
   setInstallUpdate(installUpdate: boolean): void;
@@ -44,6 +54,8 @@ export const useAppStore = create<AppStore>((set) => ({
   installUpdate: false,
   listPrinters: [],
   listFonts: [],
+  listBackgrounds: [],
+  dataBackgrounds: [],
   listPapers,
   setSetting: async (key, value) => {
     try {
@@ -66,6 +78,20 @@ export const useAppStore = create<AppStore>((set) => ({
   setListFonts: (fonts) =>
     set((state) => ({
       listFonts: typeof fonts === "function" ? fonts(state.listFonts) : fonts,
+    })),
+  setListBackgrounds: (background) =>
+    set((state) => ({
+      listBackgrounds:
+        typeof background === "function"
+          ? background(state.listBackgrounds)
+          : background,
+    })),
+  setDataBackgrounds: (background) =>
+    set((state) => ({
+      dataBackgrounds:
+        typeof background === "function"
+          ? background(state.dataBackgrounds)
+          : background,
     })),
   setIsUpdate: (isUpdate) => set({ isUpdate }),
   setIsUpdating: (isUpdating) => set({ isUpdating }),
