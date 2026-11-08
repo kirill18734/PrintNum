@@ -17,15 +17,11 @@
     "fs:default",
     {
       "identifier": "fs:allow-read-dir",
-      "allow": ["$APPLOCALDATA/resources/**"]
-    },
-    {
-      "identifier": "fs:allow-read-file",
-      "allow": ["$APPLOCALDATA/resources/**"]
+      "allow": ["$APPDATA/**"]
     },
     {
       "identifier": "fs:allow-write-file",
-      "allow": ["$APPLOCALDATA/resources/**"]
+      "allow": ["$APPDATA/**"]
     },
     {
       "identifier": "shell:allow-spawn",

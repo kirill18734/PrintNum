@@ -10,10 +10,10 @@ import {
 interface FontProps {
   font: string;
   setFont: (font: string) => void;
-  listFonts: string[];
+  dataFonts: any;
 }
 
-export default function Font({ font, setFont, listFonts }: FontProps) {
+export default function Font({ font, setFont, dataFonts }: FontProps) {
   return (
     <div className="flex items-center gap-1 text-xs">
       <span className="text-muted-foreground whitespace-nowrap">Шрифт</span>
@@ -25,9 +25,9 @@ export default function Font({ font, setFont, listFonts }: FontProps) {
 
         <SelectContent>
           <SelectGroup>
-            {listFonts.map((value) => (
-              <SelectItem value={value} key={value} className="text-xs">
-                {value}
+            {dataFonts.map((item:any) => (
+              <SelectItem value={item.name} key={item.name} className="text-xs">
+                {item.name}
               </SelectItem>
             ))}
           </SelectGroup>

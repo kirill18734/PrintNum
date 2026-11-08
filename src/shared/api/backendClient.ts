@@ -61,6 +61,16 @@ export const backendClient = {
     return body.listPrinters;
   },
 
+  async getDataBackgrounds(): Promise<string[]> {
+    const body = await apiClient("dataBackgrounds");
+    return body.dataBackgrounds;
+  },
+
+  async getDataFonts(): Promise<string[]> {
+    const body = await apiClient("dataFonts");
+    return body.dataFonts;
+  },
+
   async getPrinterStatus(): Promise<boolean> {
     const body = await apiClient("status-printer");
     return body.printerOnline;

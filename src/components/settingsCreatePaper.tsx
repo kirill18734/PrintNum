@@ -30,10 +30,10 @@ interface LabelStudioProps {
   setTextInputMode: any;
   font: string;
   setFont: any;
-  listFonts: string[];
+  dataFonts: any;
   background: string;
   setBackground: (value: string) => void;
-  listBackgrounds: string[];
+  dataBackgrounds: any;
 }
 
 const contentTypes = [
@@ -64,10 +64,10 @@ export default function SettingsCreatePaper({
   setTextInputMode,
   font,
   setFont,
-  listFonts,
+  dataFonts,
   background,
   setBackground,
-  listBackgrounds,
+  dataBackgrounds,
 }: LabelStudioProps) {
   const inputClass =
     "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
@@ -317,12 +317,12 @@ export default function SettingsCreatePaper({
           )}
 
           {/* Шрифт */}
-          <Font font={font} setFont={setFont} listFonts={listFonts} />
+          <Font font={font} setFont={setFont} dataFonts={dataFonts} />
           {/* Фон */}
           <Background
             background={background}
             setBackground={setBackground}
-            listBackgrounds={listBackgrounds}
+            dataBackgrounds={dataBackgrounds}
           />
         </div>
       </div>

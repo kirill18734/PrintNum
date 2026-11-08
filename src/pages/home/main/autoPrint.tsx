@@ -8,12 +8,13 @@ import { useAppStore } from "@/services/store";
 export default function AutoPrint({
   printer,
   listPrinters,
-  listFonts,
   setPrinter,
   paper,
   setPaper,
   listPapers,
-  listBackgrounds,
+  background,
+  setBackground,
+  dataFonts,
   dataBackgrounds,
 }: any) {
   const excludedTexts = useAppStore((state) => state.excludedTexts);
@@ -21,7 +22,6 @@ export default function AutoPrint({
   const endLine = useAppStore((state) => state.endLine);
   const hybrid = useAppStore((state) => state.hybrid);
   const font = useAppStore((state) => state.font);
-  const background = useAppStore((state) => state.background);
   const expand = useAppStore((state) => state.expand);
   const bold = useAppStore((state) => state.bold);
 
@@ -36,7 +36,6 @@ export default function AutoPrint({
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
   const setFont = (value: string) => setSetting("font", value);
-  const setBackground = (value: string) => setSetting("background", value);
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
@@ -71,8 +70,8 @@ export default function AutoPrint({
             font={font}
             background={background}
             setBackground={setBackground}
-            listBackgrounds={listBackgrounds}
-            listFonts={listFonts}
+            dataBackgrounds={dataBackgrounds}
+            dataFonts={dataFonts}
             setFont={setFont}
             setBold={setBold}
             hybrid={hybrid}

@@ -15,10 +15,10 @@ export default function Main() {
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
   const listPrinters = useAppStore((state) => state.listPrinters);
-  const listFonts = useAppStore((state) => state.listFonts);
+  const dataFonts = useAppStore((state) => state.dataFonts);
   const listPapers = useAppStore((state) => state.listPapers);
-  const listBackgrounds = useAppStore((state) => state.listBackgrounds);
   const dataBackgrounds = useAppStore((state) => state.dataBackgrounds);
+  const background = useAppStore((state) => state.background);
 
   const setSetting = useAppStore((state) => state.setSetting);
 
@@ -26,6 +26,7 @@ export default function Main() {
   const setPaper = (newPaper: string) => setSetting("paper", newPaper);
   const setThemeStyle = (newThemeStyle: string) =>
     setSetting("themeStyle", newThemeStyle);
+  const setBackground = (value: string) => setSetting("background", value);
 
   return (
     <main className="flex-1 w-full max-w-5xl mx-auto p-1 md:p-6 flex flex-col gap-2">
@@ -51,12 +52,13 @@ export default function Main() {
             <AutoPrint
               printer={printer}
               listPrinters={listPrinters}
-              listFonts={listFonts}
               setPrinter={setPrinter}
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
-              listBackgrounds={listBackgrounds}
+              background={background}
+              setBackground={setBackground}
+              dataFonts={dataFonts}
               dataBackgrounds={dataBackgrounds}
             />
           ) : (
@@ -67,7 +69,7 @@ export default function Main() {
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
-              listBackgrounds={listBackgrounds}
+              dataFonts={dataFonts}
               dataBackgrounds={dataBackgrounds}
             />
           )}

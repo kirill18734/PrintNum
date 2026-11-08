@@ -13,13 +13,13 @@ import { addBackgroundImages } from "@/services/app.tauri";
 interface BackgroundProps {
   background: string;
   setBackground: (background: string) => void;
-  listBackgrounds: string[];
+  dataBackgrounds: any;
 }
 
 export default function Background({
   background,
   setBackground,
-  listBackgrounds,
+  dataBackgrounds,
 }: BackgroundProps) {
   return (
     <div className="flex items-center gap-1 text-xs gap-5">
@@ -32,9 +32,13 @@ export default function Background({
 
           <SelectContent>
             <SelectGroup>
-              {listBackgrounds.map((value) => (
-                <SelectItem value={value} key={value} className="text-xs">
-                  {value}
+              {dataBackgrounds.map((item: any) => (
+                <SelectItem
+                  value={item.name}
+                  key={item.name}
+                  className="text-xs"
+                >
+                  {item.name}
                 </SelectItem>
               ))}
             </SelectGroup>

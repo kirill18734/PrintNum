@@ -2,7 +2,6 @@ import PreviewPaper from "@/components/previewPaper";
 import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
-import { useAppStore } from "@/services/store";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -39,7 +38,7 @@ export default function CreateLabel({
   paper,
   setPaper,
   listPapers,
-  listBackgrounds,
+  dataFonts,
   dataBackgrounds,
 }: any) {
   const [contentByType, setContentByType] = useState<
@@ -55,7 +54,6 @@ export default function CreateLabel({
   const [labelBold, setLabelBold] = useState(false);
   const [font, setFont] = useState("Arial");
   const [background, setBackground] = useState("Без фона");
-  const listFonts = useAppStore((state) => state.listFonts);
   const [labelUnderline, setLabelUnderline] = useState(false);
   const [showCodeText, setShowCodeText] = useState(true);
   const [sequenceValues, setSequenceValues] = useState<string[]>([]);
@@ -182,10 +180,10 @@ export default function CreateLabel({
             setTextInputMode={setTextInputMode}
             font={font}
             setFont={setFont}
-            listFonts={listFonts}
+            dataFonts={dataFonts}
             background={background}
             setBackground={setBackground}
-            listBackgrounds={listBackgrounds}
+            dataBackgrounds={dataBackgrounds}
           />
           <div className="flex flex-col w-full gap-2">
             <PreviewPaper

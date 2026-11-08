@@ -16,8 +16,8 @@ interface SettingsPaperProps {
   setFont: (font: string) => void;
   background: string;
   setBackground: (background: string) => void;
-  listFonts: string[];
-  listBackgrounds: string[];
+  dataFonts: any;
+  dataBackgrounds: any;
   hybrid: boolean;
   setHybrid: (checked: boolean) => void;
   expand: number | string;
@@ -33,10 +33,10 @@ export default function SettingsPaper({
   setBold,
   font,
   setFont,
-  listFonts,
+  dataFonts,
   background,
   setBackground,
-  listBackgrounds,
+  dataBackgrounds,
   hybrid,
   setHybrid,
   expand,
@@ -201,12 +201,12 @@ export default function SettingsPaper({
           )}
         </div>
         {/* Шрифт */}
-        <Font font={font} setFont={setFont} listFonts={listFonts} />
+        <Font font={font} setFont={setFont} dataFonts={dataFonts} />
         {/* Фон */}
         <Background
           background={background}
           setBackground={setBackground}
-          listBackgrounds={listBackgrounds}
+          dataBackgrounds={dataBackgrounds}
         />
       </div>
     </div>

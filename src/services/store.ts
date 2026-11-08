@@ -14,6 +14,12 @@ const listPapers = [
   "100*150",
 ];
 
+// 1. Определяем тип элемента
+export interface DataBackground {
+  name: string;
+  base64: string;
+}
+
 interface AppStore extends AppSettings {
   serverOnline: boolean;
   printerOnline: boolean;
@@ -21,9 +27,8 @@ interface AppStore extends AppSettings {
   isUpdating: boolean;
   installUpdate: boolean;
   listPrinters: string[];
-  listFonts: string[];
-  listBackgrounds: string[];
-  dataBackgrounds: {};
+  dataFonts: DataBackground[];
+  dataBackgrounds: DataBackground[];
   listPapers: string[];
   setSetting<K extends keyof AppSettings>(
     key: K,
@@ -31,15 +36,14 @@ interface AppStore extends AppSettings {
   ): Promise<void>;
   setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
-  setListFonts(fonts: string[] | ((current: string[]) => string[])): void;
-  setListBackgrounds(
-    backgrounds: string[] | ((current: string[]) => string[]),
-  ): void;
-  setDataBackgrounds(
-    dataBackgrounds:
-      | Record<string, string>
-      | ((current: Record<string, string>) => Record<string, string>),
-  ): void;
+
+  setDataBackgrounds: (
+    next: DataBackground[] | ((current: DataBackground[]) => DataBackground[]),
+  ) => void;
+
+  setDataFonts: (
+    next: DataBackground[] | ((current: DataBackground[]) => DataBackground[]),
+  ) => void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
   setInstallUpdate(installUpdate: boolean): void;
@@ -53,8 +57,7 @@ export const useAppStore = create<AppStore>((set) => ({
   isUpdating: false,
   installUpdate: false,
   listPrinters: [],
-  listFonts: [],
-  listBackgrounds: [],
+  dataFonts: [],
   dataBackgrounds: [],
   listPapers,
   setSetting: async (key, value) => {
@@ -75,23 +78,16 @@ export const useAppStore = create<AppStore>((set) => ({
           ? printers(state.listPrinters)
           : printers,
     })),
-  setListFonts: (fonts) =>
+  setDataFonts: (next) =>
     set((state) => ({
-      listFonts: typeof fonts === "function" ? fonts(state.listFonts) : fonts,
+      // Проверяем, функция перед нами или готовый массив
+      dataFonts: typeof next === "function" ? next(state.dataFonts) : next,
     })),
-  setListBackgrounds: (background) =>
+  setDataBackgrounds: (next) =>
     set((state) => ({
-      listBackgrounds:
-        typeof background === "function"
-          ? background(state.listBackgrounds)
-          : background,
-    })),
-  setDataBackgrounds: (background) =>
-    set((state) => ({
+      // Проверяем, функция перед нами или готовый массив
       dataBackgrounds:
-        typeof background === "function"
-          ? background(state.dataBackgrounds)
-          : background,
+        typeof next === "function" ? next(state.dataBackgrounds) : next,
     })),
   setIsUpdate: (isUpdate) => set({ isUpdate }),
   setIsUpdating: (isUpdating) => set({ isUpdating }),

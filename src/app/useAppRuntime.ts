@@ -76,95 +76,43 @@ export function useAppRuntime(): void {
       }
     };
 
-    const loadGoogleFonts = (fonts: any) => {
-      const id = "google-fonts";
-
-      let link: any = document.getElementById(id);
-
-      const families = [
-        ...new Set(
-          fonts
-            .map((font: string) => font.split("-")[0])
-            .filter((font: string) => font !== "Arial")
-            .map((font: string) => font.replace(/([a-z])([A-Z])/g, "$1 $2")),
-        ),
-      ].map((font: any) => `family=${encodeURIComponent(font)}`);
-
-      if (!families.length) {
-        link?.remove();
-        return;
-      }
-
-      if (!link) {
-        link = document.createElement("link");
-        link.id = id;
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-      }
-
-      link.href = `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
-    };
-
-    const refreshFonts = async () => {
+    const refreshDataBackgorunds = async () => {
       try {
-        const fonts = await appService.getAvailableFonts();
+        const backgrounds: any = await backendClient.getDataBackgrounds();
         if (!active) return;
-
-        loadGoogleFonts(fonts);
-
         useAppStore
           .getState()
-          .setListFonts((current) =>
-            JSON.stringify(current) === JSON.stringify(fonts) ? current : fonts,
+          .setDataBackgrounds((current) =>
+            JSON.stringify(current) === JSON.stringify(backgrounds)
+              ? current
+              : backgrounds,
           );
-
         printerErrorLogged = false;
       } catch (error) {
         if (!active) return;
-
-        useAppStore.getState().setListFonts([]);
-
+        useAppStore.getState().setDataBackgrounds([]);
         if (!printerErrorLogged) {
-          console.error("Не удалось получить список шрифтов:", error);
+          console.error("Не удалось получить данные фонов:", error);
           printerErrorLogged = true;
         }
       }
     };
 
-    const refreshBackgrounds = async () => {
+    const refreshDataFonts = async () => {
       try {
-        const background = await appService.getAvailableBackgrounds();
-
+        const fonts: any = await backendClient.getDataFonts();
         if (!active) return;
-
-        const store = useAppStore.getState();
-
-        const isChanged =
-          JSON.stringify(store.listBackgrounds) !== JSON.stringify(background);
-
-        if (isChanged) {
-          // Обновляем список фонов
-          store.setListBackgrounds(background);
-
-          // Загружаем изображения только при изменении списка
-          const dataBackgrounds = await appService.getDataBackgrounds();
-
-          if (!active) return;
-
-          // Обновляем изображения
-          useAppStore.getState().setDataBackgrounds(dataBackgrounds);
-        }
-
+        useAppStore
+          .getState()
+          .setDataFonts((current) =>
+            JSON.stringify(current) === JSON.stringify(fonts) ? current : fonts,
+          );
         printerErrorLogged = false;
       } catch (error) {
         if (!active) return;
-
-        const store = useAppStore.getState();
-
-        store.setListBackgrounds([]);
-
+        useAppStore.getState().setDataFonts([]);
         if (!printerErrorLogged) {
-          console.error("Не удалось получить список фонов:", error);
+          console.error("Не удалось получить данные шрифтов:", error);
           printerErrorLogged = true;
         }
       }
@@ -187,19 +135,19 @@ export function useAppRuntime(): void {
     };
 
     void refreshPrinters();
-    void refreshFonts();
-    void refreshBackgrounds();
+    void refreshDataBackgorunds();
+    void refreshDataFonts();
     void refreshStatus();
-    const printerInterval = setInterval(refreshPrinters, 5000);
-    const fontInterval = setInterval(refreshFonts, 5000);
-    const backgroundInterval = setInterval(refreshBackgrounds, 5000);
+    const printerInterval = setInterval(refreshPrinters, 3000);
+    const backgroundInterval = setInterval(refreshDataBackgorunds, 3000);
+    const fontInterval = setInterval(refreshDataFonts, 3000);
     const statusInterval = setInterval(refreshStatus, 1000);
 
     return () => {
       active = false;
       clearInterval(printerInterval);
-      clearInterval(fontInterval);
       clearInterval(backgroundInterval);
+      clearInterval(fontInterval);
       clearInterval(statusInterval);
     };
   }, []);

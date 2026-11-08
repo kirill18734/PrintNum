@@ -17,7 +17,7 @@ interface PreviewPaperProps {
   textInputMode?: string;
   sequenceValue?: string;
   background?: string;
-  dataBackgrounds?: Record<string, string>;
+  dataBackgrounds?: any;
 }
 
 interface GeneratedCode {
@@ -46,12 +46,14 @@ export default function PreviewPaper({
 }: PreviewPaperProps) {
   // Применение выбранного шрифта
   const fontStyle = {
-    fontFamily: `"${font.split("-")[0].replace(/([a-z])([A-Z])/g, "$1 $2")}", sans-serif`,
+    fontFamily: `${font}, sans-serif`,
   };
 
   // Получаем изображение выбранного фона
   const backgroundImage =
-    background !== "Без фона" ? dataBackgrounds[background] : undefined;
+    background !== "Без фона"
+      ? dataBackgrounds.find((item: any) => item.name === background)?.base64
+      : undefined;
 
   // Состояние генерации кода
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({

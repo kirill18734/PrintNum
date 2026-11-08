@@ -14,30 +14,18 @@ interface IAppService {
   initStartHandler(): Promise<void>;
   minWindow(): Promise<void>;
   visibleWindow(): Promise<void>;
-
-  // Ресурсы приложения
-  getAvailableFonts(): Promise<string[]>;
-  getAvailableBackgrounds(): Promise<string[]>;
-  getDataBackgrounds(): Promise<Record<string, string>>;
 }
 
 // ─── КОНСТАНТЫ ИЗОБРАЖЕНИЙ ───
 
 const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
 
-const IMAGE_MIME_TYPES: Record<string, string> = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  webp: "image/webp",
-};
-
 // ─── ДОБАВЛЕНИЕ ИЗОБРАЖЕНИЙ ───
-
 export const addBackgroundImages = async (): Promise<void> => {
   try {
     const { open } = await import("@tauri-apps/plugin-dialog");
-    const { readFile, writeFile, BaseDirectory, mkdir } =
+    // Добавляем mkdir и exists для работы с папками
+    const { readFile, writeFile, mkdir, exists, BaseDirectory } =
       await import("@tauri-apps/plugin-fs");
 
     // Выбор нескольких изображений
@@ -54,6 +42,17 @@ export const addBackgroundImages = async (): Promise<void> => {
 
     if (!selectedFiles || !Array.isArray(selectedFiles)) return;
 
+    // Проверяем, существует ли папка images. Если нет — создаем её.
+    const dirExists = await exists("images", {
+      baseDir: BaseDirectory.AppData,
+    });
+    if (!dirExists) {
+      await mkdir("images", {
+        baseDir: BaseDirectory.AppData,
+        recursive: true, // На случай, если нужно создать вложенную структуру
+      });
+    }
+
     // Сохраняем выбранные изображения
     await Promise.all(
       selectedFiles.map(async (filePath) => {
@@ -63,119 +62,13 @@ export const addBackgroundImages = async (): Promise<void> => {
 
         const bytes = await readFile(filePath);
 
-        await writeFile(`resources/images/${fileName}`, bytes, {
-          baseDir: BaseDirectory.AppLocalData,
+        await writeFile(`images/${fileName}`, bytes, {
+          baseDir: BaseDirectory.AppData,
         });
       }),
     );
   } catch (error) {
     console.error("Не удалось добавить изображения:", error);
-  }
-};
-
-// ─── ПОЛУЧЕНИЕ СПИСКА РЕСУРСОВ ───
-const getResourceFiles = async (
-  folder: "fonts" | "images",
-  extensions: string[],
-): Promise<string[]> => {
-  try {
-    const { readDir, BaseDirectory } = await import("@tauri-apps/plugin-fs");
-
-    const entries = await readDir(`resources/${folder}`, {
-      baseDir: BaseDirectory.AppLocalData,
-    });
-
-    const files = entries
-      .filter((entry) => {
-        if (!entry.isFile || !entry.name) return false;
-
-        const extension = entry.name.split(".").pop()?.toLowerCase();
-
-        return extension ? extensions.includes(extension) : false;
-      })
-      .map((entry) => entry.name!.replace(/\.[^.]+$/, ""));
-
-    const defaultResource = {
-      fonts: "Arial",
-      images: "Без фона",
-    };
-
-    const result = [...files, defaultResource[folder]];
-
-    return [...new Set(result)].sort((a, b) => a.localeCompare(b));
-  } catch (error) {
-    console.error(`Не удалось получить список ресурсов (${folder}):`, error);
-
-    return folder === "fonts" ? ["Arial"] : ["Без фона"];
-  }
-};
-
-// ─── ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЙ В BASE64 ───
-
-const getDataBackgrounds = async (): Promise<Record<string, string>> => {
-  try {
-    const { readDir, readFile, BaseDirectory } =
-      await import("@tauri-apps/plugin-fs");
-
-    const entries = await readDir("resources/images", {
-      baseDir: BaseDirectory.AppLocalData,
-    });
-
-    const imageEntries = entries.filter((entry) => {
-      if (!entry.isFile || !entry.name) return false;
-
-      const extension = entry.name.split(".").pop()?.toLowerCase();
-
-      return extension ? IMAGE_EXTENSIONS.includes(extension) : false;
-    });
-
-    const images: Record<string, string> = {};
-
-    // Читаем изображения параллельно
-    await Promise.all(
-      imageEntries.map(async (entry) => {
-        try {
-          const fileName = entry.name!;
-          const extension = fileName.split(".").pop()!.toLowerCase();
-
-          const resourceName = fileName.replace(/\.[^.]+$/, "");
-
-          // Получаем содержимое изображения
-          const bytes = await readFile(`resources/images/${fileName}`, {
-            baseDir: BaseDirectory.AppLocalData,
-          });
-
-          // Uint8Array -> Base64
-          let binary = "";
-
-          const chunkSize = 0x8000;
-
-          for (let i = 0; i < bytes.length; i += chunkSize) {
-            const chunk = bytes.subarray(i, i + chunkSize);
-
-            binary += String.fromCharCode(...chunk);
-          }
-
-          const base64 = btoa(binary);
-
-          const mimeType = IMAGE_MIME_TYPES[extension];
-
-          // Формируем Data URL
-          images[resourceName] = `data:${mimeType};base64,${base64}`;
-        } catch (error) {
-          console.error(
-            `Не удалось загрузить изображение ${entry.name}:`,
-            error,
-          );
-        }
-      }),
-    );
-
-    return images;
-  } catch (error) {
-    console.error("Не удалось получить изображения:", error);
-
-    return {};
   }
 };
 
@@ -199,13 +92,6 @@ const webAppService: IAppService = {
   closeWindow: async () => {},
   initCloseHandler: async () => {},
   initStartHandler: async () => {},
-
-  // Ресурсы в браузерном режиме недоступны
-  getAvailableFonts: async () => ["Arial"],
-
-  getAvailableBackgrounds: async () => ["Без фона"],
-
-  getDataBackgrounds: async () => ({}),
 };
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ TAURI V2 ───
@@ -381,20 +267,6 @@ const tauriAppService: IAppService = {
     }
 
     console.warn("Backend запущен, но не отвечает на 127.0.0.1:5000");
-  },
-
-  // ─── РЕСУРСЫ ───
-
-  getAvailableFonts: async () => {
-    return await getResourceFiles("fonts", ["ttf"]);
-  },
-
-  getAvailableBackgrounds: async () => {
-    return await getResourceFiles("images", IMAGE_EXTENSIONS);
-  },
-
-  getDataBackgrounds: async () => {
-    return await getDataBackgrounds();
   },
 };
 
