@@ -24,6 +24,10 @@
       "allow": ["$APPLOCALDATA/resources/**"]
     },
     {
+      "identifier": "fs:allow-write-file",
+      "allow": ["$APPLOCALDATA/resources/**"]
+    },
+    {
       "identifier": "shell:allow-spawn",
       "allow": [
         {

@@ -32,8 +32,48 @@ const IMAGE_MIME_TYPES: Record<string, string> = {
   webp: "image/webp",
 };
 
-// ─── ПОЛУЧЕНИЕ СПИСКА РЕСУРСОВ ───
+// ─── ДОБАВЛЕНИЕ ИЗОБРАЖЕНИЙ ───
 
+export const addBackgroundImages = async (): Promise<void> => {
+  try {
+    const { open } = await import("@tauri-apps/plugin-dialog");
+    const { readFile, writeFile, BaseDirectory, mkdir } =
+      await import("@tauri-apps/plugin-fs");
+
+    // Выбор нескольких изображений
+    const selectedFiles = await open({
+      multiple: true,
+      directory: false,
+      filters: [
+        {
+          name: "Изображения",
+          extensions: IMAGE_EXTENSIONS,
+        },
+      ],
+    });
+
+    if (!selectedFiles || !Array.isArray(selectedFiles)) return;
+
+    // Сохраняем выбранные изображения
+    await Promise.all(
+      selectedFiles.map(async (filePath) => {
+        const fileName = filePath.split(/[\\/]/).pop();
+
+        if (!fileName) return;
+
+        const bytes = await readFile(filePath);
+
+        await writeFile(`resources/images/${fileName}`, bytes, {
+          baseDir: BaseDirectory.AppLocalData,
+        });
+      }),
+    );
+  } catch (error) {
+    console.error("Не удалось добавить изображения:", error);
+  }
+};
+
+// ─── ПОЛУЧЕНИЕ СПИСКА РЕСУРСОВ ───
 const getResourceFiles = async (
   folder: "fonts" | "images",
   extensions: string[],

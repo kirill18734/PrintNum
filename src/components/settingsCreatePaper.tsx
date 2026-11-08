@@ -274,7 +274,7 @@ export default function SettingsCreatePaper({
                   htmlFor="checkbox-labelBold"
                   className="cursor-pointer select-none text-[11px] font-normal"
                 >
-                  Жирный
+                  Жирный шрифт
                 </FieldLabel>
               </Field>
 

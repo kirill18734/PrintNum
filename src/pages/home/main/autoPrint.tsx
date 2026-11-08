@@ -40,7 +40,7 @@ export default function AutoPrint({
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
-      <LatestTextCard status="waiting" />
+      <LatestTextCard status="printed" text="231-2" receivedAt={new Date()} />
 
       <SettingsPrinter
         printer={printer}
