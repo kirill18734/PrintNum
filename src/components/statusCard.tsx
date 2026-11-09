@@ -17,13 +17,11 @@ export type LatestTextStatus =
   | "printer_unavailable"
   | "print_error";
 
-export interface LatestTextCardProps {
+export interface StatusCardProps {
   status: LatestTextStatus;
   text?: string | null;
   renameText?: string | null;
-  message?: string;
   receivedAt?: Date | string | null;
-  className?: string;
 }
 
 const STATUS_CONFIG = {
@@ -40,7 +38,7 @@ const STATUS_CONFIG = {
     Icon: LoaderCircle,
   },
   printed: {
-    label: "Напечатано",
+    label: "Отправлено на печать",
     color: "text-emerald-600 dark:text-emerald-400",
     border: "border-emerald-500/30 bg-emerald-500/[0.03]",
     Icon: CheckCircle2,
@@ -96,14 +94,12 @@ function formatTime(value?: Date | string | null): string | null {
   });
 }
 
-export function LatestTextCard({
+export function StatusCard({
   status,
   text,
   renameText,
-  message,
   receivedAt,
-  className = "",
-}: LatestTextCardProps) {
+}: StatusCardProps) {
   const config = STATUS_CONFIG[status];
   const Icon = config.Icon;
 
@@ -117,8 +113,7 @@ export function LatestTextCard({
 
   const time = formatTime(receivedAt);
 
-  const description =
-    message?.trim() || (isWaiting ? "Новых заданий пока нет" : null);
+  const description = isWaiting ? "Новых заданий пока нет" : null;
 
   return (
     <Card
@@ -127,7 +122,6 @@ export function LatestTextCard({
         border px-2.5 py-2 shadow-none
         transition-colors
         ${config.border}
-        ${className}
       `}
       aria-live="polite"
       aria-atomic="true"
@@ -218,5 +212,3 @@ export function LatestTextCard({
     </Card>
   );
 }
-
-export default LatestTextCard;

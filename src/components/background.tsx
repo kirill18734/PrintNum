@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { addBackgroundImages } from "@/services/app.tauri";
+import { appService } from "@/services/app.tauri";
 
 interface BackgroundProps {
   background: string;
@@ -46,7 +46,7 @@ export default function Background({
         </Select>
         <button
           type="button"
-          onClick={addBackgroundImages}
+          onClick={appService.addBackgroundImages}
           title="Добавить изображения"
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-xs outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
         >

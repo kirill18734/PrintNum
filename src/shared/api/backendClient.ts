@@ -49,34 +49,17 @@ interface PrintLabelRequest {
   contentType: LabelContentType;
   content: string;
   codeImage?: string;
-  bold: boolean;
-  underline: boolean;
-  font: string;
-  showCodeText: boolean;
+  bold?: boolean;
+  underline?: boolean;
+  showCodeText?: boolean;
 }
 
 export const backendClient = {
-  async getPrinters(): Promise<string[]> {
-    const body = await apiClient("listPrinters");
-    return body.listPrinters;
+  async dataApp(): Promise<any> {
+    return await apiClient("data-app");
   },
-
-  async getDataBackgrounds(): Promise<string[]> {
-    const body = await apiClient("dataBackgrounds");
-    return body.dataBackgrounds;
-  },
-
-  async getDataFonts(): Promise<string[]> {
-    const body = await apiClient("dataFonts");
-    return body.dataFonts;
-  },
-
-  async getPrinterStatus(): Promise<boolean> {
-    const body = await apiClient("status-printer");
-    return body.printerOnline;
-  },
-
-  async printLabel(label: PrintLabelRequest): Promise<void> {
-    await apiClient("print-label", { body: JSON.stringify(label) });
+  async printLabel(data: PrintLabelRequest): Promise<any> {
+    console.log("Отправка задания на печать:", data);
+    return await apiClient("print-label", data);
   },
 };

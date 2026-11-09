@@ -2,6 +2,8 @@ import PreviewPaper from "@/components/previewPaper";
 import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/services/store";
+import { backendClient } from "@/shared/api/backendClient";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -51,12 +53,22 @@ export default function CreateLabel({
   });
 
   const [contentType, setContentType] = useState<LabelContentType>("text");
-  const [labelBold, setLabelBold] = useState(false);
-  const [font, setFont] = useState("Arial");
-  const [background, setBackground] = useState("Без фона");
-  const [labelUnderline, setLabelUnderline] = useState(false);
-  const [showCodeText, setShowCodeText] = useState(true);
+  const bold_manual = useAppStore((state) => state.bold_manual);
+  const showCodeText = useAppStore((state) => state.showCodeText);
+  const endLine_manual = useAppStore((state) => state.endLine_manual);
+  const font_manual = useAppStore((state) => state.font_manual);
+  const background_manual = useAppStore((state) => state.background_manual);
   const [sequenceValues, setSequenceValues] = useState<string[]>([]);
+  const [codeImage, setCodeImage] = useState<string>("");
+
+  const setSetting = useAppStore((state) => state.setSetting);
+  const setBold_Manual = (value: boolean) => setSetting("bold_manual", value);
+  const setShowCodeText = (value: boolean) => setSetting("showCodeText", value);
+  const setEndLine_Manual = (value: boolean) =>
+    setSetting("endLine_manual", value);
+  const setFont_Manual = (value: string) => setSetting("font_manual", value);
+  const setBackground_Manual = (value: string) =>
+    setSetting("background_manual", value);
 
   const updateLabelContent = (value: string) =>
     setContentByType((current) => ({ ...current, [contentType]: value }));
@@ -151,6 +163,19 @@ export default function CreateLabel({
     }));
   };
 
+  const sendPrintJob = async () => {
+    const content = contentByType[contentType];
+    if (!content) return;
+    await backendClient.printLabel({
+      contentType,
+      content,
+      codeImage: codeImage || undefined,
+      bold: bold_manual,
+      underline: endLine_manual,
+      showCodeText: showCodeText,
+    });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
       <SettingsPrinter
@@ -168,35 +193,36 @@ export default function CreateLabel({
             setContentType={setContentType}
             content={contentByType[contentType]}
             setContent={updateLabelContent}
-            bold={labelBold}
-            setBold={setLabelBold}
-            underline={labelUnderline}
-            setUnderline={setLabelUnderline}
+            bold={bold_manual}
+            setBold={setBold_Manual}
+            underline={endLine_manual}
+            setUnderline={setEndLine_Manual}
             showCodeText={showCodeText}
             setShowCodeText={setShowCodeText}
             sequence={sequence}
             updateSequence={updateSequence}
             textInputMode={textInputMode}
             setTextInputMode={setTextInputMode}
-            font={font}
-            setFont={setFont}
+            font={font_manual}
+            setFont={setFont_Manual}
             dataFonts={dataFonts}
-            background={background}
-            setBackground={setBackground}
+            background={background_manual}
+            setBackground={setBackground_Manual}
             dataBackgrounds={dataBackgrounds}
           />
           <div className="flex flex-col w-full gap-2">
             <PreviewPaper
               mode="create"
               contentType={contentType}
-              bold={labelBold}
-              underline={labelUnderline}
+              bold={bold_manual}
+              underline={endLine_manual}
               content={contentByType[contentType]}
               showCodeText={showCodeText}
+              setCodeImage={setCodeImage}
               textInputMode={textInputMode}
-              font={font}
+              font={font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
-              background={background}
+              background={background_manual}
               dataBackgrounds={dataBackgrounds}
             />
             {/* Предпросмотр */}
@@ -255,7 +281,7 @@ export default function CreateLabel({
         </div>
         <Button
           type="button"
-          onClick={() => {}}
+          onClick={sendPrintJob}
           className="h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto"
         >
           Распечатать

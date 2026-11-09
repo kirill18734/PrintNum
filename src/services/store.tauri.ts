@@ -22,14 +22,19 @@ function isAppSettingsEntry(
     case "printer":
     case "paper":
     case "font":
+    case "font_manual":
     case "background":
+
+    case "background_manual":
     case "themeStyle":
       return typeof value === "string";
-    case "running":
     case "hybrid":
     case "idNum":
     case "endLine":
+    case "endLine_manual":
     case "bold":
+    case "showCodeText":
+    case "bold_manual":
       return typeof value === "boolean";
     case "expand":
       return typeof value === "number" || value === "";

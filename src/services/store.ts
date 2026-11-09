@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import type { AppSettings } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
+import { StatusCardProps } from "@/components/statusCard";
 
 const listPapers = [
   "30*20",
@@ -14,8 +15,17 @@ const listPapers = [
   "100*150",
 ];
 
+// 1. Описываем структуру объекта фона (подставьте ваши реальные поля)
+export interface FontItem {
+  id: string;
+  name: string;
+  rel: string;
+  base64: string;
+}
+
 // 1. Определяем тип элемента
-export interface DataBackground {
+export interface BackgroundItem {
+  id: string;
   name: string;
   base64: string;
 }
@@ -27,22 +37,30 @@ interface AppStore extends AppSettings {
   isUpdating: boolean;
   installUpdate: boolean;
   listPrinters: string[];
-  dataFonts: DataBackground[];
-  dataBackgrounds: DataBackground[];
+  printJobs: StatusCardProps[];
+  dataFonts: FontItem[];
+  dataBackgrounds: BackgroundItem[];
   listPapers: string[];
   setSetting<K extends keyof AppSettings>(
     key: K,
     value: AppSettings[K],
   ): Promise<void>;
-  setConnectionStatus(serverOnline: boolean, printerOnline: boolean): void;
+  setServerOnline(serverOnline: boolean): void;
+  setPrinterOnline(printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
 
   setDataBackgrounds: (
-    next: DataBackground[] | ((current: DataBackground[]) => DataBackground[]),
+    next: BackgroundItem[] | ((current: BackgroundItem[]) => BackgroundItem[]),
+  ) => void;
+
+  setPrintJobs: (
+    next:
+      | StatusCardProps[]
+      | ((current: StatusCardProps[]) => StatusCardProps[]),
   ) => void;
 
   setDataFonts: (
-    next: DataBackground[] | ((current: DataBackground[]) => DataBackground[]),
+    next: FontItem[] | ((current: FontItem[]) => FontItem[]),
   ) => void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
@@ -57,6 +75,8 @@ export const useAppStore = create<AppStore>((set) => ({
   isUpdating: false,
   installUpdate: false,
   listPrinters: [],
+  printJobs: [],
+  
   dataFonts: [],
   dataBackgrounds: [],
   listPapers,
@@ -69,8 +89,12 @@ export const useAppStore = create<AppStore>((set) => ({
       throw error;
     }
   },
-  setConnectionStatus: (serverOnline, printerOnline) =>
-    set({ serverOnline, printerOnline }),
+  setPrintJobs: (next) =>
+    set((state) => ({
+      printJobs: typeof next === "function" ? next(state.printJobs) : next,
+    })),
+  setServerOnline: (serverOnline) => set({ serverOnline }),
+  setPrinterOnline: (printerOnline) => set({ printerOnline }),
   setListPrinters: (printers) =>
     set((state) => ({
       listPrinters:

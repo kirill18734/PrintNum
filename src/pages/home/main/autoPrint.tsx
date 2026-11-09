@@ -1,8 +1,8 @@
 import AutoPrintRules from "@/components/autoPrintRules";
-import LatestTextCard from "@/components/latestTextCard";
 import PreviewPaper from "@/components/previewPaper";
 import SettingsPaper from "@/components/settingsPaper";
 import SettingsPrinter from "@/components/settingsPrinter";
+import { StatusCard } from "@/components/statusCard";
 import { useAppStore } from "@/services/store";
 
 export default function AutoPrint({
@@ -12,8 +12,6 @@ export default function AutoPrint({
   paper,
   setPaper,
   listPapers,
-  background,
-  setBackground,
   dataFonts,
   dataBackgrounds,
 }: any) {
@@ -24,6 +22,8 @@ export default function AutoPrint({
   const font = useAppStore((state) => state.font);
   const expand = useAppStore((state) => state.expand);
   const bold = useAppStore((state) => state.bold);
+  const printJobs = useAppStore((state) => state.printJobs);
+  const background = useAppStore((state) => state.background);
 
   const setSetting = useAppStore((state) => state.setSetting);
 
@@ -36,10 +36,13 @@ export default function AutoPrint({
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
   const setFont = (value: string) => setSetting("font", value);
+  const setBackground = (value: string) => setSetting("background", value);
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
-      <LatestTextCard status="printed" text="231-2" receivedAt={new Date()} />
+      <StatusCard
+        {...(printJobs.length ? printJobs[0] : { status: "waiting" })}
+      />
 
       <SettingsPrinter
         printer={printer}

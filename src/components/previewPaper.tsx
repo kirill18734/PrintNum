@@ -17,6 +17,7 @@ interface PreviewPaperProps {
   textInputMode?: string;
   sequenceValue?: string;
   background?: string;
+  setCodeImage?: any;
   dataBackgrounds?: any;
 }
 
@@ -40,6 +41,7 @@ export default function PreviewPaper({
   underline = false,
   showCodeText = false,
   textInputMode = "single",
+  setCodeImage = () => {},
   sequenceValue = "",
   background = "Без фона",
   dataBackgrounds = {},
@@ -63,27 +65,28 @@ export default function PreviewPaper({
   });
 
   // Генерация штрихкода / QR / Data Matrix
+  // Рекомендуется объединить стейт, чтобы избежать множественных ререндеров
+  // const [codeState, setCodeState] = useState({ svg: null, image: "", error: null, loading: false });
+
   useEffect(() => {
+    // Проверяем условия отмены в самом начале
     if (mode === "autoprint" || contentType === "text" || !content.trim()) {
-      setGeneratedCode({
-        svg: null,
-        error: null,
-        loading: false,
-      });
+      setGeneratedCode({ svg: null, error: null, loading: false });
+      setCodeImage("");
       return;
     }
 
     let cancelled = false;
 
-    setGeneratedCode({
-      svg: null,
-      error: null,
-      loading: true,
-    });
+    // Включаем лоадер одним махом
+    setGeneratedCode({ svg: null, error: null, loading: true });
+    setCodeImage("");
 
     const generateCode = async () => {
       try {
+        // Динамический импорт bwip-js
         const bwipjs = await import("bwip-js/browser");
+        if (cancelled) return;
 
         const bcid =
           contentType === "barcode"
@@ -92,14 +95,26 @@ export default function PreviewPaper({
               ? "qrcode"
               : "datamatrix";
 
-        const svg = bwipjs.toSVG({
+        const options = {
           bcid,
           text: content,
           scale: 3,
           padding: 0,
           backgroundcolor: "FFFFFF",
           barcolor: "000000",
-        });
+        };
+
+        // 1. Генерируем SVG (синхронно)
+        const svg = bwipjs.toSVG(options);
+
+        // 2. Генерируем Canvas (используем колбэк для гарантии отрисовки)
+        const canvas = document.createElement("canvas");
+
+        // bwipjs.toCanvas возвращает canvas, но надежнее дождаться завершения отрисовки
+        bwipjs.toCanvas(canvas, options);
+
+        // Получаем чистый Base64 (без префикса data:image/png;base64,)
+        const codeImage = canvas.toDataURL("image/png").split(",")[1];
 
         if (!cancelled) {
           setGeneratedCode({
@@ -107,6 +122,7 @@ export default function PreviewPaper({
             error: null,
             loading: false,
           });
+          setCodeImage(codeImage);
         }
       } catch (error) {
         if (!cancelled) {
@@ -115,6 +131,7 @@ export default function PreviewPaper({
             error: error instanceof Error ? error.message : String(error),
             loading: false,
           });
+          setCodeImage("");
         }
       }
     };
