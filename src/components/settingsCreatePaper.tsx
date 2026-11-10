@@ -176,10 +176,6 @@ export default function SettingsCreatePaper({
                   rows={2}
                   className={textareaClass}
                 />
-
-                <div className="text-right text-[10px] text-muted-foreground">
-                  {content.length} символов
-                </div>
               </>
             ) : (
               <div className="flex flex-col gap-2">
@@ -253,10 +249,6 @@ export default function SettingsCreatePaper({
               rows={2}
               className={textareaClass}
             />
-
-            <div className="text-right text-[10px] text-muted-foreground">
-              {content.length} символов
-            </div>
           </>
         )}
 
