@@ -7,36 +7,19 @@ export function useThemeRuntime(): void {
 
   // Стиль приложения
   useEffect(() => {
-    document.documentElement.setAttribute(
-      "theme-style",
-      themeStyle,
-    );
+    document.documentElement.setAttribute("theme-style", themeStyle);
   }, [themeStyle]);
-
-  // Цветовая тема
+  // тема
   useEffect(() => {
     const root = document.documentElement;
-    const media = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    );
-
-    const applyTheme = () => {
-      const isDark =
-        theme === "system"
-          ? media.matches
-          : theme === "dark";
-
+    if (theme === "system") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       root.classList.toggle("dark", isDark);
-    };
-
-    applyTheme();
-
-    if (theme !== "system") return;
-
-    media.addEventListener("change", applyTheme);
-
-    return () => {
-      media.removeEventListener("change", applyTheme);
-    };
+      void useAppStore
+        .getState()
+        .setSetting("theme", isDark ? "dark" : "light");
+      return;
+    }
+    root.classList.toggle("dark", theme === "dark");
   }, [theme]);
 }
