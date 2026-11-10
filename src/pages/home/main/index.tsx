@@ -14,7 +14,7 @@ export default function Main() {
   const themeStyle = useAppStore((state) => state.themeStyle);
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
-
+  const printerOnline = useAppStore((state) => state.printerOnline);
   const dataFonts = useAppStore((state) => state.dataFonts);
   const dataBackgrounds = useAppStore((state) => state.dataBackgrounds);
   const listPrinters = useAppStore((state) => state.listPrinters);
@@ -57,6 +57,7 @@ export default function Main() {
               listPapers={listPapers}
               dataFonts={dataFonts}
               dataBackgrounds={dataBackgrounds}
+              printerOnline={printerOnline}
             />
           ) : (
             <CreateLabel
@@ -68,6 +69,7 @@ export default function Main() {
               listPapers={listPapers}
               dataFonts={dataFonts}
               dataBackgrounds={dataBackgrounds}
+              printerOnline={printerOnline}
             />
           )}
         </div>

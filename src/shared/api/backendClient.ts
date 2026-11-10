@@ -4,12 +4,8 @@ import { LabelContentType } from "@/components/settingsCreatePaper";
 
 const API_BASE = "http://127.0.0.1:5000";
 
-async function apiClient(
-  endpoint: string,
-  data: any = null,
-  customMethod = null,
-) {
-  const method = customMethod || (data ? "POST" : "GET");
+async function apiClient(endpoint: string, data: any = null) {
+  const method = data ? "POST" : "GET";
   const options: any = { method };
 
   if (data) {
@@ -59,7 +55,6 @@ export const backendClient = {
     return await apiClient("data-app");
   },
   async printLabel(data: PrintLabelRequest): Promise<any> {
-    console.log("Отправка задания на печать:", data);
     return await apiClient("print-label", data);
   },
 };

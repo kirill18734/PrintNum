@@ -6,7 +6,7 @@ import { useAppStore } from "@/services/store";
 import { backendClient } from "@/shared/api/backendClient";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 
 export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
@@ -42,6 +42,7 @@ export default function CreateLabel({
   listPapers,
   dataFonts,
   dataBackgrounds,
+  // printerOnline,
 }: any) {
   const [contentByType, setContentByType] = useState<
     Record<LabelContentType, string>
@@ -51,8 +52,14 @@ export default function CreateLabel({
     qr: "",
     datamatrix: "",
   });
-
+  const printerOnline = true;
   const [contentType, setContentType] = useState<LabelContentType>("text");
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const stopPrinting = useRef(false);
+  // Новый стейт вместо старого рефа curSendPrintText
+  const [currentPrintingItem, setCurrentPrintingItem] = useState("");
+
   const bold_manual = useAppStore((state) => state.bold_manual);
   const showCodeText = useAppStore((state) => state.showCodeText);
   const endLine_manual = useAppStore((state) => state.endLine_manual);
@@ -163,17 +170,119 @@ export default function CreateLabel({
     }));
   };
 
+  const PRINT_SCENARIOS = [
+    {
+      id: "offline",
+      check: ({ printerOnline }) => !printerOnline,
+      topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
+      topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
+      buttonText: "Распечатать",
+      buttonDisabled: true,
+      isStopButton: false,
+      hasCustomBg: false,
+    },
+    {
+      id: "single-printing",
+      check: ({ printerOnline, isPrinting, textInputMode }) =>
+        printerOnline && isPrinting && textInputMode === "single",
+      topText: () => <span>Отправка на печать...</span>,
+      topTextClass: "text-xs font-medium text-primary animate-bounce",
+      buttonText: "Печать…",
+      buttonDisabled: true,
+      isStopButton: false,
+      hasCustomBg: false,
+    },
+    {
+      id: "sequence-printing",
+      check: ({ printerOnline, isPrinting, textInputMode }) =>
+        printerOnline && isPrinting && textInputMode === "sequence",
+      // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
+      topText: (text) => (
+        <span className="flex items-center gap-1.5">
+          Отправка на печать ➔
+          <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 shadow-sm transition-all">
+            {text || "..."}
+          </span>
+        </span>
+      ),
+      topTextClass:
+        "text-xs font-semibold text-amber-700 dark:text-amber-400 animate-pulse",
+      buttonText: "Остановить",
+      buttonDisabled: false,
+      isStopButton: true,
+      hasCustomBg: true,
+    },
+    {
+      id: "ready",
+      check: ({ printerOnline, isPrinting }) => printerOnline && !isPrinting,
+      topText: () => <span>Готово к печати</span>,
+      topTextClass: "text-xs text-muted-foreground",
+      buttonText: "Распечатать",
+      buttonDisabled: false,
+      isStopButton: false,
+      hasCustomBg: false,
+    },
+  ];
+
+  {
+    /* Находим активный сценарий интерфейса на основе текущего состояния */
+  }
+  const currentScenario =
+    PRINT_SCENARIOS.find((scenario) =>
+      scenario.check({ printerOnline, isPrinting, textInputMode }),
+    ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
+
   const sendPrintJob = async () => {
     const content = contentByType[contentType];
-    if (!content) return;
-    await backendClient.printLabel({
-      contentType,
-      content,
-      codeImage: codeImage || undefined,
-      bold: bold_manual,
-      underline: endLine_manual,
-      showCodeText: showCodeText,
-    });
+
+    if (textInputMode !== "sequence" && !content) return;
+    if (textInputMode === "sequence" && !sequenceValues.length) return;
+
+    setIsPrinting(true);
+    setCurrentPrintingItem(""); // Очищаем перед стартом новой сессии
+    stopPrinting.current = false; // Сбрасываем флаг отмены в false
+
+    try {
+      if (textInputMode !== "sequence") {
+        // Одиночная отправка
+        await backendClient.printLabel({
+          contentType,
+          content,
+          codeImage: codeImage || undefined,
+        });
+      } else {
+        // Последовательная отправка
+        for (const elem of sequenceValues) {
+          // 1. Проверяем флаг остановки перед каждой итерацией
+          if (stopPrinting.current) {
+            console.log("Печать остановлена пользователем");
+            break;
+          }
+
+          // 2. Обновляем стейт текущего элемента — это мгновенно вызывает ререндер и меняет текст на экране
+          setCurrentPrintingItem(elem);
+
+          // 3. Ждем ответ от сервера
+          const response = await backendClient.printLabel({
+            contentType,
+            content: elem,
+          });
+
+          // 4. Проверяем корректность статуса ответа
+          if (!response || response.status !== "printed") {
+            console.error("Прерывание печати: некорректный статус от сервера");
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке на печать:", error);
+    } finally {
+      // Гарантированно выключаем статус печати и очищаем стейты
+      setIsPrinting(false);
+      stopPrinting.current = false;
+      setCurrentPrintingItem("");
+    }
   };
 
   return (
@@ -185,6 +294,7 @@ export default function CreateLabel({
         paper={paper}
         setPaper={setPaper}
         listPapers={listPapers}
+        printerOnline={printerOnline}
       />
       <div className="flex flex-col w-full rounded-xl border border-border bg-card p-2.5 gap-2">
         <div className="flex items-center justify-center gap-1">
@@ -279,13 +389,63 @@ export default function CreateLabel({
             )}
           </div>
         </div>
-        <Button
-          type="button"
-          onClick={sendPrintJob}
-          className="h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto"
-        >
-          Распечатать
-        </Button>
+
+        <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+          {/* Элемент 1: Статичное сообщение статуса с общим фоном для серии */}
+          <div
+            className={`h-7 px-3 flex items-center justify-center rounded-md transition-all duration-200 ${
+              currentScenario.hasCustomBg
+                ? "bg-amber-50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-900/30"
+                : "bg-transparent border border-transparent"
+            }`}
+          >
+            <span className={currentScenario.topTextClass}>
+              {/* Вызываем функцию, которая отрендерит текст со стрелочкой и подсвеченным бейджем */}
+              {currentScenario.topText(currentPrintingItem)}
+            </span>
+          </div>
+
+          {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
+          <Button
+            type="button"
+            disabled={currentScenario.buttonDisabled}
+            onClick={
+              currentScenario.isStopButton
+                ? () => {
+                    stopPrinting.current = true;
+                  }
+                : sendPrintJob
+            }
+            className={`h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto font-medium transition-all ${
+              currentScenario.isStopButton
+                ? "bg-red-600 hover:bg-red-700 text-white shadow-sm"
+                : ""
+            }`}
+          >
+            {isPrinting && (
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            )}
+            {currentScenario.buttonText}
+          </Button>
+        </div>
       </div>
     </div>
   );
