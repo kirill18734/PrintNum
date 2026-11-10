@@ -14,41 +14,26 @@ interface StoreService {
 
 const memoryConfig = { ...defaultConfig };
 
+// Динамическая валидация на основе defaultConfig
 function isAppSettingsEntry(
   key: string,
   value: unknown,
 ): key is keyof AppSettings {
-  switch (key) {
-    case "printer":
-    case "paper":
-    case "font":
-    case "font_manual":
-    case "background":
-    case "background_manual":
-    case "themeStyle":
-      return typeof value === "string";
-    case "hybrid":
-    case "idNum":
-    case "endLine":
-    case "endLine_manual":
-    case "bold":
-    case "showCodeText":
-    case "bold_manual":
-      return typeof value === "boolean";
-    case "expand":
-    case "opacity":
-    case "opacity_manual":
-      return typeof value === "number";
-    case "theme":
-      return value === "system" || value === "light" || value === "dark";
-    case "excludedTexts":
-      return (
-        Array.isArray(value) &&
-        value.every((item): item is string => typeof item === "string")
-      );
-    default:
-      return false;
+  // Проверяем, существует ли вообще такой ключ в дефолтном конфиге
+  if (!(key in defaultConfig)) return false;
+
+  const defaultValue = defaultConfig[key as keyof AppSettings];
+
+  // Обработка массивов (например, excludedTexts)
+  if (Array.isArray(defaultValue)) {
+    return (
+      Array.isArray(value) &&
+      value.every((item) => typeof item === typeof defaultValue[0])
+    );
   }
+
+  // Для остальных типов (string, number, boolean) сравниваем типы напрямую
+  return typeof value === typeof defaultValue;
 }
 
 interface TauriStore {
@@ -60,12 +45,9 @@ let tauriStoreInstance: TauriStore | null = null;
 
 /**
  * Инициализация хранилища.
- * Этот метод необходимо вызвать ОДИН раз при старте приложения,
- * прежде чем Zustand или другие сервисы начнут читать конфиг.
  */
 export const initStoreService = async (): Promise<void> => {
   if (!isTauri) {
-    // Для браузера данные уже в memoryConfig из defaultConfig
     return;
   }
 
@@ -76,7 +58,6 @@ export const initStoreService = async (): Promise<void> => {
       defaults: { ...defaultConfig },
     })) as TauriStore;
 
-    // Выкачиваем все данные из файла в оперативную память для синхронного доступа
     const entries = await tauriStoreInstance.entries();
     for (const [key, value] of entries) {
       if (isAppSettingsEntry(key, value)) {
@@ -93,8 +74,6 @@ export const initStoreService = async (): Promise<void> => {
 };
 
 // ─── ЕДИНАЯ РЕАЛИЗАЦИЯ СЕРВИСА ───
-// Больше нет нужды разделять web и tauri на два разных объекта,
-// так как чтение всегда идет из memoryConfig, а логика ветвится только при записи.
 export const storeService: StoreService = {
   get: (key) => memoryConfig[key],
   set: async (key, value) => {
@@ -117,4 +96,3 @@ export const storeService: StoreService = {
     return memoryConfig;
   },
 };
-// Хранилище пользовательских настроек с реализацией для Tauri и браузера.

@@ -1,19 +1,10 @@
 // Типизированное глобальное состояние приложения и действия для его обновления.
 import { create } from "zustand";
-import type { AppSettings } from "@/config/defaultConfig";
+import type { AppSettings, PaperFormat } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
 import { StatusCardProps } from "@/components/statusCard";
 
-const listPapers = [
-  "30*20",
-  "40*30",
-  "43*25",
-  "50*70",
-  "58*40",
-  "60*40",
-  "75*120",
-  "100*150",
-];
+import { listPapers } from "@/config/defaultConfig";
 
 // 1. Описываем структуру объекта фона (подставьте ваши реальные поля)
 export interface FontItem {
@@ -40,7 +31,8 @@ interface AppStore extends AppSettings {
   printJobs: StatusCardProps[];
   dataFonts: FontItem[];
   dataBackgrounds: BackgroundItem[];
-  listPapers: string[];
+  listPapers: PaperFormat[];
+
   setSetting<K extends keyof AppSettings>(
     key: K,
     value: AppSettings[K],
@@ -48,7 +40,6 @@ interface AppStore extends AppSettings {
   setServerOnline(serverOnline: boolean): void;
   setPrinterOnline(printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
-
   setDataBackgrounds: (
     next: BackgroundItem[] | ((current: BackgroundItem[]) => BackgroundItem[]),
   ) => void;
@@ -76,7 +67,7 @@ export const useAppStore = create<AppStore>((set) => ({
   installUpdate: false,
   listPrinters: [],
   printJobs: [],
-  
+
   dataFonts: [],
   dataBackgrounds: [],
   listPapers,

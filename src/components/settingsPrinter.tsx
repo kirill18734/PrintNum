@@ -7,6 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import Paper from "./paper";
+
 interface SettingsPrinterProps {
   printer: string;
   listPrinters: string[];
@@ -14,7 +16,7 @@ interface SettingsPrinterProps {
   paper: string;
   listPapers: string[];
   setPaper: (paper: string) => void;
-  printerOnline: boolean; // Изменено Boolean на boolean (лучшая практика для TS)
+  printerOnline: boolean;
 }
 
 export default function SettingsPrinter({
@@ -27,7 +29,7 @@ export default function SettingsPrinter({
   printerOnline,
 }: SettingsPrinterProps) {
   return (
-    <div className="flex w-full items-center justify-between gap-3">
+    <div className="flex w-full items-start justify-between gap-3">
       {/* Поле выбора принтера */}
       <div className="flex flex-1 min-w-0 flex-col items-start gap-0.5">
         <div className="flex items-center gap-1.5 leading-none">
@@ -61,33 +63,7 @@ export default function SettingsPrinter({
           </SelectContent>
         </Select>
       </div>
-
-      {/* Поле выбора формата бумаги */}
-      <div
-        data-tauri-drag-region
-        className="flex flex-1 min-w-0 flex-col items-start gap-0.5"
-      >
-        <span className="text-[11px] font-medium leading-none text-muted-foreground">
-          Этикетка (мм)
-        </span>
-        <Select defaultValue={paper} onValueChange={setPaper}>
-          <SelectTrigger
-            className="h-8 w-full rounded-md px-2 text-xs"
-            title="Ширина × высота"
-          >
-            <SelectValue placeholder="Выберите этикетку" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {listPapers.map((item) => (
-                <SelectItem value={item} key={item} className="text-xs">
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
+      <Paper paper={paper} listPapers={listPapers} setPaper={setPaper} />
     </div>
   );
 }
