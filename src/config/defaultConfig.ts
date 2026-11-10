@@ -9,6 +9,8 @@ export interface AppSettings {
   bold_manual: boolean;
   paper: string;
   font: string;
+  opacity: number;
+  opacity_manual: number;
   font_manual: string;
   showCodeText: boolean;
   background: string;
@@ -32,6 +34,8 @@ export const defaultConfig: AppSettings = {
   background_manual: "Без фона",
   font: "Arial",
   font_manual: "Arial",
+  opacity: 50,
+  opacity_manual: 50,
   paper: "30*20",
   expand: 500,
   theme: "system",

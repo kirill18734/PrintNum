@@ -22,6 +22,8 @@ interface SettingsPaperProps {
   setHybrid: (checked: boolean) => void;
   expand: number | string;
   setExpand: (valueOrFn: any) => void;
+  opacity: number;
+  setOpacity: (valueOrFn: any) => void;
 }
 
 export default function SettingsPaper({
@@ -41,6 +43,8 @@ export default function SettingsPaper({
   setHybrid,
   expand,
   setExpand,
+  opacity,
+  setOpacity,
 }: SettingsPaperProps) {
   const handleExpandChange = (
     action: "increment" | "decrement" | "blur" | string,
@@ -207,6 +211,8 @@ export default function SettingsPaper({
           background={background}
           setBackground={setBackground}
           dataBackgrounds={dataBackgrounds}
+          opacity={opacity}
+          setOpacity={setOpacity}
         />
       </div>
     </div>

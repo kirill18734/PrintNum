@@ -24,7 +24,6 @@ function isAppSettingsEntry(
     case "font":
     case "font_manual":
     case "background":
-
     case "background_manual":
     case "themeStyle":
       return typeof value === "string";
@@ -37,7 +36,9 @@ function isAppSettingsEntry(
     case "bold_manual":
       return typeof value === "boolean";
     case "expand":
-      return typeof value === "number" || value === "";
+    case "opacity":
+    case "opacity_manual":
+      return typeof value === "number";
     case "theme":
       return value === "system" || value === "light" || value === "dark";
     case "excludedTexts":

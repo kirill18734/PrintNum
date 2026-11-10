@@ -8,6 +8,7 @@ interface PreviewPaperProps {
   expand?: number;
   font?: string;
   bold?: boolean;
+  opacity?: number;
 
   mode: "autoprint" | "create";
   contentType?: LabelContentType;
@@ -45,6 +46,7 @@ export default function PreviewPaper({
   sequenceValue = "",
   background = "Без фона",
   dataBackgrounds = {},
+  opacity,
 }: PreviewPaperProps) {
   // Применение выбранного шрифта
   const fontStyle = {
@@ -152,7 +154,7 @@ export default function PreviewPaper({
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        opacity: 0.5,
+        opacity: opacity !== undefined ? opacity / 100 : 0.5, // Преобразуем в диапазон от 0 до 1
       }}
     />
   );

@@ -22,6 +22,8 @@ export default function AutoPrint({
   const hybrid = useAppStore((state) => state.hybrid);
   const font = useAppStore((state) => state.font);
   const expand = useAppStore((state) => state.expand);
+  const opacity = useAppStore((state) => state.opacity);
+
   const bold = useAppStore((state) => state.bold);
   const printJobs = useAppStore((state) => state.printJobs);
   const background = useAppStore((state) => state.background);
@@ -37,6 +39,7 @@ export default function AutoPrint({
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
   const setFont = (value: string) => setSetting("font", value);
+  const setOpacity = (value: number) => setSetting("opacity", value);
   const setBackground = (value: string) => setSetting("background", value);
 
   return (
@@ -83,6 +86,8 @@ export default function AutoPrint({
             setHybrid={setHybrid}
             expand={expand}
             setExpand={setExpand}
+            opacity={opacity}
+            setOpacity={setOpacity}
           />
 
           <PreviewPaper
@@ -95,6 +100,7 @@ export default function AutoPrint({
             mode="autoprint"
             background={background}
             dataBackgrounds={dataBackgrounds}
+            opacity={opacity}
           />
         </div>
       </div>

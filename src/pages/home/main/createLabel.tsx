@@ -42,7 +42,7 @@ export default function CreateLabel({
   listPapers,
   dataFonts,
   dataBackgrounds,
-  // printerOnline,
+  printerOnline,
 }: any) {
   const [contentByType, setContentByType] = useState<
     Record<LabelContentType, string>
@@ -52,7 +52,7 @@ export default function CreateLabel({
     qr: "",
     datamatrix: "",
   });
-  const printerOnline = true;
+
   const [contentType, setContentType] = useState<LabelContentType>("text");
   const [isPrinting, setIsPrinting] = useState(false);
 
@@ -60,6 +60,7 @@ export default function CreateLabel({
   // Новый стейт вместо старого рефа curSendPrintText
   const [currentPrintingItem, setCurrentPrintingItem] = useState("");
 
+  const opacity_manual = useAppStore((state) => state.opacity_manual);
   const bold_manual = useAppStore((state) => state.bold_manual);
   const showCodeText = useAppStore((state) => state.showCodeText);
   const endLine_manual = useAppStore((state) => state.endLine_manual);
@@ -69,6 +70,8 @@ export default function CreateLabel({
   const [codeImage, setCodeImage] = useState<string>("");
 
   const setSetting = useAppStore((state) => state.setSetting);
+  const setOpacity_Manual = (value: number) =>
+    setSetting("opacity_manual", value);
   const setBold_Manual = (value: boolean) => setSetting("bold_manual", value);
   const setShowCodeText = (value: boolean) => setSetting("showCodeText", value);
   const setEndLine_Manual = (value: boolean) =>
@@ -173,7 +176,7 @@ export default function CreateLabel({
   const PRINT_SCENARIOS = [
     {
       id: "offline",
-      check: ({ printerOnline }) => !printerOnline,
+      check: ({ printerOnline }: any) => !printerOnline,
       topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
       topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
       buttonText: "Распечатать",
@@ -183,7 +186,7 @@ export default function CreateLabel({
     },
     {
       id: "single-printing",
-      check: ({ printerOnline, isPrinting, textInputMode }) =>
+      check: ({ printerOnline, isPrinting, textInputMode }: any) =>
         printerOnline && isPrinting && textInputMode === "single",
       topText: () => <span>Отправка на печать...</span>,
       topTextClass: "text-xs font-medium text-primary animate-bounce",
@@ -194,10 +197,10 @@ export default function CreateLabel({
     },
     {
       id: "sequence-printing",
-      check: ({ printerOnline, isPrinting, textInputMode }) =>
+      check: ({ printerOnline, isPrinting, textInputMode }: any) =>
         printerOnline && isPrinting && textInputMode === "sequence",
       // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
-      topText: (text) => (
+      topText: (text: string) => (
         <span className="flex items-center gap-1.5">
           Отправка на печать ➔
           <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 shadow-sm transition-all">
@@ -214,7 +217,8 @@ export default function CreateLabel({
     },
     {
       id: "ready",
-      check: ({ printerOnline, isPrinting }) => printerOnline && !isPrinting,
+      check: ({ printerOnline, isPrinting }: any) =>
+        printerOnline && !isPrinting,
       topText: () => <span>Готово к печати</span>,
       topTextClass: "text-xs text-muted-foreground",
       buttonText: "Распечатать",
@@ -305,6 +309,8 @@ export default function CreateLabel({
             setContent={updateLabelContent}
             bold={bold_manual}
             setBold={setBold_Manual}
+            opacity={opacity_manual}
+            setOpacity={setOpacity_Manual}
             underline={endLine_manual}
             setUnderline={setEndLine_Manual}
             showCodeText={showCodeText}
@@ -334,6 +340,7 @@ export default function CreateLabel({
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
               background={background_manual}
               dataBackgrounds={dataBackgrounds}
+              opacity={opacity_manual}
             />
             {/* Предпросмотр */}
 
