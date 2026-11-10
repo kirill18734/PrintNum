@@ -66,10 +66,6 @@ export default function PreviewPaper({
     loading: false,
   });
 
-  // Генерация штрихкода / QR / Data Matrix
-  // Рекомендуется объединить стейт, чтобы избежать множественных ререндеров
-  // const [codeState, setCodeState] = useState({ svg: null, image: "", error: null, loading: false });
-
   useEffect(() => {
     // Проверяем условия отмены в самом начале
     if (mode === "autoprint" || contentType === "text" || !content.trim()) {
@@ -191,17 +187,28 @@ export default function PreviewPaper({
             </span>
           </div>
         ) : contentType === "text" ? (
-          /* Обычный текст */
-          <div className="flex justify-center items-center leading-none flex-1 min-h-0 w-full">
-            <span
-              className={`text-center whitespace-pre-wrap break-words max-w-full md:text-base
-                ${bold ? "font-bold" : ""}
-                ${underline ? "underline decoration-2" : ""}`}
+          /* Обычный текст — Автомасштабируемый через SVG */
+          <div className="flex justify-center items-center w-full h-full flex-1 min-h-0 overflow-hidden select-none">
+            <svg
+              viewBox="0 0 100 50" /* Пропорции контейнера, подстроятся под flex-1 */
+              className="w-full h-full"
+              preserveAspectRatio="xMidYMid meet" /* Центрирует и вписывает текст */
             >
-              {textInputMode == "single"
-                ? content || "Ваш текст появится здесь"
-                : sequenceValue}
-            </span>
+              <text
+                x="50"
+                y="25"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="18" /* Базовый размер, который будет масштабироваться */
+                className={`fill-current
+                ${bold ? "font-bold" : ""}
+                ${underline ? "underline" : ""}`}
+              >
+                {textInputMode === "single"
+                  ? content || "Ваш текст"
+                  : sequenceValue}
+              </text>
+            </svg>
           </div>
         ) : (
           /* Штрихкод / QR / Data Matrix */
