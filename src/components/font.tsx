@@ -1,3 +1,5 @@
+import type { FontItem } from "@/types/api";
+
 import {
   Select,
   SelectContent,
