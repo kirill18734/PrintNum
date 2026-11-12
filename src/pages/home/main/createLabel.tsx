@@ -66,7 +66,6 @@ export default function CreateLabel({
   const endLine_manual = useAppStore((state) => state.endLine_manual);
   const font_manual = useAppStore((state) => state.font_manual);
   const background_manual = useAppStore((state) => state.background_manual);
-  const [sequenceValues, setSequenceValues] = useState<string[]>([]);
   const [codeImage, setCodeImage] = useState<string>("");
   const [previewFont_Manual, setPreviewFont_Manual] = useState<
     string | undefined
@@ -170,15 +169,9 @@ export default function CreateLabel({
     };
   }, [sequence]);
 
-  // Генерация последовательности
-  const sequenceValuesList = sequenceResult.values;
-
-  // Передача последовательности родительскому компоненту
-  useEffect(() => {
-    if (contentType === "text" && textInputMode === "sequence") {
-      setSequenceValues?.(sequenceValuesList);
-    }
-  }, [contentType, textInputMode, sequenceValuesList, setSequenceValues]);
+  // Режим диапазона применим только к текстовым этикеткам.
+  const isSequenceMode = contentType === "text" && textInputMode === "sequence";
+  const sequenceValues = sequenceResult.values;
 
   const updateSequence = (key: keyof SequenceConfig, value: string) => {
     setSequence((prev) => ({
@@ -201,7 +194,7 @@ export default function CreateLabel({
     {
       id: "single-printing",
       check: ({ printerOnline, isPrinting, textInputMode }: any) =>
-        printerOnline && isPrinting && textInputMode === "single",
+        printerOnline && isPrinting && !isSequenceMode,
       topText: () => <span>Отправка на печать...</span>,
       topTextClass: "text-xs font-medium text-primary animate-bounce",
       buttonText: "Печать…",
@@ -212,7 +205,7 @@ export default function CreateLabel({
     {
       id: "sequence-printing",
       check: ({ printerOnline, isPrinting, textInputMode }: any) =>
-        printerOnline && isPrinting && textInputMode === "sequence",
+        printerOnline && isPrinting && isSequenceMode,
       // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
       topText: (text: string) => (
         <span className="flex items-center gap-1.5">
@@ -247,21 +240,21 @@ export default function CreateLabel({
   }
   const currentScenario =
     PRINT_SCENARIOS.find((scenario) =>
-      scenario.check({ printerOnline, isPrinting, textInputMode }),
+      scenario.check({ printerOnline, isPrinting, isSequenceMode }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
   const sendPrintJob = async () => {
     const content = contentByType[contentType];
 
-    if (textInputMode !== "sequence" && !content) return;
-    if (textInputMode === "sequence" && !sequenceValues.length) return;
+    if (!isSequenceMode && !content) return;
+    if (isSequenceMode && !sequenceValues.length) return;
 
     setIsPrinting(true);
     setCurrentPrintingItem(""); // Очищаем перед стартом новой сессии
     stopPrinting.current = false; // Сбрасываем флаг отмены в false
 
     try {
-      if (textInputMode !== "sequence") {
+      if (!isSequenceMode) {
         // Одиночная отправка
         await backendClient.printLabel({
           contentType,
@@ -362,7 +355,7 @@ export default function CreateLabel({
 
             {/* Зарезервированная область для результатов диапазона */}
             <div className="min-h-[84px]">
-              {textInputMode === "sequence" && contentType === "text" && (
+              {isSequenceMode && (
                 <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-2.5">
                   {sequenceResult.error ? (
                     <div className="flex items-start gap-2 text-destructive">
