@@ -3,12 +3,12 @@ import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
-import { backendClient } from "@/shared/api/backendClient";
 import type { LabelContentType, SequenceConfig, TextInputMode } from "@/types/label";
 import type { PrinterPageProps } from "@/types/printer";
-import { parseSequence } from "@/shared/utils/parseElem";
+import { generateSequence } from "@/shared/utils/generateSequence";
+import { useLabelPrinting } from "./useLabelPrinting";
 import { AlertCircle, Printer } from "lucide-react";
-import { useEffect, useMemo, useState, useRef, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 interface PrintScenarioContext {
   printerOnline: boolean;
@@ -25,19 +25,6 @@ interface PrintScenario {
   buttonDisabled: boolean;
   isStopButton: boolean;
   hasCustomBg: boolean;
-}
-
-function numberToLetters(value: number): string {
-  let result = "";
-
-  while (value > 0) {
-    value--;
-
-    result = String.fromCharCode(65 + (value % 26)) + result;
-    value = Math.floor(value / 26);
-  }
-
-  return result;
 }
 
 const PRINT_SCENARIOS: PrintScenario[] = [
@@ -116,12 +103,6 @@ export default function CreateLabel({
   });
 
   const [contentType, setContentType] = useState<LabelContentType>("text");
-  const [isPrinting, setIsPrinting] = useState(false);
-
-  const stopPrinting = useRef(false);
-  // Новый стейт вместо старого рефа curSendPrintText
-  const [currentPrintingItem, setCurrentPrintingItem] = useState("");
-
   const opacity_manual = useAppStore((state) => state.opacity_manual);
   const bold_manual = useAppStore((state) => state.bold_manual);
   const showCodeText = useAppStore((state) => state.showCodeText);
@@ -166,70 +147,10 @@ export default function CreateLabel({
     suffix: "",
   });
 
-  const sequenceResult = useMemo(() => {
-    const { start, end, step, prefix, suffix } = sequence;
-
-    const stepValue = Number(step);
-
-    if (!step.trim() || !Number.isSafeInteger(stepValue) || stepValue < 1) {
-      return {
-        values: [] as string[],
-        error: "Шаг должен быть целым числом не меньше 1",
-      };
-    }
-
-    const parsed = parseSequence(start, end);
-
-    if (!parsed) {
-      return {
-        values: [] as string[],
-        error: "Проверьте начальное и конечное значения",
-      };
-    }
-
-    const direction = parsed.start <= parsed.end ? 1 : -1;
-
-    const count =
-      Math.floor(Math.abs(parsed.end - parsed.start) / stepValue) + 1;
-
-    if (count > 10000) {
-      return {
-        values: [] as string[],
-        error: "Слишком много значений (максимум 10 000)",
-      };
-    }
-
-    const values = Array.from({ length: count }, (_, index) => {
-      const current = parsed.start + index * stepValue * direction;
-
-      let value: string;
-
-      if (parsed.type === "numeric") {
-        value = String(current).padStart(parsed.width, "0");
-      } else if (parsed.type === "letters") {
-        value = numberToLetters(current);
-
-        if (parsed.lowercase) {
-          value = value.toLowerCase();
-        }
-      } else {
-        const number = String(current).padStart(parsed.width, "0");
-
-        const letterPrefix = parsed.lowercase
-          ? parsed.letterPrefix.toLowerCase()
-          : parsed.letterPrefix.toUpperCase();
-
-        value = `${letterPrefix}${number}`;
-      }
-
-      return `${prefix}${value}${suffix}`;
-    });
-
-    return {
-      values,
-      error: null as string | null,
-    };
-  }, [sequence]);
+  const sequenceResult = useMemo(
+    () => generateSequence(sequence),
+    [sequence],
+  );
 
   // Режим диапазона применим только к текстовым этикеткам.
   const isSequenceMode = contentType === "text" && textInputMode === "sequence";
@@ -250,58 +171,18 @@ export default function CreateLabel({
       scenario.check({ printerOnline, isPrinting, isSequenceMode }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
-  const sendPrintJob = async () => {
-    const content = contentByType[contentType];
-
-    if (!isSequenceMode && !content) return;
-    if (isSequenceMode && !sequenceValues.length) return;
-
-    setIsPrinting(true);
-    setCurrentPrintingItem(""); // Очищаем перед стартом новой сессии
-    stopPrinting.current = false; // Сбрасываем флаг отмены в false
-
-    try {
-      if (!isSequenceMode) {
-        // Одиночная отправка
-        await backendClient.printLabel({
-          contentType,
-          content,
-          codeImage: codeImage || undefined,
-        });
-      } else {
-        // Последовательная отправка
-        for (const elem of sequenceValues) {
-          // 1. Проверяем флаг остановки перед каждой итерацией
-          if (stopPrinting.current) {
-            console.log("Печать остановлена пользователем");
-            break;
-          }
-
-          // 2. Обновляем стейт текущего элемента — это мгновенно вызывает ререндер и меняет текст на экране
-          setCurrentPrintingItem(elem);
-
-          // 3. Ждем ответ от сервера
-          const response = await backendClient.printLabel({
-            contentType,
-            content: elem,
-          });
-
-          // 4. Проверяем корректность статуса ответа
-          if (!response || response.status !== "printed") {
-            console.error("Прерывание печати: некорректный статус от сервера");
-            break;
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Ошибка при отправке на печать:", error);
-    } finally {
-      // Гарантированно выключаем статус печати и очищаем стейты
-      setIsPrinting(false);
-      stopPrinting.current = false;
-      setCurrentPrintingItem("");
-    }
-  };
+  const {
+    isPrinting,
+    currentPrintingItem,
+    startPrinting: sendPrintJob,
+    stopSequencePrinting,
+  } = useLabelPrinting({
+    contentType,
+    content: contentByType[contentType],
+    codeImage,
+    isSequenceMode,
+    sequenceValues,
+  });
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
@@ -437,9 +318,7 @@ export default function CreateLabel({
             disabled={currentScenario.buttonDisabled}
             onClick={
               currentScenario.isStopButton
-                ? () => {
-                    stopPrinting.current = true;
-                  }
+                ? stopSequencePrinting
                 : sendPrintJob
             }
             className={`h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto font-medium transition-all ${
