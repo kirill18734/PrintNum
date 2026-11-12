@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { BackgroundItem } from "@/types/api";
 import { ImagePlus } from "lucide-react";
 
 import {
@@ -15,7 +16,7 @@ import { appService } from "@/services/app.tauri";
 interface BackgroundProps {
   background: string;
   setBackground: (background: string) => void;
-  dataBackgrounds: any;
+  dataBackgrounds: BackgroundItem[];
   opacity: number;
   setOpacity: (opacity: number) => void;
   onPreviewBackground: (background: string | undefined) => void;
@@ -62,7 +63,7 @@ export default function Background({
 
             <SelectContent>
               <SelectGroup>
-                {dataBackgrounds.map((item: any) => (
+                {dataBackgrounds.map((item) => (
                   <SelectItem
                     value={item.name}
                     key={item.name}
