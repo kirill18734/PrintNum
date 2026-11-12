@@ -39,12 +39,11 @@ interface LabelStudioProps {
 }
 
 const contentTypes = [
-  { id: "text", label: "Текст", icon: Text },
   { id: "barcode", label: "Штрихкод", icon: Barcode },
   { id: "qr", label: "QR-код", icon: QrCode },
   { id: "datamatrix", label: "Data Matrix", icon: Grid3X3 },
 ] satisfies {
-  id: LabelContentType;
+  id: Exclude<LabelContentType, "text">;
   label: string;
   icon: typeof Text;
 }[];
@@ -97,9 +96,69 @@ export default function SettingsCreatePaper({
           aria-label="Тип содержимого этикетки"
           className="grid grid-cols-2 gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
         >
+          {/* Ячейка 1: Единая группа текстовых режимов */}
+          <div
+            className={`
+      flex flex-col gap-0.5 rounded-md p-0.5 transition-all
+      ${
+        contentType === "text"
+          ? "bg-muted-foreground/10 ring-1 ring-border/60"
+          : "bg-transparent"
+      }
+    `}
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={
+                contentType === "text" && textInputMode === "single"
+              }
+              onClick={() => {
+                setContentType("text");
+                setTextInputMode("single");
+              }}
+              className={`
+        flex h-6 w-full items-center justify-center gap-1.5
+        rounded-[5px] px-1.5 text-[11px] font-medium transition-all
+        ${
+          contentType === "text" && textInputMode === "single"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+        }
+      `}
+            >
+              <Type className="size-3 shrink-0" />
+              <span>Текст</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={
+                contentType === "text" && textInputMode === "sequence"
+              }
+              onClick={() => {
+                setContentType("text");
+                setTextInputMode("sequence");
+              }}
+              className={`
+        flex h-6 w-full items-center justify-center gap-1.5
+        rounded-[5px] px-1.5 text-[11px] font-medium transition-all
+        ${
+          contentType === "text" && textInputMode === "sequence"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+        }
+      `}
+            >
+              <ListOrdered className="size-3 shrink-0" />
+              <span>Диапазон</span>
+            </button>
+          </div>
+
+          {/* Ячейки 2, 3, 4: Штрихкод, QR-код, Data Matrix */}
           {contentTypes.map(({ id, label, icon: Icon }) => {
             const active = contentType === id;
-
             return (
               <button
                 key={id}
@@ -108,15 +167,14 @@ export default function SettingsCreatePaper({
                 aria-selected={active}
                 onClick={() => setContentType(id)}
                 className={`
-                  flex min-h-8 items-center justify-center gap-1
-                  rounded-md px-1 text-[11px] font-medium
-                  transition-all
-                  ${
-                    active
-                      ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-                      : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-                  }
-                `}
+          flex min-h-8 items-center justify-center gap-1
+          rounded-md px-1 text-[11px] font-medium transition-all
+          ${
+            active
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+              : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+          }
+        `}
               >
                 <Icon className="size-3 shrink-0" />
                 <span className="truncate">{label}</span>
@@ -128,45 +186,6 @@ export default function SettingsCreatePaper({
         {/* Текстовый раздел */}
         {contentType === "text" ? (
           <div className="flex w-full flex-col gap-2">
-            {/* Режим ввода */}
-            <div className="flex w-full items-center">
-              <div className="flex w-full rounded-md bg-muted/50 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setTextInputMode("single")}
-                  className={`
-        flex  min-w-0 h-7 items-center justify-center gap-1 rounded px-4
-        text-[10px] font-medium transition-all
-        ${
-          textInputMode === "single"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        }
-      `}
-                >
-                  <Type className="size-3 shrink-0" />
-                  Текст
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTextInputMode("sequence")}
-                  className={`
-        flex flex-1 min-w-0 h-7 items-center justify-center gap-1 rounded px-2
-        text-[10px] font-medium transition-all
-        ${
-          textInputMode === "sequence"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        }
-      `}
-                >
-                  <ListOrdered className="size-3 shrink-0" />
-                  Последовательность
-                </button>
-              </div>
-            </div>
-
             {textInputMode === "single" ? (
               <>
                 <textarea
@@ -196,7 +215,7 @@ export default function SettingsCreatePaper({
                     <input
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
-                      placeholder="030 или A030"
+                      placeholder="30 или A030"
                       className={inputClass}
                     />
                   </div>
