@@ -5,23 +5,28 @@ import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
 import { backendClient } from "@/shared/api/backendClient";
 import type { LabelContentType, SequenceConfig, TextInputMode } from "@/types/label";
-import type { PaperFormat } from "@/config/defaultConfig";
-import type { BackgroundItem, FontItem } from "@/types/api";
+import type { PrinterPageProps } from "@/types/printer";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, type ReactNode } from "react";
 
 
-interface CreateLabelProps {
-  printer: string;
-  listPrinters: string[];
-  setPrinter: (printer: string) => void;
-  paper: string;
-  setPaper: (paper: string) => void;
-  listPapers: PaperFormat[];
-  dataFonts: FontItem[];
-  dataBackgrounds: BackgroundItem[];
+
+interface PrintScenarioContext {
   printerOnline: boolean;
+  isPrinting: boolean;
+  isSequenceMode: boolean;
+}
+
+interface PrintScenario {
+  id: string;
+  check: (context: PrintScenarioContext) => boolean;
+  topText: (text: string) => ReactNode;
+  topTextClass: string;
+  buttonText: string;
+  buttonDisabled: boolean;
+  isStopButton: boolean;
+  hasCustomBg: boolean;
 }
 
 function numberToLetters(value: number): string {
@@ -47,7 +52,7 @@ export default function CreateLabel({
   dataFonts,
   dataBackgrounds,
   printerOnline,
-}: CreateLabelProps) {
+}: PrinterPageProps) {
   const [contentByType, setContentByType] = useState<
     Record<LabelContentType, string>
   >({
@@ -184,10 +189,10 @@ export default function CreateLabel({
     }));
   };
 
-  const PRINT_SCENARIOS = [
+  const PRINT_SCENARIOS: PrintScenario[] = [
     {
       id: "offline",
-      check: ({ printerOnline }: any) => !printerOnline,
+      check: ({ printerOnline }) => !printerOnline,
       topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
       topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
       buttonText: "Распечатать",
@@ -197,7 +202,7 @@ export default function CreateLabel({
     },
     {
       id: "single-printing",
-      check: ({ printerOnline, isPrinting, textInputMode }: any) =>
+      check: ({ printerOnline, isPrinting, isSequenceMode }) =>
         printerOnline && isPrinting && !isSequenceMode,
       topText: () => <span>Отправка на печать...</span>,
       topTextClass: "text-xs font-medium text-primary animate-bounce",
@@ -208,7 +213,7 @@ export default function CreateLabel({
     },
     {
       id: "sequence-printing",
-      check: ({ printerOnline, isPrinting, textInputMode }: any) =>
+      check: ({ printerOnline, isPrinting, isSequenceMode }) =>
         printerOnline && isPrinting && isSequenceMode,
       // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
       topText: (text: string) => (
@@ -228,7 +233,7 @@ export default function CreateLabel({
     },
     {
       id: "ready",
-      check: ({ printerOnline, isPrinting }: any) =>
+      check: ({ printerOnline, isPrinting }) =>
         printerOnline && !isPrinting,
       topText: () => <span>Готово к печати</span>,
       topTextClass: "text-xs text-muted-foreground",
