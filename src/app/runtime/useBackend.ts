@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { backendClient } from "@/shared/api/backendClient";
 import { useAppStore } from "@/services/store";
+import type { DataAppResponse } from "@/types/api";
 
 
 const POLLING_INTERVAL = 1000;
