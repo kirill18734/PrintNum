@@ -78,10 +78,6 @@ export function useBackendRuntime(): void {
 
           store.setDataFonts(dataFonts);
         }
-          }
-
-          return dataFonts;
-        });
       } catch (error) {
         if (!active) return;
         const store = useAppStore.getState();
