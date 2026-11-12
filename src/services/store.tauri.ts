@@ -22,9 +22,15 @@ function isAppSettingsEntry(
   // Проверяем, существует ли вообще такой ключ в дефолтном конфиге
   if (!(key in defaultConfig)) return false;
 
+  // Для массива excludedTexts нельзя определять тип элементов через
+  // defaultValue[0]: у пустого массива этот элемент равен undefined.
+  if (key === "excludedTexts") {
+    return Array.isArray(value) && value.every((item) => typeof item === "string");
+  }
+
   const defaultValue = defaultConfig[key as keyof AppSettings];
 
-  // Обработка массивов (например, excludedTexts)
+  // Обработка остальных массивов
   if (Array.isArray(defaultValue)) {
     return (
       Array.isArray(value) &&
