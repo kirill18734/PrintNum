@@ -87,7 +87,10 @@ export default function Background({
         <div className="flex items-center gap-3 w-full">
           <Slider
             value={[opacity]}
-            onValueChange={(value: any) => setOpacity(value)}
+            onValueChange={(value: number | number[]) => {
+              const nextOpacity = Array.isArray(value) ? value[0] : value;
+              if (nextOpacity !== undefined) setOpacity(nextOpacity);
+            }}
             min={0}
             max={100}
             step={1}
