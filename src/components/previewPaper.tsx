@@ -23,6 +23,8 @@ interface PreviewPaperProps {
   dataBackgrounds?: BackgroundItem[];
 }
 
+const NOOP_SET_CODE_IMAGE = (_image: string) => {};
+
 interface GeneratedCode {
   svg: string | null;
   error: string | null;
@@ -43,7 +45,7 @@ export default function PreviewPaper({
   underline = false,
   showCodeText = false,
   textInputMode = "single",
-  setCodeImage = () => {},
+  setCodeImage = NOOP_SET_CODE_IMAGE,
   sequenceValue = "",
   background = "Без фона",
   dataBackgrounds = [],
@@ -140,7 +142,7 @@ export default function PreviewPaper({
     return () => {
       cancelled = true;
     };
-  }, [mode, content, contentType]);
+  }, [mode, content, contentType, setCodeImage]);
 
   // Общий слой фонового изображения
   const backgroundLayer = backgroundImage && (
