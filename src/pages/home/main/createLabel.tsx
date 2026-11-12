@@ -10,8 +10,6 @@ import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState, useRef, type ReactNode } from "react";
 
-
-
 interface PrintScenarioContext {
   printerOnline: boolean;
   isPrinting: boolean;
@@ -41,6 +39,61 @@ function numberToLetters(value: number): string {
 
   return result;
 }
+
+const PRINT_SCENARIOS: PrintScenario[] = [
+  {
+    id: "offline",
+    check: ({ printerOnline }) => !printerOnline,
+    topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
+    topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
+    buttonText: "Распечатать",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
+    id: "single-printing",
+    check: ({ printerOnline, isPrinting, isSequenceMode }) =>
+      printerOnline && isPrinting && !isSequenceMode,
+    topText: () => <span>Отправка на печать...</span>,
+    topTextClass: "text-xs font-medium text-primary animate-bounce",
+    buttonText: "Печать…",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
+    id: "sequence-printing",
+    check: ({ printerOnline, isPrinting, isSequenceMode }) =>
+      printerOnline && isPrinting && isSequenceMode,
+    // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
+    topText: (text: string) => (
+      <span className="flex items-center gap-1.5">
+        Отправка на печать ➔
+        <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 shadow-sm transition-all">
+          {text || "..."}
+        </span>
+      </span>
+    ),
+    topTextClass:
+      "text-xs font-semibold text-amber-700 dark:text-amber-400 animate-pulse",
+    buttonText: "Остановить",
+    buttonDisabled: false,
+    isStopButton: true,
+    hasCustomBg: true,
+  },
+  {
+    id: "ready",
+    check: ({ printerOnline, isPrinting }) =>
+      printerOnline && !isPrinting,
+    topText: () => <span>Готово к печати</span>,
+    topTextClass: "text-xs text-muted-foreground",
+    buttonText: "Распечатать",
+    buttonDisabled: false,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+];
 
 export default function CreateLabel({
   printer,
@@ -188,61 +241,6 @@ export default function CreateLabel({
       [key]: value,
     }));
   };
-
-  const PRINT_SCENARIOS: PrintScenario[] = [
-    {
-      id: "offline",
-      check: ({ printerOnline }) => !printerOnline,
-      topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
-      topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
-      buttonText: "Распечатать",
-      buttonDisabled: true,
-      isStopButton: false,
-      hasCustomBg: false,
-    },
-    {
-      id: "single-printing",
-      check: ({ printerOnline, isPrinting, isSequenceMode }) =>
-        printerOnline && isPrinting && !isSequenceMode,
-      topText: () => <span>Отправка на печать...</span>,
-      topTextClass: "text-xs font-medium text-primary animate-bounce",
-      buttonText: "Печать…",
-      buttonDisabled: true,
-      isStopButton: false,
-      hasCustomBg: false,
-    },
-    {
-      id: "sequence-printing",
-      check: ({ printerOnline, isPrinting, isSequenceMode }) =>
-        printerOnline && isPrinting && isSequenceMode,
-      // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
-      topText: (text: string) => (
-        <span className="flex items-center gap-1.5">
-          Отправка на печать ➔
-          <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 shadow-sm transition-all">
-            {text || "..."}
-          </span>
-        </span>
-      ),
-      topTextClass:
-        "text-xs font-semibold text-amber-700 dark:text-amber-400 animate-pulse",
-      buttonText: "Остановить",
-      buttonDisabled: false,
-      isStopButton: true,
-      hasCustomBg: true,
-    },
-    {
-      id: "ready",
-      check: ({ printerOnline, isPrinting }) =>
-        printerOnline && !isPrinting,
-      topText: () => <span>Готово к печати</span>,
-      topTextClass: "text-xs text-muted-foreground",
-      buttonText: "Распечатать",
-      buttonDisabled: false,
-      isStopButton: false,
-      hasCustomBg: false,
-    },
-  ];
 
   {
     /* Находим активный сценарий интерфейса на основе текущего состояния */
