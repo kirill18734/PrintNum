@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import type { AppSettings, PaperFormat } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
-import { StatusCardProps } from "@/components/statusCard";
+import type { StatusCardProps } from "@/types/printJob";
 
 import { listPapers } from "@/config/defaultConfig";
 
