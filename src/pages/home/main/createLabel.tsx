@@ -4,15 +4,13 @@ import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
 import { backendClient } from "@/shared/api/backendClient";
-import type { LabelContentType } from "@/types/label";
+import type { LabelContentType, SequenceConfig, TextInputMode } from "@/types/label";
 import type { PaperFormat } from "@/config/defaultConfig";
 import type { BackgroundItem, FontItem } from "@/types/api";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 
-
-type TextInputMode = "single" | "sequence";
 
 interface CreateLabelProps {
   printer: string;
@@ -24,14 +22,6 @@ interface CreateLabelProps {
   dataFonts: FontItem[];
   dataBackgrounds: BackgroundItem[];
   printerOnline: boolean;
-}
-
-interface SequenceConfig {
-  start: string;
-  end: string;
-  step: string;
-  prefix: string;
-  suffix: string;
 }
 
 function numberToLetters(value: number): string {
