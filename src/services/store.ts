@@ -61,7 +61,7 @@ export const useAppStore = create<AppStore>((set) => ({
   setSetting: async (key, value) => {
     try {
       await storeService.set(key, value);
-      set((state) => ({ ...state, [key]: value }));
+      set({ [key]: value } as Partial<AppStore>);
     } catch (error) {
       console.error(`Ошибка сохранения настройки "${key}":`, error);
       throw error;
