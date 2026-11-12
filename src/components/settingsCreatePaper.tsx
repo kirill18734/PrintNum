@@ -83,7 +83,7 @@ export default function SettingsCreatePaper({
   const fieldClass = "flex min-w-0 flex-col gap-1";
 
   const textareaClass = `
-    block min-h-[64px] w-full resize-none
+    block w-full resize-none
     rounded-md border border-input bg-background
     px-2.5 py-2 text-xs outline-none
     placeholder:text-muted-foreground/70
@@ -188,20 +188,18 @@ export default function SettingsCreatePaper({
         </div>
 
         {/* Текстовый раздел */}
-        {contentType === "text" ? (
-          <div className="flex w-full flex-col gap-2">
-            {textInputMode === "single" ? (
-              <>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Введите текст этикетки..."
-                  rows={2}
-                  className={textareaClass}
-                />
-              </>
+        {/* Область ввода с постоянной высотой */}
+        <div className="h-[112px] w-full min-w-0">
+          {contentType === "text" ? (
+            textInputMode === "single" ? (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Введите текст этикетки..."
+                className={`${textareaClass} h-full min-h-0`}
+              />
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex h-full flex-col justify-between gap-2">
                 {/* Начальное, конечное значения и шаг */}
                 <div className="flex items-end justify-center gap-2">
                   <div className={fieldClass}>
@@ -260,20 +258,16 @@ export default function SettingsCreatePaper({
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        ) : (
-          <>
-            {/* Данные для штрихкода, QR и Data Matrix */}
+            )
+          ) : (
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Введите данные для кодирования..."
-              rows={2}
-              className={textareaClass}
+              className={`${textareaClass} h-full min-h-0`}
             />
-          </>
-        )}
+          )}
+        </div>
 
         {/* Настройки форматирования */}
         <div className="flex flex-wrap items-center gap-1 border-t border-border/50 pt-2">
