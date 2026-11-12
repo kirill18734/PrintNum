@@ -4,6 +4,7 @@ import type { AppSettings, PaperFormat } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
 import type { StatusCardProps } from "@/types/printJob";
 import type { BackgroundItem, FontItem } from "@/types/api";
+export type { BackgroundItem, FontItem } from "@/types/api";
 
 import { listPapers } from "@/config/defaultConfig";
 
