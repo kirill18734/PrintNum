@@ -10,8 +10,7 @@ import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
 import Font from "./font";
 import Background from "./background";
-
-export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
+import type { LabelContentType } from "@/types/label";
 
 interface LabelStudioProps {
   contentType: LabelContentType;

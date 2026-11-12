@@ -4,11 +4,11 @@ import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
 import { backendClient } from "@/shared/api/backendClient";
+import type { LabelContentType } from "@/types/label";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 
-export type LabelContentType = "text" | "barcode" | "qr" | "datamatrix";
 
 type TextInputMode = "single" | "sequence";
 
