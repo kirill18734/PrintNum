@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { ImagePlus } from "lucide-react";
 
 import {
@@ -28,6 +29,15 @@ export default function Background({
   setOpacity,
   onPreviewBackground,
 }: BackgroundProps) {
+  const [draftOpacity, setDraftOpacity] = useState(opacity);
+
+  // Синхронизируем локальное значение, если прозрачность изменилась извне.
+  useEffect(() => {
+    setDraftOpacity(opacity);
+  }, [opacity]);
+
+  const getOpacityValue = (value: number | number[]): number | undefined =>
+    Array.isArray(value) ? value[0] : value;
   return (
     // Общая обертка с фоном bg-muted/30 и границами
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-2 w-full max-w-sm">
@@ -86,15 +96,27 @@ export default function Background({
 
         <div className="flex items-center gap-3 w-full">
           <Slider
-            value={[opacity]}
-            onValueChange={(value: any) => setOpacity(value)}
+            value={[draftOpacity]}
+            // Во время перемещения меняем только локальное значение для плавного UI.
+            onValueChange={(value) => {
+              const nextOpacity = getOpacityValue(value);
+              if (nextOpacity !== undefined) setDraftOpacity(nextOpacity);
+            }}
+            // Сохраняем настройку один раз после клика по дорожке или завершения перетаскивания.
+            onValueCommitted={(value) => {
+              const nextOpacity = getOpacityValue(value);
+              if (nextOpacity !== undefined) {
+                setDraftOpacity(nextOpacity);
+                setOpacity(nextOpacity);
+              }
+            }}
             min={0}
             max={100}
             step={1}
             className="w-full"
           />
           <span className="text-[11px] text-muted-foreground min-w-[32px] text-right font-mono select-none">
-            {opacity}%
+            {draftOpacity}%
           </span>
         </div>
       </div>
