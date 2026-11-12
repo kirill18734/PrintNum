@@ -1,4 +1,5 @@
 import Background from "./background";
+import type { FontItem, BackgroundItem } from "@/types/api";
 import Font from "./font";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
@@ -15,14 +16,14 @@ interface SettingsPaperProps {
   font: string;
 
   background: string;
-  dataFonts: any;
-  dataBackgrounds: any;
+  dataFonts: FontItem[];
+  dataBackgrounds: BackgroundItem[];
   hybrid: boolean;
   setHybrid: (checked: boolean) => void;
   expand: number | string;
   setExpand: (valueOrFn: any) => void;
   opacity: number;
-  setOpacity: (valueOrFn: any) => void;
+  setOpacity: (value: number) => void;
   onPreviewFont: (font: string | undefined) => void;
   onPreviewBackground: (background: string | undefined) => void;
   onChangeFont: (font: string) => void;
