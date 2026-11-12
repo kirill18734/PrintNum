@@ -4,7 +4,7 @@ import { useAppStore } from "@/services/store";
 
 import type { BackgroundItem, FontItem } from "@/services/store";
 
-import type { StatusCardProps } from "@/components/statusCard";
+import type { StatusCardProps } from "@/types/printJob";
 
 interface DataAppResponse {
   onlinePrinter: boolean;
