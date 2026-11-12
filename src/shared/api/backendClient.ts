@@ -1,14 +1,22 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
-import type { LabelContentType } from "@/types/label";
+import type {
+  DataAppResponse,
+  PrintLabelRequest,
+  PrintLabelResponse,
+} from "@/types/api";
 
 const API_BASE = "http://127.0.0.1:5000";
 
-async function apiClient(endpoint: string, data: any = null) {
-  const method = data ? "POST" : "GET";
-  const options: any = { method };
+async function apiClient<TResponse>(
+  endpoint: string,
+  data?: unknown,
+): Promise<TResponse> {
+  const options: RequestInit = {
+    method: data === undefined ? "GET" : "POST",
+  };
 
-  if (data) {
+  if (data !== undefined) {
     options.headers = { "Content-Type": "application/json" };
     options.body = JSON.stringify(data);
   }
@@ -16,45 +24,43 @@ async function apiClient(endpoint: string, data: any = null) {
   try {
     const response = await fetch(`${API_BASE}/${endpoint}`, options);
 
-    // Проверяем, успешный ли статус ответа (200-299)
     if (!response.ok) {
-      let errorData;
+      let message = response.statusText;
+
       try {
-        // Пробуем прочитать JSON с описанием ошибки от бэкенда
-        errorData = await response.json();
+        const errorData: unknown = await response.json();
+
+        if (
+          typeof errorData === "object" &&
+          errorData !== null &&
+          "message" in errorData &&
+          typeof errorData.message === "string"
+        ) {
+          message = errorData.message;
+        }
       } catch {
-        // Если бэкенд вернул ошибку не в формате JSON
-        errorData = { message: response.statusText };
+        // Если backend вернул ошибку не в формате JSON, используем statusText.
       }
 
-      throw new Error(errorData.message || `Ошибка HTTP: ${response.status}`);
+      throw new Error(message || `Ошибка HTTP: ${response.status}`);
     }
 
-    return await response.json();
-  } catch (error: any) {
-    // Сюда попадают и ошибки сети (сервер выключен), и ошибки из блока выше
+    return (await response.json()) as TResponse;
+  } catch (error: unknown) {
     console.error(
       `[API Error] Запрос к ${endpoint} завершился неудачно:`,
-      error.message,
+      error instanceof Error ? error.message : error,
     );
-    throw error; // Пробрасываем ошибку дальше, чтобы её можно было поймать в компоненте
+    throw error;
   }
 }
 
-interface PrintLabelRequest {
-  contentType: LabelContentType;
-  content: string;
-  codeImage?: string;
-  bold?: boolean;
-  underline?: boolean;
-  showCodeText?: boolean;
-}
-
 export const backendClient = {
-  async dataApp(): Promise<any> {
-    return await apiClient("data-app");
+  dataApp(): Promise<DataAppResponse> {
+    return apiClient<DataAppResponse>("data-app");
   },
-  async printLabel(data: PrintLabelRequest): Promise<any> {
-    return await apiClient("print-label", data);
+
+  printLabel(data: PrintLabelRequest): Promise<PrintLabelResponse> {
+    return apiClient<PrintLabelResponse>("print-label", data);
   },
 };
