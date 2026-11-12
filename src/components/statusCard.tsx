@@ -9,20 +9,9 @@ import {
 
 import { Card } from "@/components/ui/card";
 
-export type LatestTextStatus =
-  | "waiting"
-  | "processing"
-  | "printed"
-  | "excluded"
-  | "printer_unavailable"
-  | "print_error";
+import type { LatestTextStatus, StatusCardProps } from "@/types/printJob";
 
-export interface StatusCardProps {
-  status: LatestTextStatus;
-  text?: string | null;
-  renameText?: string | null;
-  receivedAt?: Date | string | null;
-}
+export type { LatestTextStatus, StatusCardProps } from "@/types/printJob";
 
 const STATUS_CONFIG = {
   waiting: {
