@@ -89,10 +89,8 @@ export default function AutoPrint({
             bold={bold}
             font={font}
             background={background}
-            setBackground={setBackground}
             dataBackgrounds={dataBackgrounds}
             dataFonts={dataFonts}
-            setFont={setFont}
             setBold={setBold}
             hybrid={hybrid}
             setHybrid={setHybrid}

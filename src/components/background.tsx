@@ -17,7 +17,7 @@ interface BackgroundProps {
   dataBackgrounds: any;
   opacity: number;
   setOpacity: (opacity: number) => void;
-  onPreviewBackground?: (background: string | undefined) => void;
+  onPreviewBackground: (background: string | undefined) => void;
 }
 
 export default function Background({
@@ -57,8 +57,8 @@ export default function Background({
                     value={item.name}
                     key={item.name}
                     className="text-xs"
-                    onPointerMove={() => onPreviewBackground?.(item.name)}
-                    onFocus={() => onPreviewBackground?.(item.name)}
+                    onPointerMove={() => onPreviewBackground(item.name)}
+                    onFocus={() => onPreviewBackground(item.name)}
                   >
                     {item.name}
                   </SelectItem>
