@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LabelContentType } from "./settingsCreatePaper";
+import type { BackgroundItem } from "@/types/api";
+import type { LabelContentType, TextInputMode } from "@/types/label";
 
 interface PreviewPaperProps {
   idNum?: boolean;
@@ -15,11 +16,11 @@ interface PreviewPaperProps {
   content?: string;
   underline?: boolean;
   showCodeText?: boolean;
-  textInputMode?: string;
+  textInputMode?: TextInputMode;
   sequenceValue?: string;
   background?: string;
-  setCodeImage?: any;
-  dataBackgrounds?: any;
+  setCodeImage?: (image: string) => void;
+  dataBackgrounds?: BackgroundItem[];
 }
 
 interface GeneratedCode {
@@ -45,7 +46,7 @@ export default function PreviewPaper({
   setCodeImage = () => {},
   sequenceValue = "",
   background = "Без фона",
-  dataBackgrounds = {},
+  dataBackgrounds = [],
   opacity,
 }: PreviewPaperProps) {
   // Применение выбранного шрифта
@@ -56,7 +57,7 @@ export default function PreviewPaper({
   // Получаем изображение выбранного фона
   const backgroundImage =
     background !== "Без фона"
-      ? dataBackgrounds.find((item: any) => item.name === background)?.base64
+      ? dataBackgrounds.find((item) => item.name === background)?.base64
       : undefined;
 
   // Состояние генерации кода

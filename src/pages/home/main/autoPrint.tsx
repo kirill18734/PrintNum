@@ -5,6 +5,7 @@ import SettingsPrinter from "@/components/settingsPrinter";
 import { StatusCard } from "@/components/statusCard";
 import { useAppStore } from "@/services/store";
 import { useState } from "react";
+import type { PrinterPageProps } from "@/types/printer";
 
 export default function AutoPrint({
   printer,
@@ -16,7 +17,7 @@ export default function AutoPrint({
   dataFonts,
   dataBackgrounds,
   printerOnline,
-}: any) {
+}: PrinterPageProps) {
   const excludedTexts = useAppStore((state) => state.excludedTexts);
   const idNum = useAppStore((state) => state.idNum);
   const endLine = useAppStore((state) => state.endLine);

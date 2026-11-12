@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
+import type { PaperFormat } from "@/config/defaultConfig";
 import {
   Select,
   SelectContent,
@@ -10,12 +11,6 @@ import {
 } from "./ui/select";
 
 const PAPER_FORMAT_REGEX = /^\d+\*\d+$/;
-
-interface PaperFormat {
-  id: string;
-  label: string;
-  isCustom?: boolean;
-}
 
 interface PaperProps {
   paper: string;
