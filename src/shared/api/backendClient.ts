@@ -1,6 +1,6 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
-import { LabelContentType } from "@/components/settingsCreatePaper";
+import type { LabelContentType } from "@/types/label";
 
 const API_BASE = "http://127.0.0.1:5000";
 
