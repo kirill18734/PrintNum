@@ -10,7 +10,7 @@ import {
 interface FontProps {
   font: string;
   setFont: (font: string) => void;
-  dataFonts: any;
+  dataFonts: FontItem[];
   onPreviewFont: (font: string | undefined) => void;
 }
 
@@ -39,7 +39,7 @@ export default function Font({
 
         <SelectContent>
           <SelectGroup>
-            {dataFonts.map((item: any) => (
+            {dataFonts.map((item) => (
               <SelectItem
                 value={item.name}
                 key={item.name}
