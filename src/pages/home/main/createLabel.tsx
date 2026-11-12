@@ -5,12 +5,26 @@ import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
 import { backendClient } from "@/shared/api/backendClient";
 import type { LabelContentType } from "@/types/label";
+import type { PaperFormat } from "@/config/defaultConfig";
+import type { BackgroundItem, FontItem } from "@/types/api";
 import { parseSequence } from "@/shared/utils/parseElem";
 import { AlertCircle, Printer } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 
 
 type TextInputMode = "single" | "sequence";
+
+interface CreateLabelProps {
+  printer: string;
+  listPrinters: string[];
+  setPrinter: (printer: string) => void;
+  paper: string;
+  setPaper: (paper: string) => void;
+  listPapers: PaperFormat[];
+  dataFonts: FontItem[];
+  dataBackgrounds: BackgroundItem[];
+  printerOnline: boolean;
+}
 
 interface SequenceConfig {
   start: string;
@@ -43,7 +57,7 @@ export default function CreateLabel({
   dataFonts,
   dataBackgrounds,
   printerOnline,
-}: any) {
+}: CreateLabelProps) {
   const [contentByType, setContentByType] = useState<
     Record<LabelContentType, string>
   >({
