@@ -3,23 +3,10 @@ import { create } from "zustand";
 import type { AppSettings, PaperFormat } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
 import type { StatusCardProps } from "@/types/printJob";
+import type { BackgroundItem, FontItem } from "@/types/api";
+export type { BackgroundItem, FontItem } from "@/types/api";
 
 import { listPapers } from "@/config/defaultConfig";
-
-// 1. Описываем структуру объекта фона (подставьте ваши реальные поля)
-export interface FontItem {
-  id: string;
-  name: string;
-  rel: string;
-  base64: string;
-}
-
-// 1. Определяем тип элемента
-export interface BackgroundItem {
-  id: string;
-  name: string;
-  base64: string;
-}
 
 interface AppStore extends AppSettings {
   serverOnline: boolean;
