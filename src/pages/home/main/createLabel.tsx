@@ -163,14 +163,6 @@ export default function CreateLabel({
     }));
   };
 
-  {
-    /* Находим активный сценарий интерфейса на основе текущего состояния */
-  }
-  const currentScenario =
-    PRINT_SCENARIOS.find((scenario) =>
-      scenario.check({ printerOnline, isPrinting, isSequenceMode }),
-    ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
-
   const {
     isPrinting,
     currentPrintingItem,
@@ -183,6 +175,12 @@ export default function CreateLabel({
     isSequenceMode,
     sequenceValues,
   });
+
+  // Находим активный сценарий интерфейса на основе текущего состояния.
+  const currentScenario =
+    PRINT_SCENARIOS.find((scenario) =>
+      scenario.check({ printerOnline, isPrinting, isSequenceMode }),
+    ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
