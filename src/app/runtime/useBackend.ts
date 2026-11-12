@@ -2,17 +2,6 @@ import { useEffect } from "react";
 import { backendClient } from "@/shared/api/backendClient";
 import { useAppStore } from "@/services/store";
 
-import type { BackgroundItem, FontItem } from "@/services/store";
-
-import type { StatusCardProps } from "@/types/printJob";
-
-interface DataAppResponse {
-  onlinePrinter: boolean;
-  listPrinters: string[];
-  dataBackgrounds: BackgroundItem[];
-  dataFonts: FontItem[];
-  printJobs: StatusCardProps[];
-}
 
 const POLLING_INTERVAL = 1000;
 
