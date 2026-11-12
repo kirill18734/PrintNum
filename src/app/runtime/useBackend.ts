@@ -6,9 +6,25 @@ import type { DataAppResponse } from "@/types/api";
 
 const POLLING_INTERVAL = 1000;
 
-// Backend возвращает сериализуемые данные; сравнение защищает Zustand от лишних обновлений.
-function hasChanged<T>(current: T, next: T): boolean {
-  return JSON.stringify(current) !== JSON.stringify(next);
+// Сравниваем только поля сущностей, не сериализуя большие массивы (в том числе base64).
+function areItemsEqual<T extends object, K extends keyof T>(
+  current: T[],
+  next: T[],
+  fields: readonly K[],
+): boolean {
+  return (
+    current.length === next.length &&
+    current.every((item, index) =>
+      fields.every((field) => Object.is(item[field], next[index][field])),
+    )
+  );
+}
+
+function areStringsEqual(current: string[], next: string[]): boolean {
+  return (
+    current.length === next.length &&
+    current.every((value, index) => value === next[index])
+  );
 }
 
 export function useBackendRuntime(): void {
@@ -37,18 +53,18 @@ export function useBackendRuntime(): void {
         if (store.printerOnline !== onlinePrinter) {
           store.setPrinterOnline(onlinePrinter);
         }
-        if (hasChanged(store.listPrinters, listPrinters)) {
+        if (!areStringsEqual(store.listPrinters, listPrinters)) {
           store.setListPrinters(listPrinters);
         }
-        if (hasChanged(store.dataBackgrounds, dataBackgrounds)) {
+        if (!areItemsEqual(store.dataBackgrounds, dataBackgrounds, ["id", "name", "base64"])) {
           store.setDataBackgrounds(dataBackgrounds);
         }
-        if (hasChanged(store.printJobs, printJobs)) {
+        if (!areItemsEqual(store.printJobs, printJobs, ["status", "text", "renameText", "receivedAt"])) {
           store.setPrintJobs(printJobs);
         }
 
         // Ссылки на шрифты в DOM меняем только при изменении списка.
-        if (hasChanged(store.dataFonts, dataFonts)) {
+        if (!areItemsEqual(store.dataFonts, dataFonts, ["id", "name", "rel", "base64"])) {
           const attrName = "data-google-font";
           document
             .querySelectorAll(`link[${attrName}]`)
