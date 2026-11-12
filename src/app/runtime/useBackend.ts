@@ -16,6 +16,11 @@ interface DataAppResponse {
 
 const POLLING_INTERVAL = 1000;
 
+// Backend возвращает сериализуемые данные; сравнение защищает Zustand от лишних обновлений.
+function hasChanged<T>(current: T, next: T): boolean {
+  return JSON.stringify(current) !== JSON.stringify(next);
+}
+
 export function useBackendRuntime(): void {
   useEffect(() => {
     let active = true;
@@ -36,53 +41,51 @@ export function useBackendRuntime(): void {
         } = data;
 
         const store = useAppStore.getState();
-        // СТАТУС СЕРВЕРА
-        store.setServerOnline(true);
-        // СТАТУС ПРИНТЕРА
-        store.setPrinterOnline(onlinePrinter);
-        // СПИСОК ПРИНТЕРОВ
-        store.setListPrinters(listPrinters);
-        // ФОНЫ
-        store.setDataBackgrounds(dataBackgrounds);
-        // СПИСОК ЗАДАНИЙ
-        store.setPrintJobs(printJobs);
 
-        // ШРИФТЫ
-        store.setDataFonts((current) => {
-          const unchanged =
-            JSON.stringify(current) === JSON.stringify(dataFonts);
-          if (unchanged) return current;
+        // Обновляем Zustand только при фактическом изменении данных.
+        if (!store.serverOnline) store.setServerOnline(true);
+        if (store.printerOnline !== onlinePrinter) {
+          store.setPrinterOnline(onlinePrinter);
+        }
+        if (hasChanged(store.listPrinters, listPrinters)) {
+          store.setListPrinters(listPrinters);
+        }
+        if (hasChanged(store.dataBackgrounds, dataBackgrounds)) {
+          store.setDataBackgrounds(dataBackgrounds);
+        }
+        if (hasChanged(store.printJobs, printJobs)) {
+          store.setPrintJobs(printJobs);
+        }
 
-          document
-            .querySelectorAll("link[data-google-font]")
-            .forEach((link) => link.remove());
-
-          // Маркер для поиска только наших тегов link
+        // Ссылки на шрифты в DOM меняем только при изменении списка.
+        if (hasChanged(store.dataFonts, dataFonts)) {
           const attrName = "data-google-font";
-
-          // 1. Удаляем старые шрифты, добавленные этим скриптом
           document
             .querySelectorAll(`link[${attrName}]`)
             .forEach((link) => link.remove());
 
-          // 2. Добавляем новые шрифты из актуального списка
           if (Array.isArray(dataFonts)) {
             dataFonts.forEach((font) => {
               if (font && font.rel) {
                 const link = document.createElement("link");
                 link.rel = "stylesheet";
                 link.href = font.rel;
-                link.setAttribute(attrName, "true"); // Именная метка скрипта
+                link.setAttribute(attrName, "true");
                 document.head.appendChild(link);
               }
             });
+          }
+
+          store.setDataFonts(dataFonts);
+        }
           }
 
           return dataFonts;
         });
       } catch (error) {
         if (!active) return;
-        useAppStore.getState().setServerOnline(false);
+        const store = useAppStore.getState();
+        if (store.serverOnline) store.setServerOnline(false);
         console.error("Ошибка получения данных backend:", error);
       } finally {
         if (active) {
