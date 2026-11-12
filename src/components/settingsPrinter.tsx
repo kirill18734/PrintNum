@@ -8,13 +8,14 @@ import {
 } from "@/components/ui/select";
 
 import Paper from "./paper";
+import type { PaperFormat } from "@/config/defaultConfig";
 
 interface SettingsPrinterProps {
   printer: string;
   listPrinters: string[];
   setPrinter: (printer: string) => void;
   paper: string;
-  listPapers: string[];
+  listPapers: PaperFormat[];
   setPaper: (paper: string) => void;
   printerOnline: boolean;
 }
