@@ -28,8 +28,8 @@ export default function Font({
         value={font}
         onValueChange={setFont}
         onOpenChange={(open) => {
-          if (open) {
-            onPreviewFont(font);
+          if (!open) {
+            onPreviewFont(undefined);
           }
         }}
       >

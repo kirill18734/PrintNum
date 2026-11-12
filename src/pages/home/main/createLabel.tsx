@@ -337,10 +337,10 @@ export default function CreateLabel({
             textInputMode={textInputMode}
             setTextInputMode={setTextInputMode}
             font={font_manual}
-            setFont={setFont_Manual}
+            setFont={handleFontChange}
             dataFonts={dataFonts}
             background={background_manual}
-            setBackground={setBackground_Manual}
+            setBackground={handleBackgroundChange}
             dataBackgrounds={dataBackgrounds}
             onPreviewFont_Manual={setPreviewFont_Manual}
             onPreviewBackground_Manual={setPreviewBackground_Manual}

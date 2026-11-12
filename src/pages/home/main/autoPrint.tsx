@@ -4,6 +4,7 @@ import SettingsPaper from "@/components/settingsPaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { StatusCard } from "@/components/statusCard";
 import { useAppStore } from "@/services/store";
+import { useState } from "react";
 
 export default function AutoPrint({
   printer,

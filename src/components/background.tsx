@@ -17,7 +17,7 @@ interface BackgroundProps {
   dataBackgrounds: any;
   opacity: number;
   setOpacity: (opacity: number) => void;
-  onPreviewBackground?: (background: string) => void;
+  onPreviewBackground?: (background: string | undefined) => void;
 }
 
 export default function Background({

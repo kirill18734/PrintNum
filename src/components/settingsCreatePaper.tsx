@@ -36,8 +36,8 @@ interface LabelStudioProps {
   dataBackgrounds: any;
   opacity: number;
   setOpacity: (value: number) => void;
-  onPreviewFont_Manual?: (font: string) => void;
-  onPreviewBackground_Manual?: (background: string) => void;
+  onPreviewFont_Manual: (font: string | undefined) => void;
+  onPreviewBackground_Manual: (background: string | undefined) => void;
 }
 
 const contentTypes = [

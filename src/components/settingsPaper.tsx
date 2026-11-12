@@ -215,14 +215,14 @@ export default function SettingsPaper({
         {/* Шрифт */}
         <Font
           font={font}
-          setFont={setFont}
+          setFont={onChangeFont}
           dataFonts={dataFonts}
           onPreviewFont={onPreviewFont}
         />
         {/* Фон */}
         <Background
           background={background}
-          setBackground={setBackground}
+          setBackground={onChangeBackground}
           dataBackgrounds={dataBackgrounds}
           opacity={opacity}
           setOpacity={setOpacity}
