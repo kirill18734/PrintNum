@@ -17,6 +17,7 @@ interface BackgroundProps {
   dataBackgrounds: any;
   opacity: number;
   setOpacity: (opacity: number) => void;
+  onPreviewBackground?: (background: string) => void;
 }
 
 export default function Background({
@@ -25,6 +26,7 @@ export default function Background({
   dataBackgrounds,
   opacity,
   setOpacity,
+  onPreviewBackground,
 }: BackgroundProps) {
   return (
     // Общая обертка с фоном bg-muted/30 и границами
@@ -35,7 +37,15 @@ export default function Background({
           Фон
         </span>
         <div className="flex items-center gap-1 w-full justify-end">
-          <Select value={background} onValueChange={setBackground}>
+          <Select
+            value={background}
+            onValueChange={setBackground}
+            onOpenChange={(open) => {
+              if (!open) {
+                onPreviewBackground(undefined);
+              }
+            }}
+          >
             <SelectTrigger className="w-full max-w-[140px] px-1.5 h-8 text-xs gap-1">
               <SelectValue placeholder="Выберите фон" />
             </SelectTrigger>
@@ -47,6 +57,8 @@ export default function Background({
                     value={item.name}
                     key={item.name}
                     className="text-xs"
+                    onPointerMove={() => onPreviewBackground?.(item.name)}
+                    onFocus={() => onPreviewBackground?.(item.name)}
                   >
                     {item.name}
                   </SelectItem>

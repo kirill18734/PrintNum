@@ -27,6 +27,7 @@ export default function SettingsPrinter({
   listPapers,
   setPaper,
   printerOnline,
+  
 }: SettingsPrinterProps) {
   return (
     <div className="flex w-full items-start justify-between gap-3">

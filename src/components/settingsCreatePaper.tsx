@@ -36,6 +36,8 @@ interface LabelStudioProps {
   dataBackgrounds: any;
   opacity: number;
   setOpacity: (value: number) => void;
+  onPreviewFont_Manual?: (font: string) => void;
+  onPreviewBackground_Manual?: (background: string) => void;
 }
 
 const contentTypes = [
@@ -71,6 +73,8 @@ export default function SettingsCreatePaper({
   dataBackgrounds,
   opacity,
   setOpacity,
+  onPreviewFont_Manual,
+  onPreviewBackground_Manual,
 }: LabelStudioProps) {
   const inputClass =
     "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
@@ -332,7 +336,12 @@ export default function SettingsCreatePaper({
           )}
 
           {/* Шрифт */}
-          <Font font={font} setFont={setFont} dataFonts={dataFonts} />
+          <Font
+            font={font}
+            setFont={setFont}
+            dataFonts={dataFonts}
+            onPreviewFont={onPreviewFont_Manual}
+          />
           {/* Фон */}
           <Background
             background={background}
@@ -340,6 +349,7 @@ export default function SettingsCreatePaper({
             dataBackgrounds={dataBackgrounds}
             opacity={opacity}
             setOpacity={setOpacity}
+            onPreviewBackground={onPreviewBackground_Manual}
           />
         </div>
       </div>

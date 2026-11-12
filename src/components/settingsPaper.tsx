@@ -24,6 +24,10 @@ interface SettingsPaperProps {
   setExpand: (valueOrFn: any) => void;
   opacity: number;
   setOpacity: (valueOrFn: any) => void;
+  onPreviewFont: (font: string | undefined) => void;
+  onPreviewBackground: (background: string | undefined) => void;
+  onChangeFont: (font: string) => void;
+  onChangeBackground: (background: string) => void;
 }
 
 export default function SettingsPaper({
@@ -45,6 +49,10 @@ export default function SettingsPaper({
   setExpand,
   opacity,
   setOpacity,
+  onPreviewFont,
+  onPreviewBackground,
+  onChangeFont,
+  onChangeBackground,
 }: SettingsPaperProps) {
   const handleExpandChange = (
     action: "increment" | "decrement" | "blur" | string,
@@ -205,7 +213,12 @@ export default function SettingsPaper({
           )}
         </div>
         {/* Шрифт */}
-        <Font font={font} setFont={setFont} dataFonts={dataFonts} />
+        <Font
+          font={font}
+          setFont={setFont}
+          dataFonts={dataFonts}
+          onPreviewFont={onPreviewFont}
+        />
         {/* Фон */}
         <Background
           background={background}
@@ -213,6 +226,7 @@ export default function SettingsPaper({
           dataBackgrounds={dataBackgrounds}
           opacity={opacity}
           setOpacity={setOpacity}
+          onPreviewBackground={onPreviewBackground}
         />
       </div>
     </div>

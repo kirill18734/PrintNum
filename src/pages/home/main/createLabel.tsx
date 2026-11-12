@@ -68,8 +68,25 @@ export default function CreateLabel({
   const background_manual = useAppStore((state) => state.background_manual);
   const [sequenceValues, setSequenceValues] = useState<string[]>([]);
   const [codeImage, setCodeImage] = useState<string>("");
+  const [previewFont_Manual, setPreviewFont_Manual] = useState<
+    string | undefined
+  >();
+  const [previewBackground_Manual, setPreviewBackground_Manual] = useState<
+    string | undefined
+  >();
 
   const setSetting = useAppStore((state) => state.setSetting);
+
+  const handleFontChange = (value: string) => {
+    setSetting("font_manual", value);
+    setPreviewFont_Manual(undefined);
+  };
+
+  const handleBackgroundChange = (value: string) => {
+    setSetting("background_manual", value);
+    setPreviewBackground_Manual(undefined);
+  };
+
   const setOpacity_Manual = (value: number) =>
     setSetting("opacity_manual", value);
   const setBold_Manual = (value: boolean) => setSetting("bold_manual", value);
@@ -325,6 +342,8 @@ export default function CreateLabel({
             background={background_manual}
             setBackground={setBackground_Manual}
             dataBackgrounds={dataBackgrounds}
+            onPreviewFont_Manual={setPreviewFont_Manual}
+            onPreviewBackground_Manual={setPreviewBackground_Manual}
           />
           <div className="flex flex-col w-full gap-2">
             <PreviewPaper
@@ -336,9 +355,9 @@ export default function CreateLabel({
               showCodeText={showCodeText}
               setCodeImage={setCodeImage}
               textInputMode={textInputMode}
-              font={font_manual}
+              font={previewFont_Manual ?? font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
-              background={background_manual}
+              background={previewBackground_Manual ?? background_manual}
               dataBackgrounds={dataBackgrounds}
               opacity={opacity_manual}
             />

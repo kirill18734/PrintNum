@@ -23,10 +23,23 @@ export default function AutoPrint({
   const font = useAppStore((state) => state.font);
   const expand = useAppStore((state) => state.expand);
   const opacity = useAppStore((state) => state.opacity);
-
   const bold = useAppStore((state) => state.bold);
   const printJobs = useAppStore((state) => state.printJobs);
   const background = useAppStore((state) => state.background);
+  const [previewFont, setPreviewFont] = useState<string | undefined>();
+  const [previewBackground, setPreviewBackground] = useState<
+    string | undefined
+  >();
+
+  const handleFontChange = (value: string) => {
+    setSetting("font", value);
+    setPreviewFont(undefined);
+  };
+
+  const handleBackgroundChange = (value: string) => {
+    setSetting("background", value);
+    setPreviewBackground(undefined);
+  };
 
   const setSetting = useAppStore((state) => state.setSetting);
 
@@ -88,17 +101,21 @@ export default function AutoPrint({
             setExpand={setExpand}
             opacity={opacity}
             setOpacity={setOpacity}
+            onPreviewFont={setPreviewFont}
+            onPreviewBackground={setPreviewBackground}
+            onChangeFont={handleFontChange}
+            onChangeBackground={handleBackgroundChange}
           />
 
           <PreviewPaper
             idNum={idNum}
-            font={font}
+            font={previewFont ?? font}
             endLine={endLine}
             hybrid={hybrid}
             expand={expand}
             bold={bold}
             mode="autoprint"
-            background={background}
+            background={previewBackground ?? background}
             dataBackgrounds={dataBackgrounds}
             opacity={opacity}
           />
