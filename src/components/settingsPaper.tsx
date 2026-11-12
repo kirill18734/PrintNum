@@ -13,9 +13,8 @@ interface SettingsPaperProps {
   bold: boolean;
   setBold: (checked: boolean) => void;
   font: string;
-  setFont: (font: string) => void;
+
   background: string;
-  setBackground: (background: string) => void;
   dataFonts: any;
   dataBackgrounds: any;
   hybrid: boolean;
@@ -38,10 +37,8 @@ export default function SettingsPaper({
   bold,
   setBold,
   font,
-  setFont,
   dataFonts,
   background,
-  setBackground,
   dataBackgrounds,
   hybrid,
   setHybrid,

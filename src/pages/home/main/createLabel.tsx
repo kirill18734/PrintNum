@@ -93,9 +93,6 @@ export default function CreateLabel({
   const setShowCodeText = (value: boolean) => setSetting("showCodeText", value);
   const setEndLine_Manual = (value: boolean) =>
     setSetting("endLine_manual", value);
-  const setFont_Manual = (value: string) => setSetting("font_manual", value);
-  const setBackground_Manual = (value: string) =>
-    setSetting("background_manual", value);
 
   const updateLabelContent = (value: string) =>
     setContentByType((current) => ({ ...current, [contentType]: value }));

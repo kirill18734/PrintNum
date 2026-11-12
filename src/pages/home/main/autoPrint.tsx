@@ -52,9 +52,7 @@ export default function AutoPrint({
   const setExpand = (value: number) => setSetting("expand", value);
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
-  const setFont = (value: string) => setSetting("font", value);
   const setOpacity = (value: number) => setSetting("opacity", value);
-  const setBackground = (value: string) => setSetting("background", value);
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 w-full">
