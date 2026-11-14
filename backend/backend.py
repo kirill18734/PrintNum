@@ -70,6 +70,7 @@ def _acquire_single_instance():
     kernel32.CloseHandle.argtypes = (ctypes.c_void_p,)
     kernel32.CloseHandle.restype = ctypes.c_int
 
+    ctypes.set_last_error(0)
     handle = kernel32.CreateMutexW(
         None,
         False,
