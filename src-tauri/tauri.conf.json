@@ -41,6 +41,10 @@
       "icons/icon.ico"
     ],
     "externalBin": ["../backend/output/backend"],
+    "resources": {
+      "../resources/backgrounds": "backgrounds",
+      "../resources/fonts": "fonts"
+    },
     "windows": {
       "nsis": {
         "languages": ["Russian", "English"],

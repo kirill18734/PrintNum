@@ -1,0 +1,148 @@
+import { BaseDirectory, readDir, readFile } from "@tauri-apps/plugin-fs";
+import type { BackgroundItem, FontItem } from "@/types/api";
+import { syncFontStyles } from "@/shared/utils/fontStyles";
+
+const BACKGROUND_EXTENSIONS = new Set(["png", "jpg", "jpeg", "bmp", "webp"]);
+const FONT_EXTENSIONS = new Set(["ttf", "otf"]);
+
+function getExtension(fileName: string): string {
+  return fileName.split(".").pop()?.toLowerCase() ?? "";
+}
+
+function getFileStem(fileName: string): string {
+  const extensionIndex = fileName.lastIndexOf(".");
+  return extensionIndex > 0 ? fileName.slice(0, extensionIndex) : fileName;
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, offset + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+async function readResourceFiles(
+  directory: "backgrounds" | "fonts",
+  supportedExtensions: Set<string>,
+): Promise<string[]> {
+  const entries = await readDir(directory, { baseDir: BaseDirectory.AppData });
+
+  return entries
+    .filter((entry) => !entry.isDirectory && supportedExtensions.has(getExtension(entry.name)))
+    .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b, "ru"));
+}
+
+/** Загружает фоны из %APPDATA%\\PrintNum\\backgrounds. */
+export async function loadBackgrounds(): Promise<BackgroundItem[]> {
+  try {
+    const files = await readResourceFiles("backgrounds", BACKGROUND_EXTENSIONS);
+
+    return await Promise.all(
+      files.map(async (fileName) => {
+        const extension = getExtension(fileName);
+        const mimeType = extension === "jpg" || extension === "jpeg"
+          ? "image/jpeg"
+          : `image/${extension}`;
+        const bytes = await readFile(`backgrounds/${fileName}`, {
+          baseDir: BaseDirectory.AppData,
+        });
+        const name = getFileStem(fileName);
+
+        return {
+          id: name,
+          name,
+          base64: `data:${mimeType};base64,${bytesToBase64(bytes)}`,
+        };
+      }),
+    );
+  } catch (error) {
+    console.error("Не удалось загрузить список фонов:", error);
+    return [];
+  }
+}
+
+/** Загружает шрифты из %APPDATA%\\PrintNum\\fonts. */
+export async function loadFonts(): Promise<FontItem[]> {
+  try {
+    const files = await readResourceFiles("fonts", FONT_EXTENSIONS);
+    const fonts = await Promise.all(
+      files.map(async (fileName) => {
+        const extension = getExtension(fileName);
+        const name = getFileStem(fileName);
+        const bytes = await readFile(`fonts/${fileName}`, {
+          baseDir: BaseDirectory.AppData,
+        });
+
+        return {
+          id: name,
+          name,
+          // Для CSS задаём имя семейства на основе имени файла. Это позволяет
+          // выбрать конкретный файл начертания, не объединяя разные файлы.
+          family: name,
+          label: name.replace(/[-_](regular|normal)$/i, ""),
+          weight: 400,
+          fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
+          format: extension === "otf" ? "opentype" as const : "truetype" as const,
+          base64: bytesToBase64(bytes),
+        };
+      }),
+    );
+
+    // Arial остаётся доступным как системный fallback и не требует файла
+    // в папке приложения или установки шрифта в Windows.
+    if (!fonts.some((font) => font.name.toLowerCase() === "arial")) {
+      fonts.unshift({
+        id: "Arial",
+        name: "Arial",
+        label: "Arial",
+        family: "Arial",
+        weight: 400,
+        fontStyle: "normal",
+        format: "truetype",
+        base64: "",
+      });
+    }
+
+    return fonts;
+  } catch (error) {
+    console.error("Не удалось загрузить список шрифтов:", error);
+    return [{
+      id: "Arial",
+      name: "Arial",
+      label: "Arial",
+      family: "Arial",
+      weight: 400,
+      fontStyle: "normal",
+      format: "truetype",
+      base64: "",
+    }];
+  }
+}
+
+/** Первичная загрузка локальных ресурсов в общее состояние UI. */
+export async function initializeResources(): Promise<void> {
+  const [backgrounds, fonts] = await Promise.all([
+    loadBackgrounds(),
+    loadFonts(),
+  ]);
+
+  syncFontStyles(fonts);
+  const { useAppStore } = await import("@/services/store");
+  useAppStore.setState({
+    dataBackgrounds: backgrounds,
+    dataFonts: fonts,
+  });
+}
+
+/** Повторно читает список фонов после добавления изображений. */
+export async function refreshBackgrounds(): Promise<void> {
+  const backgrounds = await loadBackgrounds();
+  const { useAppStore } = await import("@/services/store");
+  useAppStore.getState().setDataBackgrounds(backgrounds);
+}
