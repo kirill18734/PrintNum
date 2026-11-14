@@ -1,6 +1,8 @@
 import type {
+  BackgroundsResponse,
   DataAppResponse,
-  FontResourceResponse,
+  FontsResponse,
+  PrintersResponse,
   PrintLabelRequest,
   PrintLabelResponse,
 } from "@/types/api";
@@ -52,8 +54,14 @@ export const backendClient = {
   dataApp(): Promise<DataAppResponse> {
     return apiClient<DataAppResponse>("data-app");
   },
-  font(id: string): Promise<FontResourceResponse> {
-    return apiClient<FontResourceResponse>(`fonts/${encodeURIComponent(id)}`);
+  fonts(): Promise<FontsResponse> {
+    return apiClient<FontsResponse>("fonts");
+  },
+  backgrounds(): Promise<BackgroundsResponse> {
+    return apiClient<BackgroundsResponse>("backgrounds");
+  },
+  printers(): Promise<PrintersResponse> {
+    return apiClient<PrintersResponse>("printers");
   },
   printLabel(data: PrintLabelRequest): Promise<PrintLabelResponse> {
     return apiClient<PrintLabelResponse>("print-label", data);

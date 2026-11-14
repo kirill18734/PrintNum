@@ -11,16 +11,25 @@ from flask import jsonify, request
 from app.auto_print import print_text
 from app.config import load_config
 from app.label_print import LabelRequestError, PrinterNotConfiguredError, print_label
-from app.resources import get_font_data, get_fonts, get_images
+from app.resources import get_font_data, get_fonts, get_images, get_resource_versions
 from app.utils import find_excluded_rule, list_printers, status_printer
 
 PRINTER_STATUS_CACHE_SECONDS = 2
+PRINTER_LIST_CACHE_SECONDS = 5
 MAX_PRINT_JOBS = 30
 
 _state_lock = threading.Lock()
 _print_lock = threading.Lock()
 _printer_online = False
 _last_printer_check = 0.0
+_printers = []
+_last_printer_list_check = 0.0
+_printer_list_initialized = False
+_printers_version = 0
+_fonts_version = 0
+_backgrounds_version = 0
+_last_fonts_signature = None
+_last_backgrounds_signature = None
 _print_jobs = deque(maxlen=MAX_PRINT_JOBS)
 
 
@@ -46,6 +55,57 @@ def _refresh_printer_status(force=False):
             _printer_online = bool(online)
             _last_printer_check = now
     return get_printer_online()
+
+
+def _refresh_printer_list(force=False):
+    """Обновляет список принтеров не чаще заданного интервала."""
+    global _printers, _last_printer_list_check
+    global _printer_list_initialized, _printers_version
+
+    now = time.monotonic()
+    with _state_lock:
+        should_check = (
+            force
+            or not _printer_list_initialized
+            or now - _last_printer_list_check >= PRINTER_LIST_CACHE_SECONDS
+        )
+        if not should_check:
+            return list(_printers)
+
+        _last_printer_list_check = now
+
+    try:
+        printers = list_printers()
+    except Exception:
+        # При временной ошибке Windows API сохраняем последний успешный список.
+        return get_printers()
+
+    with _state_lock:
+        if not _printer_list_initialized or printers != _printers:
+            _printers = printers
+            _printers_version += 1
+        _printer_list_initialized = True
+        return list(_printers)
+
+
+def get_printers():
+    with _state_lock:
+        return list(_printers)
+
+
+def _get_resource_versions():
+    global _fonts_version, _backgrounds_version
+    global _last_fonts_signature, _last_backgrounds_signature
+
+    fonts_signature, backgrounds_signature = get_resource_versions()
+    with _state_lock:
+        if fonts_signature != _last_fonts_signature:
+            _fonts_version += 1
+            _last_fonts_signature = fonts_signature
+        if backgrounds_signature != _last_backgrounds_signature:
+            _backgrounds_version += 1
+            _last_backgrounds_signature = backgrounds_signature
+        return _fonts_version, _backgrounds_version
 
 
 def _add_print_job(text, status):
@@ -80,35 +140,39 @@ def register_routes(app, shutdown_requested):
 
     @app.get("/data-app")
     def data_app_route():
-        try:
-            printers = list_printers()
-        except Exception:
-            app.logger.exception("Не удалось получить список принтеров")
-            printers = []
+        _refresh_printer_list()
+        fonts_version, backgrounds_version = _get_resource_versions()
+        with _state_lock:
+            printers_version = _printers_version
 
+        return jsonify({
+            "fontsVersion": fonts_version,
+            "backgroundsVersion": backgrounds_version,
+            "printersVersion": printers_version,
+            "onlinePrinter": _refresh_printer_status(),
+            "printJobs": _get_print_jobs(),
+        })
+
+    @app.get("/fonts")
+    def fonts_route():
+        fonts = [{
+            **font,
+            "base64": base64.b64encode(get_font_data(font["id"])).decode("ascii"),
+        } for font in get_fonts()]
+        return jsonify({"dataFonts": fonts})
+
+    @app.get("/backgrounds")
+    def backgrounds_route():
         backgrounds = [{
             "id": image["id"],
             "name": image["name"],
             "base64": base64.b64encode(image["data"]).decode("ascii"),
         } for image in get_images()]
+        return jsonify({"dataBackgrounds": backgrounds})
 
-        return jsonify({
-            "onlinePrinter": _refresh_printer_status(),
-            "listPrinters": printers,
-            "dataBackgrounds": backgrounds,
-            "dataFonts": get_fonts(),
-            "printJobs": _get_print_jobs(),
-        })
-
-    @app.get("/fonts/<font_id>")
-    def font_resource_route(font_id):
-        data = get_font_data(font_id)
-        if data is None:
-            return jsonify({"message": "Шрифт не найден"}), 404
-        return jsonify({
-            "id": font_id,
-            "base64": base64.b64encode(data).decode("ascii"),
-        })
+    @app.get("/printers")
+    def printers_route():
+        return jsonify({"listPrinters": _refresh_printer_list()})
 
     @app.get("/status-printer")
     def status_printer_route():
@@ -117,7 +181,7 @@ def register_routes(app, shutdown_requested):
     @app.get("/listPrinters")
     def list_printers_route():
         try:
-            return jsonify({"listPrinters": list_printers()})
+            return jsonify({"listPrinters": _refresh_printer_list(force=True)})
         except Exception:
             app.logger.exception("Не удалось получить список принтеров")
             return jsonify({"message": "Не удалось получить список принтеров"}), 500

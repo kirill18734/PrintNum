@@ -6,7 +6,7 @@ export interface BackgroundItem {
   base64: string;
 }
 
-/** Метаданные шрифта; бинарные данные загружаются отдельным запросом. */
+/** Шрифт с метаданными и содержимым, загружаемый при изменении версии набора. */
 export interface FontItem {
   id: string;
   name: string;
@@ -15,20 +15,27 @@ export interface FontItem {
   fontStyle?: "normal" | "italic";
   format?: "truetype" | "opentype";
   rel?: string;
-  base64?: string;
-}
-
-export interface FontResourceResponse {
-  id: string;
   base64: string;
 }
 
 export interface DataAppResponse {
+  fontsVersion: number;
+  backgroundsVersion: number;
+  printersVersion: number;
   onlinePrinter: boolean;
-  listPrinters: string[];
-  dataBackgrounds: BackgroundItem[];
-  dataFonts: FontItem[];
   printJobs: StatusCardProps[];
+}
+
+export interface FontsResponse {
+  dataFonts: FontItem[];
+}
+
+export interface BackgroundsResponse {
+  dataBackgrounds: BackgroundItem[];
+}
+
+export interface PrintersResponse {
+  listPrinters: string[];
 }
 
 export interface PrintLabelRequest {

@@ -24,6 +24,7 @@ _resource_cache = {
     "images": {},
     "font_names": {},
     "initialized": False,
+    "manifest": None,
 }
 
 if os.name == "nt":
@@ -181,6 +182,26 @@ def _load_image_file(path):
         print(f"[Ошибка загрузки изображения {path.name}]: {error}")
 
 
+
+def _get_resources_manifest():
+    """Возвращает файловые подписи ресурсов для обнаружения внешних изменений."""
+    manifest = []
+    for directory, extensions in (
+        (FONTS_DIR, {".ttf", ".otf"}),
+        (IMAGES_DIR, None),
+    ):
+        try:
+            paths = sorted(path for path in directory.iterdir() if path.is_file())
+        except OSError:
+            paths = []
+        for path in paths:
+            if extensions is not None and path.suffix.lower() not in extensions:
+                continue
+            signature = _get_file_signature(path)
+            manifest.append((str(path), signature))
+    return tuple(manifest)
+
+
 def init_resources(force=False):
     """Загружает доступные шрифты и изображения в кеш при запуске."""
     with resource_lock:
@@ -206,6 +227,7 @@ def init_resources(force=False):
             print(f"[Ошибка чтения папки изображений]: {error}")
 
         _resource_cache["initialized"] = True
+        _resource_cache["manifest"] = _get_resources_manifest()
         print(
             f"[Ресурсы] Загружено шрифтов: {len(_resource_cache['fonts'])}, "
             f"изображений: {len(_resource_cache['images'])}"
@@ -219,6 +241,7 @@ def _clear_resources():
     _resource_cache["images"].clear()
     _resource_cache["font_names"].clear()
     _resource_cache["initialized"] = False
+    _resource_cache["manifest"] = None
 
 
 def shutdown_resources():
@@ -251,11 +274,37 @@ def get_font_name(font_name=None):
         return font["family"] if font else "Arial"
 
 
-def get_fonts():
-    """Возвращает метаданные шрифтов без передачи Base64 в частом polling."""
+
+def refresh_resources_if_changed():
+    """Перечитывает ресурсы, только если файлы на диске действительно изменились."""
     with resource_lock:
         if not _resource_cache["initialized"]:
             init_resources()
+            return
+        manifest = _get_resources_manifest()
+        if manifest != _resource_cache["manifest"]:
+            init_resources(force=True)
+
+
+def get_resource_versions():
+    """Возвращает подписи наборов ресурсов без передачи самих файлов."""
+    refresh_resources_if_changed()
+    with resource_lock:
+        fonts = tuple(
+            (filename, font["metadata"]["id"], font["signature"])
+            for filename, font in sorted(_resource_cache["fonts"].items())
+        )
+        backgrounds = tuple(
+            (filename, image["signature"])
+            for filename, image in sorted(_resource_cache["images"].items())
+        )
+        return fonts, backgrounds
+
+
+def get_fonts():
+    """Возвращает метаданные шрифтов без передачи Base64 в частом polling."""
+    refresh_resources_if_changed()
+    with resource_lock:
         return [
             dict(font["metadata"])
             for _, font in sorted(_resource_cache["fonts"].items())
@@ -277,9 +326,8 @@ def get_font_data(font_id):
 
 def get_images():
     """Возвращает доступные фоны и их данные."""
+    refresh_resources_if_changed()
     with resource_lock:
-        if not _resource_cache["initialized"]:
-            init_resources()
         return [
             {"id": filename, "name": Path(filename).stem, "data": image["data"]}
             for filename, image in sorted(_resource_cache["images"].items())
