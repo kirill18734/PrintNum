@@ -16,16 +16,9 @@ from app.label_print import (
     LabelRequestError,
     PrinterNotConfiguredError,
 )
-from app.config import load_config, save_config
+from app.config import load_config
 
-from app.resources import (
-    init_resources,
-    shutdown_resources,
-    load_font,
-    get_font_name,
-    get_image,
-    resource_session,
-)
+from app.resources import init_resources, shutdown_resources
 
 
 app = Flask(__name__)
@@ -34,7 +27,7 @@ CORS(app)
 TIMEOUT = 10
 STANDALONE = "--standalone" in sys.argv
 
-# Состояние принтера, обновляемое через /status-printer.
+# Состояние принтера, обновляемое через /state.
 printerOnline = False
 
 # Защита общих данных и последовательное выполнение печати.
