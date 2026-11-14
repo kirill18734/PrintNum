@@ -75,24 +75,26 @@ def draw_code_image(hdc, image_data, sizes, show_code_text, text):
             "height": font_height,
         })
 
-        hdc.SelectObject(font)
+        previous_font = hdc.SelectObject(font)
+        try:
+            caption = text.replace("\r", " ").replace("\n", " ")
 
-        caption = text.replace("\r", " ").replace("\n", " ")
+            while (
+                caption
+                and hdc.GetTextExtent(caption)[0] > max_width
+                and len(caption) > 1
+            ):
+                caption = caption[:-2] + "…"
 
-        while (
-            caption
-            and hdc.GetTextExtent(caption)[0] > max_width
-            and len(caption) > 1
-        ):
-            caption = caption[:-2] + "…"
-
-        text_width, text_height = hdc.GetTextExtent(caption)
-
-        hdc.TextOut(
-            (sizes["width_px"] - text_width) // 2,
-            sizes["height_px"] - sizes["margin_y"] - text_height,
-            caption,
-        )
+            text_width, text_height = hdc.GetTextExtent(caption)
+            hdc.TextOut(
+                (sizes["width_px"] - text_width) // 2,
+                sizes["height_px"] - sizes["margin_y"] - text_height,
+                caption,
+            )
+        finally:
+            hdc.SelectObject(previous_font)
+            font.DeleteObject()
 
 
 def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
@@ -122,28 +124,29 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
             "underline": 1 if underline else 0,
         })
 
-        hdc.SelectObject(font)
+        previous_font = hdc.SelectObject(font)
+        try:
+            _, line_h = hdc.GetTextExtent("Ag")
+            total_h = line_h * len(raw_lines)
 
-        _, line_h = hdc.GetTextExtent("Ag")
-        total_h = line_h * len(raw_lines)
-
-        if total_h > available_h:
-            break
-
-        too_wide = False
-
-        for line in raw_lines:
-            width, _ = hdc.GetTextExtent(line)
-
-            if width > available_w:
-                too_wide = True
+            if total_h > available_h:
                 break
 
-        if too_wide:
-            continue
+            too_wide = False
+            for line in raw_lines:
+                width, _ = hdc.GetTextExtent(line)
+                if width > available_w:
+                    too_wide = True
+                    break
 
-        best_height = font_height
-        best_line_height = line_h
+            if too_wide:
+                continue
+
+            best_height = font_height
+            best_line_height = line_h
+        finally:
+            hdc.SelectObject(previous_font)
+            font.DeleteObject()
 
     if best_height is None or best_line_height is None:
         raise ValueError("Текст не помещается на выбранной этикетке")
@@ -159,17 +162,18 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
         "underline": 1 if underline else 0,
     })
 
-    hdc.SelectObject(final_font)
-
-    total_height = best_line_height * len(raw_lines)
-    y = (sizes["height_px"] - total_height) // 2
-
-    for line in raw_lines:
-        line_width, _ = hdc.GetTextExtent(line)
-        x = (sizes["width_px"] - line_width) // 2
-
-        hdc.TextOut(x, y, line)
-        y += best_line_height
+    previous_font = hdc.SelectObject(final_font)
+    try:
+        total_height = best_line_height * len(raw_lines)
+        y = (sizes["height_px"] - total_height) // 2
+        for line in raw_lines:
+            line_width, _ = hdc.GetTextExtent(line)
+            x = (sizes["width_px"] - line_width) // 2
+            hdc.TextOut(x, y, line)
+            y += best_line_height
+    finally:
+        hdc.SelectObject(previous_font)
+        final_font.DeleteObject()
 
 
 def render_manual_label(

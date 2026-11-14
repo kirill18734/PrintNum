@@ -74,19 +74,20 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
         "weight": win32con.FW_NORMAL,
     })
 
-    hdc.SelectObject(font_top)
-    text_w, text_h = hdc.GetTextExtent(text)
-
-    x = (
-        sizes["margin_x"]
-        if force_left
-        else sizes["width_px"] - text_w - sizes["margin_x"]
-    )
-    y = sizes["margin_y"]
-
-    hdc.TextOut(x, y, text)
-
-    return y + text_h
+    previous_font = hdc.SelectObject(font_top)
+    try:
+        text_w, text_h = hdc.GetTextExtent(text)
+        x = (
+            sizes["margin_x"]
+            if force_left
+            else sizes["width_px"] - text_w - sizes["margin_x"]
+        )
+        y = sizes["margin_y"]
+        hdc.TextOut(x, y, text)
+        return y + text_h
+    finally:
+        hdc.SelectObject(previous_font)
+        font_top.DeleteObject()
 
 
 
@@ -112,8 +113,12 @@ def draw_main_text(
             "underline": 1 if is_underlined else 0,
         })
 
-        hdc.SelectObject(test_font)
-        width, height = hdc.GetTextExtent(text)
+        previous_font = hdc.SelectObject(test_font)
+        try:
+            width, height = hdc.GetTextExtent(text)
+        finally:
+            hdc.SelectObject(previous_font)
+            test_font.DeleteObject()
 
         if (
             width > sizes["max_allowed_w"]
@@ -131,15 +136,16 @@ def draw_main_text(
         "underline": 1 if is_underlined else 0,
     })
 
-    hdc.SelectObject(final_font)
-    text_w, text_h = hdc.GetTextExtent(text)
-
-    x = (sizes["width_px"] - text_w) // 2
-    y = y_start + (available_h - text_h) // 2
-
-    hdc.TextOut(x, y, text)
-
-    return optimal_height
+    previous_font = hdc.SelectObject(final_font)
+    try:
+        text_w, text_h = hdc.GetTextExtent(text)
+        x = (sizes["width_px"] - text_w) // 2
+        y = y_start + (available_h - text_h) // 2
+        hdc.TextOut(x, y, text)
+        return optimal_height
+    finally:
+        hdc.SelectObject(previous_font)
+        final_font.DeleteObject()
 
 
 
