@@ -1,9 +1,7 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
 import type {
-  BackgroundItem,
   DataChangesResponse,
-  FontItem,
   PrintLabelRequest,
   PrintLabelResponse,
 } from "@/types/api";
@@ -69,14 +67,6 @@ export const backendClient = {
 
   getPrinterStatus(): Promise<boolean> {
     return apiClient<boolean>("printer-status");
-  },
-
-  getBackgrounds(): Promise<BackgroundItem[]> {
-    return apiClient<BackgroundItem[]>("backgrounds");
-  },
-
-  getFonts(): Promise<FontItem[]> {
-    return apiClient<FontItem[]>("fonts");
   },
 
   getPrintJobs(): Promise<StatusCardProps[]> {
