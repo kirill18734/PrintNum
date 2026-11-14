@@ -28,6 +28,7 @@ export function useBackendRuntime(): void {
     };
 
     const refresh = async () => {
+      await refreshAssets();
       try {
         const state = await backendClient.getState();
         if (!active) return;
@@ -44,10 +45,7 @@ export function useBackendRuntime(): void {
         store.setPrinterOnline(false);
         console.error("Ошибка получения состояния backend:", error);
       } finally {
-        if (active) {
-          await refreshAssets();
-          if (active) timeout = setTimeout(refresh, POLLING_INTERVAL);
-        }
+        if (active) timeout = setTimeout(refresh, POLLING_INTERVAL);
       }
     };
 
