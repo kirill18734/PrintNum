@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import type { FontItem } from "@/types/api";
+import { loadFontFamily } from "@/shared/utils/fontStyles";
 
 import {
   Select,
@@ -22,6 +24,20 @@ export default function Font({
   dataFonts,
   onPreviewFont,
 }: FontProps) {
+  useEffect(() => {
+    if (font) void loadFontFamily(dataFonts, font).catch((error) => console.error("Не удалось загрузить шрифт:", error));
+  }, [font, dataFonts]);
+
+  const handlePreview = (family: string | undefined) => {
+    if (family) void loadFontFamily(dataFonts, family).catch((error) => console.error("Не удалось загрузить шрифт:", error));
+    onPreviewFont(family);
+  };
+
+  const handleSelect = (family: string) => {
+    void loadFontFamily(dataFonts, family).catch((error) => console.error("Не удалось загрузить шрифт:", error));
+    setFont(family);
+  };
+
   // Несколько файлов Regular/Bold/Italic одного семейства — один пункт выбора.
   const fontFamilies = Array.from(
     new Set(
@@ -37,7 +53,7 @@ export default function Font({
 
       <Select
         value={font}
-        onValueChange={setFont}
+        onValueChange={handleSelect}
         onOpenChange={(open) => {
           if (!open) {
             onPreviewFont(undefined);
@@ -54,8 +70,8 @@ export default function Font({
               <SelectItem
                 value={family}
                 key={family}
-                onPointerMove={() => onPreviewFont(family)}
-                onFocus={() => onPreviewFont(family)}
+                onPointerMove={() => handlePreview(family)}
+                onFocus={() => handlePreview(family)}
                 className="text-xs"
               >
                 {family}
