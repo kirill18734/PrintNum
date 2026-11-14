@@ -85,7 +85,8 @@ export async function loadFonts(): Promise<FontItem[]> {
           // Для CSS задаём имя семейства на основе имени файла. Это позволяет
           // выбрать конкретный файл начертания, не объединяя разные файлы.
           family: name,
-          label: name.replace(/[-_](regular|normal)$/i, ""),
+          // Полное имя файла без расширения — и для Select, и для конфигурации.
+          label: name,
           weight: 400,
           fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
           format: extension === "otf" ? "opentype" as const : "truetype" as const,
@@ -138,6 +139,27 @@ export async function initializeResources(): Promise<void> {
     dataBackgrounds: backgrounds,
     dataFonts: fonts,
   });
+
+  // Если выбранный ресурс удалён, сбрасываем настройку на безопасное значение.
+  const availableFonts = new Set(fonts.map((font) => font.name));
+  const availableBackgrounds = new Set([
+    "Без фона",
+    ...backgrounds.map((background) => background.name),
+  ]);
+  const settings = useAppStore.getState();
+
+  if (!availableFonts.has(settings.font)) {
+    await settings.setSetting("font", "Arial");
+  }
+  if (!availableFonts.has(settings.font_manual)) {
+    await settings.setSetting("font_manual", "Arial");
+  }
+  if (!availableBackgrounds.has(settings.background)) {
+    await settings.setSetting("background", "Без фона");
+  }
+  if (!availableBackgrounds.has(settings.background_manual)) {
+    await settings.setSetting("background_manual", "Без фона");
+  }
 }
 
 /** Повторно читает список фонов после добавления изображений. */
