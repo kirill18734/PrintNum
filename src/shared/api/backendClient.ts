@@ -1,7 +1,6 @@
-// Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
-
 import type {
   DataAppResponse,
+  FontResourceResponse,
   PrintLabelRequest,
   PrintLabelResponse,
 } from "@/types/api";
@@ -15,7 +14,6 @@ async function apiClient<TResponse>(
   const options: RequestInit = {
     method: data === undefined ? "GET" : "POST",
   };
-
   if (data !== undefined) {
     options.headers = { "Content-Type": "application/json" };
     options.body = JSON.stringify(data);
@@ -23,13 +21,10 @@ async function apiClient<TResponse>(
 
   try {
     const response = await fetch(`${API_BASE}/${endpoint}`, options);
-
     if (!response.ok) {
       let message = response.statusText;
-
       try {
         const errorData: unknown = await response.json();
-
         if (
           typeof errorData === "object" &&
           errorData !== null &&
@@ -39,12 +34,10 @@ async function apiClient<TResponse>(
           message = errorData.message;
         }
       } catch {
-        // Если backend вернул ошибку не в формате JSON, используем statusText.
+        // Если тело ошибки не JSON, используем statusText.
       }
-
       throw new Error(message || `Ошибка HTTP: ${response.status}`);
     }
-
     return (await response.json()) as TResponse;
   } catch (error: unknown) {
     console.error(
@@ -59,7 +52,9 @@ export const backendClient = {
   dataApp(): Promise<DataAppResponse> {
     return apiClient<DataAppResponse>("data-app");
   },
-
+  font(id: string): Promise<FontResourceResponse> {
+    return apiClient<FontResourceResponse>(`fonts/${encodeURIComponent(id)}`);
+  },
   printLabel(data: PrintLabelRequest): Promise<PrintLabelResponse> {
     return apiClient<PrintLabelResponse>("print-label", data);
   },
