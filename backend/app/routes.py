@@ -139,10 +139,15 @@ def register_routes(app, shutdown_requested):
 
     @app.get("/fonts")
     def fonts_route():
-        fonts = [{
-            **font,
-            "base64": base64.b64encode(get_font_data(font["id"])).decode("ascii"),
-        } for font in get_fonts()]
+        fonts = []
+        for font in get_fonts():
+            data = get_font_data(font["id"])
+            if data is None:
+                return jsonify({"message": "Список шрифтов изменился, повторите запрос"}), 409
+            fonts.append({
+                **font,
+                "base64": base64.b64encode(data).decode("ascii"),
+            })
         return jsonify({"dataFonts": fonts})
 
     @app.get("/backgrounds")
