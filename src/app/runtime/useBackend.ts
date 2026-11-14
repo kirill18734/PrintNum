@@ -11,9 +11,9 @@ export function useBackendRuntime(): void {
   useEffect(() => {
     let active = true;
     let timeout: ReturnType<typeof setTimeout>;
-    let fontsVersion: number | null = null;
-    let backgroundsVersion: number | null = null;
-    let printersVersion: number | null = null;
+    let fontsVersion: string | null = null;
+    let backgroundsVersion: string | null = null;
+    let printersVersion: string | null = null;
 
     const refresh = async () => {
       try {

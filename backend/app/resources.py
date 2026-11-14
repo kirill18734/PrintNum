@@ -295,7 +295,7 @@ def get_resource_versions():
             for filename, font in sorted(_resource_cache["fonts"].items())
         )
         backgrounds_payload = "|".join(
-            f"{filename}:{image['signature']}"
+            f"{filename}:{hashlib.sha256(image['data']).hexdigest()}"
             for filename, image in sorted(_resource_cache["images"].items())
         )
         fonts_version = hashlib.sha256(fonts_payload.encode("utf-8")).hexdigest()[:16]
