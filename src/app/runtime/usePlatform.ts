@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { appService } from "@/services/app.tauri";
 import { useAppStore } from "@/services/store";
+import { assetsService } from "@/services/assets.tauri";
 
 export function usePlatformRuntime(): void {
   useEffect(() => {
