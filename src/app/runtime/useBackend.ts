@@ -37,6 +37,7 @@ export function useBackendRuntime(): void {
     };
 
     const refresh = async () => {
+      await refreshAssets();
       try {
         const changes = await backendClient.getChanges();
         if (!active) return;
@@ -71,7 +72,6 @@ export function useBackendRuntime(): void {
         }
 
         await Promise.all(updates);
-        if (active) await refreshAssets();
       } catch (error: unknown) {
         if (!active) return;
 
