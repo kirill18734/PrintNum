@@ -251,7 +251,7 @@ export const assetsService = {
     }
 
     for (const source of files) {
-      const fileName = source.split(/[\\\\/]/).pop();
+      const fileName = source.replace(/\\/g, "/").split("/").pop();
       if (!fileName || !BACKGROUND_EXTENSIONS.has(getExtension(fileName))) continue;
       const target = await join(destination, fileName);
       if (!(await exists(target))) {
