@@ -1,4 +1,4 @@
-"""Загрузка и кеширование фоновых изображений."""
+"""Ленивая загрузка фоновых изображений только по запросу."""
 
 from pathlib import Path
 
@@ -6,77 +6,55 @@ from app.fonts import APPDATA_DIR, APP_NAME, resource_lock
 
 
 BACKGROUNDS_DIR = APPDATA_DIR / APP_NAME / "backgrounds"
-
-_image_cache = {
-    "images": {},
-    "initialized": False,
-}
-
-
-def _load_image_file(path):
-    """Читает изображение в оперативную память."""
-    try:
-        data = path.read_bytes()
-        stat = path.stat()
-
-        _image_cache["images"][path.name] = {
-            "data": data,
-            "signature": (stat.st_mtime_ns, stat.st_size),
-        }
-
-        print(f"[Фон] Загружен: {path.name}")
-
-    except OSError as error:
-        print(f"[Ошибка загрузки фона {path.name}]: {error}")
-
-
-def init_backgrounds(force=False):
-    """Создаёт каталог фонов и загружает изображения в кеш."""
-    with resource_lock:
-        if _image_cache["initialized"] and not force:
-            return
-
-        if force:
-            _image_cache["images"].clear()
-
-        BACKGROUNDS_DIR.mkdir(parents=True, exist_ok=True)
-        print("[Фоны] Начало загрузки...")
-
-        try:
-            image_files = sorted(
-                path for path in BACKGROUNDS_DIR.iterdir()
-                if path.is_file()
-            )
-            for path in image_files:
-                _load_image_file(path)
-        except OSError as error:
-            print(f"[Ошибка чтения папки фонов]: {error}")
-
-        _image_cache["initialized"] = True
-        print(
-            f"[Фоны] Загрузка завершена. "
-            f"Загружено: {len(_image_cache['images'])}"
-        )
+_image_cache = {}
 
 
 def get_image(filename):
-    """Возвращает байты фонового изображения из кеша."""
+    """Возвращает байты фона, загружая только запрошенный файл."""
     if not isinstance(filename, str) or not filename:
         return None
-
     if Path(filename).name != filename:
         return None
 
+    path = BACKGROUNDS_DIR / filename
     with resource_lock:
-        if not _image_cache["initialized"]:
-            init_backgrounds()
+        try:
+            stat = path.stat()
+            if not path.is_file():
+                return None
+            signature = (stat.st_mtime_ns, stat.st_size)
+        except OSError:
+            return None
 
-        image = _image_cache["images"].get(filename)
-        return image["data"] if image else None
+        cached = _image_cache.get(filename)
+        if cached and cached["signature"] == signature:
+            return cached["data"]
+
+        try:
+            data = path.read_bytes()
+            # Проверяем, что файл действительно является изображением.
+            from PIL import Image
+            from io import BytesIO
+            with Image.open(BytesIO(data)) as image:
+                image.verify()
+            current = path.stat()
+            _image_cache[filename] = {
+                "data": data,
+                "signature": (current.st_mtime_ns, current.st_size),
+            }
+            return data
+        except Exception as error:
+            # Повреждённая новая версия не затирает прежнюю запись.
+            print(f"[Ошибка загрузки фона {filename}]: {error}")
+            return cached["data"] if cached else None
+
+
+def init_backgrounds(force=False):
+    """Совместимый no-op: фоны читаются только через get_image()."""
+    return None
 
 
 def shutdown_backgrounds():
-    """Очищает кеш изображений при завершении приложения."""
+    """Освобождает кеш изображений в оперативной памяти."""
     with resource_lock:
-        _image_cache["images"].clear()
-        _image_cache["initialized"] = False
+        _image_cache.clear()
