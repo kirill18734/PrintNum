@@ -10,13 +10,12 @@ from contextlib import contextmanager
 from ctypes import wintypes
 
 APP_NAME = "PrintNum"
-LOCALAPPDATA_DIR = os.environ.get("LOCALAPPDATA")
-RESOURCES_DIR = (
-    Path(LOCALAPPDATA_DIR) / APP_NAME / "resources"
-    if LOCALAPPDATA_DIR else Path.home() / APP_NAME / "resources"
+APPDATA_DIR = Path(
+    os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming")
 )
-FONTS_DIR = RESOURCES_DIR / "fonts"
-IMAGES_DIR = RESOURCES_DIR / "images"
+APP_DIR = APPDATA_DIR / APP_NAME
+FONTS_DIR = APP_DIR / "fonts"
+BACKGROUNDS_DIR = APP_DIR / "backgrounds"
 
 resource_lock = RLock()
 _resource_cache = {
@@ -188,7 +187,7 @@ def _get_resources_manifest():
     manifest = []
     for directory, extensions in (
         (FONTS_DIR, {".ttf", ".otf"}),
-        (IMAGES_DIR, None),
+        (BACKGROUNDS_DIR, None),
     ):
         try:
             paths = sorted(path for path in directory.iterdir() if path.is_file())
@@ -211,6 +210,8 @@ def init_resources(force=False):
             _clear_resources()
 
         print("[Ресурсы] Начало загрузки...")
+        FONTS_DIR.mkdir(parents=True, exist_ok=True)
+        BACKGROUNDS_DIR.mkdir(parents=True, exist_ok=True)
         try:
             for path in sorted(
                 p for p in FONTS_DIR.iterdir()
@@ -221,7 +222,7 @@ def init_resources(force=False):
             print(f"[Ошибка чтения папки шрифтов]: {error}")
 
         try:
-            for path in sorted(p for p in IMAGES_DIR.iterdir() if p.is_file()):
+            for path in sorted(p for p in BACKGROUNDS_DIR.iterdir() if p.is_file()):
                 _load_image_file(path)
         except OSError as error:
             print(f"[Ошибка чтения папки изображений]: {error}")
