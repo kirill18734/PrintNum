@@ -59,7 +59,7 @@ export default function PreviewPaper({
   // Получаем изображение выбранного фона
   const backgroundImage =
     background !== "Без фона"
-      ? dataBackgrounds.find((item) => item.name === background)?.base64
+      ? dataBackgrounds.find((item) => item.name === background)?.src
       : undefined;
 
   // Состояние генерации кода
