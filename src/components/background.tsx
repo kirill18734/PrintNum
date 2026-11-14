@@ -64,7 +64,7 @@ export default function Background({
                 {dataBackgrounds.map((item) => (
                   <SelectItem
                     value={item.name}
-                    key={item.name}
+                    key={item.id}
                     className="text-xs"
                     onPointerMove={() => onPreviewBackground(item.name)}
                     onFocus={() => onPreviewBackground(item.name)}
