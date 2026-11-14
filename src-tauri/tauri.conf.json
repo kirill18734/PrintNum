@@ -58,7 +58,11 @@
         ],
         "installerIcon": "icons/icon.ico"
       }
-    }
+    },
+    "resources": [
+      "../resources/fonts/",
+      "../resources/backgrounds/"
+    ]
   },
   "plugins": {
     "updater": {
