@@ -171,7 +171,10 @@ def print_text(text):
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise ValueError("Не задан принтер для печати")
 
-    # Очистка системной очереди — обязательная часть текущего сценария печати.\n    clear_printer_queue()\n\n    data = prepare_label_data(text, config)
+    # Очистка системной очереди перед отправкой нового задания на печать.
+    clear_printer_queue()
+
+    data = prepare_label_data(text, config)
 
     # Загружаем выбранный шрифт.
     with resource_session():
