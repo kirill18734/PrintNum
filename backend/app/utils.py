@@ -1,8 +1,13 @@
+import logging
 
 import win32print
 import win32timezone  # Нужен для сборки приложения и работы с очередью.
 from app.config import load_config
 import win32con
+
+
+logger = logging.getLogger(__name__)
+
 
 def find_excluded_rule(text, rules):
     """Находит первое правило исключения, совпавшее с текстом."""
@@ -29,9 +34,6 @@ def list_printers():
     )
 
     return [printer[2] for printer in printers]
-
-
-
 
 
 def calculate_dimensions(hdc, paper_size_str):
@@ -106,13 +108,18 @@ def status_printer():
         if handle is not None:
             win32print.ClosePrinter(handle)
 
-def clear_printer_queue():
-    """Полностью очищает очередь настроенного принтера."""
-    config = load_config()
-    printer_name = config.get("printer", "").strip()
 
-    if not printer_name:
-        raise ValueError("Не задан принтер для очистки очереди")
+def clear_printer_queue(printer_name):
+    """Пытается полностью очистить очередь указанного принтера.
+
+    Ошибки очистки не блокируют печать: каждое задание обрабатывается
+    независимо, а ошибки открытия/чтения очереди только журналируются.
+    """
+    if not isinstance(printer_name, str) or not printer_name.strip():
+        logger.warning(
+            "Очистка очереди пропущена: не задано имя принтера"
+        )
+        return
 
     handle = None
 
@@ -126,18 +133,41 @@ def clear_printer_queue():
 
         jobs = win32print.EnumJobs(handle, 0, -1, 1)
 
-        if not jobs:
-            return
-
         for job in jobs:
-            win32print.SetJob(
-                handle,
-                job["JobId"],
-                0,
-                None,
-                win32print.JOB_CONTROL_DELETE,
-            )
+            job_id = job.get("JobId")
+
+            try:
+                win32print.SetJob(
+                    handle,
+                    job_id,
+                    0,
+                    None,
+                    win32print.JOB_CONTROL_DELETE,
+                )
+            except Exception:
+                logger.warning(
+                    "Не удалось удалить задание %s из очереди принтера '%s'. "
+                    "Продолжаем очистку и печать.",
+                    job_id,
+                    printer_name,
+                    exc_info=True,
+                )
+
+    except Exception:
+        logger.warning(
+            "Не удалось очистить очередь принтера '%s'. "
+            "Продолжаем печать без очистки очереди.",
+            printer_name,
+            exc_info=True,
+        )
 
     finally:
         if handle is not None:
-            win32print.ClosePrinter(handle)
+            try:
+                win32print.ClosePrinter(handle)
+            except Exception:
+                logger.warning(
+                    "Не удалось закрыть дескриптор очереди принтера '%s'.",
+                    printer_name,
+                    exc_info=True,
+                )
