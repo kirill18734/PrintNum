@@ -40,80 +40,59 @@ async function readResourceFiles(
 
 /** Загружает фоны из %APPDATA%\\PrintNum\\backgrounds. */
 export async function loadBackgrounds(): Promise<BackgroundItem[]> {
-  try {
-    const files = await readResourceFiles("backgrounds", BACKGROUND_EXTENSIONS);
+  const files = await readResourceFiles("backgrounds", BACKGROUND_EXTENSIONS);
 
-    return await Promise.all(
-      files.map(async (fileName) => {
-        const extension = getExtension(fileName);
-        const mimeType = extension === "jpg" || extension === "jpeg"
-          ? "image/jpeg"
-          : `image/${extension}`;
-        const bytes = await readFile(`backgrounds/${fileName}`, {
-          baseDir: BaseDirectory.AppData,
-        });
-        const name = getFileStem(fileName);
+  return Promise.all(
+    files.map(async (fileName) => {
+      const extension = getExtension(fileName);
+      const mimeType = extension === "jpg" || extension === "jpeg"
+        ? "image/jpeg"
+        : `image/${extension}`;
+      const bytes = await readFile(`backgrounds/${fileName}`, {
+        baseDir: BaseDirectory.AppData,
+      });
+      const name = getFileStem(fileName);
 
-        return {
-          id: name,
-          name,
-          base64: `data:${mimeType};base64,${bytesToBase64(bytes)}`,
-        };
-      }),
-    );
-  } catch (error) {
-    console.error("Не удалось загрузить список фонов:", error);
-    return [];
-  }
+      return {
+        id: name,
+        name,
+        base64: `data:${mimeType};base64,${bytesToBase64(bytes)}`,
+      };
+    }),
+  );
 }
 
 /** Загружает шрифты из %APPDATA%\\PrintNum\\fonts. */
 export async function loadFonts(): Promise<FontItem[]> {
-  try {
-    const files = await readResourceFiles("fonts", FONT_EXTENSIONS);
-    const fonts = await Promise.all(
-      files.map(async (fileName) => {
-        const extension = getExtension(fileName);
-        const name = getFileStem(fileName);
-        const bytes = await readFile(`fonts/${fileName}`, {
-          baseDir: BaseDirectory.AppData,
-        });
-
-        return {
-          id: name,
-          name,
-          // Для CSS задаём имя семейства на основе имени файла. Это позволяет
-          // выбрать конкретный файл начертания, не объединяя разные файлы.
-          family: name,
-          // Полное имя файла без расширения — и для Select, и для конфигурации.
-          label: name,
-          weight: 400,
-          fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
-          format: extension === "otf" ? "opentype" as const : "truetype" as const,
-          base64: bytesToBase64(bytes),
-        };
-      }),
-    );
-
-    // Arial остаётся доступным как системный fallback и не требует файла
-    // в папке приложения или установки шрифта в Windows.
-    if (!fonts.some((font) => font.name.toLowerCase() === "arial")) {
-      fonts.unshift({
-        id: "Arial",
-        name: "Arial",
-        label: "Arial",
-        family: "Arial",
-        weight: 400,
-        fontStyle: "normal",
-        format: "truetype",
-        base64: "",
+  const files = await readResourceFiles("fonts", FONT_EXTENSIONS);
+  const fonts = await Promise.all(
+    files.map(async (fileName) => {
+      const extension = getExtension(fileName);
+      const name = getFileStem(fileName);
+      const bytes = await readFile(`fonts/${fileName}`, {
+        baseDir: BaseDirectory.AppData,
       });
-    }
 
-    return fonts;
-  } catch (error) {
-    console.error("Не удалось загрузить список шрифтов:", error);
-    return [{
+      return {
+        id: name,
+        name,
+        // Для CSS задаём имя семейства на основе имени файла. Это позволяет
+        // выбрать конкретный файл начертания, не объединяя разные файлы.
+        family: name,
+        // Полное имя файла без расширения — и для Select, и для конфигурации.
+        label: name,
+        weight: 400,
+        fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
+        format: extension === "otf" ? "opentype" as const : "truetype" as const,
+        base64: bytesToBase64(bytes),
+      };
+    }),
+  );
+
+  // Arial остаётся доступным как системный fallback и не требует файла
+  // в папке приложения или установки шрифта в Windows.
+  if (!fonts.some((font) => font.name.toLowerCase() === "arial")) {
+    fonts.unshift({
       id: "Arial",
       name: "Arial",
       label: "Arial",
@@ -122,8 +101,10 @@ export async function loadFonts(): Promise<FontItem[]> {
       fontStyle: "normal",
       format: "truetype",
       base64: "",
-    }];
+    });
   }
+
+  return fonts;
 }
 
 /** Первичная загрузка локальных ресурсов в общее состояние UI. */
