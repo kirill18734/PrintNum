@@ -33,6 +33,11 @@ async function apiClient<TResponse>(
         if (
           typeof errorData === "object" &&
           errorData !== null &&
+          "error" in errorData &&
+          typeof errorData.error === "string"
+        ) {
+          message = errorData.error;
+        } else if (
           "message" in errorData &&
           typeof errorData.message === "string"
         ) {
