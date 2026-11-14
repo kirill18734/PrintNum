@@ -16,5 +16,10 @@
   "themeStyle": "vercel",
   "printer": "CHITENG-CT221B",
   "hybrid": true,
-  "font": "Lobster-Regular"
+  "font": "Arial",
+  "font_manual": "Arial",
+  "background": "",
+  "opacity": 100,
+  "background_manual": "",
+  "opacity_manual": 100
 }
