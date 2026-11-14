@@ -1,6 +1,5 @@
 import type { FontItem } from "@/types/api";
 
-const STYLE_ATTRIBUTE = "data-printnum-font";
 const registeredStyles = new Map<string, HTMLStyleElement>();
 
 function getFontFamily(font: FontItem): string {
