@@ -1,9 +1,35 @@
 import { useEffect } from "react";
 import { backendClient } from "@/shared/api/backendClient";
-import { syncFontStyles } from "@/shared/utils/fontStyles";
 import { useAppStore } from "@/services/store";
+import type { StatusCardProps } from "@/types/printJob";
 
 const POLLING_INTERVAL = 1000;
+
+function arePrintJobsEqual(
+  current: StatusCardProps[],
+  next: StatusCardProps[],
+): boolean {
+  return (
+    current.length === next.length &&
+    current.every((job, index) => {
+      const nextJob = next[index];
+
+      return (
+        job.status === nextJob.status &&
+        job.text === nextJob.text &&
+        job.renameText === nextJob.renameText &&
+        job.receivedAt === nextJob.receivedAt
+      );
+    })
+  );
+}
+
+function areStringsEqual(current: string[], next: string[]): boolean {
+  return (
+    current.length === next.length &&
+    current.every((value, index) => value === next[index])
+  );
+}
 
 export function useBackendRuntime(): void {
   useEffect(() => {
@@ -12,65 +38,35 @@ export function useBackendRuntime(): void {
 
     const refresh = async () => {
       try {
-        // Сначала проверяем флаги и загружаем только действительно изменившиеся данные.
-        const changes = await backendClient.getChanges();
+        // Все данные backend получаем одним запросом.
+        const printerData = await backendClient.getPrinterData();
         if (!active) return;
 
         const store = useAppStore.getState();
-        if (!store.serverOnline) store.setServerOnline(true);
 
-        const updates: Promise<void>[] = [];
-
-        if (changes.printersChanged) {
-          updates.push(
-            backendClient.getPrinters().then((printers) => {
-              if (active) useAppStore.getState().setListPrinters(printers);
-            }),
-          );
+        if (!store.serverOnline) {
+          store.setServerOnline(true);
         }
 
-        if (changes.printerStatusChanged) {
-          updates.push(
-            backendClient.getPrinterStatus().then((online) => {
-              if (active) useAppStore.getState().setPrinterOnline(online);
-            }),
-          );
+        if (!areStringsEqual(store.listPrinters, printerData.listPrinters)) {
+          store.setListPrinters(printerData.listPrinters);
         }
 
-        if (changes.backgroundsChanged) {
-          updates.push(
-            backendClient.getBackgrounds().then((backgrounds) => {
-              if (active) useAppStore.getState().setDataBackgrounds(backgrounds);
-            }),
-          );
+        if (store.printerOnline !== printerData.printerOnline) {
+          store.setPrinterOnline(printerData.printerOnline);
         }
 
-        if (changes.fontsChanged) {
-          updates.push(
-            backendClient.getFonts().then((fonts) => {
-              if (!active) return;
-
-              syncFontStyles(fonts);
-              useAppStore.getState().setDataFonts(fonts);
-            }),
-          );
+        if (!arePrintJobsEqual(store.printJobs, printerData.printQueue)) {
+          store.setPrintJobs(printerData.printQueue);
         }
-
-        if (changes.printJobsChanged) {
-          updates.push(
-            backendClient.getPrintJobs().then((jobs) => {
-              if (active) useAppStore.getState().setPrintJobs(jobs);
-            }),
-          );
-        }
-
-        // Независимые наборы данных можно загружать одновременно.
-        await Promise.all(updates);
       } catch (error: unknown) {
         if (!active) return;
 
         const store = useAppStore.getState();
-        if (store.serverOnline) store.setServerOnline(false);
+        if (store.serverOnline) {
+          store.setServerOnline(false);
+        }
+
         console.error("Ошибка получения данных backend:", error);
       } finally {
         if (active) {
