@@ -159,7 +159,7 @@ def print_text(text):
             f"Текст '{text}' соответствует правилу "
             f"исключения '{excluded_rule}'"
         )
-        return
+        return False
 
     printer_name = config.get("printer")
 
@@ -232,3 +232,5 @@ def print_text(text):
 
         finally:
             hdc.DeleteDC()
+
+    return True
