@@ -20,10 +20,12 @@ interface PreviewPaperProps {
   sequenceValue?: string;
   background?: string;
   setCodeImage?: (image: string) => void;
+  onCodeImageLoadingChange?: (loading: boolean) => void;
   dataBackgrounds?: BackgroundItem[];
 }
 
 const NOOP_SET_CODE_IMAGE = (_image: string) => {};
+const NOOP_SET_LOADING = (_loading: boolean) => {};
 
 interface GeneratedCode {
   svg: string | null;
@@ -46,6 +48,7 @@ export default function PreviewPaper({
   showCodeText = false,
   textInputMode = "single",
   setCodeImage = NOOP_SET_CODE_IMAGE,
+  onCodeImageLoadingChange = NOOP_SET_LOADING,
   sequenceValue = "",
   background = "Без фона",
   dataBackgrounds = [],
@@ -74,6 +77,7 @@ export default function PreviewPaper({
     if (mode === "autoprint" || contentType === "text" || !content.trim()) {
       setGeneratedCode({ svg: null, error: null, loading: false });
       setCodeImage("");
+      onCodeImageLoadingChange(false);
       return;
     }
 
@@ -82,6 +86,7 @@ export default function PreviewPaper({
     // Включаем лоадер одним махом
     setGeneratedCode({ svg: null, error: null, loading: true });
     setCodeImage("");
+    onCodeImageLoadingChange(true);
 
     const generateCode = async () => {
       try {
@@ -124,6 +129,7 @@ export default function PreviewPaper({
             loading: false,
           });
           setCodeImage(codeImage);
+          onCodeImageLoadingChange(false);
         }
       } catch (error) {
         if (!cancelled) {
@@ -133,6 +139,7 @@ export default function PreviewPaper({
             loading: false,
           });
           setCodeImage("");
+          onCodeImageLoadingChange(false);
         }
       }
     };
@@ -142,7 +149,7 @@ export default function PreviewPaper({
     return () => {
       cancelled = true;
     };
-  }, [mode, content, contentType, setCodeImage]);
+  }, [mode, content, contentType, setCodeImage, onCodeImageLoadingChange]);
 
   // Общий слой фонового изображения
   const backgroundLayer = backgroundImage && (

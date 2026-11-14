@@ -110,6 +110,7 @@ export default function CreateLabel({
   const font_manual = useAppStore((state) => state.font_manual);
   const background_manual = useAppStore((state) => state.background_manual);
   const [codeImage, setCodeImage] = useState<string>("");
+  const [isCodeImageGenerating, setIsCodeImageGenerating] = useState(false);
   const [previewFont_Manual, setPreviewFont_Manual] = useState<
     string | undefined
   >();
@@ -136,8 +137,21 @@ export default function CreateLabel({
   const setEndLine_Manual = (value: boolean) =>
     setSetting("endLine_manual", value);
 
-  const updateLabelContent = (value: string) =>
+  const updateLabelContent = (value: string) => {
     setContentByType((current) => ({ ...current, [contentType]: value }));
+    if (contentType !== "text") {
+      // Сбрасываем предыдущий код сразу, не дожидаясь useEffect Preview.
+      setCodeImage("");
+    }
+  };
+
+  const handleContentTypeChange = (nextType: LabelContentType) => {
+    if (nextType !== contentType) {
+      setCodeImage("");
+      setIsCodeImageGenerating(false);
+      setContentType(nextType);
+    }
+  };
   const [textInputMode, setTextInputMode] = useState<TextInputMode>("single");
   const [sequence, setSequence] = useState<SequenceConfig>({
     start: "1",
@@ -174,6 +188,9 @@ export default function CreateLabel({
     codeImage,
     isSequenceMode,
     sequenceValues,
+    bold: bold_manual,
+    underline: endLine_manual,
+    showCodeText,
   });
 
   // Находим активный сценарий интерфейса на основе текущего состояния.
@@ -197,7 +214,7 @@ export default function CreateLabel({
         <div className="flex items-center justify-center gap-1">
           <SettingsCreatePaper
             contentType={contentType}
-            setContentType={setContentType}
+            setContentType={handleContentTypeChange}
             content={contentByType[contentType]}
             setContent={updateLabelContent}
             bold={bold_manual}
@@ -230,6 +247,7 @@ export default function CreateLabel({
               content={contentByType[contentType]}
               showCodeText={showCodeText}
               setCodeImage={setCodeImage}
+              onCodeImageLoadingChange={setIsCodeImageGenerating}
               textInputMode={textInputMode}
               font={previewFont_Manual ?? font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
@@ -313,7 +331,10 @@ export default function CreateLabel({
           {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
           <Button
             type="button"
-            disabled={currentScenario.buttonDisabled}
+            disabled={
+              currentScenario.buttonDisabled ||
+              (contentType !== "text" && (isCodeImageGenerating || !codeImage))
+            }
             onClick={
               currentScenario.isStopButton
                 ? stopSequencePrinting

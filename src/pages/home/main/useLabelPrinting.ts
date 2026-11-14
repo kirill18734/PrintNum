@@ -8,6 +8,9 @@ interface UseLabelPrintingOptions {
   codeImage: string;
   isSequenceMode: boolean;
   sequenceValues: string[];
+  bold: boolean;
+  underline: boolean;
+  showCodeText: boolean;
 }
 
 /** Управляет одиночной и последовательной печатью этикеток. */
@@ -17,6 +20,9 @@ export function useLabelPrinting({
   codeImage,
   isSequenceMode,
   sequenceValues,
+  bold,
+  underline,
+  showCodeText,
 }: UseLabelPrintingOptions) {
   const [isPrinting, setIsPrinting] = useState(false);
   const [currentPrintingItem, setCurrentPrintingItem] = useState("");
@@ -24,6 +30,7 @@ export function useLabelPrinting({
 
   const startPrinting = async () => {
     if (!isSequenceMode && !content) return;
+    if (contentType !== "text" && !codeImage) return;
     if (isSequenceMode && !sequenceValues.length) return;
 
     setIsPrinting(true);
@@ -36,6 +43,9 @@ export function useLabelPrinting({
           contentType,
           content,
           codeImage: codeImage || undefined,
+          bold,
+          underline,
+          showCodeText,
         });
 
         if (!response.status) {
@@ -53,6 +63,8 @@ export function useLabelPrinting({
           const response = await backendClient.printLabel({
             contentType,
             content: item,
+            bold,
+            underline,
           });
 
           // Backend возвращает { status: true } при успешной отправке.
