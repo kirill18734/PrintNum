@@ -186,7 +186,7 @@ pub fn get_fonts(
     state: State<'_, AssetState>,
 ) -> Result<Vec<AssetFile>, String> {
     let scan = scan_assets(&app)?;
-    update_snapshot(&state, scan.snapshot)?;
+    initialize_snapshot(&state, scan.snapshot)?;
     Ok(scan.fonts)
 }
 
