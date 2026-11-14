@@ -1,5 +1,3 @@
-import ctypes
-import os
 import sys
 import time
 import threading
@@ -50,56 +48,6 @@ _monitor_threads = []
 _last_request_time = time.monotonic()
 _shutdown_requested = threading.Event()
 _server = None
-_single_instance_handle = None
-
-
-def _acquire_single_instance():
-    """Не позволяет запустить второй экземпляр backend на Windows."""
-    global _single_instance_handle
-
-    if os.name != "nt":
-        return True
-
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel32.CreateMutexW.argtypes = (
-        ctypes.c_void_p,
-        ctypes.c_int,
-        ctypes.c_wchar_p,
-    )
-    kernel32.CreateMutexW.restype = ctypes.c_void_p
-    kernel32.CloseHandle.argtypes = (ctypes.c_void_p,)
-    kernel32.CloseHandle.restype = ctypes.c_int
-
-    ctypes.set_last_error(0)
-    handle = kernel32.CreateMutexW(
-        None,
-        False,
-        "Local\\PrintNum_Backend",
-    )
-
-    if not handle:
-        raise ctypes.WinError(ctypes.get_last_error())
-
-    if ctypes.get_last_error() == 183:  # ERROR_ALREADY_EXISTS
-        kernel32.CloseHandle(handle)
-        return False
-
-    _single_instance_handle = handle
-    return True
-
-
-def _release_single_instance():
-    """Закрывает handle Mutex при завершении backend."""
-    global _single_instance_handle
-
-    if _single_instance_handle is not None:
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-        kernel32.CloseHandle.argtypes = (ctypes.c_void_p,)
-        kernel32.CloseHandle.restype = ctypes.c_int
-        kernel32.CloseHandle(_single_instance_handle)
-        _single_instance_handle = None
-
-
 def _get_printer_online():
     with _state_lock:
         return printer_data["printerOnline"]
@@ -394,9 +342,14 @@ def print_number_route():
 
 
 if __name__ == "__main__":
-    if not _acquire_single_instance():
-        print("Backend уже запущен. Повторный экземпляр не будет запущен.")
-        sys.exit(0)
+    # Сразу занимаем порт. Если backend уже работает, make_server
+    # завершится с ошибкой до инициализации ресурсов и фоновых потоков.
+    _server = make_server(
+        "127.0.0.1",
+        5000,
+        app,
+        threaded=True,
+    )
 
     try:
         load_config()
@@ -406,13 +359,6 @@ if __name__ == "__main__":
 
         # Первичное состояние и фоновые мониторы запускаются до Flask.
         _start_background_monitors()
-
-        _server = make_server(
-            "127.0.0.1",
-            5000,
-            app,
-            threaded=True,
-        )
 
         if STANDALONE:
             print("Запуск в standalone-режиме")
@@ -444,6 +390,5 @@ if __name__ == "__main__":
             _server.server_close()
 
         shutdown_resources()
-        _release_single_instance()
 
         print("Приложение завершено")
