@@ -76,7 +76,8 @@ def load_config():
             return {}
 
         try:
-            current_mtime = os.stat(config_path).st_mtime_ns
+            stat = os.stat(config_path)
+            current_mtime = (stat.st_mtime_ns, stat.st_size)
 
         except OSError:
             return config.copy()
@@ -151,9 +152,8 @@ def save_config(new_config):
                 )
 
             config = new_config.copy()
-            lastUpdateConfig = os.stat(
-                config_path
-            ).st_mtime_ns
+            stat = os.stat(config_path)
+            lastUpdateConfig = (stat.st_mtime_ns, stat.st_size)
 
         except OSError as error:
             print(f"[Ошибка сохранения конфига]: {error}")

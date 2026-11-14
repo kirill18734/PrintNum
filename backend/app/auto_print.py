@@ -6,6 +6,7 @@ from app.resources import (
     resource_session,
     get_font_name
 )
+from app.resources.backgrounds import draw_background
 from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
 
 
@@ -189,6 +190,14 @@ def print_text(text):
             sizes = calculate_dimensions(
                 hdc,
                 config.get("paper", "30*20"),
+            )
+
+            # Фон рисуется до текста, чтобы не перекрывать содержимое этикетки.
+            draw_background(
+                hdc,
+                sizes,
+                config.get("background"),
+                config.get("opacity", 100),
             )
 
             y_start_center = sizes["margin_y"]

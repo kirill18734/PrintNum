@@ -9,6 +9,7 @@ import win32con
 
 from app.config import load_config
 from app.utils import calculate_dimensions
+from app.resources.backgrounds import draw_background
 
 
 CONTENT_TYPES = ("text", "barcode", "qr", "datamatrix")
@@ -205,6 +206,14 @@ def render_manual_label(
         )
 
         if content_type == "text":
+            # Ручной фон применяется только к текстовым этикеткам.
+            draw_background(
+                hdc,
+                sizes,
+                config.get("background_manual"),
+                config.get("opacity_manual", 100),
+            )
+
             draw_label_text(
                 hdc,
                 content,
