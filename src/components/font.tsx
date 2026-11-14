@@ -22,15 +22,6 @@ export default function Font({
   dataFonts,
   onPreviewFont,
 }: FontProps) {
-  // Несколько файлов Regular/Bold/Italic одного семейства — один пункт выбора.
-  const fontFamilies = Array.from(
-    new Set(
-      dataFonts
-        .map((item) => item.family?.trim() || item.name.trim())
-        .filter(Boolean),
-    ),
-  );
-
   return (
     <div className="flex items-center gap-1 text-xs">
       <span className="text-muted-foreground whitespace-nowrap">Шрифт</span>
@@ -39,9 +30,7 @@ export default function Font({
         value={font}
         onValueChange={setFont}
         onOpenChange={(open) => {
-          if (!open) {
-            onPreviewFont(undefined);
-          }
+          if (!open) onPreviewFont(undefined);
         }}
       >
         <SelectTrigger className="w-35 px-1.5 text-xs gap-1">
@@ -50,15 +39,15 @@ export default function Font({
 
         <SelectContent>
           <SelectGroup>
-            {fontFamilies.map((family) => (
+            {dataFonts.map((item) => (
               <SelectItem
-                value={family}
-                key={family}
-                onPointerMove={() => onPreviewFont(family)}
-                onFocus={() => onPreviewFont(family)}
+                value={item.name}
+                key={item.id}
+                onPointerMove={() => onPreviewFont(item.family || item.name)}
+                onFocus={() => onPreviewFont(item.family || item.name)}
                 className="text-xs"
               >
-                {family}
+                {item.label || item.name}
               </SelectItem>
             ))}
           </SelectGroup>

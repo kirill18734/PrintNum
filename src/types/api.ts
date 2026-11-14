@@ -3,6 +3,7 @@ import type { StatusCardProps } from "@/types/printJob";
 /** Фон, используемый редактором этикеток. */
 export interface BackgroundItem {
   id: string;
+  /** Имя файла без расширения — значение настройки backend. */
   name: string;
   base64: string;
 }
@@ -10,9 +11,11 @@ export interface BackgroundItem {
 /** Шрифт, используемый редактором этикеток. */
 export interface FontItem {
   id: string;
-  /** Название для отображения и обратной совместимости с текущими настройками. */
+  /** Имя файла без расширения — значение настройки backend. */
   name: string;
-  /** Семейство CSS. Если не передано, используется name. */
+  /** Название, отображаемое в Select. */
+  label?: string;
+  /** CSS font-family, назначенное локальному файлу шрифта. */
   family?: string;
   /** CSS font-weight конкретного файла начертания. */
   weight?: number;
@@ -20,8 +23,6 @@ export interface FontItem {
   fontStyle?: "normal" | "italic";
   /** Формат бинарного шрифта. */
   format?: "truetype" | "opentype";
-  /** Старое поле оставлено необязательным для совместимости с текущими данными. */
-  rel?: string;
   base64: string;
 }
 

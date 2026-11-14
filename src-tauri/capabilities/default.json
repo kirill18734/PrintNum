@@ -20,6 +20,10 @@
       "allow": ["$APPDATA/**"]
     },
     {
+      "identifier": "fs:allow-read-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
       "identifier": "fs:allow-write-file",
       "allow": ["$APPDATA/**"]
     },

@@ -216,7 +216,7 @@ const tauriAppService: IAppService = {
 
   // ─── ДОБАВЛЕНИЕ ИЗОБРАЖЕНИЙ ───
   addBackgroundImages: async () => {
-    const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
+    const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "bmp", "webp"];
     try {
       const { open } = await import("@tauri-apps/plugin-dialog");
       // Добавляем mkdir и exists для работы с папками
@@ -238,11 +238,11 @@ const tauriAppService: IAppService = {
       if (!selectedFiles || !Array.isArray(selectedFiles)) return;
 
       // Проверяем, существует ли папка images. Если нет — создаем её.
-      const dirExists = await exists("images", {
+      const dirExists = await exists("backgrounds", {
         baseDir: BaseDirectory.AppData,
       });
       if (!dirExists) {
-        await mkdir("images", {
+        await mkdir("backgrounds", {
           baseDir: BaseDirectory.AppData,
           recursive: true, // На случай, если нужно создать вложенную структуру
         });
@@ -255,15 +255,27 @@ const tauriAppService: IAppService = {
 
           if (!fileName) return;
 
+          const destination = `backgrounds/${fileName}`;
+          const alreadyExists = await exists(destination, {
+            baseDir: BaseDirectory.AppData,
+          });
+
+          // Не заменяем существующие пользовательские изображения.
+          if (alreadyExists) {
+            console.warn(`Фон "${fileName}" уже существует и пропущен`);
+            return;
+          }
+
           const bytes = await readFile(filePath);
 
-          await writeFile(`images/${fileName}`, bytes, {
+          await writeFile(destination, bytes, {
             baseDir: BaseDirectory.AppData,
           });
         }),
       );
     } catch (error) {
       console.error("Не удалось добавить изображения:", error);
+      throw error;
     }
   },
 };
