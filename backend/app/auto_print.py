@@ -5,7 +5,7 @@ from app.config import load_config
 from app.resources import resource_session
 from app.resources.fonts import get_configured_font_name
 from app.resources.backgrounds import draw_background
-from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
+from app.utils import find_excluded_rule, calculate_dimensions
 
 
 def prepare_label_data(text, config):
@@ -165,7 +165,6 @@ def print_text(text):
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise ValueError("Не задан принтер для печати")
 
-    clear_printer_queue()
     data = prepare_label_data(text, config)
 
     # Загружаем выбранный шрифт.
