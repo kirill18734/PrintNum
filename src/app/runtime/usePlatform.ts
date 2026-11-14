@@ -9,6 +9,9 @@ export function usePlatformRuntime(): void {
 
     const initialize = async () => {
       try {
+        // Сначала копируем встроенные ресурсы в AppData, затем запускаем backend.
+        await assetsService.initialize();
+
         await appService.initCloseHandler();
 
         await appService.initStartHandler();
