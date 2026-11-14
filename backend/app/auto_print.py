@@ -68,9 +68,9 @@ def _draw_pillow_text(canvas, text, x, y, font_data, font_size,
         (x - bbox[0], y - bbox[1]),
         text,
         font=font,
-        fill=(0, 0, 0, 255),
+        fill=(0, 0, 0),
         stroke_width=1 if bold else 0,
-        stroke_fill=(0, 0, 0, 255),
+        stroke_fill=(0, 0, 0),
     )
     if underline:
         baseline = y + (bbox[3] - bbox[1]) + max(1, font_size // 14)
