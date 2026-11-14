@@ -14,7 +14,6 @@ interface IAppService {
   initStartHandler(): Promise<void>;
   minWindow(): Promise<void>;
   visibleWindow(): Promise<void>;
-  addBackgroundImages(): Promise<void>;
 }
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ БРАУЗЕРА (MOCK) ───
@@ -25,7 +24,6 @@ const webAppService: IAppService = {
   openExternalUrl: async (url) => {
     window.open(url, "_blank");
   },
-  addBackgroundImages: async () => {},
   checkForUpdates: async () => {
     return true;
   },
@@ -214,58 +212,7 @@ const tauriAppService: IAppService = {
     console.warn("Backend запущен, но не отвечает на 127.0.0.1:5000");
   },
 
-  // ─── ДОБАВЛЕНИЕ ИЗОБРАЖЕНИЙ ───
-  addBackgroundImages: async () => {
-    const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
-    try {
-      const { open } = await import("@tauri-apps/plugin-dialog");
-      // Добавляем mkdir и exists для работы с папками
-      const { readFile, writeFile, mkdir, exists, BaseDirectory } =
-        await import("@tauri-apps/plugin-fs");
 
-      // Выбор нескольких изображений
-      const selectedFiles = await open({
-        multiple: true,
-        directory: false,
-        filters: [
-          {
-            name: "Изображения",
-            extensions: IMAGE_EXTENSIONS,
-          },
-        ],
-      });
-
-      if (!selectedFiles || !Array.isArray(selectedFiles)) return;
-
-      // Проверяем, существует ли папка images. Если нет — создаем её.
-      const dirExists = await exists("images", {
-        baseDir: BaseDirectory.AppData,
-      });
-      if (!dirExists) {
-        await mkdir("images", {
-          baseDir: BaseDirectory.AppData,
-          recursive: true, // На случай, если нужно создать вложенную структуру
-        });
-      }
-
-      // Сохраняем выбранные изображения
-      await Promise.all(
-        selectedFiles.map(async (filePath) => {
-          const fileName = filePath.split(/[\\/]/).pop();
-
-          if (!fileName) return;
-
-          const bytes = await readFile(filePath);
-
-          await writeFile(`images/${fileName}`, bytes, {
-            baseDir: BaseDirectory.AppData,
-          });
-        }),
-      );
-    } catch (error) {
-      console.error("Не удалось добавить изображения:", error);
-    }
-  },
 };
 
 // ─── ЭКСПОРТ СЕРВИСА ───
