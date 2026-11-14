@@ -25,13 +25,13 @@ export interface FontItem {
   base64: string;
 }
 
-/** Полный набор данных, возвращаемый endpoint data-app. */
-export interface DataAppResponse {
-  onlinePrinter: boolean;
-  listPrinters: string[];
-  dataBackgrounds: BackgroundItem[];
-  dataFonts: FontItem[];
-  printJobs: StatusCardProps[];
+/** Флаги изменений, возвращаемые endpoint changes. */
+export interface DataChangesResponse {
+  printersChanged: boolean;
+  printerStatusChanged: boolean;
+  backgroundsChanged: boolean;
+  fontsChanged: boolean;
+  printJobsChanged: boolean;
 }
 
 /** Данные, отправляемые на endpoint print-label. */

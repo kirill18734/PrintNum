@@ -1,10 +1,13 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
 import type {
-  DataAppResponse,
+  BackgroundItem,
+  DataChangesResponse,
+  FontItem,
   PrintLabelRequest,
   PrintLabelResponse,
 } from "@/types/api";
+import type { StatusCardProps } from "@/types/printJob";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -56,8 +59,28 @@ async function apiClient<TResponse>(
 }
 
 export const backendClient = {
-  dataApp(): Promise<DataAppResponse> {
-    return apiClient<DataAppResponse>("data-app");
+  getChanges(): Promise<DataChangesResponse> {
+    return apiClient<DataChangesResponse>("changes");
+  },
+
+  getPrinters(): Promise<string[]> {
+    return apiClient<string[]>("printers");
+  },
+
+  getPrinterStatus(): Promise<boolean> {
+    return apiClient<boolean>("printer-status");
+  },
+
+  getBackgrounds(): Promise<BackgroundItem[]> {
+    return apiClient<BackgroundItem[]>("backgrounds");
+  },
+
+  getFonts(): Promise<FontItem[]> {
+    return apiClient<FontItem[]>("fonts");
+  },
+
+  getPrintJobs(): Promise<StatusCardProps[]> {
+    return apiClient<StatusCardProps[]>("print-jobs");
   },
 
   printLabel(data: PrintLabelRequest): Promise<PrintLabelResponse> {
