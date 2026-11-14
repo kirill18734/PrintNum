@@ -17,8 +17,6 @@ from ctypes import wintypes
 
 APP_NAME = "PrintNum"
 
-LOCALAPPDATA_DIR = os.environ.get("LOCALAPPDATA")
-
 APPDATA_DIR = os.environ.get("APPDATA")
 
 APPDATA_ROOT = (
