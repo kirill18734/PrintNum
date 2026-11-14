@@ -9,9 +9,7 @@ import {
   type DirEntry,
 } from "@tauri-apps/plugin-fs";
 import type { BackgroundItem, FontItem } from "@/types/api";
-
-const isTauri =
-  typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+import { isTauri } from "@/services/app.tauri";
 
 const BACKGROUND_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp"]);
 const FONT_EXTENSIONS = new Set(["ttf", "otf"]);
