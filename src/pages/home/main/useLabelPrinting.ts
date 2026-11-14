@@ -32,11 +32,15 @@ export function useLabelPrinting({
 
     try {
       if (!isSequenceMode) {
-        await backendClient.printLabel({
+        const response = await backendClient.printLabel({
           contentType,
           content,
           codeImage: codeImage || undefined,
         });
+
+        if (!response.status) {
+          console.error("Backend не подтвердил отправку этикетки на печать");
+        }
       } else {
         for (const item of sequenceValues) {
           if (stopPrinting.current) {
@@ -51,8 +55,9 @@ export function useLabelPrinting({
             content: item,
           });
 
-          if (!response || response.status !== "printed") {
-            console.error("Прерывание печати: некорректный статус от сервера");
+          // Backend возвращает { status: true } при успешной отправке.
+          if (!response.status) {
+            console.error("Печать последовательности остановлена: backend вернул status=false");
             break;
           }
         }

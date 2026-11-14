@@ -1,13 +1,13 @@
 import type { StatusCardProps } from "@/types/printJob";
 
-/** Фон, загружаемый backend и используемый в редакторе этикеток. */
+/** Фон, используемый редактором этикеток. */
 export interface BackgroundItem {
   id: string;
   name: string;
   base64: string;
 }
 
-/** Шрифт, загружаемый backend и используемый в редакторе этикеток. */
+/** Шрифт, используемый редактором этикеток. */
 export interface FontItem {
   id: string;
   /** Название для отображения и обратной совместимости с текущими настройками. */
@@ -18,23 +18,21 @@ export interface FontItem {
   weight?: number;
   /** CSS font-style конкретного файла начертания. */
   fontStyle?: "normal" | "italic";
-  /** Формат бинарного шрифта; текущий backend по умолчанию отдаёт TTF. */
+  /** Формат бинарного шрифта. */
   format?: "truetype" | "opentype";
-  /** Старое поле оставлено необязательным для совместимости с backend. */
+  /** Старое поле оставлено необязательным для совместимости с текущими данными. */
   rel?: string;
   base64: string;
 }
 
-/** Флаги изменений, возвращаемые endpoint changes. */
-export interface DataChangesResponse {
-  printersChanged: boolean;
-  printerStatusChanged: boolean;
-  backgroundsChanged: boolean;
-  fontsChanged: boolean;
-  printJobsChanged: boolean;
+/** Единый снимок состояния, возвращаемый GET /printer-data. */
+export interface PrinterDataResponse {
+  listPrinters: string[];
+  printerOnline: boolean;
+  printQueue: StatusCardProps[];
 }
 
-/** Данные, отправляемые на endpoint print-label. */
+/** Данные, отправляемые на POST /print-label. */
 export interface PrintLabelRequest {
   contentType: import("@/types/label").LabelContentType;
   content: string;
@@ -44,7 +42,7 @@ export interface PrintLabelRequest {
   showCodeText?: boolean;
 }
 
-/** Ответ backend на отправку одного задания печати. */
+/** Ответ backend на POST /print-label. */
 export interface PrintLabelResponse {
-  status: string;
+  status: boolean;
 }

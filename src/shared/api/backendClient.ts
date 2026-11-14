@@ -1,13 +1,10 @@
 // Типизированный HTTP-клиент для запросов интерфейса к локальному backend.
 
 import type {
-  BackgroundItem,
-  DataChangesResponse,
-  FontItem,
   PrintLabelRequest,
   PrintLabelResponse,
+  PrinterDataResponse,
 } from "@/types/api";
-import type { StatusCardProps } from "@/types/printJob";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -33,13 +30,15 @@ async function apiClient<TResponse>(
       try {
         const errorData: unknown = await response.json();
 
-        if (
-          typeof errorData === "object" &&
-          errorData !== null &&
-          "message" in errorData &&
-          typeof errorData.message === "string"
-        ) {
-          message = errorData.message;
+        if (typeof errorData === "object" && errorData !== null) {
+          if ("error" in errorData && typeof errorData.error === "string") {
+            message = errorData.error;
+          } else if (
+            "message" in errorData &&
+            typeof errorData.message === "string"
+          ) {
+            message = errorData.message;
+          }
         }
       } catch {
         // Если backend вернул ошибку не в формате JSON, используем statusText.
@@ -59,28 +58,8 @@ async function apiClient<TResponse>(
 }
 
 export const backendClient = {
-  getChanges(): Promise<DataChangesResponse> {
-    return apiClient<DataChangesResponse>("changes");
-  },
-
-  getPrinters(): Promise<string[]> {
-    return apiClient<string[]>("printers");
-  },
-
-  getPrinterStatus(): Promise<boolean> {
-    return apiClient<boolean>("printer-status");
-  },
-
-  getBackgrounds(): Promise<BackgroundItem[]> {
-    return apiClient<BackgroundItem[]>("backgrounds");
-  },
-
-  getFonts(): Promise<FontItem[]> {
-    return apiClient<FontItem[]>("fonts");
-  },
-
-  getPrintJobs(): Promise<StatusCardProps[]> {
-    return apiClient<StatusCardProps[]>("print-jobs");
+  getPrinterData(): Promise<PrinterDataResponse> {
+    return apiClient<PrinterDataResponse>("printer-data");
   },
 
   printLabel(data: PrintLabelRequest): Promise<PrintLabelResponse> {
