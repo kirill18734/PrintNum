@@ -5,7 +5,6 @@
 
 @printNumber = {{host}}/print-number
 @ozonShelf = {{host}}/ozon-shelf
-@listPrinters = {{host}}/listPrinters
 
 ###
 POST {{printNumber}}
@@ -46,7 +45,6 @@ content-type: application/json
 {
     "text": "Ozon Полка-1"
 }
-###
 
 ###
 POST {{host}}/print-label
