@@ -22,13 +22,11 @@ export interface FontItem {
   modifiedAt: number;
 }
 
-/** Флаги изменений, возвращаемые endpoint changes. */
-export interface DataChangesResponse {
-  printersChanged: boolean;
-  printerStatusChanged: boolean;
-  backgroundsChanged: boolean;
-  fontsChanged: boolean;
-  printJobsChanged: boolean;
+/** Состояние backend, возвращаемое одним GET /state. */
+export interface BackendStateResponse {
+  printerOnline: boolean;
+  listPrinters: string[];
+  printJobs: StatusCardProps[];
 }
 
 /** Данные, отправляемые на endpoint print-label. */
@@ -43,5 +41,5 @@ export interface PrintLabelRequest {
 
 /** Ответ backend на отправку одного задания печати. */
 export interface PrintLabelResponse {
-  status: string;
+  status: boolean;
 }
