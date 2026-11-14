@@ -58,11 +58,10 @@ def prepare_label_data(text, config):
     }
 
 
-def _draw_pillow_text(hdc, text, sizes, x, y, font_data, font_size,
+def _draw_pillow_text(canvas, text, x, y, font_data, font_size,
                       bold=False, underline=False):
-    """Рендерит пользовательский TTF/OTF в bitmap и отправляет его на принтер."""
+    """Рисует пользовательский TTF/OTF на общей поверхности этикетки."""
     font = ImageFont.truetype(BytesIO(font_data), size=max(1, font_size))
-    canvas = Image.new("RGBA", (sizes["width_px"], sizes["height_px"]), (255, 255, 255, 0))
     draw = ImageDraw.Draw(canvas)
     bbox = draw.textbbox((0, 0), text, font=font, stroke_width=1 if bold else 0)
     draw.text(
@@ -76,14 +75,10 @@ def _draw_pillow_text(hdc, text, sizes, x, y, font_data, font_size,
     if underline:
         baseline = y + (bbox[3] - bbox[1]) + max(1, font_size // 14)
         draw.line((x, baseline, x + bbox[2] - bbox[0], baseline), fill=(0, 0, 0, 255), width=max(1, font_size // 18))
-    ImageWin.Dib(canvas.convert("RGB")).draw(
-        hdc.GetHandleOutput(),
-        (0, 0, sizes["width_px"], sizes["height_px"]),
-    )
     return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
 
-def draw_header(hdc, text, sizes, force_left, font_name="Arial", font_data=None):
+def draw_header(hdc, text, sizes, force_left, font_name="Arial", font_data=None, canvas=None):
     """Рисует верхний колонтитул."""
     if font_data:
         font_size = max(1, int(sizes["height_px"] * 0.20))
@@ -93,7 +88,7 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial", font_data=None)
         text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         x = sizes["margin_x"] if force_left else sizes["width_px"] - text_w - sizes["margin_x"]
         y = sizes["margin_y"]
-        _draw_pillow_text(hdc, text, sizes, x, y, font_data, font_size)
+        _draw_pillow_text(canvas, text, x, y, font_data, font_size)
         return y + text_h
 
     font_top = win32ui.CreateFont({
@@ -110,7 +105,7 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial", font_data=None)
 
 
 def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold,
-                   font_name="Arial", font_data=None):
+                   font_name="Arial", font_data=None, canvas=None):
     """Рисует центральный текст с подбором оптимального размера."""
     available_h = sizes["height_px"] - y_start - sizes["margin_y"]
 
@@ -131,7 +126,7 @@ def draw_main_text(hdc, text, sizes, y_start, is_underlined, is_bold,
         x = (sizes["width_px"] - text_w) // 2
         y = y_start + (available_h - text_h) // 2
         _draw_pillow_text(
-            hdc, text, sizes, x, y, font_data, optimal_height,
+            canvas, text, x, y, font_data, optimal_height,
             bold=is_bold, underline=is_underlined,
         )
         return optimal_height
@@ -199,19 +194,29 @@ def print_text(text):
             hdc.SetBkMode(win32con.TRANSPARENT)
 
             sizes = calculate_dimensions(hdc, config.get("paper", "30*20"))
+            raster_canvas = (
+                Image.new("RGB", (sizes["width_px"], sizes["height_px"]), "white")
+                if font_data else None
+            )
             y_start_center = sizes["margin_y"]
 
             if data["show_header"] and data["header_text"]:
                 y_start_center = draw_header(
                     hdc, data["header_text"], sizes,
                     data["force_left_header"], font_name, font_data,
+                    raster_canvas,
                 )
 
             opt_h = draw_main_text(
                 hdc, data["main_text"], sizes, y_start_center,
                 data["is_underlined"], data["is_bold"],
-                font_name, font_data,
+                font_name, font_data, raster_canvas,
             )
+            if raster_canvas is not None:
+                ImageWin.Dib(raster_canvas).draw(
+                    hdc.GetHandleOutput(),
+                    (0, 0, sizes["width_px"], sizes["height_px"]),
+                )
             hdc.EndPage()
             hdc.EndDoc()
             document_started = False
