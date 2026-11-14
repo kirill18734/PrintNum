@@ -48,8 +48,6 @@ _monitor_threads = []
 _last_request_time = time.monotonic()
 _shutdown_requested = threading.Event()
 _server = None
-
-
 def _get_printer_online():
     with _state_lock:
         return printer_data["printerOnline"]
@@ -344,6 +342,15 @@ def print_number_route():
 
 
 if __name__ == "__main__":
+    # Сразу занимаем порт. Если backend уже работает, make_server
+    # завершится с ошибкой до инициализации ресурсов и фоновых потоков.
+    _server = make_server(
+        "127.0.0.1",
+        5000,
+        app,
+        threaded=True,
+    )
+
     try:
         load_config()
 
@@ -352,13 +359,6 @@ if __name__ == "__main__":
 
         # Первичное состояние и фоновые мониторы запускаются до Flask.
         _start_background_monitors()
-
-        _server = make_server(
-            "127.0.0.1",
-            5000,
-            app,
-            threaded=True,
-        )
 
         if STANDALONE:
             print("Запуск в standalone-режиме")
