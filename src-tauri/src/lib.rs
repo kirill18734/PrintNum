@@ -1,8 +1,5 @@
 use tauri::Manager;
 
-mod assets;
-use assets::AssetState;
-
 #[tauri::command]
 fn get_version(app_handle: tauri::AppHandle) -> String {
     app_handle
@@ -15,7 +12,6 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
-        .manage(AssetState::default())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
@@ -48,12 +44,7 @@ pub fn run() {
                 .default_version_comparator(|current, update| update.version != current)
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![
-            get_version,
-            assets::get_backgrounds,
-            assets::get_fonts,
-            assets::assets_changed,
-        ])
+        .invoke_handler(tauri::generate_handler![get_version])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
