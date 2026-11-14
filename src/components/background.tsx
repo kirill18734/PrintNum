@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import type { BackgroundItem } from "@/types/api";
+import { ImagePlus } from "lucide-react";
+import { assetsService } from "@/services/assets.tauri";
+import { useAppStore } from "@/services/store";
 
 import {
   Select,
@@ -75,6 +78,23 @@ export default function Background({
               </SelectGroup>
             </SelectContent>
           </Select>
+
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const assets = await assetsService.addBackgroundImages();
+                useAppStore.getState().setDataBackgrounds(assets.backgrounds);
+              } catch (error) {
+                console.error("Не удалось добавить изображения:", error);
+              }
+            }}
+            title="Добавить изображения"
+            aria-label="Добавить изображения"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-xs outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <ImagePlus size={14} />
+          </button>
         </div>
       </div>
 
