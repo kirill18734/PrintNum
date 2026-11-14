@@ -110,6 +110,7 @@ export default function CreateLabel({
   const font_manual = useAppStore((state) => state.font_manual);
   const background_manual = useAppStore((state) => state.background_manual);
   const [codeImage, setCodeImage] = useState<string>("");
+  const [isCodeImageGenerating, setIsCodeImageGenerating] = useState(false);
   const [previewFont_Manual, setPreviewFont_Manual] = useState<
     string | undefined
   >();
@@ -174,6 +175,9 @@ export default function CreateLabel({
     codeImage,
     isSequenceMode,
     sequenceValues,
+    bold: bold_manual,
+    underline: endLine_manual,
+    showCodeText,
   });
 
   // Находим активный сценарий интерфейса на основе текущего состояния.
@@ -230,6 +234,7 @@ export default function CreateLabel({
               content={contentByType[contentType]}
               showCodeText={showCodeText}
               setCodeImage={setCodeImage}
+              onCodeImageLoadingChange={setIsCodeImageGenerating}
               textInputMode={textInputMode}
               font={previewFont_Manual ?? font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
@@ -313,7 +318,10 @@ export default function CreateLabel({
           {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
           <Button
             type="button"
-            disabled={currentScenario.buttonDisabled}
+            disabled={
+              currentScenario.buttonDisabled ||
+              (contentType !== "text" && (isCodeImageGenerating || !codeImage))
+            }
             onClick={
               currentScenario.isStopButton
                 ? stopSequencePrinting
