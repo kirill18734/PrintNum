@@ -59,10 +59,10 @@
         "installerIcon": "icons/icon.ico"
       }
     },
-    "resources": [
-      "../resources/fonts/",
-      "../resources/backgrounds/"
-    ]
+    "resources": {
+      "../resources/fonts/": "fonts/",
+      "../resources/backgrounds/": "backgrounds/"
+    }
   },
   "plugins": {
     "updater": {
