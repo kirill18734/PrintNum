@@ -180,7 +180,7 @@ const tauriAppService: IAppService = {
     const { Command } = await import("@tauri-apps/plugin-shell");
 
     const isReachable = async () =>
-      fetch("http://127.0.0.1:5000/", {
+      fetch("http://127.0.0.1:5000/state", {
         method: "GET",
       })
         .then(() => true)
