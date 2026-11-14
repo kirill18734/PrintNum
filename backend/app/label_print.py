@@ -1,6 +1,6 @@
+
 import base64
 import binascii
-from contextlib import nullcontext
 from io import BytesIO
 
 from PIL import Image, ImageWin
@@ -15,8 +15,10 @@ from app.resources.backgrounds import draw_background
 
 
 CONTENT_TYPES = ("text", "barcode", "qr", "datamatrix")
+
 MAX_CONTENT_LENGTH = 4096
 MAX_CODE_IMAGE_SIZE = 4 * 1024 * 1024
+
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
@@ -36,26 +38,56 @@ def draw_code_image(hdc, image_data, sizes, show_code_text, text):
             or source.width * source.height > 8_000_000
         ):
             raise ValueError("Изображение кода слишком большое")
+
         image = source.convert("RGB")
 
-    caption_height = max(1, int(sizes["height_px"] * 0.18)) if show_code_text else 0
+    caption_height = (
+        max(1, int(sizes["height_px"] * 0.18))
+        if show_code_text
+        else 0
+    )
+
     max_width = sizes["max_allowed_w"]
-    max_height = sizes["height_px"] - sizes["margin_y"] * 2 - caption_height
-    image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+    max_height = (
+        sizes["height_px"]
+        - sizes["margin_y"] * 2
+        - caption_height
+    )
+
+    image.thumbnail(
+        (max_width, max_height),
+        Image.Resampling.LANCZOS,
+    )
+
     x = (sizes["width_px"] - image.width) // 2
     y = sizes["margin_y"] + (max_height - image.height) // 2
+
     ImageWin.Dib(image).draw(
-        hdc.GetHandleOutput(), (x, y, x + image.width, y + image.height)
+        hdc.GetHandleOutput(),
+        (x, y, x + image.width, y + image.height),
     )
 
     if show_code_text:
         font_height = max(1, int(caption_height * 0.55))
-        font = win32ui.CreateFont({"name": "Arial", "height": font_height})
+
+        font = win32ui.CreateFont({
+            "name": "Arial",
+            "height": font_height,
+        })
+
         hdc.SelectObject(font)
+
         caption = text.replace("\r", " ").replace("\n", " ")
-        while caption and hdc.GetTextExtent(caption)[0] > max_width and len(caption) > 1:
+
+        while (
+            caption
+            and hdc.GetTextExtent(caption)[0] > max_width
+            and len(caption) > 1
+        ):
             caption = caption[:-2] + "…"
+
         text_width, text_height = hdc.GetTextExtent(caption)
+
         hdc.TextOut(
             (sizes["width_px"] - text_width) // 2,
             sizes["height_px"] - sizes["margin_y"] - text_height,
@@ -64,10 +96,17 @@ def draw_code_image(hdc, image_data, sizes, show_code_text, text):
 
 
 def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
-    """Рисует текст этикетки с подбором размера и центрированием."""
+    """
+    Рисует текст этикетки.
+
+    Сохраняет прежний алгоритм перебора размеров шрифта,
+    явные переносы строк и центрирование.
+    """
     available_h = sizes["height_px"] - sizes["margin_y"] * 2
     available_w = sizes["max_allowed_w"]
+
     raw_lines = text.splitlines() or [""]
+
     best_height = None
     best_line_height = None
 
@@ -75,16 +114,34 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
         font = win32ui.CreateFont({
             "name": font_name,
             "height": font_height,
-            "weight": win32con.FW_BOLD if bold else win32con.FW_NORMAL,
+            "weight": (
+                win32con.FW_BOLD
+                if bold
+                else win32con.FW_NORMAL
+            ),
             "underline": 1 if underline else 0,
         })
+
         hdc.SelectObject(font)
+
         _, line_h = hdc.GetTextExtent("Ag")
         total_h = line_h * len(raw_lines)
+
         if total_h > available_h:
             break
-        if any(hdc.GetTextExtent(line)[0] > available_w for line in raw_lines):
+
+        too_wide = False
+
+        for line in raw_lines:
+            width, _ = hdc.GetTextExtent(line)
+
+            if width > available_w:
+                too_wide = True
+                break
+
+        if too_wide:
             continue
+
         best_height = font_height
         best_line_height = line_h
 
@@ -94,15 +151,23 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
     final_font = win32ui.CreateFont({
         "name": font_name,
         "height": best_height,
-        "weight": win32con.FW_BOLD if bold else win32con.FW_NORMAL,
+        "weight": (
+            win32con.FW_BOLD
+            if bold
+            else win32con.FW_NORMAL
+        ),
         "underline": 1 if underline else 0,
     })
+
     hdc.SelectObject(final_font)
+
     total_height = best_line_height * len(raw_lines)
     y = (sizes["height_px"] - total_height) // 2
+
     for line in raw_lines:
         line_width, _ = hdc.GetTextExtent(line)
         x = (sizes["width_px"] - line_width) // 2
+
         hdc.TextOut(x, y, line)
         y += best_line_height
 
@@ -119,12 +184,12 @@ def render_manual_label(
     """Печатает текстовую этикетку или изображение кода."""
     if config is None:
         config = load_config()
+
     printer_name = config.get("printer")
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise PrinterNotConfiguredError("Сначала выберите принтер")
 
-    # Держим ресурсную блокировку до завершения GDI-печати. Это защищает
-    # зарегистрированный шрифт от освобождения при параллельном обновлении.
+    # Ресурсная блокировка удерживается до завершения GDI-печати.
     with resource_session():
         font_name = (
             get_configured_font_name(config.get("font_manual"), "manual")
@@ -139,20 +204,40 @@ def render_manual_label(
             document_started = True
             hdc.StartPage()
             hdc.SetBkMode(win32con.TRANSPARENT)
-            sizes = calculate_dimensions(hdc, config.get("paper", "30*20"))
+
+            sizes = calculate_dimensions(
+                hdc,
+                config.get("paper", "30*20"),
+            )
 
             if content_type == "text":
                 draw_background(
-                    hdc, sizes, config.get("background_manual"),
+                    hdc,
+                    sizes,
+                    config.get("background_manual"),
                     config.get("opacity_manual", 100),
                 )
-                draw_label_text(hdc, content, sizes, bold, underline, font_name)
+                draw_label_text(
+                    hdc,
+                    content,
+                    sizes,
+                    bold,
+                    underline,
+                    font_name,
+                )
             else:
-                draw_code_image(hdc, code_image, sizes, show_code_text, content)
+                draw_code_image(
+                    hdc,
+                    code_image,
+                    sizes,
+                    show_code_text,
+                    content,
+                )
 
             hdc.EndPage()
             hdc.EndDoc()
             document_started = False
+
         except Exception:
             if document_started:
                 try:
@@ -160,6 +245,7 @@ def render_manual_label(
                 except Exception:
                     pass
             raise
+
         finally:
             hdc.DeleteDC()
 
@@ -168,40 +254,77 @@ def parse_label_request(body):
     """Проверяет входные данные до обращения к принтеру."""
     if not isinstance(body, dict):
         raise LabelRequestError("Ожидается JSON-объект")
+
     content_type = body.get("contentType")
+
     if content_type not in CONTENT_TYPES:
-        raise LabelRequestError("Неизвестный тип содержимого этикетки")
+        raise LabelRequestError(
+            "Неизвестный тип содержимого этикетки"
+        )
+
     content = body.get("content")
+
     if not isinstance(content, str) or not content.strip():
-        raise LabelRequestError("Поле content должно содержать текст")
+        raise LabelRequestError(
+            "Поле content должно содержать текст"
+        )
+
     if len(content) > MAX_CONTENT_LENGTH:
         raise LabelRequestError(
-            f"Содержимое этикетки не должно превышать {MAX_CONTENT_LENGTH} символов"
+            f"Содержимое этикетки не должно превышать "
+            f"{MAX_CONTENT_LENGTH} символов"
         )
 
     options = {}
+
     for name in ("bold", "underline", "showCodeText"):
         value = body.get(name, False)
+
         if not isinstance(value, bool):
-            raise LabelRequestError(f"Поле {name} должно быть логическим значением")
+            raise LabelRequestError(
+                f"Поле {name} должно быть логическим значением"
+            )
+
         options[name] = value
 
     code_image = None
+
     if content_type != "text":
         encoded_image = body.get("codeImage")
+
         if not isinstance(encoded_image, str) or not encoded_image:
-            raise LabelRequestError("Для печати кода необходимо передать его изображение")
-        max_encoded_size = 4 * ((MAX_CODE_IMAGE_SIZE + 2) // 3)
+            raise LabelRequestError(
+                "Для печати кода необходимо передать его изображение"
+            )
+
+        max_encoded_size = 4 * (
+            (MAX_CODE_IMAGE_SIZE + 2) // 3
+        )
+
         if len(encoded_image) > max_encoded_size:
-            raise LabelRequestError("Размер изображения кода не должен превышать 4 МБ")
+            raise LabelRequestError(
+                "Размер изображения кода не должен превышать 4 МБ"
+            )
+
         try:
-            code_image = base64.b64decode(encoded_image, validate=True)
+            code_image = base64.b64decode(
+                encoded_image,
+                validate=True,
+            )
         except (binascii.Error, ValueError) as error:
-            raise LabelRequestError("Изображение кода имеет неверный формат") from error
+            raise LabelRequestError(
+                "Изображение кода имеет неверный формат"
+            ) from error
+
         if not code_image or len(code_image) > MAX_CODE_IMAGE_SIZE:
-            raise LabelRequestError("Размер изображения кода должен быть не более 4 МБ")
+            raise LabelRequestError(
+                "Размер изображения кода должен быть не более 4 МБ"
+            )
+
         if not code_image.startswith(PNG_SIGNATURE):
-            raise LabelRequestError("Изображение кода должно быть в формате PNG")
+            raise LabelRequestError(
+                "Изображение кода должно быть в формате PNG"
+            )
 
     return {
         "content": content,
@@ -216,8 +339,14 @@ def parse_label_request(body):
 def print_label(body):
     """Проверяет запрос и запускает печать."""
     label = parse_label_request(body)
+
     config = load_config()
     printer_name = config.get("printer")
+
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise PrinterNotConfiguredError("Сначала выберите принтер")
-    render_manual_label(**label, config=config)
+
+    render_manual_label(
+        **label,
+        config=config,
+    )
