@@ -14,14 +14,17 @@ from app.label_print import (
     PrinterNotConfiguredError,
 )
 from app.config import load_config, save_config
-
-from app.resources import (
-    init_resources,
-    shutdown_resources,
+from app.fonts import (
+    init_fonts,
+    shutdown_fonts,
     load_font,
     get_font_name,
-    get_image,
     resource_session,
+)
+from app.backgrounds import (
+    init_backgrounds,
+    shutdown_backgrounds,
+    get_image,
 )
 
 
@@ -46,6 +49,7 @@ _shutdown_requested = threading.Event()
 # Экземпляр HTTP-сервера Werkzeug.
 _server = None
 
+
 @app.before_request
 def update_activity():
     """Обновляет время активности приложения."""
@@ -54,10 +58,12 @@ def update_activity():
     with _state_lock:
         _last_request_time = time.monotonic()
 
+
 def get_printer_online():
     """Возвращает последнее известное состояние принтера."""
     with _state_lock:
         return printerOnline
+
 
 def set_printer_online(value):
     """Обновляет сохранённое состояние принтера."""
@@ -66,29 +72,29 @@ def set_printer_online(value):
     with _state_lock:
         printerOnline = bool(value)
 
+
 def watchdog():
-    """Останавливает сервер по запросу или тайм-ауту простоя с защитой от спящего режима."""
+    """Останавливает сервер по запросу или тайм-ауту простоя."""
     global _last_request_time
-    
+
     while True:
-        # Фиксируем время перед уходом в ожидание
         loop_start = time.monotonic()
-        
-        # Ожидание запроса остановки не блокирует её обработку дольше одной секунды.
+
         if _shutdown_requested.wait(1):
             print("Получен запрос на остановку сервера")
             break
 
-        # Вычисляем, сколько реального времени прошло за одну итерацию .wait(1).
-        # Если прошло сильно больше 1.5-2 секунд, значит ПК спал.
         actual_elapsed = time.monotonic() - loop_start
         if actual_elapsed > 2.0:
-            print(f"Обнаружено пробуждение ПК из спящего режима (пропущено {actual_elapsed:.1f} сек). Сброс таймера активности.")
+            print(
+                "Обнаружено пробуждение ПК из спящего режима "
+                f"(пропущено {actual_elapsed:.1f} сек). "
+                "Сброс таймера активности."
+            )
             with _state_lock:
                 _last_request_time = time.monotonic()
             continue
 
-        # В автономном режиме тайм-аут отключён, но запрос /shutdown продолжает работать.
         if STANDALONE:
             continue
 
@@ -102,7 +108,6 @@ def watchdog():
     print("Остановка Flask-сервера")
 
     if _server is not None:
-        # shutdown() вызывается из watchdog-потока, а serve_forever() работает в основном потоке.
         _server.shutdown()
 
 
@@ -110,18 +115,16 @@ def watchdog():
 def hello_world():
     return jsonify({"status": True})
 
+
 @app.post("/shutdown")
 def shutdown_route():
     """Запрашивает штатную остановку HTTP-сервера."""
-
-    # Принимаем запросы только с локального компьютера.
     if request.remote_addr not in ("127.0.0.1", "::1"):
         return jsonify({
             "status": False,
             "error": "Доступ запрещён",
         }), 403
 
-    # Дополнительная проверка запроса на остановку.
     if request.headers.get("X-PrintNum-Shutdown") != "local-client":
         return jsonify({
             "status": False,
@@ -135,6 +138,7 @@ def shutdown_route():
         "message": "Запрошена остановка сервера",
     })
 
+
 @app.get("/status-printer")
 def status_printer_route():
     """Проверяет принтер и сохраняет его состояние."""
@@ -142,6 +146,7 @@ def status_printer_route():
     set_printer_online(online)
 
     return jsonify({"printerOnline": online})
+
 
 @app.get("/listPrinters")
 def list_printers_route():
@@ -192,12 +197,9 @@ def print_number_route():
         return "OK"
 
     text = text.strip()
-
     if not text:
         return "OK"
 
-    # В standalone проверяем состояние перед каждым заданием.
-    # В обычном режиме используем кеш из /status-printer.
     if STANDALONE:
         online = status_printer()
         set_printer_online(online)
@@ -221,11 +223,12 @@ def print_number_route():
 if __name__ == "__main__":
     try:
         # 1. Загружаем конфигурацию.
-        config = load_config()
+        load_config()
 
-        # 2. Загружаем все шрифты и изображения в RAM.
+        # 2. Загружаем шрифты и фоновые изображения.
         print("Инициализация ресурсов...")
-        init_resources()
+        init_fonts()
+        init_backgrounds()
 
         # 3. Создаём HTTP-сервер.
         _server = make_server(
@@ -258,11 +261,11 @@ if __name__ == "__main__":
     finally:
         print("Завершение приложения...")
 
-        # 5. Закрываем HTTP-сервер.
         if _server is not None:
             _server.server_close()
 
-        # 6. Освобождаем зарегистрированные шрифты и кеш.
-        shutdown_resources()
+        # 5. Освобождаем кеши ресурсов.
+        shutdown_backgrounds()
+        shutdown_fonts()
 
         print("Приложение завершено")
