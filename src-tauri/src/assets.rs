@@ -159,12 +159,14 @@ fn scan_assets(app: &AppHandle) -> Result<AssetScan, String> {
     })
 }
 
-fn update_snapshot(state: &AssetState, snapshot: AssetSnapshot) -> Result<(), String> {
+fn initialize_snapshot(state: &AssetState, snapshot: AssetSnapshot) -> Result<(), String> {
     let mut current = state
         .snapshot
         .lock()
         .map_err(|_| "Не удалось получить блокировку снимка ресурсов".to_owned())?;
-    *current = Some(snapshot);
+    if current.is_none() {
+        *current = Some(snapshot);
+    }
     Ok(())
 }
 
@@ -174,7 +176,7 @@ pub fn get_backgrounds(
     state: State<'_, AssetState>,
 ) -> Result<Vec<AssetFile>, String> {
     let scan = scan_assets(&app)?;
-    update_snapshot(&state, scan.snapshot)?;
+    initialize_snapshot(&state, scan.snapshot)?;
     Ok(scan.backgrounds)
 }
 
