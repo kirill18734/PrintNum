@@ -1,9 +1,10 @@
-// Чтение локальных ресурсов PrintNum через штатные JavaScript API Tauri.
+// Работа с локальными ресурсами через JavaScript API Tauri.
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { appDataDir, join } from "@tauri-apps/api/path";
+import { appDataDir, join, resourceDir } from "@tauri-apps/api/path";
 import {
-  BaseDirectory,
+  copyFile,
   exists,
+  mkdir,
   readDir,
   stat,
   type DirEntry,
@@ -25,6 +26,7 @@ export interface LocalAssets {
 }
 
 let previousSnapshot: AssetSnapshot | null = null;
+let initializePromise: Promise<void> | null = null;
 
 function getExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
@@ -47,20 +49,10 @@ function getFontMetadata(fileName: string): {
   const match = normalized.match(variantPattern);
   const italicOnly = normalized.match(/(?:^|-)italic$/i);
   const weights: Record<string, number> = {
-    thin: 100,
-    extralight: 200,
-    ultralight: 200,
-    light: 300,
-    regular: 400,
-    normal: 400,
-    medium: 500,
-    semibold: 600,
-    demibold: 600,
-    bold: 700,
-    extrabold: 800,
-    ultrabold: 800,
-    black: 900,
-    heavy: 900,
+    thin: 100, extralight: 200, ultralight: 200, light: 300,
+    regular: 400, normal: 400, medium: 500, semibold: 600,
+    demibold: 600, bold: 700, extrabold: 800, ultrabold: 800,
+    black: 900, heavy: 900,
   };
 
   if (!match || match.index === undefined) {
@@ -74,9 +66,8 @@ function getFontMetadata(fileName: string): {
     return { family: name, weight: 400, fontStyle: "normal" };
   }
 
-  const family = normalized.slice(0, match.index).replace(/-+$/, "") || name;
   return {
-    family,
+    family: normalized.slice(0, match.index).replace(/-+$/, "") || name,
     weight: weights[match[1].toLowerCase()] ?? 400,
     fontStyle: match[2] ? "italic" : "normal",
   };
@@ -86,23 +77,74 @@ function getModifiedAt(value: Date | null | undefined): number {
   return value instanceof Date ? value.getTime() : 0;
 }
 
+/**
+ * Копирует встроенные ресурсы в AppData при первом запуске.
+ * Уже существующие файлы не перезаписываются, чтобы сохранить пользовательские изменения.
+ */
+async function installBundledFolder(
+  resourceRoot: string,
+  appDataRoot: string,
+  folder: "fonts" | "backgrounds",
+): Promise<void> {
+  const source = await join(resourceRoot, folder);
+  const destination = await join(appDataRoot, folder);
+
+  if (!(await exists(source))) return;
+  if (!(await exists(destination))) {
+    await mkdir(destination, { recursive: true });
+  }
+
+  const entries = await readDir(source);
+  for (const entry of entries) {
+    if (!entry.isFile) continue;
+    const extension = getExtension(entry.name);
+    const allowed = folder === "fonts"
+      ? FONT_EXTENSIONS.has(extension)
+      : BACKGROUND_EXTENSIONS.has(extension);
+    if (!allowed) continue;
+
+    const sourceFile = await join(source, entry.name);
+    const destinationFile = await join(destination, entry.name);
+    if (!(await exists(destinationFile))) {
+      await copyFile(sourceFile, destinationFile);
+    }
+  }
+}
+
+async function initializeBundledAssets(): Promise<void> {
+  if (!isTauri) return;
+  if (!initializePromise) {
+    initializePromise = (async () => {
+      const [resourceRoot, appDataRoot] = await Promise.all([
+        resourceDir(),
+        appDataDir(),
+      ]);
+      await Promise.all([
+        installBundledFolder(resourceRoot, appDataRoot, "fonts"),
+        installBundledFolder(resourceRoot, appDataRoot, "backgrounds"),
+      ]);
+    })().catch((error) => {
+      initializePromise = null;
+      throw error;
+    });
+  }
+  await initializePromise;
+}
+
 async function listFiles(
+  root: string,
   folder: "backgrounds" | "fonts",
   extensions: Set<string>,
 ): Promise<Array<{ entry: DirEntry; size: number; modifiedAt: number }>> {
-  // Не создаём каталоги: отсутствие каталога означает пустой список.
-  if (!(await exists(folder, { baseDir: BaseDirectory.AppData }))) {
-    return [];
-  }
+  const directory = await join(root, folder);
+  if (!(await exists(directory))) return [];
 
-  const entries = await readDir(folder, { baseDir: BaseDirectory.AppData });
+  const entries = await readDir(directory);
   const files = await Promise.all(
     entries
       .filter((entry) => entry.isFile && extensions.has(getExtension(entry.name)))
       .map(async (entry) => {
-        const metadata = await stat(await join(folder, entry.name), {
-          baseDir: BaseDirectory.AppData,
-        });
+        const metadata = await stat(await join(directory, entry.name));
         return {
           entry,
           size: metadata.size,
@@ -129,11 +171,12 @@ async function scanAssets(): Promise<{
     };
   }
 
-  const [backgroundFiles, fontFiles] = await Promise.all([
-    listFiles("backgrounds", BACKGROUND_EXTENSIONS),
-    listFiles("fonts", FONT_EXTENSIONS),
-  ]);
+  await initializeBundledAssets();
   const root = await appDataDir();
+  const [backgroundFiles, fontFiles] = await Promise.all([
+    listFiles(root, "backgrounds", BACKGROUND_EXTENSIONS),
+    listFiles(root, "fonts", FONT_EXTENSIONS),
+  ]);
 
   const backgrounds = await Promise.all(
     backgroundFiles.map(async ({ entry, size, modifiedAt }) => ({
@@ -177,6 +220,10 @@ async function scanAssets(): Promise<{
 }
 
 export const assetsService = {
+  async initialize(): Promise<void> {
+    await initializeBundledAssets();
+  },
+
   async getAssets(): Promise<LocalAssets> {
     const result = await scanAssets();
     previousSnapshot = result.snapshot;
@@ -189,7 +236,6 @@ export const assetsService = {
       previousSnapshot = result.snapshot;
       return false;
     }
-
     const changed =
       JSON.stringify(previousSnapshot) !== JSON.stringify(result.snapshot);
     previousSnapshot = result.snapshot;
