@@ -1,11 +1,8 @@
 import win32ui
 import win32con
 
-from app.config import   load_config
-from app.resources import (
-    resource_session,
-    get_font_name
-)
+from app.config import load_config
+from app.fonts import resource_session, get_font_name
 from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
 
 
@@ -34,8 +31,8 @@ def prepare_label_data(text, config):
         is_kgt = raw_main.upper() == "КГТ"
 
         is_swapped = (
-                (hybrid and main_text_val >= expand)
-                or is_kgt
+            (hybrid and main_text_val >= expand)
+            or is_kgt
         )
 
         if is_swapped:
@@ -68,7 +65,6 @@ def prepare_label_data(text, config):
 
 def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
     """Рисует верхний колонтитул."""
-
     font_top = win32ui.CreateFont({
         "name": font_name,
         "height": int(sizes["height_px"] * 0.20),
@@ -90,14 +86,12 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
     return y + text_h
 
 
-
 def draw_main_text(
     hdc, text, sizes, y_start,
     is_underlined, is_bold,
     font_name="Arial"
 ):
     """Рисует центральный текст с подбором оптимального размера."""
-
     available_h = sizes["height_px"] - y_start - sizes["margin_y"]
     optimal_height = 10
 
@@ -143,7 +137,6 @@ def draw_main_text(
     return optimal_height
 
 
-
 def print_text(text):
     """Главная функция автоматической печати."""
     config = load_config()
@@ -169,9 +162,8 @@ def print_text(text):
     clear_printer_queue()
     data = prepare_label_data(text, config)
 
-    # Загружаем выбранный шрифт.
+    # Шрифты и общие ресурсы защищены на время печати.
     with resource_session():
-
         font_name = get_font_name(config.get("font"))
 
         hdc = win32ui.CreateDC()
