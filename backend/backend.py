@@ -1,6 +1,9 @@
 import sys
 import time
 import threading
+import uuid
+from collections import deque
+from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -37,6 +40,7 @@ printerOnline = False
 # Защита общих данных и последовательное выполнение печати.
 _state_lock = threading.Lock()
 _print_lock = threading.Lock()
+_print_jobs = deque(maxlen=20)
 
 _last_request_time = time.monotonic()
 
@@ -65,6 +69,23 @@ def set_printer_online(value):
 
     with _state_lock:
         printerOnline = bool(value)
+
+
+def record_print_job(job_id, status, text):
+    """Добавляет или обновляет запись задания для общего состояния UI."""
+    job = {
+        "status": status,
+        "text": text,
+        "receivedAt": datetime.now(timezone.utc).isoformat(),
+    }
+
+    with _state_lock:
+        for existing in list(_print_jobs):
+            if existing.get("id") == job_id:
+                _print_jobs.remove(existing)
+        job["id"] = job_id
+        _print_jobs.appendleft(job)
+
 
 def watchdog():
     """Останавливает сервер по запросу или тайм-ауту простоя с защитой от спящего режима."""
@@ -135,17 +156,29 @@ def shutdown_route():
         "message": "Запрошена остановка сервера",
     })
 
-@app.get("/status-printer")
-def status_printer_route():
-    """Проверяет принтер и сохраняет его состояние."""
+@app.get("/state")
+def app_state_route():
+    """Единый снимок состояния для интерфейса: принтер, список устройств и задания."""
     online = status_printer()
     set_printer_online(online)
 
-    return jsonify({"printerOnline": online})
+    try:
+        printers = list_printers()
+    except Exception:
+        app.logger.exception("Не удалось получить список принтеров")
+        printers = []
 
-@app.get("/listPrinters")
-def list_printers_route():
-    return jsonify({"listPrinters": list_printers()})
+    with _state_lock:
+        jobs = [
+            {key: value for key, value in job.items() if key != "id"}
+            for job in _print_jobs
+        ]
+
+    return jsonify({
+        "printerOnline": online,
+        "listPrinters": printers,
+        "printJobs": jobs,
+    })
 
 
 @app.post("/print-label")
@@ -155,25 +188,35 @@ def print_label_route():
     if not isinstance(body, dict):
         return jsonify({"error": "Ожидается JSON-объект"}), 400
 
+    job_id = uuid.uuid4().hex
+    job_text = str(body.get("content", ""))
+
     if not get_printer_online():
+        record_print_job(job_id, "printer_unavailable", job_text)
         return jsonify({
             "status": False,
             "error": "Принтер недоступен",
         }), 503
 
+    record_print_job(job_id, "processing", job_text)
+
     try:
         with _print_lock:
             print_label(body)
 
+        record_print_job(job_id, "printed", job_text)
         return jsonify({"status": True})
 
     except LabelRequestError as error:
+        record_print_job(job_id, "print_error", job_text)
         return jsonify({"error": str(error)}), 400
 
     except PrinterNotConfiguredError as error:
+        record_print_job(job_id, "printer_unavailable", job_text)
         return jsonify({"error": str(error)}), 400
 
     except Exception:
+        record_print_job(job_id, "print_error", job_text)
         app.logger.exception("Ошибка печати этикетки")
         return jsonify({"error": "Ошибка печати этикетки"}), 500
 
@@ -204,16 +247,27 @@ def print_number_route():
     else:
         online = get_printer_online()
 
+    job_id = uuid.uuid4().hex
+
     if not online:
+        record_print_job(job_id, "printer_unavailable", text)
         return "OK"
+
+    record_print_job(job_id, "processing", text)
 
     try:
         with _print_lock:
-            print_text(text)
+            printed = print_text(text)
 
+        record_print_job(
+            job_id,
+            "printed" if printed is not False else "excluded",
+            text,
+        )
         return "OK"
 
     except Exception:
+        record_print_job(job_id, "print_error", text)
         app.logger.exception("Ошибка автоматической печати")
         return jsonify({"error": "Ошибка печати"}), 500
 
