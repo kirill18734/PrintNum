@@ -19,14 +19,16 @@ APP_NAME = "PrintNum"
 
 LOCALAPPDATA_DIR = os.environ.get("LOCALAPPDATA")
 
-RESOURCES_DIR = (
-    Path(LOCALAPPDATA_DIR) / APP_NAME / "resources"
-    if LOCALAPPDATA_DIR
-    else Path.home() / APP_NAME / "resources"
+APPDATA_DIR = os.environ.get("APPDATA")
+
+APPDATA_ROOT = (
+    Path(APPDATA_DIR) / APP_NAME
+    if APPDATA_DIR
+    else Path.home() / "AppData" / "Roaming" / APP_NAME
 )
 
-FONTS_DIR = RESOURCES_DIR / "fonts"
-IMAGES_DIR = RESOURCES_DIR / "images"
+FONTS_DIR = APPDATA_ROOT / "fonts"
+IMAGES_DIR = APPDATA_ROOT / "backgrounds"
 
 
 # ============================================================
