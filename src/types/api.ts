@@ -6,7 +6,7 @@ export interface BackgroundItem {
   base64: string;
 }
 
-/** Шрифт с метаданными и содержимым, загружаемый при изменении версии набора. */
+/** Шрифт с метаданными и содержимым. */
 export interface FontItem {
   id: string;
   name: string;
