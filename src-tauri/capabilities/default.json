@@ -38,10 +38,16 @@
       "identifier": "fs:allow-read-dir",
       "allow": [
         {
+          "path": "$APPDATA/fonts"
+        },
+        {
           "path": "$APPDATA/backgrounds"
         },
         {
-          "path": "$APPDATA/fonts"
+          "path": "$RESOURCE/fonts"
+        },
+        {
+          "path": "$RESOURCE/backgrounds"
         }
       ]
     },
@@ -49,10 +55,22 @@
       "identifier": "fs:allow-exists",
       "allow": [
         {
+          "path": "$APPDATA/fonts"
+        },
+        {
           "path": "$APPDATA/backgrounds"
         },
         {
-          "path": "$APPDATA/fonts"
+          "path": "$RESOURCE/fonts"
+        },
+        {
+          "path": "$RESOURCE/backgrounds"
+        },
+        {
+          "path": "$APPDATA/fonts/*"
+        },
+        {
+          "path": "$APPDATA/backgrounds/*"
         }
       ]
     },
@@ -60,12 +78,55 @@
       "identifier": "fs:allow-stat",
       "allow": [
         {
+          "path": "$APPDATA/fonts/*"
+        },
+        {
           "path": "$APPDATA/backgrounds/*"
         },
         {
-          "path": "$APPDATA/fonts/*"
+          "path": "$RESOURCE/fonts/*"
+        },
+        {
+          "path": "$RESOURCE/backgrounds/*"
         }
       ]
-    }
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        {
+          "path": "$APPDATA/fonts"
+        },
+        {
+          "path": "$APPDATA/backgrounds"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-copy-file",
+      "allow": [
+        {
+          "path": "$RESOURCE/fonts/*"
+        },
+        {
+          "path": "$RESOURCE/backgrounds/*"
+        },
+        {
+          "path": "$APPDATA/fonts/*"
+        },
+        {
+          "path": "$APPDATA/backgrounds/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        {
+          "path": "$APPDATA/backgrounds/*"
+        }
+      ]
+    },
+    "dialog:allow-open"
   ]
 }
