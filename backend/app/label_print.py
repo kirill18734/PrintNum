@@ -9,6 +9,8 @@ import win32con
 
 from app.config import load_config
 from app.utils import calculate_dimensions
+from app.resources import resource_session
+from app.resources.fonts import get_configured_font_name
 from app.resources.backgrounds import draw_background
 
 
@@ -93,7 +95,7 @@ def draw_code_image(hdc, image_data, sizes, show_code_text, text):
         )
 
 
-def draw_label_text(hdc, text, sizes, bold, underline):
+def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
     """
     Рисует текст этикетки.
 
@@ -110,7 +112,7 @@ def draw_label_text(hdc, text, sizes, bold, underline):
 
     for font_height in range(1, max(2, available_h + 1)):
         font = win32ui.CreateFont({
-            "name": "Arial",
+            "name": font_name,
             "height": font_height,
             "weight": (
                 win32con.FW_BOLD
@@ -147,7 +149,7 @@ def draw_label_text(hdc, text, sizes, bold, underline):
         raise ValueError("Текст не помещается на выбранной этикетке")
 
     final_font = win32ui.CreateFont({
-        "name": "Arial",
+        "name": font_name,
         "height": best_height,
         "weight": (
             win32con.FW_BOLD
@@ -184,67 +186,68 @@ def render_manual_label(
         config = load_config()
 
     printer_name = config.get("printer")
-
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise PrinterNotConfiguredError("Сначала выберите принтер")
 
-    hdc = win32ui.CreateDC()
-    document_started = False
-
-    try:
-        hdc.CreatePrinterDC(printer_name)
-
-        hdc.StartDoc(f"PrintNum: {content[:80]}")
-        document_started = True
-
-        hdc.StartPage()
-        hdc.SetBkMode(win32con.TRANSPARENT)
-
-        sizes = calculate_dimensions(
-            hdc,
-            config.get("paper", "30*20"),
+    # Ресурсная блокировка удерживается до завершения GDI-печати.
+    with resource_session():
+        font_name = (
+            get_configured_font_name(config.get("font_manual"), "manual")
+            if content_type == "text"
+            else "Arial"
         )
-
-        if content_type == "text":
-            # Ручной фон применяется только к текстовым этикеткам.
-            draw_background(
-                hdc,
-                sizes,
-                config.get("background_manual"),
-                config.get("opacity_manual", 100),
-            )
-
-            draw_label_text(
-                hdc,
-                content,
-                sizes,
-                bold,
-                underline,
-            )
-        else:
-            draw_code_image(
-                hdc,
-                code_image,
-                sizes,
-                show_code_text,
-                content,
-            )
-
-        hdc.EndPage()
-        hdc.EndDoc()
+        hdc = win32ui.CreateDC()
         document_started = False
+        try:
+            hdc.CreatePrinterDC(printer_name)
+            hdc.StartDoc(f"PrintNum: {content[:80]}")
+            document_started = True
+            hdc.StartPage()
+            hdc.SetBkMode(win32con.TRANSPARENT)
 
-    except Exception:
-        if document_started:
-            try:
-                hdc.AbortDoc()
-            except Exception:
-                pass
+            sizes = calculate_dimensions(
+                hdc,
+                config.get("paper", "30*20"),
+            )
 
-        raise
+            if content_type == "text":
+                draw_background(
+                    hdc,
+                    sizes,
+                    config.get("background_manual"),
+                    config.get("opacity_manual", 100),
+                )
+                draw_label_text(
+                    hdc,
+                    content,
+                    sizes,
+                    bold,
+                    underline,
+                    font_name,
+                )
+            else:
+                draw_code_image(
+                    hdc,
+                    code_image,
+                    sizes,
+                    show_code_text,
+                    content,
+                )
 
-    finally:
-        hdc.DeleteDC()
+            hdc.EndPage()
+            hdc.EndDoc()
+            document_started = False
+
+        except Exception:
+            if document_started:
+                try:
+                    hdc.AbortDoc()
+                except Exception:
+                    pass
+            raise
+
+        finally:
+            hdc.DeleteDC()
 
 
 def parse_label_request(body):

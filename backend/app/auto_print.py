@@ -1,11 +1,9 @@
 import win32ui
 import win32con
 
-from app.config import   load_config
-from app.resources import (
-    resource_session,
-    get_font_name
-)
+from app.config import load_config
+from app.resources import resource_session
+from app.resources.fonts import get_configured_font_name
 from app.resources.backgrounds import draw_background
 from app.utils import clear_printer_queue, find_excluded_rule, calculate_dimensions
 
@@ -173,7 +171,7 @@ def print_text(text):
     # Загружаем выбранный шрифт.
     with resource_session():
 
-        font_name = get_font_name(config.get("font"))
+        font_name = get_configured_font_name(config.get("font"), "auto")
 
         hdc = win32ui.CreateDC()
         document_started = False
