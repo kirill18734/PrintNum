@@ -14,18 +14,8 @@ from app.label_print import (
     PrinterNotConfiguredError,
 )
 from app.config import load_config, save_config
-from app.fonts import (
-    init_fonts,
-    shutdown_fonts,
-    load_font,
-    get_font_name,
-    resource_session,
-)
-from app.backgrounds import (
-    init_backgrounds,
-    shutdown_backgrounds,
-    get_image,
-)
+from app.fonts import shutdown_fonts
+from app.backgrounds import shutdown_backgrounds
 
 
 app = Flask(__name__)
@@ -225,12 +215,8 @@ if __name__ == "__main__":
         # 1. Загружаем конфигурацию.
         load_config()
 
-        # 2. Загружаем шрифты и фоновые изображения.
-        print("Инициализация ресурсов...")
-        init_fonts()
-        init_backgrounds()
+        # 2. Создаём HTTP-сервер.
 
-        # 3. Создаём HTTP-сервер.
         _server = make_server(
             "127.0.0.1",
             5000,
@@ -264,7 +250,7 @@ if __name__ == "__main__":
         if _server is not None:
             _server.server_close()
 
-        # 5. Освобождаем кеши ресурсов.
+        # 3. Освобождаем кеши ресурсов.
         shutdown_backgrounds()
         shutdown_fonts()
 
