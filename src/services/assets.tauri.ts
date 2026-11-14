@@ -43,8 +43,9 @@ function getFontMetadata(fileName: string): {
   const name = getName(fileName);
   const normalized = name.replace(/[ _]+/g, "-");
   const variantPattern =
-    /(?:^|[-])(thin|extralight|ultralight|light|regular|normal|medium|semibold|demibold|bold|extrabold|ultrabold|black|heavy)(?:[-](italic|oblique))?$/i;
+    /(?:^|[-])(thin|extralight|ultralight|light|regular|normal|medium|semibold|demibold|bold|extrabold|ultrabold|black|heavy)(?:-?(italic|oblique))?$/i;
   const match = normalized.match(variantPattern);
+  const italicOnly = normalized.match(/(?:^|-)italic$/i);
   const weights: Record<string, number> = {
     thin: 100,
     extralight: 200,
@@ -63,6 +64,13 @@ function getFontMetadata(fileName: string): {
   };
 
   if (!match || match.index === undefined) {
+    if (italicOnly && italicOnly.index !== undefined) {
+      return {
+        family: normalized.slice(0, italicOnly.index).replace(/-+$/, "") || name,
+        weight: 400,
+        fontStyle: "italic",
+      };
+    }
     return { family: name, weight: 400, fontStyle: "normal" };
   }
 
