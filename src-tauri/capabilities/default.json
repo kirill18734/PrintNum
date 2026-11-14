@@ -116,14 +116,21 @@
         },
         {
           "path": "$APPDATA/backgrounds/*"
-        }
-      ]
-    },
-    {
-      "identifier": "fs:allow-write-file",
-      "allow": [
+        },
         {
-          "path": "$APPDATA/backgrounds/*"
+          "path": "$HOME/**"
+        },
+        {
+          "path": "$DESKTOP/**"
+        },
+        {
+          "path": "$DOCUMENT/**"
+        },
+        {
+          "path": "$DOWNLOAD/**"
+        },
+        {
+          "path": "$PICTURE/**"
         }
       ]
     },
