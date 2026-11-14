@@ -137,8 +137,21 @@ export default function CreateLabel({
   const setEndLine_Manual = (value: boolean) =>
     setSetting("endLine_manual", value);
 
-  const updateLabelContent = (value: string) =>
+  const updateLabelContent = (value: string) => {
     setContentByType((current) => ({ ...current, [contentType]: value }));
+    if (contentType !== "text") {
+      // Сбрасываем предыдущий код сразу, не дожидаясь useEffect Preview.
+      setCodeImage("");
+    }
+  };
+
+  const handleContentTypeChange = (nextType: LabelContentType) => {
+    if (nextType !== contentType) {
+      setCodeImage("");
+      setIsCodeImageGenerating(false);
+      setContentType(nextType);
+    }
+  };
   const [textInputMode, setTextInputMode] = useState<TextInputMode>("single");
   const [sequence, setSequence] = useState<SequenceConfig>({
     start: "1",
@@ -201,7 +214,7 @@ export default function CreateLabel({
         <div className="flex items-center justify-center gap-1">
           <SettingsCreatePaper
             contentType={contentType}
-            setContentType={setContentType}
+            setContentType={handleContentTypeChange}
             content={contentByType[contentType]}
             setContent={updateLabelContent}
             bold={bold_manual}
