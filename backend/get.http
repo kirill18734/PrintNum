@@ -1,14 +1,10 @@
-# HTTP-запросы для проверки доступности бэкенда и состояния принтеров.
+# Проверка backend и получение полного состояния принтера.
 @hostname = 127.0.0.1
 @port = 5000
 @host = http://{{hostname}}:{{port}}
 
-@getConfig  = {{host}}/get-config
-
+### Проверка доступности backend
 GET {{host}}
-###
-GET {{host}}/status-printer
-###
-GET {{host}}/listPrinters
 
-GET https://printnum-kirill123451.amvera.io/v2.0.1/PrintNum_2.0.1_x64-setup.exe
+### Состояние принтера, список принтеров и история текстовых заданий
+GET {{host}}/printer-data
