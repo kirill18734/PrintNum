@@ -11,6 +11,7 @@ import {
 } from "@tauri-apps/plugin-fs";
 import type { BackgroundItem, FontItem } from "@/types/api";
 import { isTauri } from "@/services/app.tauri";
+import { open } from "@tauri-apps/plugin-dialog";
 
 const BACKGROUND_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp"]);
 const FONT_EXTENSIONS = new Set(["ttf", "otf"]);
@@ -228,6 +229,36 @@ export const assetsService = {
     const result = await scanAssets();
     previousSnapshot = result.snapshot;
     return result.assets;
+  },
+
+
+  async addBackgroundImages(): Promise<LocalAssets> {
+    if (!isTauri) return this.getAssets();
+
+    const selected = await open({
+      multiple: true,
+      directory: false,
+      filters: [{ name: "Изображения", extensions: [...BACKGROUND_EXTENSIONS] }],
+    });
+    if (!selected) return this.getAssets();
+
+    const files = Array.isArray(selected) ? selected : [selected];
+    const root = await appDataDir();
+    const destination = await join(root, "backgrounds");
+    if (!(await exists(destination))) {
+      await mkdir(destination, { recursive: true });
+    }
+
+    for (const source of files) {
+      const fileName = source.split(/[\\\\/]/).pop();
+      if (!fileName || !BACKGROUND_EXTENSIONS.has(getExtension(fileName))) continue;
+      const target = await join(destination, fileName);
+      if (!(await exists(target))) {
+        await copyFile(source, target);
+      }
+    }
+
+    return this.getAssets();
   },
 
   async assetsChanged(): Promise<boolean> {
