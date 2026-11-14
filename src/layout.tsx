@@ -8,8 +8,7 @@ import Loading from "./pages/loading";
 
 export default function Layout() {
   useAppRuntime();
-  // const serverOnline = useAppStore((state) => state.serverOnline);
-  const serverOnline = true;
+  const serverOnline = useAppStore((state) => state.serverOnline);
   const installUpdate = useAppStore((state) => state.installUpdate);
 
   return (
