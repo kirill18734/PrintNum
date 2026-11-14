@@ -1,7 +1,6 @@
 """HTTP API для локального PrintNum backend."""
 
 import base64
-import hashlib
 import threading
 import time
 from collections import deque
@@ -26,6 +25,10 @@ _last_printer_check = 0.0
 _printers = []
 _last_printer_list_check = 0.0
 _printer_list_initialized = False
+_fonts_changed = True
+_backgrounds_changed = True
+_printers_changed = True
+_last_resource_signatures = None
 _print_jobs = deque(maxlen=MAX_PRINT_JOBS)
 
 
@@ -56,7 +59,7 @@ def _refresh_printer_status(force=False):
 def _refresh_printer_list(force=False):
     """Обновляет список принтеров не чаще заданного интервала."""
     global _printers, _last_printer_list_check
-    global _printer_list_initialized
+    global _printer_list_initialized, _printers_changed
 
     now = time.monotonic()
     with _state_lock:
@@ -79,6 +82,7 @@ def _refresh_printer_list(force=False):
     with _state_lock:
         if not _printer_list_initialized or printers != _printers:
             _printers = printers
+            _printers_changed = True
         _printer_list_initialized = True
         return list(_printers)
 
@@ -88,9 +92,21 @@ def get_printers():
         return list(_printers)
 
 
-def _get_printer_version(printers):
-    payload = "\\n".join(printers).encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()[:16]
+def _refresh_resource_change_flags():
+    """Устанавливает флаги, если состав или содержимое ресурсов изменилось."""
+    global _fonts_changed, _backgrounds_changed, _last_resource_signatures
+
+    signatures = get_resource_versions()
+    with _state_lock:
+        if _last_resource_signatures is None:
+            _fonts_changed = True
+            _backgrounds_changed = True
+        else:
+            if signatures[0] != _last_resource_signatures[0]:
+                _fonts_changed = True
+            if signatures[1] != _last_resource_signatures[1]:
+                _backgrounds_changed = True
+        _last_resource_signatures = signatures
 
 
 def _add_print_job(text, status):
@@ -126,13 +142,16 @@ def register_routes(app, shutdown_requested):
     @app.get("/data-app")
     def data_app_route():
         _refresh_printer_list()
-        fonts_version, backgrounds_version = get_resource_versions()
-        printers_version = _get_printer_version(get_printers())
+        _refresh_resource_change_flags()
+        with _state_lock:
+            changes = {
+                "fontsChanged": _fonts_changed,
+                "backgroundsChanged": _backgrounds_changed,
+                "printersChanged": _printers_changed,
+            }
 
         return jsonify({
-            "fontsVersion": fonts_version,
-            "backgroundsVersion": backgrounds_version,
-            "printersVersion": printers_version,
+            **changes,
             "onlinePrinter": _refresh_printer_status(),
             "printJobs": _get_print_jobs(),
         })
@@ -148,6 +167,9 @@ def register_routes(app, shutdown_requested):
                 **font,
                 "base64": base64.b64encode(data).decode("ascii"),
             })
+        with _state_lock:
+            global _fonts_changed
+            _fonts_changed = False
         return jsonify({"dataFonts": fonts})
 
     @app.get("/backgrounds")
@@ -157,11 +179,18 @@ def register_routes(app, shutdown_requested):
             "name": image["name"],
             "base64": base64.b64encode(image["data"]).decode("ascii"),
         } for image in get_images()]
+        with _state_lock:
+            global _backgrounds_changed
+            _backgrounds_changed = False
         return jsonify({"dataBackgrounds": backgrounds})
 
     @app.get("/printers")
     def printers_route():
-        return jsonify({"listPrinters": _refresh_printer_list()})
+        printers = _refresh_printer_list()
+        with _state_lock:
+            global _printers_changed
+            _printers_changed = False
+        return jsonify({"listPrinters": printers})
 
     @app.get("/status-printer")
     def status_printer_route():

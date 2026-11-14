@@ -6,14 +6,11 @@ import type { DataAppResponse } from "@/types/api";
 
 const POLLING_INTERVAL = 1000;
 
-// Версии хранятся в runtime, чтобы после ошибки загрузки ресурс запрашивался повторно.
 export function useBackendRuntime(): void {
   useEffect(() => {
     let active = true;
     let timeout: ReturnType<typeof setTimeout>;
-    let fontsVersion: string | null = null;
-    let backgroundsVersion: string | null = null;
-    let printersVersion: string | null = null;
+    let initialLoad = true;
 
     const refresh = async () => {
       try {
@@ -31,39 +28,37 @@ export function useBackendRuntime(): void {
           store.setPrintJobs(printJobs);
         }
 
-        if (fontsVersion !== data.fontsVersion) {
+        if (initialLoad || data.fontsChanged) {
           try {
             const { dataFonts } = await backendClient.fonts();
             if (!active) return;
             syncFontStyles(dataFonts);
             useAppStore.getState().setDataFonts(dataFonts);
-            fontsVersion = data.fontsVersion;
           } catch (error) {
             console.error("Не удалось обновить список шрифтов:", error);
           }
         }
 
-        if (backgroundsVersion !== data.backgroundsVersion) {
+        if (initialLoad || data.backgroundsChanged) {
           try {
             const { dataBackgrounds } = await backendClient.backgrounds();
             if (!active) return;
             useAppStore.getState().setDataBackgrounds(dataBackgrounds);
-            backgroundsVersion = data.backgroundsVersion;
           } catch (error) {
             console.error("Не удалось обновить список фонов:", error);
           }
         }
 
-        if (printersVersion !== data.printersVersion) {
+        if (initialLoad || data.printersChanged) {
           try {
             const { listPrinters } = await backendClient.printers();
             if (!active) return;
             useAppStore.getState().setListPrinters(listPrinters);
-            printersVersion = data.printersVersion;
           } catch (error) {
             console.error("Не удалось обновить список принтеров:", error);
           }
         }
+        initialLoad = false;
       } catch (error) {
         if (!active) return;
         const store = useAppStore.getState();
