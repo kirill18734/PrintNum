@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { backendClient } from "@/shared/api/backendClient";
+import { syncFontStyles } from "@/shared/utils/fontStyles";
 import { useAppStore } from "@/services/store";
 import type { DataAppResponse } from "@/types/api";
-
 
 const POLLING_INTERVAL = 1000;
 
@@ -21,7 +21,6 @@ export function useBackendRuntime(): void {
         const data: DataAppResponse = await backendClient.dataApp();
         if (!active) return;
 
-        // Деструктурируем объект прямо здесь
         const {
           onlinePrinter,
           listPrinters,
@@ -47,25 +46,9 @@ export function useBackendRuntime(): void {
           store.setPrintJobs(printJobs);
         }
 
-        // Ссылки на шрифты в DOM меняем только при изменении списка.
+        // Base64 подключается через @font-face; повторные опросы не создают дубликаты.
         if (hasChanged(store.dataFonts, dataFonts)) {
-          const attrName = "data-google-font";
-          document
-            .querySelectorAll(`link[${attrName}]`)
-            .forEach((link) => link.remove());
-
-          if (Array.isArray(dataFonts)) {
-            dataFonts.forEach((font) => {
-              if (font && font.rel) {
-                const link = document.createElement("link");
-                link.rel = "stylesheet";
-                link.href = font.rel;
-                link.setAttribute(attrName, "true");
-                document.head.appendChild(link);
-              }
-            });
-          }
-
+          syncFontStyles(dataFonts);
           store.setDataFonts(dataFonts);
         }
       } catch (error) {
