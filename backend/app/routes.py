@@ -1,6 +1,7 @@
 """HTTP API для локального PrintNum backend."""
 
 import base64
+import hashlib
 import threading
 import time
 from collections import deque
@@ -25,11 +26,6 @@ _last_printer_check = 0.0
 _printers = []
 _last_printer_list_check = 0.0
 _printer_list_initialized = False
-_printers_version = 0
-_fonts_version = 0
-_backgrounds_version = 0
-_last_fonts_signature = None
-_last_backgrounds_signature = None
 _print_jobs = deque(maxlen=MAX_PRINT_JOBS)
 
 
@@ -60,7 +56,7 @@ def _refresh_printer_status(force=False):
 def _refresh_printer_list(force=False):
     """Обновляет список принтеров не чаще заданного интервала."""
     global _printers, _last_printer_list_check
-    global _printer_list_initialized, _printers_version
+    global _printer_list_initialized
 
     now = time.monotonic()
     with _state_lock:
@@ -83,7 +79,6 @@ def _refresh_printer_list(force=False):
     with _state_lock:
         if not _printer_list_initialized or printers != _printers:
             _printers = printers
-            _printers_version += 1
         _printer_list_initialized = True
         return list(_printers)
 
@@ -93,19 +88,9 @@ def get_printers():
         return list(_printers)
 
 
-def _get_resource_versions():
-    global _fonts_version, _backgrounds_version
-    global _last_fonts_signature, _last_backgrounds_signature
-
-    fonts_signature, backgrounds_signature = get_resource_versions()
-    with _state_lock:
-        if fonts_signature != _last_fonts_signature:
-            _fonts_version += 1
-            _last_fonts_signature = fonts_signature
-        if backgrounds_signature != _last_backgrounds_signature:
-            _backgrounds_version += 1
-            _last_backgrounds_signature = backgrounds_signature
-        return _fonts_version, _backgrounds_version
+def _get_printer_version(printers):
+    payload = "\\n".join(printers).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()[:16]
 
 
 def _add_print_job(text, status):
@@ -141,9 +126,8 @@ def register_routes(app, shutdown_requested):
     @app.get("/data-app")
     def data_app_route():
         _refresh_printer_list()
-        fonts_version, backgrounds_version = _get_resource_versions()
-        with _state_lock:
-            printers_version = _printers_version
+        fonts_version, backgrounds_version = get_resource_versions()
+        printers_version = _get_printer_version(get_printers())
 
         return jsonify({
             "fontsVersion": fonts_version,

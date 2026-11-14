@@ -287,18 +287,20 @@ def refresh_resources_if_changed():
 
 
 def get_resource_versions():
-    """Возвращает подписи наборов ресурсов без передачи самих файлов."""
+    """Возвращает стабильные версии наборов ресурсов без передачи файлов."""
     refresh_resources_if_changed()
     with resource_lock:
-        fonts = tuple(
-            (filename, font["metadata"]["id"], font["signature"])
+        fonts_payload = "|".join(
+            f"{filename}:{font['metadata']['id']}"
             for filename, font in sorted(_resource_cache["fonts"].items())
         )
-        backgrounds = tuple(
-            (filename, image["signature"])
+        backgrounds_payload = "|".join(
+            f"{filename}:{image['signature']}"
             for filename, image in sorted(_resource_cache["images"].items())
         )
-        return fonts, backgrounds
+        fonts_version = hashlib.sha256(fonts_payload.encode("utf-8")).hexdigest()[:16]
+        backgrounds_version = hashlib.sha256(backgrounds_payload.encode("utf-8")).hexdigest()[:16]
+        return fonts_version, backgrounds_version
 
 
 def get_fonts():

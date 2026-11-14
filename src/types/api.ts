@@ -19,9 +19,9 @@ export interface FontItem {
 }
 
 export interface DataAppResponse {
-  fontsVersion: number;
-  backgroundsVersion: number;
-  printersVersion: number;
+  fontsVersion: string;
+  backgroundsVersion: string;
+  printersVersion: string;
   onlinePrinter: boolean;
   printJobs: StatusCardProps[];
 }
