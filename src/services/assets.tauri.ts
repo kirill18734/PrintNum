@@ -90,10 +90,11 @@ async function installBundledFolder(
   const source = await join(resourceRoot, folder);
   const destination = await join(appDataRoot, folder);
 
-  if (!(await exists(source))) return;
+  // Каталоги AppData должны существовать даже если в поставке нет фоновых файлов.
   if (!(await exists(destination))) {
     await mkdir(destination, { recursive: true });
   }
+  if (!(await exists(source))) return;
 
   const entries = await readDir(source);
   for (const entry of entries) {
