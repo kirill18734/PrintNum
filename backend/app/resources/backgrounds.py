@@ -22,6 +22,7 @@ resource_lock = RLock()
 _background_cache = {}
 _initialized = False
 MAX_BACKGROUND_PIXELS = 40_000_000
+SUPPORTED_BACKGROUND_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
 
 
 def _get_file_signature(path):
@@ -30,6 +31,34 @@ def _get_file_signature(path):
         return stat.st_mtime_ns, stat.st_size
     except OSError:
         return None
+
+
+def _find_background_file(name):
+    """Находит фоновое изображение по имени без расширения."""
+    if not isinstance(name, str) or not name.strip():
+        return None
+
+    name = name.strip()
+    if name in {".", ".."} or Path(name).name != name:
+        return None
+
+    # В конфигурации хранится только имя ресурса, без расширения.
+    if Path(name).suffix.lower() in SUPPORTED_BACKGROUND_EXTENSIONS:
+        return None
+
+    try:
+        matches = [
+            path
+            for path in BACKGROUNDS_DIR.iterdir()
+            if path.is_file()
+            and path.suffix.lower() in SUPPORTED_BACKGROUND_EXTENSIONS
+            and path.stem.casefold() == name.casefold()
+        ]
+    except OSError:
+        return None
+
+    # Не выбираем файл наугад, если одинаковое имя есть в разных форматах.
+    return matches[0] if len(matches) == 1 else None
 
 
 def _normalize_opacity(value):
@@ -94,12 +123,11 @@ def _prepare_image(data, opacity, size):
 
 def get_prepared_background(filename, opacity=100, size=None):
     """Возвращает готовое к печати изображение из RAM-кеша."""
-    if not isinstance(filename, str) or not filename.strip():
+    path = _find_background_file(filename)
+    if path is None:
         return None
 
-    filename = filename.strip()
-    if Path(filename).name != filename:
-        return None
+    filename = path.name
 
     if (
         not isinstance(size, (tuple, list))
@@ -110,7 +138,6 @@ def get_prepared_background(filename, opacity=100, size=None):
 
     opacity = _normalize_opacity(opacity)
     size = (size[0], size[1])
-    path = BACKGROUNDS_DIR / filename
 
     with resource_lock:
         signature = _get_file_signature(path)
@@ -177,13 +204,11 @@ def draw_background(hdc, sizes, filename, opacity=100):
 
 
 def get_background(filename):
-    """Совместимый доступ к исходным байтам изображения."""
-    if not isinstance(filename, str) or not filename:
-        return None
-    if Path(filename).name != filename:
+    """Возвращает исходные байты фона по имени без расширения."""
+    path = _find_background_file(filename)
+    if path is None:
         return None
 
-    path = BACKGROUNDS_DIR / filename
     with resource_lock:
         if _get_file_signature(path) is None:
             return None
