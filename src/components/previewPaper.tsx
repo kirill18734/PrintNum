@@ -51,14 +51,14 @@ export default function PreviewPaper({
   dataBackgrounds = [],
   opacity,
 }: PreviewPaperProps) {
-  // Применение выбранного шрифта
-  const fontStyle = {
-    fontFamily: `${font}, sans-serif`,
-  };
+  // Шрифт и фон относятся только к текстовым этикеткам.
+  const isTextLabel = mode === "autoprint" || contentType === "text";
+  const fontStyle = isTextLabel
+    ? { fontFamily: `${font}, sans-serif` }
+    : undefined;
 
-  // Получаем изображение выбранного фона
   const backgroundImage =
-    background !== "Без фона"
+    isTextLabel && background !== "Без фона"
       ? dataBackgrounds.find((item) => item.name === background)?.base64
       : undefined;
 

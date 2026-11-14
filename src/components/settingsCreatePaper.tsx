@@ -329,22 +329,24 @@ export default function SettingsCreatePaper({
             </Field>
           )}
 
-          {/* Шрифт */}
-          <Font
-            font={font}
-            setFont={setFont}
-            dataFonts={dataFonts}
-            onPreviewFont={onPreviewFont_Manual}
-          />
-          {/* Фон */}
-          <Background
-            background={background}
-            setBackground={setBackground}
-            dataBackgrounds={dataBackgrounds}
-            opacity={opacity}
-            setOpacity={setOpacity}
-            onPreviewBackground={onPreviewBackground_Manual}
-          />
+          {contentType === "text" && (
+            <>
+              <Font
+                font={font}
+                setFont={setFont}
+                dataFonts={dataFonts}
+                onPreviewFont={onPreviewFont_Manual}
+              />
+              <Background
+                background={background}
+                setBackground={setBackground}
+                dataBackgrounds={dataBackgrounds}
+                opacity={opacity}
+                setOpacity={setOpacity}
+                onPreviewBackground={onPreviewBackground_Manual}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -47,7 +47,7 @@ export default function Font({
                 onFocus={() => onPreviewFont(item.family || item.name)}
                 className="text-xs"
               >
-                {item.label || item.name}
+                {item.name}
               </SelectItem>
             ))}
           </SelectGroup>
