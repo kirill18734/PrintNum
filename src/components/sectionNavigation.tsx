@@ -6,14 +6,24 @@ export type AppSection = "auto-print" | "create-label";
 interface SectionNavigationProps {
   activeSection: AppSection;
   onSectionChange: (section: AppSection) => void;
+  printerOnline: boolean;
   className?: string;
 }
 
 export function SectionNavigation({
   activeSection,
   onSectionChange,
+  printerOnline,
   className,
 }: SectionNavigationProps) {
+  const statusClassName = printerOnline
+    ? "border-green-200/60 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400"
+    : "border-red-200/60 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/40 dark:text-red-400";
+
+  const indicatorClassName = printerOnline
+    ? "bg-green-500 dark:bg-green-400 animate-pulse"
+    : "bg-red-500 dark:bg-red-400";
+
   return (
     <div
       className={cn("grid h-12 w-full grid-cols-2 items-end gap-1", className)}
@@ -31,9 +41,14 @@ export function SectionNavigation({
         <Printer className="size-4 shrink-0" />
         <span className="truncate">Автопечать</span>
 
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-green-200/60 bg-green-50 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400">
-          <span className="size-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse" />
-          работает
+        <span
+          className={cn(
+            "inline-flex shrink-0 items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold",
+            statusClassName,
+          )}
+        >
+          <span className={cn("size-1.5 rounded-full", indicatorClassName)} />
+          {printerOnline ? "Работает" : "Остановлена"}
         </span>
       </button>
 
