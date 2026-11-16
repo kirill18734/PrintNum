@@ -97,7 +97,7 @@ export async function addResourceFiles(
       continue;
     }
 
-    const destination = \`\${config.directory}/\${fileName}\`;
+    const destination = config.directory + "/" + fileName;
     const stem = getFileStem(fileName);
 
     // Имя без расширения тоже должно быть уникальным: backend хранит именно его.
@@ -129,7 +129,7 @@ export async function deleteResource(
     throw new Error("Некорректное имя файла");
   }
 
-  const relativePath = \`\${config.directory}/\${fileName}\`;
+  const relativePath = config.directory + "/" + fileName;
   if (!(await exists(relativePath, { baseDir: BaseDirectory.AppData }))) {
     throw new Error("Файл уже удалён или недоступен");
   }
