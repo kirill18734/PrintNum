@@ -28,6 +28,10 @@
       "allow": ["$APPDATA/**"]
     },
     {
+      "identifier": "fs:allow-remove-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
       "identifier": "shell:allow-spawn",
       "allow": [
         {
