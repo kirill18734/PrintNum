@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Slider } from "./ui/slider";
-import { appService } from "@/services/app.tauri";
 import { refreshBackgrounds } from "@/services/resources.tauri";
 import { addResourceFiles, deleteResource } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
