@@ -6,6 +6,7 @@ export interface BackgroundItem {
   /** Имя файла без расширения — значение настройки backend. */
   name: string;
   base64: string;
+  fileName?: string;
 }
 
 /** Шрифт, используемый редактором этикеток. */
@@ -19,6 +20,7 @@ export interface FontItem {
   fontStyle?: "normal" | "italic";
   format?: "truetype" | "opentype" | "woff2";
   base64: string;
+  fileName?: string;
 }
 
 /** Единый снимок состояния, возвращаемый GET /printer-data. */
