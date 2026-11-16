@@ -75,7 +75,12 @@ export default function Background({
 
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="Без фона" className="text-xs">
+                <SelectItem
+                  value="Без фона"
+                  className="text-xs"
+                  onPointerMove={() => onPreviewBackground("")}
+                  onFocus={() => onPreviewBackground("")}
+                >
                   Без фона
                 </SelectItem>
                 {dataBackgrounds.map((item) => (
@@ -104,36 +109,37 @@ export default function Background({
           </button>
         </div>
       </div>
+      {background !== "Без фона" && (
+        <div className="flex flex-col gap-1.5 w-full items-start">
+          <label className="text-[10px] text-muted-foreground whitespace-nowrap select-none">
+            Прозрачность
+          </label>
 
-      <div className="flex flex-col gap-1.5 w-full items-start">
-        <label className="text-[10px] text-muted-foreground whitespace-nowrap select-none">
-          Прозрачность
-        </label>
-
-        <div className="flex items-center gap-3 w-full">
-          <Slider
-            value={[draftOpacity]}
-            onValueChange={(value) => {
-              const nextOpacity = getOpacityValue(value);
-              if (nextOpacity !== undefined) setDraftOpacity(nextOpacity);
-            }}
-            onValueCommitted={(value) => {
-              const nextOpacity = getOpacityValue(value);
-              if (nextOpacity !== undefined) {
-                setDraftOpacity(nextOpacity);
-                setOpacity(nextOpacity);
-              }
-            }}
-            min={0}
-            max={100}
-            step={1}
-            className="w-full"
-          />
-          <span className="text-[11px] text-muted-foreground min-w-[32px] text-right font-mono select-none">
-            {draftOpacity}%
-          </span>
+          <div className="flex items-center gap-3 w-full">
+            <Slider
+              value={[draftOpacity]}
+              onValueChange={(value: any) => {
+                const nextOpacity = getOpacityValue(value);
+                if (nextOpacity !== undefined) setDraftOpacity(nextOpacity);
+              }}
+              onValueCommitted={(value: any) => {
+                const nextOpacity = getOpacityValue(value);
+                if (nextOpacity !== undefined) {
+                  setDraftOpacity(nextOpacity);
+                  setOpacity(nextOpacity);
+                }
+              }}
+              min={0}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <span className="text-[11px] text-muted-foreground min-w-[32px] text-right font-mono select-none">
+              {draftOpacity}%
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

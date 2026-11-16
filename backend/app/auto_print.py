@@ -87,7 +87,6 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
         return y + text_h
     finally:
         hdc.SelectObject(previous_font)
-        font_top.DeleteObject()
 
 
 
@@ -118,7 +117,7 @@ def draw_main_text(
             width, height = hdc.GetTextExtent(text)
         finally:
             hdc.SelectObject(previous_font)
-            test_font.DeleteObject()
+            
 
         if (
             width > sizes["max_allowed_w"]
@@ -145,7 +144,7 @@ def draw_main_text(
         return optimal_height
     finally:
         hdc.SelectObject(previous_font)
-        final_font.DeleteObject()
+        
 
 
 

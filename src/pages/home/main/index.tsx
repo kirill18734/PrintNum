@@ -34,6 +34,7 @@ export default function Main() {
         <SectionNavigation
           activeSection={section}
           onSectionChange={setSection}
+          printerOnline={printerOnline}
         />
 
         {/* Рабочая область объединена с активной вкладкой */}

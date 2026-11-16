@@ -94,7 +94,7 @@ def draw_code_image(hdc, image_data, sizes, show_code_text, text):
             )
         finally:
             hdc.SelectObject(previous_font)
-            font.DeleteObject()
+            
 
 
 def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
@@ -146,7 +146,7 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
             best_line_height = line_h
         finally:
             hdc.SelectObject(previous_font)
-            font.DeleteObject()
+            
 
     if best_height is None or best_line_height is None:
         raise ValueError("Текст не помещается на выбранной этикетке")
@@ -173,7 +173,7 @@ def draw_label_text(hdc, text, sizes, bold, underline, font_name="Arial"):
             y += best_line_height
     finally:
         hdc.SelectObject(previous_font)
-        final_font.DeleteObject()
+    
 
 
 def render_manual_label(
