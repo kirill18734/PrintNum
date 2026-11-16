@@ -19,7 +19,7 @@ function createFontFaceRule(font: FontItem): string | null {
   const format = font.format ?? "truetype";
   const mimeType =
     format === "opentype" ? "font/otf" :
-    format === "woff2" ? "font/woff2" : "font/ttf";
+    "font/ttf";
   const source = base64.startsWith("data:")
     ? base64
     : `data:${mimeType};base64,${base64}`;
