@@ -12,7 +12,7 @@ const RESOURCE_CONFIG = {
   font: {
     directory: "fonts",
     label: "шрифт",
-    extensions: ["ttf", "otf", "woff2"],
+    extensions: ["ttf", "otf"],
   },
 } as const;
 
