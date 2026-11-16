@@ -104,8 +104,8 @@ export async function deleteResource(kind: ResourceKind, fileName: string): Prom
     throw new Error("Файл уже удалён или недоступен");
   }
 
-  await remove(relativePath, { baseDir: BaseDirectory.AppData });
   const deleted = await readDeletedResources();
   deleted.add(relativePath);
   await writeDeletedResources(deleted);
+  await remove(relativePath, { baseDir: BaseDirectory.AppData });
 }
