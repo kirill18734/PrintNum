@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FontItem } from "@/types/api";
-import { FilePlus2, Trash2 } from "lucide-react";
+import { Plus, Trash2, Type } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -106,7 +106,7 @@ export default function Font({
         aria-label="Добавить шрифт"
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 outline-none transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
       >
-        <FilePlus2 size={14} />
+        <span className="relative inline-flex"><Type size={14} /><Plus size={8} className="absolute -right-1 -top-1" /></span>
       </button>
       <button
         type="button"
