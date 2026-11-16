@@ -28,7 +28,7 @@
       "allow": ["$APPDATA/**"]
     },
     {
-      "identifier": "fs:allow-remove-file",
+      "identifier": "fs:allow-remove",
       "allow": ["$APPDATA/**"]
     },
     {
