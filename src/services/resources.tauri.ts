@@ -3,7 +3,7 @@ import type { BackgroundItem, FontItem } from "@/types/api";
 import { syncFontStyles } from "@/shared/utils/fontStyles";
 
 const BACKGROUND_EXTENSIONS = new Set(["png", "jpg", "jpeg", "bmp", "webp"]);
-const FONT_EXTENSIONS = new Set(["ttf", "otf", "woff2"]);
+const FONT_EXTENSIONS = new Set(["ttf", "otf"]);
 
 function getExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
@@ -56,6 +56,7 @@ export async function loadBackgrounds(): Promise<BackgroundItem[]> {
       return {
         id: name,
         name,
+        fileName,
         base64: `data:${mimeType};base64,${bytesToBase64(bytes)}`,
       };
     }),
@@ -76,11 +77,12 @@ export async function loadFonts(): Promise<FontItem[]> {
       return {
         id: name,
         name,
+        fileName,
         family: name,
         label: name,
         weight: 400,
         fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
-        format: extension === "otf" ? "opentype" as const : extension === "woff2" ? "woff2" as const : "truetype" as const,
+        format: extension === "otf" ? "opentype" as const : "truetype" as const,
         base64: bytesToBase64(bytes),
       };
     }),
