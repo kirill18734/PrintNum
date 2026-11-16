@@ -18,7 +18,7 @@ export interface FontItem {
   family?: string;
   weight?: number;
   fontStyle?: "normal" | "italic";
-  format?: "truetype" | "opentype" | "woff2";
+  format?: "truetype" | "opentype";
   base64: string;
   fileName?: string;
 }
