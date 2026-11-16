@@ -13,16 +13,11 @@ export interface FontItem {
   id: string;
   /** Имя файла без расширения — значение настройки backend. */
   name: string;
-  /** Название, отображаемое в Select. */
   label?: string;
-  /** CSS font-family, назначенное локальному файлу шрифта. */
   family?: string;
-  /** CSS font-weight конкретного файла начертания. */
   weight?: number;
-  /** CSS font-style конкретного файла начертания. */
   fontStyle?: "normal" | "italic";
-  /** Формат бинарного шрифта. */
-  format?: "truetype" | "opentype";
+  format?: "truetype" | "opentype" | "woff2";
   base64: string;
 }
 
