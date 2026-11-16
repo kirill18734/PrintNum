@@ -58,6 +58,12 @@ export async function addResourceFiles(kind: ResourceKind): Promise<{ added: num
   }
 
   const deleted = await readDeletedResources();
+  const currentEntries = await import("@tauri-apps/plugin-fs").then(({ readDir }) =>
+    readDir(config.directory, { baseDir: BaseDirectory.AppData }),
+  );
+  const existingStems = new Set(currentEntries.filter((entry) => !entry.isDirectory).map((entry) =>
+    getBaseName(entry.name).replace(/\\.[^.]+$/, "").toLowerCase(),
+  ));
   let added = 0;
   let skipped = 0;
 
@@ -69,7 +75,8 @@ export async function addResourceFiles(kind: ResourceKind): Promise<{ added: num
     }
 
     const destination = `${config.directory}/${fileName}`;
-    if (await exists(destination, { baseDir: BaseDirectory.AppData })) {
+    const stem = fileName.replace(/\\.[^.]+$/, "").toLowerCase();
+    if (existingStems.has(stem) || await exists(destination, { baseDir: BaseDirectory.AppData })) {
       skipped += 1;
       continue;
     }
@@ -77,6 +84,7 @@ export async function addResourceFiles(kind: ResourceKind): Promise<{ added: num
     const bytes = await readFile(sourcePath);
     await writeFile(destination, bytes, { baseDir: BaseDirectory.AppData });
     deleted.delete(destination);
+    existingStems.add(stem);
     added += 1;
   }
 
