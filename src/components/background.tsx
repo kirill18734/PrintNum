@@ -68,16 +68,7 @@ export default function Background({
 
     setIsDeleting(true);
     try {
-      const fileName = selected.name;
-      const matching = dataBackgrounds.find((item) => item.id === selected.id);
-      const extension = matching?.base64.match(/^data:image\/([^;]+)/)?.[1];
-      const candidates = dataBackgrounds.length ? fileName : "";
-      const file = extension ? `${candidates}.${extension === "jpeg" ? "jpg" : extension}` : fileName;
-      // Определяем точное расширение из доступного имени файла через список каталога.
-      const { BaseDirectory, readDir } = await import("@tauri-apps/plugin-fs");
-      const entries = await readDir("backgrounds", { baseDir: BaseDirectory.AppData });
-      const exactName = entries.find((entry) => !entry.isDirectory && entry.name.startsWith(`${fileName}.`))?.name ?? file;
-      await deleteResource("background", exactName);
+      await deleteResource("background", selected.fileName ?? selected.name);
       const store = useAppStore.getState();
       if (store.background === fileName) await store.setSetting("background", "Без фона");
       if (store.background_manual === fileName) await store.setSetting("background_manual", "Без фона");
