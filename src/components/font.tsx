@@ -54,14 +54,7 @@ export default function Font({
 
     setIsDeleting(true);
     try {
-      const { BaseDirectory, readDir } = await import("@tauri-apps/plugin-fs");
-      const entries = await readDir("fonts", { baseDir: BaseDirectory.AppData });
-      const exactName = entries.find((entry) =>
-        !entry.isDirectory && entry.name.startsWith(`${selected.name}.`),
-      )?.name;
-      if (!exactName) throw new Error("Файл шрифта не найден");
-
-      await deleteResource("font", exactName);
+      await deleteResource("font", selected.fileName ?? selected.name);
       const store = useAppStore.getState();
       if (store.font === selected.name) await store.setSetting("font", "Arial");
       if (store.font_manual === selected.name) await store.setSetting("font_manual", "Arial");
