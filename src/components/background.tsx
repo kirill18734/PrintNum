@@ -68,10 +68,11 @@ export default function Background({
 
     setIsDeleting(true);
     try {
-      await deleteResource("background", selected.fileName ?? selected.name);
+      const selectedName = selected.name;
+      await deleteResource("background", selected.fileName ?? selectedName);
       const store = useAppStore.getState();
-      if (store.background === fileName) await store.setSetting("background", "Без фона");
-      if (store.background_manual === fileName) await store.setSetting("background_manual", "Без фона");
+      if (store.background === selectedName) await store.setSetting("background", "Без фона");
+      if (store.background_manual === selectedName) await store.setSetting("background_manual", "Без фона");
       await refreshBackgrounds();
       onPreviewBackground(undefined);
       showToast("Фон удалён", "success");
