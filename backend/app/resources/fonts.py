@@ -43,16 +43,17 @@ def _find_font_file(name):
     if not isinstance(name, str) or not name.strip():
         return None, "Имя шрифта не задано"
     requested = name.strip()
-    if requested in {".", ".."} or Path(requested).name != requested:
+    requested_path = Path(requested)
+    if requested in {".", ".."} or requested_path.name != requested:
         return None, "Некорректное имя шрифта"
-    if Path(requested).suffix.lower() in SUPPORTED_EXTENSIONS:
-        return None, "В конфигурации указывается имя без расширения"
+    if requested_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        return None, "Укажите полное имя файла шрифта с поддерживаемым расширением"
     try:
         matches = [
             path for path in FONTS_DIR.iterdir()
             if path.is_file()
             and path.suffix.lower() in SUPPORTED_EXTENSIONS
-            and path.stem.casefold() == requested.casefold()
+            and path.name.casefold() == requested.casefold()
         ]
     except OSError as error:
         return None, f"Не удалось прочитать папку шрифтов: {error}"
