@@ -61,7 +61,7 @@ export default function Font({
       if (store.font === selectedName) await store.setSetting("font", "Arial");
       if (store.font_manual === selectedName)
         await store.setSetting("font_manual", "Arial");
-      await refreshFonts();
+
       onPreviewFont(undefined);
       showToast("Шрифт удалён", "success");
     } catch (error) {
