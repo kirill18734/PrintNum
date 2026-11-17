@@ -54,8 +54,9 @@ export default function PreviewPaper({
 }: PreviewPaperProps) {
   // Шрифт и фон относятся только к текстовым этикеткам.
   const isTextLabel = mode === "autoprint" || contentType === "text";
+  const cssFontFamily = `"${font.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
   const fontStyle = isTextLabel
-    ? { fontFamily: `${font}, sans-serif` }
+    ? { fontFamily: `${cssFontFamily}, sans-serif` }
     : undefined;
 
   const [backgroundImage, setBackgroundImage] = useState<string>();
@@ -99,7 +100,7 @@ export default function PreviewPaper({
   }, [font]);
 
   const fontFace = fontBase64
-    ? `@font-face { font-family: ${JSON.stringify(font)}; src: url("data:font/${font.toLowerCase().endsWith(".otf") ? "otf" : "ttf"};base64,${fontBase64}") format("${font.toLowerCase().endsWith(".otf") ? "opentype" : "truetype"}"); font-weight: 400; font-style: normal; }`
+    ? `@font-face { font-family: ${cssFontFamily}; src: url("data:font/${font.toLowerCase().endsWith(".otf") ? "otf" : "ttf"};base64,${fontBase64}") format("${font.toLowerCase().endsWith(".otf") ? "opentype" : "truetype"}"); font-weight: 400; font-style: normal; }`
     : "";
 
   // Состояние генерации кода
@@ -247,6 +248,7 @@ export default function PreviewPaper({
                 dominantBaseline="middle"
                 textAnchor="middle"
                 fontSize="18" /* Базовый размер, который будет масштабироваться */
+                style={{ fontFamily: fontStyle?.fontFamily ?? "Arial, sans-serif" }}
                 className={`fill-current
                 ${bold ? "font-bold" : ""}
                 ${underline ? "underline" : ""}`}
