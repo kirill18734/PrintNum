@@ -73,21 +73,6 @@ export function useBackendRuntime(): void {
           store.setDataFonts(availableFontOptions);
         }
 
-        // Сбрасываем настройки, если выбранный ресурс удалён.
-        const availableFonts = new Set(printerData.fonts);
-        if (store.font !== "Arial" && !availableFonts.has(store.font)) {
-          void store.setSetting("font", "Arial");
-        }
-        if (store.font_manual !== "Arial" && !availableFonts.has(store.font_manual)) {
-          void store.setSetting("font_manual", "Arial");
-        }
-        const availableBackgrounds = new Set(printerData.backgrounds);
-        if (store.background !== "Без фона" && !availableBackgrounds.has(store.background)) {
-          void store.setSetting("background", "Без фона");
-        }
-        if (store.background_manual !== "Без фона" && !availableBackgrounds.has(store.background_manual)) {
-          void store.setSetting("background_manual", "Без фона");
-        }
       } catch (error: unknown) {
         if (!active) return;
 
