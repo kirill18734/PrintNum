@@ -148,8 +148,11 @@ def draw_main_text(
 
 
 
-def print_text(text):
-    """Главная функция автоматической печати."""
+def print_text(text, on_prepared=None):
+    """Главная функция автоматической печати.
+
+    on_prepared вызывается после подготовки текста и до отправки этикетки на печать.
+    """
     config = load_config()
 
     excluded_rule = find_excluded_rule(
@@ -175,6 +178,10 @@ def print_text(text):
     clear_printer_queue(printer_name)
 
     data = prepare_label_data(text, config)
+
+    # Передаём UI преобразованный основной текст до начала печати.
+    if on_prepared is not None:
+        on_prepared(data["main_text"])
 
     # Загружаем выбранный шрифт.
     with resource_session():
