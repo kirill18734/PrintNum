@@ -12,7 +12,7 @@ import {
 import { addResourceFiles, deleteResource } from "@/services/resourceManager.tauri";
 import { refreshFonts } from "@/services/resources.tauri";
 import { useAppStore } from "@/services/store";
-import { toast } from "sonner";
+import { useToast } from "./ui/toast";
 
 interface FontProps {
   font: string;
@@ -29,6 +29,7 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   const handleAddFonts = async () => {
     if (isAdding) return;
@@ -36,11 +37,11 @@ export default function Font({
     try {
       const result = await addResourceFiles("font");
       await refreshFonts();
-      if (result.added > 0) toast.success("Шрифт добавлен");
-      if (result.skipped > 0) toast.warning("Файл уже существует");
+      if (result.added > 0) showToast("Шрифт добавлен", "success");
+      if (result.skipped > 0) showToast("Файл уже существует", "warning");
     } catch (error) {
       console.error("Не удалось добавить шрифт:", error);
-      toast.error("Не удалось добавить шрифт");
+      showToast("Не удалось добавить шрифт", "error");
     } finally {
       setIsAdding(false);
     }
@@ -59,10 +60,10 @@ export default function Font({
       if (store.font_manual === selected.name) await store.setSetting("font_manual", "Arial");
       await refreshFonts();
       onPreviewFont(undefined);
-      toast.success("Шрифт удалён");
+      showToast("Шрифт удалён", "success");
     } catch (error) {
       console.error("Не удалось удалить шрифт:", error);
-      toast.error("Не удалось удалить шрифт");
+      showToast("Не удалось удалить шрифт", "error");
     } finally {
       setIsDeleting(false);
     }
