@@ -52,11 +52,8 @@ export default function Font({
     }
   };
 
-  const handleDeleteFont = async () => {
-    const selectedName = dataFonts.find(
-      (item) => item === font && item !== "Arial",
-    );
-    if (!selectedName || isDeleting) return;
+  const handleDeleteFont = async (selectedName: string) => {
+    if (selectedName === "Arial" || isDeleting) return;
     if (!window.confirm(`Удалить шрифт «${selectedName}»?`)) return;
 
     setIsDeleting(true);
@@ -100,7 +97,27 @@ export default function Font({
                 onFocus={() => onPreviewFont(item)}
                 className="text-xs"
               >
-                {item}
+                <span className="min-w-0 flex-1 truncate">{item}</span>
+                {item !== "Arial" && (
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    title={`Удалить шрифт «${item}»`}
+                    aria-label={`Удалить шрифт «${item}»`}
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      void handleDeleteFont(item);
+                    }}
+                    className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -119,19 +136,7 @@ export default function Font({
           <Plus size={8} className="absolute -right-1 -top-1" />
         </span>
       </button>
-      <button
-        type="button"
-        onClick={() => void handleDeleteFont()}
-        disabled={
-          !dataFonts.some((item) => item === font && item !== "Arial") ||
-          isDeleting
-        }
-        title="Удалить выбранный шрифт"
-        aria-label="Удалить выбранный шрифт"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-      >
-        <Trash2 size={14} />
-      </button>
+
     </div>
   );
 }
