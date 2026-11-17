@@ -117,7 +117,7 @@ export default function Background({
                     onPointerMove={() => onPreviewBackground(item.name)}
                     onFocus={() => onPreviewBackground(item.name)}
                   >
-                    {item.name}
+                    {item.fileName ?? item.name}
                   </SelectItem>
                 ))}
               </SelectGroup>
