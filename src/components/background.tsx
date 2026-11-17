@@ -66,9 +66,8 @@ export default function Background({
     }
   };
 
-  const handleDeleteBackground = async () => {
-    const selectedName = dataBackgrounds.find((item) => item === background);
-    if (!selectedName || isDeleting) return;
+  const handleDeleteBackground = async (selectedName: string) => {
+    if (isDeleting) return;
     if (!window.confirm(`Удалить фон «${selectedName}»?`)) return;
 
     setIsDeleting(true);
@@ -125,7 +124,25 @@ export default function Background({
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
                   >
-                    {name}
+                    <span className="min-w-0 flex-1 truncate">{name}</span>
+                    <button
+                      type="button"
+                      disabled={isDeleting}
+                      title={`Удалить фон «${name}»`}
+                      aria-label={`Удалить фон «${name}»`}
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        void handleDeleteBackground(name);
+                      }}
+                      className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -141,18 +158,7 @@ export default function Background({
           >
             <ImagePlus size={14} />
           </button>
-          <button
-            type="button"
-            onClick={() => void handleDeleteBackground()}
-            disabled={
-              !dataBackgrounds.some((item) => item === background) || isDeleting
-            }
-            title="Удалить выбранный фон"
-            aria-label="Удалить выбранный фон"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-xs outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-          >
-            <Trash2 size={14} />
-          </button>
+
         </div>
       </div>
       {background !== "Без фона" && (
