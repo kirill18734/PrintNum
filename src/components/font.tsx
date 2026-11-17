@@ -13,7 +13,7 @@ import {
   deleteResource,
 } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
-import { useToast } from "./ui/toast";
+import { showToast } from "@/components/ui/toast";
 
 interface FontProps {
   font: string;
@@ -30,15 +30,20 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { showToast } = useToast();
 
   const handleAddFonts = async () => {
     if (isAdding) return;
     setIsAdding(true);
     try {
       const result = await addResourceFiles("font");
-      if (result.added > 0) showToast("Шрифт добавлен", "success");
-      if (result.skipped > 0) showToast("Файл уже существует", "warning");
+      if (result.added > 0 || result.skipped > 0) {
+        showToast(
+          result.skipped > 0
+            ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
+            : `Добавлено шрифтов: ${result.added}`,
+          result.skipped > 0 ? "warning" : "success",
+        );
+      }
     } catch (error) {
       console.error("Не удалось добавить шрифт:", error);
       showToast("Не удалось добавить шрифт", "error");
