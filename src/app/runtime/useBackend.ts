@@ -26,7 +26,10 @@ function arePrintJobsEqual(
 }
 
 function areResourceFilesEqual(current: { fileName?: string }[], next: string[]): boolean {
-  const currentFiles = current.map((item) => item.fileName ?? "").sort();
+  const currentFiles = current
+    .map((item) => item.fileName)
+    .filter((fileName): fileName is string => Boolean(fileName))
+    .sort();
   const nextFiles = [...next].sort();
   return areStringsEqual(currentFiles, nextFiles);
 }
