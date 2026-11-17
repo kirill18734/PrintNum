@@ -84,7 +84,7 @@ export default function Font({
           if (!open) onPreviewFont(undefined);
         }}
       >
-        <SelectTrigger className="w-35 gap-1 px-1.5 text-xs">
+        <SelectTrigger className="w-35 min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
           <SelectValue placeholder="Выберите шрифт" />
         </SelectTrigger>
         <SelectContent>
@@ -97,7 +97,7 @@ export default function Font({
                 onFocus={() => onPreviewFont(item)}
                 className="pr-14 text-xs"
               >
-                <span className="block w-full min-w-0 whitespace-normal break-all">{item}</span>
+                <span className="min-w-0 flex-1 whitespace-normal break-all">{item}</span>
                 {item !== "Arial" && (
                   <button
                     type="button"
