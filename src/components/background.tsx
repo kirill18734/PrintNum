@@ -104,7 +104,7 @@ export default function Background({
             }}
           >
             <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
-              <SelectValue placeholder="Выберите фон" />
+              <SelectValue className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите фон" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>

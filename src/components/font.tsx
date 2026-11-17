@@ -85,7 +85,7 @@ export default function Font({
         }}
       >
         <SelectTrigger className="w-35 min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
-          <SelectValue placeholder="Выберите шрифт" />
+          <SelectValue className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите шрифт" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
