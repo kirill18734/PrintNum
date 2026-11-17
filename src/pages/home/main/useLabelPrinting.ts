@@ -29,7 +29,7 @@ export function useLabelPrinting({
   const stopPrinting = useRef(false);
 
   const startPrinting = async () => {
-    if (!isSequenceMode && !content) return;
+    if (!isSequenceMode && !content.trim()) return;
     if (contentType !== "text" && !codeImage) return;
     if (isSequenceMode && !sequenceValues.length) return;
 

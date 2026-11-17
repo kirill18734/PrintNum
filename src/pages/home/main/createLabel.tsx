@@ -205,6 +205,12 @@ export default function CreateLabel({
     showCodeText,
   });
 
+  // Пустое содержимое не должно запускать печать. Для диапазона проверяем
+  // результат генерации, чтобы не блокировать корректную последовательность.
+  const hasPrintContent = isSequenceMode
+    ? sequenceValues.length > 0
+    : contentByType[contentType].trim().length > 0;
+
   // Находим активный сценарий интерфейса на основе текущего состояния.
   const currentScenario =
     PRINT_SCENARIOS.find((scenario) =>
@@ -345,6 +351,7 @@ export default function CreateLabel({
             type="button"
             disabled={
               currentScenario.buttonDisabled ||
+              (!currentScenario.isStopButton && !hasPrintContent) ||
               (contentType !== "text" && (isCodeImageGenerating || !codeImage))
             }
             onClick={
