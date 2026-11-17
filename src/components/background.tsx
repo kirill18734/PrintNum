@@ -51,15 +51,16 @@ export default function Background({
     try {
       const result = await addResourceFiles("background");
       if (result.added > 0 || result.skipped > 0) {
-        toast.add({ title: 
-          result.skipped > 0
+        toast.add({
+          title:           result.skipped > 0
             ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
             : `Добавлено фонов: ${result.added}`,
-          result.skipped > 0 ? "warning" : "success" });
+          type: result.skipped > 0 ? "warning" : "success",
+        });
       }
     } catch (error) {
       console.error("Не удалось добавить фон:", error);
-      toast.add({ title: "Не удалось добавить фон", "error" });
+      toast.add({ title: "Не удалось добавить фон", type: "error" });
     } finally {
       setIsAdding(false);
     }
@@ -80,10 +81,10 @@ export default function Background({
         await store.setSetting("background_manual", "Без фона");
 
       onPreviewBackground(undefined);
-      toast.add({ title: "Фон удалён", "success");
+      toast.add({ title: "Фон удалён", type: "success" });
     } catch (error) {
       console.error("Не удалось удалить фон:", error);
-      toast.add({ title: "Не удалось удалить фон", "error" });
+      toast.add({ title: "Не удалось удалить фон", type: "error" });
     } finally {
       setIsDeleting(false);
     }
