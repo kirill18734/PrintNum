@@ -1,5 +1,6 @@
+use std::collections::HashSet;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use tauri::Manager;
 
@@ -12,9 +13,21 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
         .unwrap_or_else(|| "".into())
 }
 
-/// Копирует только отсутствующие файлы. Существующие пользовательские ресурсы
-/// не перезаписываются и не удаляются при запуске или обновлении приложения.
-fn copy_missing_files(source: &Path, destination: &Path) -> std::io::Result<()> {
+/// Список ресурсов, удалённых пользователем. Путь относительно AppData.
+fn load_deleted_resources(app_data_dir: &Path) -> HashSet<String> {
+    let manifest = app_data_dir.join("deleted-resources.txt");
+    fs::read_to_string(manifest)
+        .map(|content| content.lines().map(str::trim).filter(|line| !line.is_empty()).map(str::to_owned).collect())
+        .unwrap_or_default()
+}
+
+/// Копирует только отсутствующие файлы и пропускает ресурсы из списка удалённых.
+fn copy_missing_files(
+    source: &Path,
+    destination: &Path,
+    relative_root: &str,
+    deleted: &HashSet<String>,
+) -> std::io::Result<()> {
     if !source.exists() {
         return Ok(());
     }
@@ -25,9 +38,14 @@ fn copy_missing_files(source: &Path, destination: &Path) -> std::io::Result<()> 
         let entry = entry?;
         let source_path = entry.path();
         let destination_path = destination.join(entry.file_name());
+        let relative_path = format!("{}/{}", relative_root, entry.file_name().to_string_lossy());
+
+        if deleted.contains(&relative_path.replace('\\', "/")) {
+            continue;
+        }
 
         if source_path.is_dir() {
-            copy_missing_files(&source_path, &destination_path)?;
+            copy_missing_files(&source_path, &destination_path, &relative_path, deleted)?;
         } else if source_path.is_file() && !destination_path.exists() {
             fs::copy(&source_path, &destination_path)?;
         }
@@ -37,23 +55,30 @@ fn copy_missing_files(source: &Path, destination: &Path) -> std::io::Result<()> 
 }
 
 /// Подготавливает каталоги ресурсов в AppData при каждом запуске.
-/// Копирование идемпотентно: добавляются только отсутствующие файлы.
 fn install_app_resources(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_data_dir = app.path().app_data_dir()?;
     let resource_dir = app.path().resource_dir()?;
-
-    // При запуске из исходников Tauri resource_dir может ещё не содержать
-    // упакованные ресурсы. В режиме разработки читаем папки проекта.
     let source_root = if resource_dir.join("fonts").exists()
         || resource_dir.join("backgrounds").exists()
     {
         resource_dir
     } else {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../resources")
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../resources")
     };
 
-    copy_missing_files(&source_root.join("backgrounds"), &app_data_dir.join("backgrounds"))?;
-    copy_missing_files(&source_root.join("fonts"), &app_data_dir.join("fonts"))?;
+    let deleted = load_deleted_resources(&app_data_dir);
+    copy_missing_files(
+        &source_root.join("backgrounds"),
+        &app_data_dir.join("backgrounds"),
+        "backgrounds",
+        &deleted,
+    )?;
+    copy_missing_files(
+        &source_root.join("fonts"),
+        &app_data_dir.join("fonts"),
+        "fonts",
+        &deleted,
+    )?;
 
     Ok(())
 }
@@ -72,7 +97,6 @@ pub fn run() {
                 .build(),
         );
 
-    // Проверка на существующий запущенный экземпляр приложения.
     #[cfg(desktop)]
     {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -89,7 +113,6 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_prevent_default::debug())
-        // Обновление.
         .plugin(
             tauri_plugin_updater::Builder::new()
                 .default_version_comparator(|current, update| update.version != current)

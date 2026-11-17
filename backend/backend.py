@@ -20,6 +20,14 @@ from app.resources import (
     init_resources,
     shutdown_resources,
 )
+from app.resources.backgrounds import (
+    BACKGROUNDS_DIR,
+    SUPPORTED_BACKGROUND_EXTENSIONS,
+)
+from app.resources.fonts import (
+    FONTS_DIR,
+    SUPPORTED_EXTENSIONS as SUPPORTED_FONT_EXTENSIONS,
+)
 
 
 app = Flask(__name__)
@@ -30,6 +38,7 @@ STANDALONE = "--standalone" in sys.argv
 
 PRINTER_STATUS_INTERVAL = 1
 PRINTER_LIST_INTERVAL = 5
+RESOURCE_SCAN_INTERVAL = 1
 PRINT_QUEUE_LIMIT = 100
 
 # Единое состояние, которое читается frontend через /printer-data.
@@ -37,6 +46,8 @@ printer_data = {
     "listPrinters": [],
     "printerOnline": False,
     "printQueue": [],
+    "backgrounds": [],
+    "fonts": [],
 }
 
 # Защита состояния, последовательное выполнение печати и остановка потоков.
@@ -111,6 +122,8 @@ def _get_printer_data():
             "listPrinters": list(printer_data["listPrinters"]),
             "printerOnline": printer_data["printerOnline"],
             "printQueue": jobs,
+            "backgrounds": list(printer_data["backgrounds"]),
+            "fonts": list(printer_data["fonts"]),
         }
 
 
@@ -138,9 +151,44 @@ def _refresh_printer_list():
             printer_data["listPrinters"] = list(printers)
 
 
+def _list_resource_files(directory, supported_extensions):
+    """Возвращает полные имена файлов ресурсов с поддерживаемыми расширениями."""
+    try:
+        return sorted(
+            entry.name
+            for entry in directory.iterdir()
+            if entry.is_file() and entry.suffix.lower() in supported_extensions
+        )
+    except FileNotFoundError:
+        return []
+    except OSError:
+        app.logger.exception("Не удалось прочитать каталог ресурсов: %s", directory)
+        return None
+
+
+def _refresh_resource_lists():
+    """Обновляет кеш имён фонов и шрифтов, сохраняя последнее значение при ошибке."""
+    backgrounds = _list_resource_files(
+        BACKGROUNDS_DIR,
+        SUPPORTED_BACKGROUND_EXTENSIONS,
+    )
+    fonts = _list_resource_files(FONTS_DIR, SUPPORTED_FONT_EXTENSIONS)
+
+    with _state_lock:
+        if backgrounds is not None and backgrounds != printer_data["backgrounds"]:
+            printer_data["backgrounds"] = backgrounds
+        if fonts is not None and fonts != printer_data["fonts"]:
+            printer_data["fonts"] = fonts
+
+
 def _printer_status_monitor():
     while not _monitor_stop_requested.wait(PRINTER_STATUS_INTERVAL):
         _refresh_printer_status()
+
+
+def _resource_list_monitor():
+    while not _monitor_stop_requested.wait(RESOURCE_SCAN_INTERVAL):
+        _refresh_resource_lists()
 
 
 def _printer_list_monitor():
@@ -152,10 +200,12 @@ def _start_background_monitors():
     """Сначала заполняет начальное состояние, затем запускает независимые мониторы."""
     _refresh_printer_status()
     _refresh_printer_list()
+    _refresh_resource_lists()
 
     monitors = (
         ("printer_status_monitor", _printer_status_monitor),
         ("printer_list_monitor", _printer_list_monitor),
+        ("resource_list_monitor", _resource_list_monitor),
     )
 
     for name, target in monitors:

@@ -56,6 +56,7 @@ export async function loadBackgrounds(): Promise<BackgroundItem[]> {
       return {
         id: name,
         name,
+        fileName,
         base64: `data:${mimeType};base64,${bytesToBase64(bytes)}`,
       };
     }),
@@ -76,10 +77,8 @@ export async function loadFonts(): Promise<FontItem[]> {
       return {
         id: name,
         name,
-        // Для CSS задаём имя семейства на основе имени файла. Это позволяет
-        // выбрать конкретный файл начертания, не объединяя разные файлы.
+        fileName,
         family: name,
-        // Полное имя файла без расширения — и для Select, и для конфигурации.
         label: name,
         weight: 400,
         fontStyle: /italic|oblique/i.test(name) ? "italic" as const : "normal" as const,
@@ -89,8 +88,6 @@ export async function loadFonts(): Promise<FontItem[]> {
     }),
   );
 
-  // Arial остаётся доступным как системный fallback и не требует файла
-  // в папке приложения или установки шрифта в Windows.
   if (!fonts.some((font) => font.name.toLowerCase() === "arial")) {
     fonts.unshift({
       id: "Arial",
@@ -107,6 +104,19 @@ export async function loadFonts(): Promise<FontItem[]> {
   return fonts;
 }
 
+export async function refreshBackgrounds(): Promise<void> {
+  const backgrounds = await loadBackgrounds();
+  const { useAppStore } = await import("@/services/store");
+  useAppStore.getState().setDataBackgrounds(backgrounds);
+}
+
+export async function refreshFonts(): Promise<void> {
+  const fonts = await loadFonts();
+  syncFontStyles(fonts);
+  const { useAppStore } = await import("@/services/store");
+  useAppStore.getState().setDataFonts(fonts);
+}
+
 /** Первичная загрузка локальных ресурсов в общее состояние UI. */
 export async function initializeResources(): Promise<void> {
   const [backgrounds, fonts] = await Promise.all([
@@ -121,7 +131,6 @@ export async function initializeResources(): Promise<void> {
     dataFonts: fonts,
   });
 
-  // Если выбранный ресурс удалён, сбрасываем настройку на безопасное значение.
   const availableFonts = new Set(fonts.map((font) => font.name));
   const availableBackgrounds = new Set([
     "Без фона",
@@ -141,11 +150,4 @@ export async function initializeResources(): Promise<void> {
   if (!availableBackgrounds.has(settings.background_manual)) {
     await settings.setSetting("background_manual", "Без фона");
   }
-}
-
-/** Повторно читает список фонов после добавления изображений. */
-export async function refreshBackgrounds(): Promise<void> {
-  const backgrounds = await loadBackgrounds();
-  const { useAppStore } = await import("@/services/store");
-  useAppStore.getState().setDataBackgrounds(backgrounds);
 }
