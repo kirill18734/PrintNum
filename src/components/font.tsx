@@ -95,9 +95,9 @@ export default function Font({
                 key={item}
                 onPointerMove={() => onPreviewFont(item)}
                 onFocus={() => onPreviewFont(item)}
-                className="text-xs"
+                className="pr-14 text-xs"
               >
-                <span className="min-w-0 flex-1 truncate">{item}</span>
+                <span className="block w-full min-w-0 whitespace-normal break-all">{item}</span>
                 {item !== "Arial" && (
                   <button
                     type="button"
