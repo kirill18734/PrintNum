@@ -16,7 +16,6 @@ import {
   deleteResource,
 } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
-import { useToast } from "./ui/toast";
 
 interface BackgroundProps {
   background: string;
@@ -38,7 +37,6 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { showToast } = useToast();
 
   useEffect(() => {
     setDraftOpacity(opacity);
