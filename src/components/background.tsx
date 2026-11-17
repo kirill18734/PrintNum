@@ -120,11 +120,11 @@ export default function Background({
                   <SelectItem
                     value={name}
                     key={name}
-                    className="text-xs"
+                    className="pr-14 text-xs"
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
                   >
-                    <span className="min-w-0 flex-1 truncate">{name}</span>
+                    <span className="block w-full min-w-0 whitespace-normal break-all">{name}</span>
                     <button
                       type="button"
                       disabled={isDeleting}
