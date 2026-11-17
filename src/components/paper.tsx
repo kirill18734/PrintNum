@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "./ui/select";
 
-const PAPER_FORMAT_REGEX = /^\d+\*\d+$/;
+const PAPER_FORMAT_REGEX = /^\\d+\\*\\d+$/;
 
 interface PaperProps {
   paper: string;
@@ -26,29 +26,28 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
     (item) => item.id === paper && item.id !== "custom_size",
   );
 
-  const isCustomPaper =
-    paper && !isStandardPaper && PAPER_FORMAT_REGEX.test(paper);
+  const isCustomPaper = Boolean(
+    paper && !isStandardPaper && PAPER_FORMAT_REGEX.test(paper),
+  );
+  const isCustomMode = paper === "custom_size" || isCustomPaper;
 
-  // Валидация строки: оставляет только цифры и убирает ведущие нули
+  // Валидация строки: оставляет только цифры и убирает ведущие нули.
   const validateDimension = (value: string): string => {
-    const onlyDigits = value.replace(/\D/g, "");
+    const onlyDigits = value.replace(/\\D/g, "");
     const noLeadingZeros = onlyDigits.replace(/^0+/, "");
     return !noLeadingZeros ? "10" : noLeadingZeros;
   };
 
-  // Проверка внешнего значения paper при инициализации и изменениях
+  // Синхронизация локальных полей с внешним значением paper.
   useEffect(() => {
-    // 1. Если прилетело значение "custom_size" — это триггер клика, просто не трогаем
+    // "custom_size" используется как значение режима до ввода размеров.
     if (paper === "custom_size") return;
 
-    // 2. Если значение валидное кастомное (например, "58*40")
     if (isCustomPaper) {
       const [w, h] = paper.split("*");
       const validW = validateDimension(w);
       const validH = validateDimension(h);
 
-      // Если после внутренней валидации размеры изменились (например, было "05*40" -> стало "5*40"),
-      // исправляем внешнее состояние, чтобы в конфиг улетели чистые данные
       if (validW !== w || validH !== h) {
         setPaper(`${validW}*${validH}`);
       } else {
@@ -58,15 +57,10 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
       return;
     }
 
-    // 3. Если это стандартное значение из списка (например, "30*20")
-    if (isStandardPaper) {
-      setWidth("");
-      setHeight("");
-      return;
-    }
+    // При выборе стандартного размера не очищаем поля:
+    // пользователь сможет вернуться к своему размеру с прежними значениями.
+    if (isStandardPaper) return;
 
-    // 4. КРИТИЧЕСКИЙ СЦЕНАРИЙ: Значение не стандартное И не валидное кастомное (сломанный конфиг)
-    // Сбрасываем на первый доступный стандартный размер из списка listPapers
     const defaultPaper = listPapers[0]?.id || "30*20";
     setPaper(defaultPaper);
   }, [paper, isCustomPaper, isStandardPaper, listPapers, setPaper]);
@@ -88,9 +82,10 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
       setWidth(validWidth);
       setHeight(validHeight);
       setPaper(`${validWidth}*${validHeight}`);
-    } else {
-      setPaper(id);
+      return;
     }
+
+    setPaper(id);
   };
 
   const selectValue = isCustomPaper ? "custom_size" : paper;
@@ -104,9 +99,17 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
         Этикетка (мм)
       </span>
 
-      <div className="flex w-full flex-col gap-1.5">
+      <div
+        className={`flex w-full flex-col ${isCustomMode ? "overflow-hidden rounded-md border border-input" : "gap-1.5"}`}
+      >
         <Select value={selectValue} onValueChange={handleSelectChange}>
-          <SelectTrigger className="h-8 w-full text-xs">
+          <SelectTrigger
+            className={
+              isCustomMode
+                ? "h-7 w-full rounded-none border-0 bg-transparent px-2 text-xs shadow-none focus-visible:ring-0"
+                : "h-8 w-full text-xs"
+            }
+          >
             <SelectValue placeholder="Выберите этикетку" />
           </SelectTrigger>
           <SelectContent>
@@ -117,22 +120,22 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
                   key={item.id}
                   className={`text-xs ${item.isCustom ? "font-medium text-primary" : ""}`}
                 >
-                  {item.label}
+                  {item.isCustom ? "Свой размер" : item.label}
                 </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
         </Select>
 
-        {(paper === "custom_size" || isCustomPaper) && (
-          <div className="flex items-center gap-1 w-full animate-in fade-in duration-200">
+        {isCustomMode && (
+          <div className="flex w-full items-center gap-1 px-2 pb-2 animate-in fade-in duration-200">
             <Input
               type="text"
               placeholder="Ширина"
               value={width}
               onChange={(e) => setWidth(e.target.value)}
               onBlur={handleBlur}
-              className="h-7 text-center text-xs px-1"
+              className="h-7 min-w-0 text-center text-xs px-1"
             />
             <span className="text-[10px] text-muted-foreground font-medium">
               ×
@@ -143,7 +146,7 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
               value={height}
               onChange={(e) => setHeight(e.target.value)}
               onBlur={handleBlur}
-              className="h-7 text-center text-xs px-1"
+              className="h-7 min-w-0 text-center text-xs px-1"
             />
           </div>
         )}
