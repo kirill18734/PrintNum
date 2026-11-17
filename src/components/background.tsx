@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Slider } from "./ui/slider";
-import { refreshBackgrounds } from "@/services/resources.tauri";
 import {
   addResourceFiles,
   deleteResource,
@@ -50,7 +49,6 @@ export default function Background({
     setIsAdding(true);
     try {
       const result = await addResourceFiles("background");
-      await refreshBackgrounds();
       if (result.added > 0) showToast("Фон добавлен", "success");
       if (result.skipped > 0) showToast("Файл уже существует", "warning");
     } catch (error) {
