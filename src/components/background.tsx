@@ -72,7 +72,7 @@ export default function Background({
         await store.setSetting("background", "Без фона");
       if (store.background_manual === selectedName)
         await store.setSetting("background_manual", "Без фона");
-      await refreshBackgrounds();
+
       onPreviewBackground(undefined);
       showToast("Фон удалён", "success");
     } catch (error) {
