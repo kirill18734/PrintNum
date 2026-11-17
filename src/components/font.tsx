@@ -37,15 +37,16 @@ export default function Font({
     try {
       const result = await addResourceFiles("font");
       if (result.added > 0 || result.skipped > 0) {
-        toast.add({ title: 
-          result.skipped > 0
+        toast.add({
+          title:           result.skipped > 0
             ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
             : `Добавлено шрифтов: ${result.added}`,
-          result.skipped > 0 ? "warning" : "success" });
+          type: result.skipped > 0 ? "warning" : "success",
+        });
       }
     } catch (error) {
       console.error("Не удалось добавить шрифт:", error);
-      toast.add({ title: "Не удалось добавить шрифт", "error" });
+      toast.add({ title: "Не удалось добавить шрифт", type: "error" });
     } finally {
       setIsAdding(false);
     }
@@ -67,10 +68,10 @@ export default function Font({
         await store.setSetting("font_manual", "Arial");
 
       onPreviewFont(undefined);
-      toast.add({ title: "Шрифт удалён", "success");
+      toast.add({ title: "Шрифт удалён", type: "success" });
     } catch (error) {
       console.error("Не удалось удалить шрифт:", error);
-      toast.add({ title: "Не удалось удалить шрифт", "error" });
+      toast.add({ title: "Не удалось удалить шрифт", type: "error" });
     } finally {
       setIsDeleting(false);
     }
