@@ -376,7 +376,14 @@ def print_number_route():
 
     try:
         with _print_lock:
-            printed = print_text(text)
+            printed = print_text(
+                text,
+                on_prepared=lambda rename_text: _set_print_job_status(
+                    job,
+                    "processing",
+                    rename_text,
+                ),
+            )
 
         _set_print_job_status(
             job,

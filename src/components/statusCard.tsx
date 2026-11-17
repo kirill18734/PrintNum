@@ -89,7 +89,6 @@ export function StatusCard({
   renameText,
   receivedAt,
 }: StatusCardProps) {
-  console.log(renameText  );
   const config = STATUS_CONFIG[status];
   const Icon = config.Icon;
 
