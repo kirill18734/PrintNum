@@ -10,6 +10,18 @@ export interface PrinterDataResponse {
   fonts: string[];
 }
 
+/** Метаданные шрифта, загруженного для Preview. */
+export interface FontItem {
+  id: string;
+  name: string;
+  label: string;
+  family: string;
+  weight: number;
+  fontStyle: "normal" | "italic";
+  format: "truetype" | "opentype";
+  base64: string;
+}
+
 /** Данные, отправляемые на POST /print-label. */
 export interface PrintLabelRequest {
   contentType: import("@/types/label").LabelContentType;

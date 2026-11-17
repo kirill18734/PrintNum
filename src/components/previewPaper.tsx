@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { LabelContentType, TextInputMode } from "@/types/label";
+import { loadBackgroundPreview, loadFontPreview } from "@/services/resources.tauri";
 
 interface PreviewPaperProps {
   idNum?: boolean;
@@ -20,7 +21,6 @@ interface PreviewPaperProps {
   background?: string;
   setCodeImage?: (image: string) => void;
   onCodeImageLoadingChange?: (loading: boolean) => void;
-  dataBackgrounds?: string[];
 }
 
 const NOOP_SET_CODE_IMAGE = (_image: string) => {};
@@ -50,7 +50,6 @@ export default function PreviewPaper({
   onCodeImageLoadingChange = NOOP_SET_LOADING,
   sequenceValue = "",
   background = "Без фона",
-  dataBackgrounds = [],
   opacity,
 }: PreviewPaperProps) {
   // Шрифт и фон относятся только к текстовым этикеткам.
@@ -59,10 +58,49 @@ export default function PreviewPaper({
     ? { fontFamily: `${font}, sans-serif` }
     : undefined;
 
-  const backgroundImage =
-    isTextLabel && background !== "Без фона"
-      ? dataBackgrounds.find((item) => item === background)?.base64
-      : undefined;
+  const [backgroundImage, setBackgroundImage] = useState<string>();
+  const [fontBase64, setFontBase64] = useState<string>();
+
+  // Список доступных ресурсов приходит из backend; здесь читается только выбранный файл.
+  useEffect(() => {
+    let cancelled = false;
+    if (!isTextLabel || !background || background === "Без фона") {
+      setBackgroundImage(undefined);
+      return;
+    }
+    setBackgroundImage(undefined);
+    void loadBackgroundPreview(background)
+      .then((image) => { if (!cancelled) setBackgroundImage(image); })
+      .catch((error) => {
+        if (!cancelled) {
+          setBackgroundImage(undefined);
+          console.error("Не удалось загрузить фон для Preview:", error);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [background, isTextLabel]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!font || font === "Arial") {
+      setFontBase64(undefined);
+      return;
+    }
+    setFontBase64(undefined);
+    void loadFontPreview(font)
+      .then((item) => { if (!cancelled) setFontBase64(item.base64); })
+      .catch((error) => {
+        if (!cancelled) {
+          setFontBase64(undefined);
+          console.error("Не удалось загрузить шрифт для Preview:", error);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [font]);
+
+  const fontFace = fontBase64
+    ? `@font-face { font-family: ${JSON.stringify(font)}; src: url("data:font/${font.toLowerCase().endsWith(".otf") ? "otf" : "ttf"};base64,${fontBase64}") format("${font.toLowerCase().endsWith(".otf") ? "opentype" : "truetype"}"); font-weight: 400; font-style: normal; }`
+    : "";
 
   // Состояние генерации кода
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({
@@ -288,6 +326,7 @@ export default function PreviewPaper({
       className={`flex items-center w-full
         ${hybrid ? "justify-between gap-1" : "justify-center"}`}
     >
+      {fontFace && <style>{fontFace}</style>}
       <div className="flex flex-col items-center gap-1">
         {hybrid && mode === "autoprint" && (
           <span className="text-xs text-muted-foreground">

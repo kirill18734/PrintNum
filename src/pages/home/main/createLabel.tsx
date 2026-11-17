@@ -252,7 +252,6 @@ export default function CreateLabel({
               font={previewFont_Manual ?? font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
               background={previewBackground_Manual ?? background_manual}
-              dataBackgrounds={dataBackgrounds}
               opacity={opacity_manual}
             />
             {/* Предпросмотр */}

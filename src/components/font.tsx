@@ -12,7 +12,6 @@ import {
   addResourceFiles,
   deleteResource,
 } from "@/services/resourceManager.tauri";
-import { refreshFonts } from "@/services/resources.tauri";
 import { useAppStore } from "@/services/store";
 import { useToast } from "./ui/toast";
 
@@ -38,7 +37,6 @@ export default function Font({
     setIsAdding(true);
     try {
       const result = await addResourceFiles("font");
-      await refreshFonts();
       if (result.added > 0) showToast("Шрифт добавлен", "success");
       if (result.skipped > 0) showToast("Файл уже существует", "warning");
     } catch (error) {
@@ -63,7 +61,7 @@ export default function Font({
       if (store.font === selectedName) await store.setSetting("font", "Arial");
       if (store.font_manual === selectedName)
         await store.setSetting("font_manual", "Arial");
-      await refreshFonts();
+
       onPreviewFont(undefined);
       showToast("Шрифт удалён", "success");
     } catch (error) {
