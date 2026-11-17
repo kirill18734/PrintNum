@@ -14,7 +14,7 @@ import { Slider } from "./ui/slider";
 import { refreshBackgrounds } from "@/services/resources.tauri";
 import { addResourceFiles, deleteResource } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
-import { toast } from "sonner";
+import { useToast } from "./ui/toast";
 
 interface BackgroundProps {
   background: string;
@@ -36,6 +36,7 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     setDraftOpacity(opacity);
@@ -50,11 +51,11 @@ export default function Background({
     try {
       const result = await addResourceFiles("background");
       await refreshBackgrounds();
-      if (result.added > 0) toast.success("Фон добавлен");
-      if (result.skipped > 0) toast.warning("Файл уже существует");
+      if (result.added > 0) showToast("Фон добавлен", "success");
+      if (result.skipped > 0) showToast("Файл уже существует", "warning");
     } catch (error) {
       console.error("Не удалось добавить фон:", error);
-      toast.error("Не удалось добавить фон");
+      showToast("Не удалось добавить фон", "error");
     } finally {
       setIsAdding(false);
     }
@@ -74,10 +75,10 @@ export default function Background({
       if (store.background_manual === selectedName) await store.setSetting("background_manual", "Без фона");
       await refreshBackgrounds();
       onPreviewBackground(undefined);
-      toast.success("Фон удалён");
+      showToast("Фон удалён", "success");
     } catch (error) {
       console.error("Не удалось удалить фон:", error);
-      toast.error("Не удалось удалить фон");
+      showToast("Не удалось удалить фон", "error");
     } finally {
       setIsDeleting(false);
     }
