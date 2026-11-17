@@ -13,7 +13,7 @@ import {
   deleteResource,
 } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
-import { showToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 
 interface FontProps {
   font: string;
@@ -37,16 +37,15 @@ export default function Font({
     try {
       const result = await addResourceFiles("font");
       if (result.added > 0 || result.skipped > 0) {
-        showToast(
+        toast.add({ title: 
           result.skipped > 0
             ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
             : `Добавлено шрифтов: ${result.added}`,
-          result.skipped > 0 ? "warning" : "success",
-        );
+          result.skipped > 0 ? "warning" : "success" });
       }
     } catch (error) {
       console.error("Не удалось добавить шрифт:", error);
-      showToast("Не удалось добавить шрифт", "error");
+      toast.add({ title: "Не удалось добавить шрифт", "error" });
     } finally {
       setIsAdding(false);
     }
@@ -68,10 +67,10 @@ export default function Font({
         await store.setSetting("font_manual", "Arial");
 
       onPreviewFont(undefined);
-      showToast("Шрифт удалён", "success");
+      toast.add({ title: "Шрифт удалён", "success");
     } catch (error) {
       console.error("Не удалось удалить шрифт:", error);
-      showToast("Не удалось удалить шрифт", "error");
+      toast.add({ title: "Не удалось удалить шрифт", "error" });
     } finally {
       setIsDeleting(false);
     }
