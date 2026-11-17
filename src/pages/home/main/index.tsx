@@ -50,7 +50,8 @@ export default function Main() {
         <SectionNavigation
           activeSection={section}
           onSectionChange={setSection}
-          printerOnline={backendOnline && printerOnline}
+          backendOnline={backendOnline}
+          printerOnline={printerOnline}
         />
 
         <div
