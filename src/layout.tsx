@@ -1,7 +1,7 @@
 // Корневой layout выбирает экран загрузки, приложения или установки обновления.
 import { useAppRuntime } from "@/app/useAppRuntime";
 import { useAppStore } from "./services/store";
-import { Toaster } from "@/components/ui/sonner";
+import { ToastProvider } from "@/components/ui/toast";
 
 import Home from "./pages/home";
 import Updating from "./pages/updating";
@@ -13,9 +13,8 @@ export default function Layout() {
   const installUpdate = useAppStore((state) => state.installUpdate);
 
   return (
-    <>
-      <Toaster position="top-right" richColors closeButton duration={2800} />
+    <ToastProvider>
       {installUpdate ? <Updating /> : serverOnline ? <Home /> : <Loading />}
-    </>
+    </ToastProvider>
   );
 }
