@@ -34,16 +34,15 @@ def _get_file_signature(path):
 
 
 def _find_background_file(name):
-    """Находит фоновое изображение по имени без расширения."""
+    """Находит фоновое изображение по полному имени файла."""
     if not isinstance(name, str) or not name.strip():
         return None
 
     name = name.strip()
-    if name in {".", ".."} or Path(name).name != name:
+    requested_path = Path(name)
+    if name in {".", ".."} or requested_path.name != name:
         return None
-
-    # В конфигурации хранится только имя ресурса, без расширения.
-    if Path(name).suffix.lower() in SUPPORTED_BACKGROUND_EXTENSIONS:
+    if requested_path.suffix.lower() not in SUPPORTED_BACKGROUND_EXTENSIONS:
         return None
 
     try:
@@ -52,7 +51,7 @@ def _find_background_file(name):
             for path in BACKGROUNDS_DIR.iterdir()
             if path.is_file()
             and path.suffix.lower() in SUPPORTED_BACKGROUND_EXTENSIONS
-            and path.stem.casefold() == name.casefold()
+            and path.name.casefold() == name.casefold()
         ]
     except OSError:
         return None
@@ -204,7 +203,7 @@ def draw_background(hdc, sizes, filename, opacity=100):
 
 
 def get_background(filename):
-    """Возвращает исходные байты фона по имени без расширения."""
+    """Возвращает исходные байты фона по полному имени файла."""
     path = _find_background_file(filename)
     if path is None:
         return None
