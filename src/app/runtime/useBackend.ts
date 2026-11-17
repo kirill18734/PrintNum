@@ -64,8 +64,13 @@ export function useBackendRuntime(): void {
           store.setDataBackgrounds(printerData.backgrounds);
         }
 
-        if (!areStringsEqual(store.dataFonts, printerData.fonts)) {
-          store.setDataFonts(printerData.fonts);
+        // Arial остаётся встроенным вариантом, даже если файла Arial нет в каталоге.
+        const availableFontOptions = [...printerData.fonts];
+        if (!availableFontOptions.includes("Arial")) {
+          availableFontOptions.unshift("Arial");
+        }
+        if (!areStringsEqual(store.dataFonts, availableFontOptions)) {
+          store.setDataFonts(availableFontOptions);
         }
 
         // Сбрасываем настройки, если выбранный ресурс удалён.
