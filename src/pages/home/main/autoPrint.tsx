@@ -92,6 +92,7 @@ export default function AutoPrint({
             bold={bold}
             font={font}
             background={background}
+            dataBackgrounds={dataBackgrounds}
             dataFonts={dataFonts}
             setBold={setBold}
             hybrid={hybrid}
@@ -115,7 +116,6 @@ export default function AutoPrint({
             bold={bold}
             mode="autoprint"
             background={previewBackground ?? background}
-            dataBackgrounds={dataBackgrounds}
             opacity={opacity}
           />
         </div>

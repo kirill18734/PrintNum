@@ -20,14 +20,11 @@ export function usePlatformRuntime(): void {
           useAppStore.getState().setIsUpdate(available);
         }
       } catch (error) {
-        console.error(
-          "Ошибка инициализации приложения:",
-          error,
-        );
+        console.error("Ошибка инициализации приложения:", error);
       }
     };
 
-    void initialize();
+    initialize();
 
     return () => {
       active = false;

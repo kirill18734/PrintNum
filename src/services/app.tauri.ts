@@ -191,6 +191,7 @@ const tauriAppService: IAppService = {
 
     try {
       backendChild = await Command.sidecar("../backend/output/backend").spawn();
+      console.log("Backend sidecar запущен:", backendChild);
     } catch (error) {
       console.error("Не удалось запустить backend sidecar:", error);
 
@@ -211,7 +212,6 @@ const tauriAppService: IAppService = {
 
     console.warn("Backend запущен, но не отвечает на 127.0.0.1:5000");
   },
-
 };
 
 // ─── ЭКСПОРТ СЕРВИСА ───
