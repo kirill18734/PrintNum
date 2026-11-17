@@ -6,6 +6,7 @@ export type AppSection = "auto-print" | "create-label";
 interface SectionNavigationProps {
   activeSection: AppSection;
   onSectionChange: (section: AppSection) => void;
+  backendOnline: boolean;
   printerOnline: boolean;
   className?: string;
 }
@@ -13,16 +14,21 @@ interface SectionNavigationProps {
 export function SectionNavigation({
   activeSection,
   onSectionChange,
+  backendOnline,
   printerOnline,
   className,
 }: SectionNavigationProps) {
-  const statusClassName = printerOnline
-    ? "border-green-200/60 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400"
-    : "border-red-200/60 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/40 dark:text-red-400";
+  const statusClassName = !backendOnline
+    ? "border-border bg-muted text-muted-foreground"
+    : printerOnline
+      ? "border-green-200/60 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400"
+      : "border-red-200/60 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/40 dark:text-red-400";
 
-  const indicatorClassName = printerOnline
-    ? "bg-green-500 dark:bg-green-400 animate-pulse"
-    : "bg-red-500 dark:bg-red-400";
+  const indicatorClassName = !backendOnline
+    ? "bg-muted-foreground"
+    : printerOnline
+      ? "bg-green-500 dark:bg-green-400 animate-pulse"
+      : "bg-red-500 dark:bg-red-400";
 
   return (
     <div
@@ -48,7 +54,7 @@ export function SectionNavigation({
           )}
         >
           <span className={cn("size-1.5 rounded-full", indicatorClassName)} />
-          {printerOnline ? "Работает" : "Остановлена"}
+          {!backendOnline ? "Подключение..." : printerOnline ? "Работает" : "Остановлена"}
         </span>
       </button>
 

@@ -16,6 +16,7 @@ export default function AutoPrint({
   listPapers,
   dataFonts,
   dataBackgrounds,
+  backendOnline,
   printerOnline,
 }: PrinterPageProps) {
   const excludedTexts = useAppStore((state) => state.excludedTexts);
@@ -68,6 +69,7 @@ export default function AutoPrint({
         paper={paper}
         setPaper={setPaper}
         listPapers={listPapers}
+        backendOnline={backendOnline}
         printerOnline={printerOnline}
       />
 

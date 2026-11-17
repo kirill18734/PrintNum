@@ -1,5 +1,5 @@
 import type { PaperFormat } from "@/config/defaultConfig";
-  
+
 /** Общие параметры страниц ручной и автоматической печати. */
 export interface PrinterPageProps {
   printer: string;
@@ -10,5 +10,6 @@ export interface PrinterPageProps {
   listPapers: PaperFormat[];
   dataFonts: string[];
   dataBackgrounds: string[];
+  backendOnline: boolean;
   printerOnline: boolean;
 }

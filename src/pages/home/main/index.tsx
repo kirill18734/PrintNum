@@ -15,10 +15,27 @@ export default function Main() {
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
   const printerOnline = useAppStore((state) => state.printerOnline);
+  const backendOnline = useAppStore((state) => state.serverOnline);
+  const font = useAppStore((state) => state.font);
+  const fontManual = useAppStore((state) => state.font_manual);
+  const background = useAppStore((state) => state.background);
+  const backgroundManual = useAppStore((state) => state.background_manual);
   const dataFonts = useAppStore((state) => state.dataFonts);
   const dataBackgrounds = useAppStore((state) => state.dataBackgrounds);
   const listPrinters = useAppStore((state) => state.listPrinters);
   const listPapers = useAppStore((state) => state.listPapers);
+
+  // Значения из конфига должны оставаться доступными в Select,
+  // даже если backend ещё не ответил или ресурс отсутствует в его списке.
+  const fontOptions = [...new Set([font, fontManual, "Arial", ...dataFonts].filter(Boolean))];
+  const backgroundOptions = [
+    ...new Set([background, backgroundManual, ...dataBackgrounds].filter(
+      (value) => Boolean(value) && value !== "Без фона",
+    )),
+  ];
+  const printerOptions = printer
+    ? [printer, ...listPrinters.filter((item) => item !== printer)]
+    : listPrinters;
 
   const setSetting = useAppStore((state) => state.setSetting);
 
@@ -29,15 +46,14 @@ export default function Main() {
 
   return (
     <main className="flex-1 w-full max-w-5xl mx-auto p-1 md:p-6 flex flex-col gap-2">
-      {/* Навигация и рабочая область */}
       <div className="flex w-full flex-col">
         <SectionNavigation
           activeSection={section}
           onSectionChange={setSection}
+          backendOnline={backendOnline}
           printerOnline={printerOnline}
         />
 
-        {/* Рабочая область объединена с активной вкладкой */}
         <div
           className={`
             min-w-0 border border-border/60 border-t-0 bg-card p-2
@@ -51,32 +67,33 @@ export default function Main() {
           {section === "auto-print" ? (
             <AutoPrint
               printer={printer}
-              listPrinters={listPrinters}
+              listPrinters={printerOptions}
               setPrinter={setPrinter}
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
-              dataFonts={dataFonts}
-              dataBackgrounds={dataBackgrounds}
+              dataFonts={fontOptions}
+              dataBackgrounds={backgroundOptions}
+              backendOnline={backendOnline}
               printerOnline={printerOnline}
             />
           ) : (
             <CreateLabel
               printer={printer}
-              listPrinters={listPrinters}
+              listPrinters={printerOptions}
               setPrinter={setPrinter}
               paper={paper}
               setPaper={setPaper}
               listPapers={listPapers}
-              dataFonts={dataFonts}
-              dataBackgrounds={dataBackgrounds}
+              dataFonts={fontOptions}
+              dataBackgrounds={backgroundOptions}
+              backendOnline={backendOnline}
               printerOnline={printerOnline}
             />
           )}
         </div>
       </div>
 
-      {/* Выбор стиля остаётся на прежнем месте */}
       <div className="flex items-center justify-end">
         <ThemeStyle
           defaultThemeStyle={themeStyle}
