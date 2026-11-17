@@ -15,6 +15,7 @@ import {
   deleteResource,
 } from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
+import { showToast } from "@/components/ui/toast";
 
 interface BackgroundProps {
   background: string;
@@ -49,8 +50,14 @@ export default function Background({
     setIsAdding(true);
     try {
       const result = await addResourceFiles("background");
-      if (result.added > 0) showToast("Фон добавлен", "success");
-      if (result.skipped > 0) showToast("Файл уже существует", "warning");
+      if (result.added > 0 || result.skipped > 0) {
+        showToast(
+          result.skipped > 0
+            ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
+            : `Добавлено фонов: ${result.added}`,
+          result.skipped > 0 ? "warning" : "success",
+        );
+      }
     } catch (error) {
       console.error("Не удалось добавить фон:", error);
       showToast("Не удалось добавить фон", "error");
