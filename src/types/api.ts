@@ -3,7 +3,7 @@ import type { StatusCardProps } from "@/types/printJob";
 /** Фон, используемый редактором этикеток. */
 export interface BackgroundItem {
   id: string;
-  /** Имя файла без расширения — значение настройки backend. */
+  /** Имя ресурса без расширения — значение настройки backend. */
   name: string;
   base64: string;
   fileName?: string;
@@ -28,6 +28,9 @@ export interface PrinterDataResponse {
   listPrinters: string[];
   printerOnline: boolean;
   printQueue: StatusCardProps[];
+  /** Полные имена файлов в каталогах AppData/backgrounds и AppData/fonts. */
+  backgrounds: string[];
+  fonts: string[];
 }
 
 /** Данные, отправляемые на POST /print-label. */
