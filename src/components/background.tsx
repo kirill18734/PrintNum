@@ -103,7 +103,7 @@ export default function Background({
               if (!open) onPreviewBackground(undefined);
             }}
           >
-            <SelectTrigger className="h-8 w-full max-w-[140px] gap-1 px-1.5 text-xs">
+            <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
               <SelectValue placeholder="Выберите фон" />
             </SelectTrigger>
             <SelectContent>
@@ -120,11 +120,11 @@ export default function Background({
                   <SelectItem
                     value={name}
                     key={name}
-                    className="text-xs"
+                    className="pr-14 text-xs"
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
                   >
-                    <span className="min-w-0 flex-1 truncate">{name}</span>
+                    <span className="min-w-0 flex-1 whitespace-normal break-all">{name}</span>
                     <button
                       type="button"
                       disabled={isDeleting}
