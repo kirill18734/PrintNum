@@ -7,12 +7,6 @@ import { XIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Load
 
 const toast = ToastPrimitive.createToastManager()
 
-type ToastType = "success" | "info" | "warning" | "error" | "loading"
-
-function showToast(title: string, type: ToastType = "info") {
-  toast.add({ title, type })
-}
-
 function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
   return <ToastPrimitive.Provider {...props} />
 }
@@ -129,7 +123,9 @@ function ToastClose({
       )}
       {...props}
     >
-      {children ?? <XIcon aria-hidden="true" />}
+      {children ?? (
+        <XIcon aria-hidden="true" />
+      )}
     </ToastPrimitive.Close>
   )
 }
@@ -137,13 +133,39 @@ function ToastClose({
 function ToastIcon({ type }: { type: string | undefined }) {
   let icon: React.ReactNode = null
 
-  if (type === "success") icon = <CircleCheckIcon aria-hidden="true" />
-  if (type === "info") icon = <InfoIcon aria-hidden="true" />
-  if (type === "warning") icon = <TriangleAlertIcon aria-hidden="true" />
-  if (type === "error") icon = <OctagonXIcon className="text-destructive" aria-hidden="true" />
-  if (type === "loading") icon = <Loader2Icon className="animate-spin" aria-hidden="true" />
+  if (type === "success") {
+    icon = (
+      <CircleCheckIcon aria-hidden="true" />
+    )
+  }
 
-  if (!icon) return null
+  if (type === "info") {
+    icon = (
+      <InfoIcon aria-hidden="true" />
+    )
+  }
+
+  if (type === "warning") {
+    icon = (
+      <TriangleAlertIcon aria-hidden="true" />
+    )
+  }
+
+  if (type === "error") {
+    icon = (
+      <OctagonXIcon className="text-destructive" aria-hidden="true" />
+    )
+  }
+
+  if (type === "loading") {
+    icon = (
+      <Loader2Icon className="animate-spin" aria-hidden="true" />
+    )
+  }
+
+  if (!icon) {
+    return null
+  }
 
   return (
     <span
@@ -176,11 +198,10 @@ function ToastList() {
 function Toaster({
   children,
   toastManager = toast,
-  timeout = 2800,
   ...props
 }: ToastPrimitive.Provider.Props) {
   return (
-    <ToastProvider toastManager={toastManager} timeout={timeout} {...props}>
+    <ToastProvider toastManager={toastManager} {...props}>
       {children}
       <ToastPortal>
         <ToastViewport>
@@ -206,7 +227,6 @@ export {
   ToastTitle,
   ToastViewport,
   createToastManager,
-  showToast,
   toast,
   useToastManager,
 }
