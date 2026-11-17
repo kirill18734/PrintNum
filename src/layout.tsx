@@ -13,7 +13,7 @@ export default function Layout() {
   const installUpdate = useAppStore((state) => state.installUpdate);
 
   return (
-    <Toaster>
+    <Toaster timeout={2800}>
       {installUpdate ? <Updating /> : serverOnline ? <Home /> : <Loading />}
     </Toaster>
   );
