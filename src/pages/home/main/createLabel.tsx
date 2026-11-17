@@ -91,6 +91,7 @@ export default function CreateLabel({
   listPapers,
   dataFonts,
   dataBackgrounds,
+  backendOnline,
   printerOnline,
 }: PrinterPageProps) {
   const [contentByType, setContentByType] = useState<
@@ -208,6 +209,7 @@ export default function CreateLabel({
         paper={paper}
         setPaper={setPaper}
         listPapers={listPapers}
+        backendOnline={backendOnline}
         printerOnline={printerOnline}
       />
       <div className="flex flex-col w-full rounded-xl border border-border bg-card p-2.5 gap-2">
