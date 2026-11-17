@@ -1,28 +1,5 @@
 import type { StatusCardProps } from "@/types/printJob";
 
-/** Фон, используемый редактором этикеток. */
-export interface BackgroundItem {
-  id: string;
-  /** Имя ресурса без расширения — значение настройки backend. */
-  name: string;
-  base64: string;
-  fileName?: string;
-}
-
-/** Шрифт, используемый редактором этикеток. */
-export interface FontItem {
-  id: string;
-  /** Имя файла без расширения — значение настройки backend. */
-  name: string;
-  label?: string;
-  family?: string;
-  weight?: number;
-  fontStyle?: "normal" | "italic";
-  format?: "truetype" | "opentype";
-  base64: string;
-  fileName?: string;
-}
-
 /** Единый снимок состояния, возвращаемый GET /printer-data. */
 export interface PrinterDataResponse {
   listPrinters: string[];

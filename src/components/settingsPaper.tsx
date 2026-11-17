@@ -16,8 +16,8 @@ interface SettingsPaperProps {
   font: string;
 
   background: string;
-  dataFonts: FontItem[];
-  dataBackgrounds: BackgroundItem[];
+  dataFonts: string[];
+  dataBackgrounds: string[];
   hybrid: boolean;
   setHybrid: (checked: boolean) => void;
   expand: number | string;

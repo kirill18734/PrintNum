@@ -3,8 +3,6 @@ import { create } from "zustand";
 import type { AppSettings, PaperFormat } from "@/config/defaultConfig";
 import { storeService } from "./store.tauri";
 import type { StatusCardProps } from "@/types/printJob";
-import type { BackgroundItem, FontItem } from "@/types/api";
-export type { BackgroundItem, FontItem } from "@/types/api";
 
 import { listPapers } from "@/config/defaultConfig";
 
@@ -16,8 +14,8 @@ interface AppStore extends AppSettings {
   installUpdate: boolean;
   listPrinters: string[];
   printJobs: StatusCardProps[];
-  dataFonts: FontItem[];
-  dataBackgrounds: BackgroundItem[];
+  dataFonts: string[];
+  dataBackgrounds: string[];
   listPapers: PaperFormat[];
 
   setSetting<K extends keyof AppSettings>(
@@ -28,7 +26,7 @@ interface AppStore extends AppSettings {
   setPrinterOnline(printerOnline: boolean): void;
   setListPrinters(printers: string[] | ((current: string[]) => string[])): void;
   setDataBackgrounds: (
-    next: BackgroundItem[] | ((current: BackgroundItem[]) => BackgroundItem[]),
+    next: string[] | ((current: string[]) => string[]),
   ) => void;
 
   setPrintJobs: (
@@ -37,9 +35,7 @@ interface AppStore extends AppSettings {
       | ((current: StatusCardProps[]) => StatusCardProps[]),
   ) => void;
 
-  setDataFonts: (
-    next: FontItem[] | ((current: FontItem[]) => FontItem[]),
-  ) => void;
+  setDataFonts: (next: string[] | ((current: string[]) => string[])) => void;
   setIsUpdate(isUpdate: boolean): void;
   setIsUpdating(isUpdating: boolean): void;
   setInstallUpdate(installUpdate: boolean): void;

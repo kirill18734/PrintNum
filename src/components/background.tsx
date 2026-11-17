@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { BackgroundItem } from "@/types/api";
 import { ImagePlus, Trash2 } from "lucide-react";
 
 import {
@@ -12,14 +11,17 @@ import {
 } from "./ui/select";
 import { Slider } from "./ui/slider";
 import { refreshBackgrounds } from "@/services/resources.tauri";
-import { addResourceFiles, deleteResource } from "@/services/resourceManager.tauri";
+import {
+  addResourceFiles,
+  deleteResource,
+} from "@/services/resourceManager.tauri";
 import { useAppStore } from "@/services/store";
 import { useToast } from "./ui/toast";
 
 interface BackgroundProps {
   background: string;
   setBackground: (background: string) => void;
-  dataBackgrounds: BackgroundItem[];
+  dataBackgrounds: string[];
   opacity: number;
   setOpacity: (opacity: number) => void;
   onPreviewBackground: (background: string | undefined) => void;
@@ -62,17 +64,18 @@ export default function Background({
   };
 
   const handleDeleteBackground = async () => {
-    const selected = dataBackgrounds.find((item) => item.name === background);
-    if (!selected || isDeleting) return;
-    if (!window.confirm(`Удалить фон «${selected.name}»?`)) return;
+    const selectedName = dataBackgrounds.find((item) => item === background);
+    if (!selectedName || isDeleting) return;
+    if (!window.confirm(`Удалить фон «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
-      const selectedName = selected.name;
-      await deleteResource("background", selected.fileName ?? selectedName);
+      await deleteResource("background", selectedName);
       const store = useAppStore.getState();
-      if (store.background === selectedName) await store.setSetting("background", "Без фона");
-      if (store.background_manual === selectedName) await store.setSetting("background_manual", "Без фона");
+      if (store.background === selectedName)
+        await store.setSetting("background", "Без фона");
+      if (store.background_manual === selectedName)
+        await store.setSetting("background_manual", "Без фона");
       await refreshBackgrounds();
       onPreviewBackground(undefined);
       showToast("Фон удалён", "success");
@@ -87,7 +90,9 @@ export default function Background({
   return (
     <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-muted/30 p-2">
       <div className="flex items-center justify-between gap-4">
-        <span className="whitespace-nowrap text-xs text-muted-foreground">Фон</span>
+        <span className="whitespace-nowrap text-xs text-muted-foreground">
+          Фон
+        </span>
         <div className="flex w-full items-center justify-end gap-1">
           <Select
             value={background}
@@ -109,15 +114,15 @@ export default function Background({
                 >
                   Без фона
                 </SelectItem>
-                {dataBackgrounds.map((item) => (
+                {dataBackgrounds.map((name) => (
                   <SelectItem
-                    value={item.name}
-                    key={item.id}
+                    value={name}
+                    key={name}
                     className="text-xs"
-                    onPointerMove={() => onPreviewBackground(item.name)}
-                    onFocus={() => onPreviewBackground(item.name)}
+                    onPointerMove={() => onPreviewBackground(name)}
+                    onFocus={() => onPreviewBackground(name)}
                   >
-                    {item.fileName ?? item.name}
+                    {name}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -136,7 +141,9 @@ export default function Background({
           <button
             type="button"
             onClick={() => void handleDeleteBackground()}
-            disabled={!dataBackgrounds.some((item) => item.name === background) || isDeleting}
+            disabled={
+              !dataBackgrounds.some((item) => item === background) || isDeleting
+            }
             title="Удалить выбранный фон"
             aria-label="Удалить выбранный фон"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-xs outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { BackgroundItem } from "@/types/api";
 import type { LabelContentType, TextInputMode } from "@/types/label";
 
 interface PreviewPaperProps {
@@ -21,7 +20,7 @@ interface PreviewPaperProps {
   background?: string;
   setCodeImage?: (image: string) => void;
   onCodeImageLoadingChange?: (loading: boolean) => void;
-  dataBackgrounds?: BackgroundItem[];
+  dataBackgrounds?: string[];
 }
 
 const NOOP_SET_CODE_IMAGE = (_image: string) => {};
@@ -62,7 +61,7 @@ export default function PreviewPaper({
 
   const backgroundImage =
     isTextLabel && background !== "Без фона"
-      ? dataBackgrounds.find((item) => item.name === background)?.base64
+      ? dataBackgrounds.find((item) => item === background)?.base64
       : undefined;
 
   // Состояние генерации кода

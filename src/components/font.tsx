@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { FontItem } from "@/types/api";
 import { Plus, Trash2, Type } from "lucide-react";
 import {
   Select,
@@ -9,7 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { addResourceFiles, deleteResource } from "@/services/resourceManager.tauri";
+import {
+  addResourceFiles,
+  deleteResource,
+} from "@/services/resourceManager.tauri";
 import { refreshFonts } from "@/services/resources.tauri";
 import { useAppStore } from "@/services/store";
 import { useToast } from "./ui/toast";
@@ -17,7 +19,7 @@ import { useToast } from "./ui/toast";
 interface FontProps {
   font: string;
   setFont: (font: string) => void;
-  dataFonts: FontItem[];
+  dataFonts: string[];
   onPreviewFont: (font: string | undefined) => void;
 }
 
@@ -48,16 +50,19 @@ export default function Font({
   };
 
   const handleDeleteFont = async () => {
-    const selected = dataFonts.find((item) => item.name === font && item.name !== "Arial");
-    if (!selected || isDeleting) return;
-    if (!window.confirm(`Удалить шрифт «${selected.name}»?`)) return;
+    const selectedName = dataFonts.find(
+      (item) => item === font && item !== "Arial",
+    );
+    if (!selectedName || isDeleting) return;
+    if (!window.confirm(`Удалить шрифт «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
-      await deleteResource("font", selected.fileName ?? selected.name);
+      await deleteResource("font", selectedName);
       const store = useAppStore.getState();
-      if (store.font === selected.name) await store.setSetting("font", "Arial");
-      if (store.font_manual === selected.name) await store.setSetting("font_manual", "Arial");
+      if (store.font === selectedName) await store.setSetting("font", "Arial");
+      if (store.font_manual === selectedName)
+        await store.setSetting("font_manual", "Arial");
       await refreshFonts();
       onPreviewFont(undefined);
       showToast("Шрифт удалён", "success");
@@ -86,13 +91,13 @@ export default function Font({
           <SelectGroup>
             {dataFonts.map((item) => (
               <SelectItem
-                value={item.name}
-                key={item.id}
-                onPointerMove={() => onPreviewFont(item.family || item.name)}
-                onFocus={() => onPreviewFont(item.family || item.name)}
+                value={item}
+                key={item}
+                onPointerMove={() => onPreviewFont(item)}
+                onFocus={() => onPreviewFont(item)}
                 className="text-xs"
               >
-                {item.fileName ?? item.name}
+                {item}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -106,12 +111,18 @@ export default function Font({
         aria-label="Добавить шрифт"
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 outline-none transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
       >
-        <span className="relative inline-flex"><Type size={14} /><Plus size={8} className="absolute -right-1 -top-1" /></span>
+        <span className="relative inline-flex">
+          <Type size={14} />
+          <Plus size={8} className="absolute -right-1 -top-1" />
+        </span>
       </button>
       <button
         type="button"
         onClick={() => void handleDeleteFont()}
-        disabled={!dataFonts.some((item) => item.name === font && item.name !== "Arial") || isDeleting}
+        disabled={
+          !dataFonts.some((item) => item === font && item !== "Arial") ||
+          isDeleting
+        }
         title="Удалить выбранный шрифт"
         aria-label="Удалить выбранный шрифт"
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"

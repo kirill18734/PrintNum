@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { backendClient } from "@/shared/api/backendClient";
 import { useAppStore } from "@/services/store";
 import type { StatusCardProps } from "@/types/printJob";
-import { refreshBackgrounds, refreshFonts } from "@/services/resources.tauri";
 
 const POLLING_INTERVAL = 1000;
 
@@ -23,15 +22,6 @@ function arePrintJobsEqual(
       );
     })
   );
-}
-
-function areResourceFilesEqual(current: { fileName?: string }[], next: string[]): boolean {
-  const currentFiles = current
-    .map((item) => item.fileName)
-    .filter((fileName): fileName is string => Boolean(fileName))
-    .sort();
-  const nextFiles = [...next].sort();
-  return areStringsEqual(currentFiles, nextFiles);
 }
 
 function areStringsEqual(current: string[], next: string[]): boolean {
@@ -70,17 +60,12 @@ export function useBackendRuntime(): void {
           store.setPrintJobs(printerData.printQueue);
         }
 
-        // Списки ресурсов приходят в том же ответе, что и остальные данные backend.
-        // Перечитываем локальные файлы только при фактическом изменении списка.
-        const resourceUpdates: Promise<void>[] = [];
-        if (!areResourceFilesEqual(store.dataBackgrounds, printerData.backgrounds)) {
-          resourceUpdates.push(refreshBackgrounds());
+        if (!areStringsEqual(store.dataBackgrounds, printerData.backgrounds)) {
+          store.setDataBackgrounds(printerData.backgrounds);
         }
-        if (!areResourceFilesEqual(store.dataFonts, printerData.fonts)) {
-          resourceUpdates.push(refreshFonts());
-        }
-        if (resourceUpdates.length > 0) {
-          await Promise.all(resourceUpdates);
+
+        if (!areStringsEqual(store.dataFonts, printerData.fonts)) {
+          store.setDataFonts(printerData.fonts);
         }
       } catch (error: unknown) {
         if (!active) return;

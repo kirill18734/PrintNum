@@ -10,8 +10,12 @@ import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
 import Font from "./font";
 import Background from "./background";
-import type { LabelContentType, SequenceConfig, SequenceConfigKey, TextInputMode } from "@/types/label";
-import type { FontItem, BackgroundItem } from "@/types/api";
+import type {
+  LabelContentType,
+  SequenceConfig,
+  SequenceConfigKey,
+  TextInputMode,
+} from "@/types/label";
 
 interface LabelStudioProps {
   contentType: LabelContentType;
@@ -30,10 +34,10 @@ interface LabelStudioProps {
   setTextInputMode: (mode: TextInputMode) => void;
   font: string;
   setFont: (font: string) => void;
-  dataFonts: FontItem[];
+  dataFonts: string[];
   background: string;
   setBackground: (value: string) => void;
-  dataBackgrounds: BackgroundItem[];
+  dataBackgrounds: string[];
   opacity: number;
   setOpacity: (value: number) => void;
   onPreviewFont_Manual: (font: string | undefined) => void;
