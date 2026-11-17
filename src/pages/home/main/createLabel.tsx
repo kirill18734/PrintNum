@@ -11,6 +11,7 @@ import { AlertCircle, Printer } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 
 interface PrintScenarioContext {
+  backendOnline: boolean;
   printerOnline: boolean;
   isPrinting: boolean;
   isSequenceMode: boolean;
@@ -29,8 +30,18 @@ interface PrintScenario {
 
 const PRINT_SCENARIOS: PrintScenario[] = [
   {
+    id: "waiting",
+    check: ({ backendOnline }) => !backendOnline,
+    topText: () => <span>Подключение к backend...</span>,
+    topTextClass: "text-xs text-muted-foreground",
+    buttonText: "Распечатать",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
     id: "offline",
-    check: ({ printerOnline }) => !printerOnline,
+    check: ({ backendOnline, printerOnline }) => backendOnline && !printerOnline,
     topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
     topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
     buttonText: "Распечатать",
@@ -40,8 +51,8 @@ const PRINT_SCENARIOS: PrintScenario[] = [
   },
   {
     id: "single-printing",
-    check: ({ printerOnline, isPrinting, isSequenceMode }) =>
-      printerOnline && isPrinting && !isSequenceMode,
+    check: ({ backendOnline, printerOnline, isPrinting, isSequenceMode }) =>
+      backendOnline && printerOnline && isPrinting && !isSequenceMode,
     topText: () => <span>Отправка на печать...</span>,
     topTextClass: "text-xs font-medium text-primary animate-bounce",
     buttonText: "Печать…",
@@ -51,8 +62,8 @@ const PRINT_SCENARIOS: PrintScenario[] = [
   },
   {
     id: "sequence-printing",
-    check: ({ printerOnline, isPrinting, isSequenceMode }) =>
-      printerOnline && isPrinting && isSequenceMode,
+    check: ({ backendOnline, printerOnline, isPrinting, isSequenceMode }) =>
+      backendOnline && printerOnline && isPrinting && isSequenceMode,
     // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
     topText: (text: string) => (
       <span className="flex items-center gap-1.5">
@@ -71,8 +82,8 @@ const PRINT_SCENARIOS: PrintScenario[] = [
   },
   {
     id: "ready",
-    check: ({ printerOnline, isPrinting }) =>
-      printerOnline && !isPrinting,
+    check: ({ backendOnline, printerOnline, isPrinting }) =>
+      backendOnline && printerOnline && !isPrinting,
     topText: () => <span>Готово к печати</span>,
     topTextClass: "text-xs text-muted-foreground",
     buttonText: "Распечатать",
@@ -197,7 +208,7 @@ export default function CreateLabel({
   // Находим активный сценарий интерфейса на основе текущего состояния.
   const currentScenario =
     PRINT_SCENARIOS.find((scenario) =>
-      scenario.check({ printerOnline, isPrinting, isSequenceMode }),
+      scenario.check({ backendOnline, printerOnline, isPrinting, isSequenceMode }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
   return (
