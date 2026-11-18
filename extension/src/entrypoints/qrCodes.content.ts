@@ -1,7 +1,7 @@
 import { waitLoadElement } from "@/shared/dom/find";
 import { get_local_storage, set_local_storage } from "@/shared/storage";
 import { SELECTOR } from "@/shared/constants";
-import { qrCodes } from "@/shared/constants";
+import { qrCodes, TEXT } from "@/shared/constants";
 import { listening } from "@/shared/dom/listener";
 import type { QrCommand } from "@/shared/types/qr-command";
 
@@ -58,8 +58,12 @@ export default defineContentScript({
       textValue: string,
       name: string,
     ) {
-      const btn: any = await waitLoadElement(selector, textValue, name);
+      let btn: any = await waitLoadElement(selector, textValue, name, document, 200);
+      if (!btn && name.startsWith("Оплатить") && textValue === TEXT.pay) {
+        btn = await waitLoadElement(selector, TEXT.payAgain, name, document, 200);
+      }
       if (!btn) return null;
+
 
       btn.click();
       return true;
