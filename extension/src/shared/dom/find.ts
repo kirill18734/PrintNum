@@ -1,48 +1,34 @@
-import { TEXT } from "@/shared/constants";
-
 function searchText(
   selector: string,
   container: any,
   textValue: string,
-  name: string,
   isInclude: boolean,
 ) {
   const elements = Array.from(container.querySelectorAll(selector));
-  let element = elements.find((e: any) =>
+  return elements.find((e: any) =>
     isInclude
       ? e.textContent?.trim().includes(textValue)
       : e.textContent?.trim() === textValue,
   );
-
-  if (!element) {
-    if (name.startsWith("Оплатить")) {
-      const text = TEXT.payAgain;
-      if (text) {
-        element = elements.find((e: any) => e.textContent?.trim() === text);
-      }
-    }
-  }
-
-  return element;
 }
 
 export async function waitLoadElement(
   selector = "",
   textValue = "",
-  name = "",
+  _name = "",
   container = document,
-  timeout = 5000,
+  timeout = 200,
   isInclude = false,
 ) {
   return new Promise((resolve) => {
     const element = textValue
-      ? searchText(selector, container, textValue, name, isInclude)
+      ? searchText(selector, container, textValue, isInclude)
       : container.querySelector(selector);
     if (element) return resolve(element);
 
     const observerFind = new MutationObserver(() => {
       const el = textValue
-        ? searchText(selector, container, textValue, name, isInclude)
+        ? searchText(selector, container, textValue, isInclude)
         : container.querySelector(selector);
       if (el) {
         clearTimeout(timer);
