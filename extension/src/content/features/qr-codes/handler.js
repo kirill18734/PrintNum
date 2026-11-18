@@ -51,16 +51,54 @@
   // ============================================================
 
   async function clickByElem(selector, textValue, name, isLoop) {
-    const timeout = isLoop ? 5000 : 1000;
-    const btn = await waitLoadElement(
-      selector,
-      textValue,
-      name,
-      document,
-      timeout,
-      false,
-      isLoop,
-    );
+    let btn = null;
+
+    // Для обычной оплаты: сначала "Оплатить", затем "Повторить оплату".
+    // Для Автосценария вне цикла: "Выдать" → "Оплатить" → "Повторить оплату".
+    // Каждый вариант ищется отдельно не более 200 мс.
+    if (!isLoop && name?.startsWith("Оплатить") && textValue === TEXT.pay) {
+      const candidates = [TEXT.pay, TEXT.payAgain];
+
+      for (const candidate of candidates) {
+        btn = await waitLoadElement(
+          "button",
+          candidate,
+          "",
+          document,
+          200,
+        );
+        if (btn) break;
+      }
+    } else if (
+      !isLoop &&
+      name === "Автосценарий" &&
+      textValue === TEXT.issue
+    ) {
+      const candidates = [TEXT.issue, TEXT.pay, TEXT.payAgain];
+
+      for (const candidate of candidates) {
+        btn = await waitLoadElement(
+          "button",
+          candidate,
+          "",
+          document,
+          200,
+        );
+        if (btn) break;
+      }
+    } else {
+      const timeout = isLoop ? 5000 : 1000;
+      btn = await waitLoadElement(
+        selector,
+        textValue,
+        name,
+        document,
+        timeout,
+        false,
+        isLoop,
+      );
+    }
+
     if (!btn) return null;
 
     btn.click();

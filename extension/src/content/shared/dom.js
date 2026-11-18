@@ -14,30 +14,6 @@
     // Если стандартный элемент найден, сразу возвращаем его
     if (element) return element;
 
-    // Вспомогательная функция для быстрого поиска кнопок по тексту
-    const findButtonByText = (text) =>
-      Array.from(container.querySelectorAll("button")).find(
-        (e) => e.textContent?.trim() === text,
-      );
-
-    // 2. Резервное условие для операций оплаты ("Оплатить...")
-    if (name && name.startsWith("Оплатить")) {
-      return findButtonByText(TEXT.payAgain);
-    }
-
-    // 3. Резервное условие для Автосценария
-    if (name === "Автосценарий" && !isLoop) {
-      const isTargetContext =
-        textValue === TEXT.issue ||
-        selector === SELECTOR.packageM ||
-        selector === SELECTOR.packageL;
-
-      if (isTargetContext) {
-        // Сначала пытаемся найти кнопку "Оплатить", если её нет — "Оплатить повторно"
-        return findButtonByText(TEXT.pay) || findButtonByText(TEXT.payAgain);
-      }
-    }
-
     return null;
   }
 
