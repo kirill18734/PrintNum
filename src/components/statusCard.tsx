@@ -159,13 +159,13 @@ export function StatusCard({
             <div className="min-h-0 overflow-hidden rounded-md border border-blue-500/10 bg-blue-500/[0.06] px-2 py-1.5 dark:bg-blue-400/[0.07]">
               {hasRename ? (
                 <div className="flex min-w-0 items-center gap-1.5 text-[11px]">
-                  <span className="min-w-0 truncate text-muted-foreground line-through">
+                  <span className="min-w-0 truncate text-foreground">
                     {originalText}
                   </span>
 
                   <span className="shrink-0 text-blue-500">→</span>
 
-                  <span className="min-w-0 truncate font-semibold text-foreground">
+                  <span className="min-w-0 truncate font-semibold text-blue-600 dark:text-blue-400">
                     {renamedText}
                   </span>
                 </div>
