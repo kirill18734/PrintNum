@@ -375,14 +375,19 @@ def print_number_route():
         return "OK"
 
     try:
+        # Показываем результат переименования только для заданий Ozon Полки.
+        on_prepared = None
+        if request.path == "/ozon-shelf":
+            on_prepared = lambda rename_text: _set_print_job_status(
+                job,
+                "processing",
+                rename_text,
+            )
+
         with _print_lock:
             printed = print_text(
                 text,
-                on_prepared=lambda rename_text: _set_print_job_status(
-                    job,
-                    "processing",
-                    rename_text,
-                ),
+                on_prepared=on_prepared,
             )
 
         _set_print_job_status(
