@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Slider } from "./ui/slider";
+import { Slider } from "@/components/ui/slider";
 import {
   addResourceFiles,
   deleteResource,
@@ -94,10 +94,10 @@ export default function Background({
   return (
     <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-muted/30 p-2">
       <div className="flex items-center justify-between gap-4">
-        <span className="whitespace-nowrap text-xs text-muted-foreground">
+        <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
           Фон
         </span>
-        <div className="flex w-full items-center justify-end gap-1">
+        <div className="flex w-full min-w-0 items-center justify-end gap-1">
           <Select
             value={background}
             onValueChange={setBackground}
@@ -106,8 +106,8 @@ export default function Background({
               if (!open) onPreviewBackground(undefined);
             }}
           >
-            <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
-              <SelectValue className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите фон" />
+            <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:max-w-full [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap">
+              <SelectValue className="block min-w-0 max-w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите фон" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
