@@ -7,6 +7,7 @@ import {
 import { useAppStore } from "@/services/store";
 import { appService } from "@/services/app.tauri";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Footer() {
   const isUpdate = useAppStore((state) => state.isUpdate);
@@ -56,7 +57,7 @@ export default function Footer() {
       {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления */}
       <div className="flex justify-center items-center">
         {isUpdate && (
-          <button
+          <Button variant="ghost"
             disabled={isUpdating}
             onClick={handleUpdate}
             className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
@@ -66,14 +67,14 @@ export default function Footer() {
               className={isUpdating ? "animate-bounce" : ""}
             />
             <span>{isUpdating ? "Обновление..." : "Доступно обновление"}</span>
-          </button>
+          </Button>
         )}
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ: Внешние ссылки */}
       <div className="flex items-center gap-2 justify-end">
         {/* КНОПКА 1: GitHub */}
-        <button
+        <Button variant="ghost"
           onClick={() =>
             appService.openExternalUrl(
               "https://github.com/kirill18734/printnum",
@@ -88,10 +89,10 @@ export default function Footer() {
           <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap">
             Документация
           </span>
-        </button>
+        </Button>
 
         {/* КНОПКА 2: Telegram */}
-        <button
+        <Button variant="ghost"
           onClick={() => appService.openExternalUrl("https://t.me/printnum")}
           className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-sky-500/20 bg-gradient-to-b from-sky-500/5 to-sky-500/[0.12] text-sky-600 dark:text-sky-400 hover:from-sky-500 hover:to-sky-500 hover:text-white dark:hover:text-white shadow-sm shadow-sky-500/[0.03] active:scale-[0.97] cursor-pointer"
           title="Telegram-канал PrintNum"
@@ -103,7 +104,7 @@ export default function Footer() {
           <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap font-semibold">
             @printnum
           </span>
-        </button>
+        </Button>
       </div>
     </footer>
   );

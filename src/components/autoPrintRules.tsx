@@ -100,7 +100,7 @@ export default function AutoPrintRules({
                 className="inline-flex max-w-full items-center gap-0.5 rounded-full border border-amber-500/20 bg-background py-0.5 pl-2 pr-0.5 text-[11px] font-medium leading-none"
               >
                 <span className="break-all truncate max-w-[150px]">{rule}</span>
-                <button
+                <Button variant="ghost"
                   type="button"
                   aria-label={`Удалить исключение «${rule}»`}
                   onClick={() =>
@@ -111,7 +111,7 @@ export default function AutoPrintRules({
                   className="flex size-4 shrink-0 items-center justify-center rounded-full text-amber-800 transition-colors hover:bg-amber-500/20 focus-visible:outline-none dark:text-amber-200 text-xs"
                 >
                   ×
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
@@ -172,7 +172,7 @@ export default function AutoPrintRules({
               <span className="text-[10px] font-semibold text-muted-foreground">
                 Готовые исключения
               </span>
-              <button
+              <Button variant="ghost"
                 type="button"
                 disabled={allSuggestionsSelected}
                 onMouseDown={(event) => event.preventDefault()}
@@ -194,7 +194,7 @@ export default function AutoPrintRules({
                 className="rounded-sm text-[10px] font-medium text-primary hover:underline focus-visible:outline-none disabled:cursor-default disabled:text-muted-foreground disabled:no-underline"
               >
                 Добавить все
-              </button>
+              </Button>
             </div>
             <ul className="max-h-28 overflow-y-auto">
               {matchingSuggestions.map((suggestion) => {
@@ -204,7 +204,7 @@ export default function AutoPrintRules({
                 );
                 return (
                   <li key={suggestion}>
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       aria-pressed={selected}
                       onMouseDown={(event) => event.preventDefault()}
@@ -215,7 +215,7 @@ export default function AutoPrintRules({
                       <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
                         {selected ? "Добавлено · убрать" : "Добавить"}
                       </span>
-                    </button>
+                    </Button>
                   </li>
                 );
               })}

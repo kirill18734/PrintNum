@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2, Type } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -101,7 +102,7 @@ export default function Font({
               >
                 <span className="min-w-0 flex-1 whitespace-normal break-all">{item}</span>
                 {isOpen && item !== "Arial" && (
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     disabled={isDeleting}
                     title={`Удалить шрифт «${item}»`}
@@ -118,14 +119,14 @@ export default function Font({
                     className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
                   >
                     <Trash2 size={13} />
-                  </button>
+                  </Button>
                 )}
               </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
       </Select>
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => void handleAddFonts()}
         disabled={isAdding}
@@ -137,7 +138,7 @@ export default function Font({
           <Type size={14} />
           <Plus size={8} className="absolute -right-1 -top-1" />
         </span>
-      </button>
+      </Button>
 
     </div>
   );

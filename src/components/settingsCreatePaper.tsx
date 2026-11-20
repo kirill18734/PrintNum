@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { Button } from "@/components/ui/button";
 import Font from "./font";
 import Background from "./background";
 import type {
@@ -115,7 +119,7 @@ export default function SettingsCreatePaper({
       }
     `}
           >
-            <button
+            <Button variant="ghost"
               type="button"
               role="tab"
               aria-selected={
@@ -137,9 +141,9 @@ export default function SettingsCreatePaper({
             >
               <Type className="size-3 shrink-0" />
               <span>Текст</span>
-            </button>
+            </Button>
 
-            <button
+            <Button variant="ghost"
               type="button"
               role="tab"
               aria-selected={
@@ -161,14 +165,14 @@ export default function SettingsCreatePaper({
             >
               <ListOrdered className="size-3 shrink-0" />
               <span>Диапазон</span>
-            </button>
+            </Button>
           </div>
 
           {/* Ячейки 2, 3, 4: Штрихкод, QR-код, Data Matrix */}
           {contentTypes.map(({ id, label, icon: Icon }) => {
             const active = contentType === id;
             return (
-              <button
+              <Button variant="ghost"
                 key={id}
                 type="button"
                 role="tab"
@@ -186,7 +190,7 @@ export default function SettingsCreatePaper({
               >
                 <Icon className="size-3 shrink-0" />
                 <span className="truncate">{label}</span>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -196,7 +200,7 @@ export default function SettingsCreatePaper({
         <div className="h-[112px] w-full min-w-0">
           {contentType === "text" ? (
             textInputMode === "single" ? (
-              <textarea
+              <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Введите текст этикетки..."
@@ -207,8 +211,8 @@ export default function SettingsCreatePaper({
                 {/* Начальное, конечное значения и шаг */}
                 <div className="flex items-end justify-center gap-2">
                   <div className={fieldClass}>
-                    <label className={labelClass}>Начальное значение</label>
-                    <input
+                    <Label className={labelClass}>Начальное значение</Label>
+                    <Input
                       value={sequence.start}
                       onChange={(e) => updateSequence("start", e.target.value)}
                       placeholder="001 или A001"
@@ -217,8 +221,8 @@ export default function SettingsCreatePaper({
                   </div>
 
                   <div className={fieldClass}>
-                    <label className={labelClass}>Конечное значение</label>
-                    <input
+                    <Label className={labelClass}>Конечное значение</Label>
+                    <Input
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
                       placeholder="30 или A030"
@@ -227,8 +231,8 @@ export default function SettingsCreatePaper({
                   </div>
 
                   <div className={fieldClass}>
-                    <label className={labelClass}>Шаг</label>
-                    <input
+                    <Label className={labelClass}>Шаг</Label>
+                    <Input
                       type="number"
                       min={1}
                       step={1}
@@ -242,8 +246,8 @@ export default function SettingsCreatePaper({
                 {/* Префикс и суффикс */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className={fieldClass}>
-                    <label className={labelClass}>Префикс</label>
-                    <input
+                    <Label className={labelClass}>Префикс</Label>
+                    <Input
                       value={sequence.prefix}
                       onChange={(e) => updateSequence("prefix", e.target.value)}
                       placeholder="Например, BOX-"
@@ -252,8 +256,8 @@ export default function SettingsCreatePaper({
                   </div>
 
                   <div className={fieldClass}>
-                    <label className={labelClass}>Суффикс</label>
-                    <input
+                    <Label className={labelClass}>Суффикс</Label>
+                    <Input
                       value={sequence.suffix}
                       onChange={(e) => updateSequence("suffix", e.target.value)}
                       placeholder="Необязательно"
@@ -264,7 +268,7 @@ export default function SettingsCreatePaper({
               </div>
             )
           ) : (
-            <textarea
+            <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Введите данные для кодирования..."
