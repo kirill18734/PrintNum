@@ -8,7 +8,7 @@
   // Wait for the feature mode to be initialized before registering handlers.
   await window.PrintNum.featureModeReady;
   const isDevMode = await get_local_storage("isDevMode");
-  if (isDevMode === false) return;
+  if (!isDevMode) return;
 
   let lastEnterTime = 0;
   let isRunning = false;
