@@ -1,5 +1,5 @@
 // Initializes and synchronizes extension feature settings in local storage.
-(async function () {
+window.PrintNum.featureModeReady = (async function () {
   const { banners, autoscripts, qrCodes } = window.PrintNum.config;
   const { getLocal: get_local_storage, setLocal: set_local_storage } =
     window.PrintNum.storage;
