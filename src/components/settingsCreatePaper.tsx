@@ -106,10 +106,10 @@ export default function SettingsCreatePaper({
         <div
           role="tablist"
           aria-label="Тип содержимого этикетки"
-          className="flex w-full min-w-0 flex-col gap-1.5"
+          className="flex w-full min-w-0 flex-col gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
         >
           {/* Текстовые режимы */}
-          <div className="grid grid-cols-2 gap-0.5 rounded-md bg-muted/50 p-1">
+          <div className="grid grid-cols-2 gap-0.5 rounded-md bg-background/50 p-0.5">
             <Button
               variant="ghost"
               type="button"
