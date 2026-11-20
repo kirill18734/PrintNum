@@ -1,13 +1,13 @@
 import {
   Barcode,
+  Bold,
   Grid3X3,
   QrCode,
   Text,
   ListOrdered,
   Type,
+  Underline,
 } from "lucide-react";
-import { Field, FieldLabel } from "./ui/field";
-import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
@@ -280,61 +280,45 @@ export default function SettingsCreatePaper({
         {/* Настройки форматирования */}
         <div className="flex flex-wrap items-center gap-1 border-t border-border/50 pt-2">
           {contentType === "text" ? (
-            <>
-              <Field
-                orientation="horizontal"
-                className="flex items-center gap-1.5"
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={bold ? "default" : "outline"}
+                aria-pressed={bold}
+                onClick={() => setBold(!bold)}
+                className="h-7 shrink-0 gap-1.5 px-2 text-[11px]"
               >
-                <Checkbox
-                  id="checkbox-labelBold"
-                  checked={bold}
-                  onCheckedChange={setBold}
-                  className="size-3.5"
-                />
-                <FieldLabel
-                  htmlFor="checkbox-labelBold"
-                  className="cursor-pointer select-none text-[11px] font-normal"
-                >
-                  Жирный шрифт
-                </FieldLabel>
-              </Field>
+                <Bold className="size-3.5 shrink-0" />
+                <span className="hidden min-[480px]:inline">Жирный</span>
+              </Button>
 
-              <Field
-                orientation="horizontal"
-                className="flex items-center gap-1.5"
+              <Button
+                type="button"
+                size="sm"
+                variant={underline ? "default" : "outline"}
+                aria-pressed={underline}
+                onClick={() => setUnderline(!underline)}
+                className="h-7 shrink-0 gap-1.5 px-2 text-[11px]"
               >
-                <Checkbox
-                  id="checkbox-labelUnderline"
-                  checked={underline}
-                  onCheckedChange={setUnderline}
-                  className="size-3.5"
-                />
-                <FieldLabel
-                  htmlFor="checkbox-labelUnderline"
-                  className="cursor-pointer select-none text-[11px] font-normal"
-                >
-                  Подчёркивание
-                </FieldLabel>
-              </Field>
-            </>
+                <Underline className="size-3.5 shrink-0" />
+                <span className="hidden min-[480px]:inline">Подчёркивание</span>
+              </Button>
+            </div>
           ) : (
-            <Field
-              orientation="horizontal"
-              className="flex items-center gap-1.5"
-            >
-              <Checkbox
-                id="checkbox-labelShowText"
-                checked={showCodeText}
-                onCheckedChange={setShowCodeText}
-                className="size-3.5"
-              />
-              <FieldLabel
-                htmlFor="checkbox-labelShowText"
-                className="cursor-pointer select-none text-[11px] font-normal"
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={showCodeText ? "default" : "outline"}
+                aria-pressed={showCodeText}
+                onClick={() => setShowCodeText(!showCodeText)}
+                className="h-7 shrink-0 gap-1.5 px-2 text-[11px]"
               >
-                Показывать текст под кодом
-              </FieldLabel>
-            </Field>
+                <Type className="size-3.5 shrink-0" />
+                <span className="hidden min-[480px]:inline">Текст под кодом</span>
+              </Button>
+            </div>
           )}
 
           {contentType === "text" && (
