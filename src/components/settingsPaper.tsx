@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Background from "./background";
 import Font from "./font";
 import { Repeat } from "lucide-react";
@@ -49,25 +50,50 @@ export default function SettingsPaper({
   onChangeFont,
   onChangeBackground,
 }: SettingsPaperProps) {
-  const expandValue = Number(expand) === 0 ? "" : String(expand ?? "");
+  const [expandValue, setExpandValue] = useState("");
+
+  // Валидация значения: оставляет только цифры и убирает ведущие нули.
+  // Для автоперестановки пустое значение соответствует дефолту 0.
+  const validateExpand = (value: string): string => {
+    const onlyDigits = value.replace(/\\D/g, "");
+    const noLeadingZeros = onlyDigits.replace(/^0+/, "");
+    return noLeadingZeros || "0";
+  };
+
+  // Синхронизация локального поля с внешним значением expand.
+  useEffect(() => {
+    const currentValue = String(expand ?? "0");
+    const validValue = validateExpand(currentValue);
+
+    if (validValue !== currentValue) {
+      setExpand(Number(validValue));
+    }
+
+    setExpandValue(validValue === "0" ? "" : validValue);
+  }, [expand, setExpand]);
+
   const isValidExpand =
-    /^[1-9]\d*$/.test(expandValue) && Number.isSafeInteger(Number(expandValue));
+    /^[1-9]\\d*$/.test(expandValue) &&
+    Number.isSafeInteger(Number(expandValue));
   const isHybridActive = hybrid && isValidExpand;
 
   const handleExpandChange = (value: string) => {
-    if (value === "") {
-      setExpand("");
-      setHybrid(false);
-      return;
-    }
+    setExpandValue(value);
 
-    if (!/^\d+$/.test(value)) {
-      return;
-    }
+    const digitsOnly = value.replace(/\\D/g, "").replace(/^0+/, "");
+    const nextValue = Number(digitsOnly);
+    setHybrid(
+      digitsOnly !== "" &&
+        Number.isSafeInteger(nextValue) &&
+        nextValue >= 1,
+    );
+  };
 
-    const nextValue = Number(value);
-    setExpand(nextValue);
-    setHybrid(Number.isSafeInteger(nextValue) && nextValue >= 1);
+  const handleExpandBlur = () => {
+    const validValue = validateExpand(expandValue);
+    setExpandValue(validValue === "0" ? "" : validValue);
+    setExpand(Number(validValue));
+    setHybrid(Number.isSafeInteger(Number(validValue)) && Number(validValue) >= 1);
   };
 
   return (
@@ -154,6 +180,7 @@ export default function SettingsPaper({
                 value={expandValue}
                 placeholder="№"
                 onChange={(e) => handleExpandChange(e.target.value)}
+                onBlur={handleExpandBlur}
                 aria-label="Начальный номер автоперестановки"
                 aria-invalid={expandValue !== "" && !isValidExpand}
                 className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
