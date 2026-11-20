@@ -95,6 +95,7 @@ export default function SettingsPaper({
             variant={idNum ? "default" : "outline"}
             size="sm"
             className="w-full"
+            title="ID"
             aria-label="Показывать ID"
             aria-pressed={idNum}
             onClick={() => setIdNum(!idNum)}
@@ -107,6 +108,7 @@ export default function SettingsPaper({
             variant={endLine ? "default" : "outline"}
             size="sm"
             className="w-full"
+            title="Подчёркивание"
             aria-label="Подчёркивание"
             aria-pressed={endLine}
             onClick={() => setEndLine(!endLine)}
@@ -119,6 +121,7 @@ export default function SettingsPaper({
             variant={bold ? "default" : "outline"}
             size="sm"
             className="w-full"
+            title="Жирный шрифт"
             aria-label="Жирный шрифт"
             aria-pressed={bold}
             onClick={() => setBold(!bold)}

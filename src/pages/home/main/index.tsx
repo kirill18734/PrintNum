@@ -7,7 +7,7 @@ import {
 import AutoPrint from "./autoPrint";
 import CreateLabel from "./createLabel";
 import ThemeStyle from "@/components/theme-style";
-
+  
 export default function Main() {
   const [section, setSection] = useState<AppSection>("auto-print");
 
