@@ -119,7 +119,8 @@ export default function SettingsCreatePaper({
       }
     `}
           >
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               role="tab"
               aria-selected={
@@ -143,7 +144,8 @@ export default function SettingsCreatePaper({
               <span>Текст</span>
             </Button>
 
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               role="tab"
               aria-selected={
@@ -172,7 +174,8 @@ export default function SettingsCreatePaper({
           {contentTypes.map(({ id, label, icon: Icon }) => {
             const active = contentType === id;
             return (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={id}
                 type="button"
                 role="tab"
@@ -211,7 +214,7 @@ export default function SettingsCreatePaper({
                 {/* Начальное, конечное значения и шаг */}
                 <div className="flex items-end justify-center gap-2">
                   <div className={fieldClass}>
-                    <Label className={labelClass}>Начальное значение</Label>
+                    <Label className={labelClass}>Начало</Label>
                     <Input
                       value={sequence.start}
                       onChange={(e) => updateSequence("start", e.target.value)}
@@ -221,7 +224,7 @@ export default function SettingsCreatePaper({
                   </div>
 
                   <div className={fieldClass}>
-                    <Label className={labelClass}>Конечное значение</Label>
+                    <Label className={labelClass}>Конец</Label>
                     <Input
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
@@ -316,7 +319,9 @@ export default function SettingsCreatePaper({
                 className="h-7 shrink-0 gap-1.5 px-2 text-[11px]"
               >
                 <Type className="size-3.5 shrink-0" />
-                <span className="hidden min-[480px]:inline">Текст под кодом</span>
+                <span className="hidden min-[480px]:inline">
+                  Текст под кодом
+                </span>
               </Button>
             </div>
           )}
