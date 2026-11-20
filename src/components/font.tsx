@@ -77,8 +77,8 @@ export default function Font({
   };
 
   return (
-    <div className="flex items-center gap-1 text-xs">
-      <span className="whitespace-nowrap text-muted-foreground">Шрифт</span>
+    <div className="flex min-w-0 items-center gap-1 text-xs">
+      <span className="shrink-0 whitespace-nowrap text-muted-foreground">Шрифт</span>
       <Select
         value={font}
         onValueChange={setFont}
@@ -87,8 +87,8 @@ export default function Font({
           if (!open) onPreviewFont(undefined);
         }}
       >
-        <SelectTrigger className="w-35 min-w-0 [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap gap-1 px-1.5 text-xs">
-          <SelectValue className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите шрифт" />
+        <SelectTrigger className="w-[140px] max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:max-w-full [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap">
+          <SelectValue className="block min-w-0 max-w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите шрифт" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
