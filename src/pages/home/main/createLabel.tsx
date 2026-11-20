@@ -3,7 +3,11 @@ import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/services/store";
-import type { LabelContentType, SequenceConfig, TextInputMode } from "@/types/label";
+import type {
+  LabelContentType,
+  SequenceConfig,
+  TextInputMode,
+} from "@/types/label";
 import type { PrinterPageProps } from "@/types/printer";
 import { generateSequence } from "@/shared/utils/generateSequence";
 import { useLabelPrinting } from "./useLabelPrinting";
@@ -41,7 +45,8 @@ const PRINT_SCENARIOS: PrintScenario[] = [
   },
   {
     id: "offline",
-    check: ({ backendOnline, printerOnline }) => backendOnline && !printerOnline,
+    check: ({ backendOnline, printerOnline }) =>
+      backendOnline && !printerOnline,
     topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
     topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
     buttonText: "Распечатать",
@@ -173,10 +178,7 @@ export default function CreateLabel({
     suffix: "",
   });
 
-  const sequenceResult = useMemo(
-    () => generateSequence(sequence),
-    [sequence],
-  );
+  const sequenceResult = useMemo(() => generateSequence(sequence), [sequence]);
 
   // Режим диапазона применим только к текстовым этикеткам.
   const isSequenceMode = contentType === "text" && textInputMode === "sequence";
@@ -214,11 +216,16 @@ export default function CreateLabel({
   // Находим активный сценарий интерфейса на основе текущего состояния.
   const currentScenario =
     PRINT_SCENARIOS.find((scenario) =>
-      scenario.check({ backendOnline, printerOnline, isPrinting, isSequenceMode }),
+      scenario.check({
+        backendOnline,
+        printerOnline,
+        isPrinting,
+        isSequenceMode,
+      }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 w-full">
+    <div className="flex flex-col items-center justify-center gap-2 w-full">
       <SettingsPrinter
         printer={printer}
         listPrinters={listPrinters}
@@ -355,9 +362,7 @@ export default function CreateLabel({
               (contentType !== "text" && (isCodeImageGenerating || !codeImage))
             }
             onClick={
-              currentScenario.isStopButton
-                ? stopSequencePrinting
-                : sendPrintJob
+              currentScenario.isStopButton ? stopSequencePrinting : sendPrintJob
             }
             className={`h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto font-medium transition-all ${
               currentScenario.isStopButton

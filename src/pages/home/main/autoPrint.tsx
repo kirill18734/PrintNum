@@ -57,7 +57,7 @@ export default function AutoPrint({
   const setOpacity = (value: number) => setSetting("opacity", value);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 w-full">
+    <div className="flex flex-col items-center justify-center gap-2 w-full">
       <StatusCard
         {...(printJobs.length ? printJobs[0] : { status: "waiting" })}
       />
