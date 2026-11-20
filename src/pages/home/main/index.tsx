@@ -6,12 +6,10 @@ import {
 } from "@/components/sectionNavigation";
 import AutoPrint from "./autoPrint";
 import CreateLabel from "./createLabel";
-import ThemeStyle from "@/components/theme-style";
   
 export default function Main() {
   const [section, setSection] = useState<AppSection>("auto-print");
 
-  const themeStyle = useAppStore((state) => state.themeStyle);
   const paper = useAppStore((state) => state.paper);
   const printer = useAppStore((state) => state.printer);
   const printerOnline = useAppStore((state) => state.printerOnline);
@@ -41,8 +39,6 @@ export default function Main() {
 
   const setPrinter = (newPrinter: string) => setSetting("printer", newPrinter);
   const setPaper = (newPaper: string) => setSetting("paper", newPaper);
-  const setThemeStyle = (newThemeStyle: string) =>
-    setSetting("themeStyle", newThemeStyle);
 
   return (
     <main className="flex-1 w-full max-w-5xl mx-auto p-1 md:p-6 flex flex-col gap-2">
@@ -92,13 +88,6 @@ export default function Main() {
             />
           )}
         </div>
-      </div>
-
-      <div className="flex items-center justify-end">
-        <ThemeStyle
-          defaultThemeStyle={themeStyle}
-          setDefaultThemeStyle={setThemeStyle}
-        />
       </div>
     </main>
   );
