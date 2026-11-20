@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Field, FieldLabel } from "./ui/field";
 import { Checkbox } from "./ui/checkbox";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
@@ -107,6 +106,7 @@ export default function SettingsCreatePaper({
             aria-label="Тип содержимого этикетки"
             className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
           >
+            <div className="flex flex-col gap-0.5 rounded-md p-0.5">
             <TabsTrigger value="text-single" className="h-8 min-w-0 gap-1 rounded-md px-1 text-[11px]">
               <Type className="size-3 shrink-0" />
               <span>Текст</span>
@@ -115,6 +115,7 @@ export default function SettingsCreatePaper({
               <ListOrdered className="size-3 shrink-0" />
               <span>Диапазон</span>
             </TabsTrigger>
+            </div>
             {contentTypes.map(({ id, label, icon: Icon }) => (
               <TabsTrigger
                 key={id}
@@ -155,7 +156,7 @@ export default function SettingsCreatePaper({
 
                   <div className={fieldClass}>
                     <label className={labelClass}>Конечное значение</label>
-                    <input
+                    <Input
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
                       placeholder="30 или A030"
@@ -201,7 +202,7 @@ export default function SettingsCreatePaper({
               </div>
             )
           ) : (
-            <textarea
+            <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Введите данные для кодирования..."
