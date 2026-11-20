@@ -166,7 +166,7 @@ export default function SettingsCreatePaper({
 
                   <div className={fieldClass}>
                     <label className={labelClass}>Шаг</label>
-                    <input
+                    <Input
                       type="number"
                       min={1}
                       step={1}
@@ -181,7 +181,7 @@ export default function SettingsCreatePaper({
                 <div className="grid grid-cols-2 gap-2">
                   <div className={fieldClass}>
                     <label className={labelClass}>Префикс</label>
-                    <input
+                    <Input
                       value={sequence.prefix}
                       onChange={(e) => updateSequence("prefix", e.target.value)}
                       placeholder="Например, BOX-"
@@ -191,7 +191,7 @@ export default function SettingsCreatePaper({
 
                   <div className={fieldClass}>
                     <label className={labelClass}>Суффикс</label>
-                    <input
+                    <Input
                       value={sequence.suffix}
                       onChange={(e) => updateSequence("suffix", e.target.value)}
                       placeholder="Необязательно"
