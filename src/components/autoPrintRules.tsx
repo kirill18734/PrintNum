@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
 const suggestedRules = [
   "Прямой поток",
@@ -100,18 +101,20 @@ export default function AutoPrintRules({
                 className="inline-flex max-w-full items-center gap-0.5 rounded-full border border-amber-500/20 bg-background py-0.5 pl-2 pr-0.5 text-[11px] font-medium leading-none"
               >
                 <span className="break-all truncate max-w-[150px]">{rule}</span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   aria-label={`Удалить исключение «${rule}»`}
                   onClick={() =>
                     onRulesChange(
                       rules.filter((_, ruleIndex) => ruleIndex !== index),
                     )
                   }
-                  className="flex size-4 shrink-0 items-center justify-center rounded-full text-amber-800 transition-colors hover:bg-amber-500/20 focus-visible:outline-none dark:text-amber-200 text-xs"
+                  className="size-4 shrink-0 rounded-full text-amber-800 hover:bg-amber-500/20 dark:text-amber-200"
                 >
-                  ×
-                </button>
+                  <X className="size-3" />
+                </Button>
               </li>
             ))}
           </ul>
@@ -172,8 +175,10 @@ export default function AutoPrintRules({
               <span className="text-[10px] font-semibold text-muted-foreground">
                 Готовые исключения
               </span>
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="xs"
                 disabled={allSuggestionsSelected}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
@@ -191,10 +196,10 @@ export default function AutoPrintRules({
                   }
                   onRulesChange(nextRules);
                 }}
-                className="rounded-sm text-[10px] font-medium text-primary hover:underline focus-visible:outline-none disabled:cursor-default disabled:text-muted-foreground disabled:no-underline"
+                className="h-auto p-0 text-[10px] font-medium disabled:cursor-default disabled:text-muted-foreground disabled:no-underline"
               >
                 Добавить все
-              </button>
+              </Button>
             </div>
             <ul className="max-h-28 overflow-y-auto">
               {matchingSuggestions.map((suggestion) => {
@@ -204,18 +209,19 @@ export default function AutoPrintRules({
                 );
                 return (
                   <li key={suggestion}>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       aria-pressed={selected}
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => toggleSuggestedRule(suggestion)}
-                      className="flex min-h-6 w-full items-center justify-between rounded px-1.5 text-left text-[11px] transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none"
+                      className="flex h-auto min-h-6 w-full justify-between rounded px-1.5 py-0 text-left text-[11px] font-normal"
                     >
                       <span className="truncate">{suggestion}</span>
                       <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
                         {selected ? "Добавлено · убрать" : "Добавить"}
                       </span>
-                    </button>
+                    </Button>
                   </li>
                 );
               })}
