@@ -1,4 +1,5 @@
 import { Printer, FilePlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type AppSection = "auto-print" | "create-label";
@@ -34,7 +35,7 @@ export function SectionNavigation({
     <div
       className={cn("grid h-12 w-full grid-cols-2 items-end gap-1", className)}
     >
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => onSectionChange("auto-print")}
         className={cn(
@@ -56,9 +57,9 @@ export function SectionNavigation({
           <span className={cn("size-1.5 rounded-full", indicatorClassName)} />
           {!backendOnline ? "Подключение..." : printerOnline ? "Работает" : "Остановлена"}
         </span>
-      </button>
+      </Button>
 
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={() => onSectionChange("create-label")}
         className={cn(
@@ -70,7 +71,7 @@ export function SectionNavigation({
       >
         <FilePlus className="size-4 shrink-0" />
         <span className="truncate">Создать этикетку</span>
-      </button>
+      </Button>
     </div>
   );
 }
