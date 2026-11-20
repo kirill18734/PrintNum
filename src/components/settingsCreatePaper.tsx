@@ -106,7 +106,6 @@ export default function SettingsCreatePaper({
             aria-label="Тип содержимого этикетки"
             className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
           >
-            <div className="flex flex-col gap-0.5 rounded-md p-0.5">
             <TabsTrigger value="text-single" className="h-8 min-w-0 gap-1 rounded-md px-1 text-[11px]">
               <Type className="size-3 shrink-0" />
               <span>Текст</span>
@@ -115,7 +114,6 @@ export default function SettingsCreatePaper({
               <ListOrdered className="size-3 shrink-0" />
               <span>Диапазон</span>
             </TabsTrigger>
-            </div>
             {contentTypes.map(({ id, label, icon: Icon }) => (
               <TabsTrigger
                 key={id}
@@ -160,7 +158,7 @@ export default function SettingsCreatePaper({
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
                       placeholder="30 или A030"
-                      className={inputClass}
+                      className="h-8 w-full min-w-0 rounded-md px-2 text-xs"
                     />
                   </div>
 
@@ -206,7 +204,7 @@ export default function SettingsCreatePaper({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Введите данные для кодирования..."
-              className={`${textareaClass} h-full min-h-0`}
+              className="h-full min-h-0 w-full resize-none rounded-md px-2.5 py-2 text-xs"
             />
           )}
         </div>
