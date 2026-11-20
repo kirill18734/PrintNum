@@ -145,10 +145,13 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <Input
-                  type="text"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  step={1}
                   placeholder="Ширина"
                   value={width}
-                  onChange={(e) => setWidth(e.target.value)}
+                  onChange={(e) => setWidth(e.target.value.replace(/\\D/g, ""))}
                   onBlur={handleBlur}
                   onKeyDown={(e) => e.stopPropagation()}
                   className="h-7 min-w-0 px-1 text-center text-xs"
@@ -159,10 +162,13 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
                 </span>
 
                 <Input
-                  type="text"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  step={1}
                   placeholder="Высота"
                   value={height}
-                  onChange={(e) => setHeight(e.target.value)}
+                  onChange={(e) => setHeight(e.target.value.replace(/\\D/g, ""))}
                   onBlur={handleBlur}
                   onKeyDown={(e) => e.stopPropagation()}
                   className="h-7 min-w-0 px-1 text-center text-xs"
