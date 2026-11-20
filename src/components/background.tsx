@@ -132,11 +132,32 @@ export default function Background({
                     className="pr-14 text-xs"
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
+                    action={
+                      isOpen ? (
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          disabled={isDeleting}
+                          title={`Удалить фон «${name}»`}
+                          aria-label={`Удалить фон «${name}»`}
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                          }}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            void handleDeleteBackground(name);
+                          }}
+                          className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                        >
+                          <Trash2 size={13} />
+                        </Button>
+                      ) : undefined
+                    }
                   >
                     <span className="min-w-0 flex-1 truncate">{name}</span>
-
-                    {isOpen && (
-                      <Button
+                  </SelectItem>
                         variant="ghost"
                         type="button"
                         disabled={isDeleting}
@@ -154,9 +175,7 @@ export default function Background({
                         className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
                       >
                         <Trash2 size={13} />
-                      </Button>
-                    )}
-                  </SelectItem>
+
                 ))}
               </SelectGroup>
             </SelectContent>
