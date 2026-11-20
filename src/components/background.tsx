@@ -54,9 +54,10 @@ export default function Background({
       const result = await addResourceFiles("background");
       if (result.added > 0 || result.skipped > 0) {
         toast.add({
-          title:           result.skipped > 0
-            ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
-            : `Добавлено фонов: ${result.added}`,
+          title:
+            result.skipped > 0
+              ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
+              : `Добавлено фонов: ${result.added}`,
           type: result.skipped > 0 ? "warning" : "success",
         });
       }
@@ -106,9 +107,13 @@ export default function Background({
               if (!open) onPreviewBackground(undefined);
             }}
           >
-            <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:max-w-full [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap">
-              <SelectValue className="block min-w-0 max-w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите фон" />
+            <SelectTrigger className="h-8 w-full max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs">
+              <SelectValue
+                className="block min-w-0 flex-1 truncate text-left"
+                placeholder="Выберите фон"
+              />
             </SelectTrigger>
+
             <SelectContent>
               <SelectGroup>
                 <SelectItem
@@ -119,6 +124,7 @@ export default function Background({
                 >
                   Без фона
                 </SelectItem>
+
                 {dataBackgrounds.map((name) => (
                   <SelectItem
                     value={name}
@@ -127,33 +133,37 @@ export default function Background({
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
                   >
-                    <span className="min-w-0 flex-1 whitespace-normal break-all">{name}</span>
+                    <span className="min-w-0 flex-1 truncate">{name}</span>
+
                     {isOpen && (
-                    <Button variant="ghost"
-                      type="button"
-                      disabled={isDeleting}
-                      title={`Удалить фон «${name}»`}
-                      aria-label={`Удалить фон «${name}»`}
-                      onPointerDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                      }}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        void handleDeleteBackground(name);
-                      }}
-                      className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-                    >
-                      <Trash2 size={13} />
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        disabled={isDeleting}
+                        title={`Удалить фон «${name}»`}
+                        aria-label={`Удалить фон «${name}»`}
+                        onPointerDown={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          void handleDeleteBackground(name);
+                        }}
+                        className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                      >
+                        <Trash2 size={13} />
+                      </Button>
                     )}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Button variant="ghost"
+
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => void handleAddBackgrounds()}
             disabled={isAdding}
@@ -163,7 +173,6 @@ export default function Background({
           >
             <ImagePlus size={14} />
           </Button>
-
         </div>
       </div>
       {background !== "Без фона" && (

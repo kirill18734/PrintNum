@@ -40,9 +40,10 @@ export default function Font({
       const result = await addResourceFiles("font");
       if (result.added > 0 || result.skipped > 0) {
         toast.add({
-          title:           result.skipped > 0
-            ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
-            : `Добавлено шрифтов: ${result.added}`,
+          title:
+            result.skipped > 0
+              ? `Добавлено: ${result.added}. Пропущено: ${result.skipped}.`
+              : `Добавлено шрифтов: ${result.added}`,
           type: result.skipped > 0 ? "warning" : "success",
         });
       }
@@ -78,7 +79,9 @@ export default function Font({
 
   return (
     <div className="flex min-w-0 items-center gap-1 text-xs">
-      <span className="shrink-0 whitespace-nowrap text-muted-foreground">Шрифт</span>
+      <span className="shrink-0 whitespace-nowrap text-muted-foreground">
+        Шрифт
+      </span>
       <Select
         value={font}
         onValueChange={setFont}
@@ -87,9 +90,13 @@ export default function Font({
           if (!open) onPreviewFont(undefined);
         }}
       >
-        <SelectTrigger className="w-[140px] max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:max-w-full [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:overflow-hidden [&_[data-slot=select-value]]:text-ellipsis [&_[data-slot=select-value]]:whitespace-nowrap">
-          <SelectValue className="block min-w-0 max-w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap" placeholder="Выберите шрифт" />
+        <SelectTrigger className="h-8 w-[140px] max-w-[140px] min-w-0 flex-1 gap-1 px-1.5 text-xs">
+          <SelectValue
+            className="block min-w-0 flex-1 truncate text-left"
+            placeholder="Выберите шрифт"
+          />
         </SelectTrigger>
+
         <SelectContent>
           <SelectGroup>
             {dataFonts.map((item) => (
@@ -100,9 +107,11 @@ export default function Font({
                 onFocus={() => onPreviewFont(item)}
                 className="pr-14 text-xs"
               >
-                <span className="min-w-0 flex-1 whitespace-normal break-all">{item}</span>
+                <span className="min-w-0 flex-1 truncate">{item}</span>
+
                 {isOpen && item !== "Arial" && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     disabled={isDeleting}
                     title={`Удалить шрифт «${item}»`}
@@ -126,7 +135,9 @@ export default function Font({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Button variant="ghost"
+
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => void handleAddFonts()}
         disabled={isAdding}
@@ -139,7 +150,6 @@ export default function Font({
           <Plus size={8} className="absolute -right-1 -top-1" />
         </span>
       </Button>
-
     </div>
   );
 }
