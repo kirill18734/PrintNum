@@ -180,6 +180,7 @@ export default function SettingsCreatePaper({
                   key={id}
                   type="button"
                   role="tab"
+                  title={label}
                   aria-selected={active}
                   onClick={() => setContentType(id)}
                   className={`
