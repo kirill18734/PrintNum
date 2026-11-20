@@ -37,6 +37,7 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setDraftOpacity(opacity);
@@ -100,6 +101,7 @@ export default function Background({
             value={background}
             onValueChange={setBackground}
             onOpenChange={(open) => {
+              setIsOpen(open);
               if (!open) onPreviewBackground(undefined);
             }}
           >
@@ -125,6 +127,7 @@ export default function Background({
                     onFocus={() => onPreviewBackground(name)}
                   >
                     <span className="min-w-0 flex-1 whitespace-normal break-all">{name}</span>
+                    {isOpen && (
                     <button
                       type="button"
                       disabled={isDeleting}
@@ -143,6 +146,7 @@ export default function Background({
                     >
                       <Trash2 size={13} />
                     </button>
+                    )}
                   </SelectItem>
                 ))}
               </SelectGroup>
