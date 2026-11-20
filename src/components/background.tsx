@@ -93,7 +93,7 @@ export default function Background({
   };
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-muted/30 p-2">
+    <div className="flex w-full max-w-sm flex-col gap-1 rounded-lg border border-border bg-muted/30 p-2">
       <div className="flex items-center justify-between gap-4">
         <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
           Фон
@@ -176,7 +176,7 @@ export default function Background({
         </div>
       </div>
       {background !== "Без фона" && (
-        <div className="flex w-full flex-col items-start gap-1.5">
+        <div className="flex w-full flex-col items-start gap-1">
           <label className="select-none whitespace-nowrap text-[10px] text-muted-foreground">
             Прозрачность
           </label>
