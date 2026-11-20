@@ -15,6 +15,8 @@
 
     // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище дефолтными значениями
     if (!isInitialized) {
+      const IS_DEV_MODE = true;
+      await set_local_storage("isDevMode", IS_DEV_MODE);
       await set_local_storage("isInitialized", true);
 
       await set_local_storage("banners", namesBanners);
