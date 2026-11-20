@@ -54,18 +54,29 @@ export default function SettingsPaper({
     /^[1-9]\d*$/.test(expandValue) && Number.isSafeInteger(Number(expandValue));
   const isHybridActive = hybrid && isValidExpand;
 
-  const handleExpandChange = (value: string) => {
-    if (value === "") {
-      setExpand("");
-      setHybrid(false);
-      return;
-    }
+  // Обработка значения по тому же принципу, что и размеры в Paper.
+  // Для автоперестановки пустое значение и нули нормализуются в 0.
+  const validateExpand = (value: string): string => {
+    const onlyDigits = value.replace(/\D/g, "");
+    const noLeadingZeros = onlyDigits.replace(/^0+/, "");
+    return noLeadingZeros || "0";
+  };
 
-    if (!/^\d+$/.test(value)) {
-      return;
-    }
+  const handleExpandChange = (value: string) => {
+    setExpand(value);
 
     const nextValue = Number(value);
+    setHybrid(
+      /^\d+$/.test(value) &&
+        Number.isSafeInteger(nextValue) &&
+        nextValue >= 1,
+    );
+  };
+
+  const handleExpandBlur = () => {
+    const validExpand = validateExpand(String(expand ?? ""));
+    const nextValue = Number(validExpand);
+
     setExpand(nextValue);
     setHybrid(Number.isSafeInteger(nextValue) && nextValue >= 1);
   };
@@ -147,13 +158,12 @@ export default function SettingsPaper({
             >
               <Input
                 id="expand-value"
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                step={1}
                 value={expandValue}
                 placeholder="№"
                 onChange={(e) => handleExpandChange(e.target.value)}
+                onBlur={handleExpandBlur}
                 aria-label="Начальный номер автоперестановки"
                 aria-invalid={expandValue !== "" && !isValidExpand}
                 className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
