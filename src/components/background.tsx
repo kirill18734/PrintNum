@@ -94,7 +94,7 @@ export default function Background({
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-1 rounded-lg border border-border bg-muted/30 p-2">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-1">
         <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
           Фон
         </span>

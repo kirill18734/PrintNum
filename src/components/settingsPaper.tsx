@@ -77,7 +77,7 @@ export default function SettingsPaper({
     >
       <div
         data-tauri-drag-region
-        className="flex flex-col items-start justify-center gap-0.5"
+        className="flex flex-col items-start justify-center gap-1"
       >
         {/* Форматирование текста */}
         <div className="grid grid-cols-3 gap-1 w-full">
