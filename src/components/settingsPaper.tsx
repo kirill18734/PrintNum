@@ -49,10 +49,9 @@ export default function SettingsPaper({
   onChangeFont,
   onChangeBackground,
 }: SettingsPaperProps) {
-  const expandValue = String(expand ?? "");
+  const expandValue = Number(expand) === 0 ? "" : String(expand ?? "");
   const isValidExpand =
-    /^[1-9]\d*$/.test(expandValue) &&
-    Number.isSafeInteger(Number(expandValue));
+    /^[1-9]\d*$/.test(expandValue) && Number.isSafeInteger(Number(expandValue));
   const isHybridActive = hybrid && isValidExpand;
 
   const handleExpandChange = (value: string) => {

@@ -37,7 +37,7 @@ export const defaultConfig: AppSettings = {
   opacity: 50,
   opacity_manual: 50,
   paper: "23*20",
-  expand: 500,
+  expand: 0,
   theme: "system",
   themeStyle: "vercel",
   excludedTexts: [],
