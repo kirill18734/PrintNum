@@ -6,7 +6,7 @@
   // Wait for the feature mode to be initialized before registering handlers.
   await window.PrintNum.featureModeReady;
   const isDevMode = await get_local_storage("isDevMode");
-  if (isDevMode === false) return;
+  if (!isDevMode) return;
   const { waitForElement: waitLoadElement } = window.PrintNum.dom;
   const { subscribe } = window.PrintNum.navigation;
   const { subscribe: subscribeStorage } = window.PrintNum.storageEvents;
