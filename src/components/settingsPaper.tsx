@@ -52,12 +52,12 @@ export default function SettingsPaper({
 }: SettingsPaperProps) {
   const [expandValue, setExpandValue] = useState("");
 
-  // Валидация значения: оставляет только цифры и убирает ведущие нули.
+  // Валидация значения по той же логике, что и размер paper.
   // Для автоперестановки пустое значение соответствует дефолту 0.
   const validateExpand = (value: string): string => {
-    const onlyDigits = value.replace(/\\D/g, "");
+    const onlyDigits = value.replace(/\D/g, "");
     const noLeadingZeros = onlyDigits.replace(/^0+/, "");
-    return noLeadingZeros || "0";
+    return !noLeadingZeros ? "0" : noLeadingZeros;
   };
 
   // Синхронизация локального поля с внешним значением expand.
@@ -67,23 +67,27 @@ export default function SettingsPaper({
 
     if (validValue !== currentValue) {
       setExpand(Number(validValue));
+    } else {
+      setExpandValue(validValue === "0" ? "" : validValue);
     }
 
-    setExpandValue(validValue === "0" ? "" : validValue);
+    if (validValue !== currentValue) {
+      setExpandValue(validValue === "0" ? "" : validValue);
+    }
   }, [expand, setExpand]);
 
   const isValidExpand =
-    /^[1-9]\\d*$/.test(expandValue) &&
+    /^[1-9]\d*$/.test(expandValue) &&
     Number.isSafeInteger(Number(expandValue));
   const isHybridActive = hybrid && isValidExpand;
 
   const handleExpandChange = (value: string) => {
     setExpandValue(value);
 
-    const digitsOnly = value.replace(/\\D/g, "").replace(/^0+/, "");
-    const nextValue = Number(digitsOnly);
+    const validValue = validateExpand(value);
+    const nextValue = Number(validValue);
     setHybrid(
-      digitsOnly !== "" &&
+      validValue !== "0" &&
         Number.isSafeInteger(nextValue) &&
         nextValue >= 1,
     );
@@ -173,14 +177,13 @@ export default function SettingsPaper({
             >
               <Input
                 id="expand-value"
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                step={1}
                 value={expandValue}
                 placeholder="№"
                 onChange={(e) => handleExpandChange(e.target.value)}
                 onBlur={handleExpandBlur}
+                onKeyDown={(e) => e.stopPropagation()}
                 aria-label="Начальный номер автоперестановки"
                 aria-invalid={expandValue !== "" && !isValidExpand}
                 className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
