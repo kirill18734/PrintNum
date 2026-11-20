@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2, Type } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -101,8 +102,10 @@ export default function Font({
               >
                 <span className="min-w-0 flex-1 whitespace-normal break-all">{item}</span>
                 {isOpen && item !== "Arial" && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     disabled={isDeleting}
                     title={`Удалить шрифт «${item}»`}
                     aria-label={`Удалить шрифт «${item}»`}
@@ -115,29 +118,31 @@ export default function Font({
                       event.stopPropagation();
                       void handleDeleteFont(item);
                     }}
-                    className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                    className="absolute right-7 z-10 size-6 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
                   >
                     <Trash2 size={13} />
-                  </button>
+                  </Button>
                 )}
               </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
       </Select>
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="icon"
         onClick={() => void handleAddFonts()}
         disabled={isAdding}
         title="Добавить шрифт"
         aria-label="Добавить шрифт"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 outline-none transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+        className="h-8 w-8 shrink-0 rounded-md"
       >
         <span className="relative inline-flex">
           <Type size={14} />
           <Plus size={8} className="absolute -right-1 -top-1" />
         </span>
-      </button>
+      </Button>
 
     </div>
   );
