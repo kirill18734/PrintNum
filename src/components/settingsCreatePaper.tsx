@@ -84,9 +84,6 @@ export default function SettingsCreatePaper({
   onPreviewFont_Manual,
   onPreviewBackground_Manual,
 }: LabelStudioProps) {
-  const inputClass =
-    "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
-
   const rangeInputClass =
     "h-7 w-full min-w-0 rounded-md border border-input bg-background px-1.5 text-[11px] outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
 
@@ -203,7 +200,7 @@ export default function SettingsCreatePaper({
 
         {/* Текстовый раздел */}
         {/* Область ввода с постоянной высотой */}
-        <div className="h-[112px] w-full min-w-0">
+        <div className="h-[100px] w-full min-w-0">
           {contentType === "text" ? (
             textInputMode === "single" ? (
               <Textarea
@@ -213,9 +210,9 @@ export default function SettingsCreatePaper({
                 className={`${textareaClass} h-full min-h-0`}
               />
             ) : (
-              <div className="flex h-full flex-col justify-between gap-2">
+              <div className="flex h-full flex-col justify-start gap-2">
                 {/* Начальное, конечное значения и шаг */}
-                <div className="flex items-end justify-center gap-2">
+                <div className="flex items-end justify-center gap-1">
                   <div className={fieldClass}>
                     <Label className={labelClass}>Начало</Label>
                     <Input
