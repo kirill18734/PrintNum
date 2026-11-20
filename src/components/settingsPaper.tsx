@@ -173,11 +173,10 @@ export default function SettingsPaper({
           <div className="w-[72px] shrink-0">
             <label
               htmlFor="expand-value"
-              className="mb-0.5 block whitespace-nowrap text-center text-[8px] leading-tight text-muted-foreground"
+              className="mb-0.5 block whitespace-nowrap text-center text-[8px] leading-tight text-foreground/70"
             >
               Начиная с номера
             </label>
-
             <Input
               id="expand-value"
               type="number"
