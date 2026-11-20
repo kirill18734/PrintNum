@@ -168,7 +168,7 @@
     // Обработчик для кнопки GitHub (Документация)
     document.getElementById("btn-github")?.addEventListener("click", () => {
       window.PrintNum.utils.openLink(
-        "https://github.com/kirill18734/PrintNum/tree/main/extension",
+        "https://github.com/kirill18734/PrintNum/tree/core/extension",
       );
     });
   });
