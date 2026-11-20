@@ -192,7 +192,9 @@ export default function SettingsPaper({
                 step={1}
                 value={expandValue}
                 placeholder="№"
-                onChange={(e) => handleExpandChange(e.target.value)}
+                onChange={(e) =>
+                  handleExpandChange(e.target.value.replace(/\D/g, ""))
+                }
                 onBlur={handleExpandBlur}
                 onKeyDown={(e) => e.stopPropagation()}
                 aria-label="Начальный номер автоперестановки"
