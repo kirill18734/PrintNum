@@ -102,23 +102,14 @@ export default function SettingsCreatePaper({
   return (
     <div className="w-full min-w-0">
       <div className="flex w-full min-w-0 flex-col gap-2">
-        {/* Тип содержимого */}
+        {/* Переключатели содержимого */}
         <div
           role="tablist"
           aria-label="Тип содержимого этикетки"
-          className="grid grid-cols-2 gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
+          className="flex w-full min-w-0 flex-col gap-1.5"
         >
-          {/* Ячейка 1: Единая группа текстовых режимов */}
-          <div
-            className={`
-      flex flex-col gap-0.5 rounded-md p-0.5 transition-all
-      ${
-        contentType === "text"
-          ? "bg-muted-foreground/10 ring-1 ring-border/60"
-          : "bg-transparent"
-      }
-    `}
-          >
+          {/* Текстовые режимы */}
+          <div className="grid grid-cols-2 gap-0.5 rounded-md bg-muted/50 p-1">
             <Button
               variant="ghost"
               type="button"
@@ -131,14 +122,14 @@ export default function SettingsCreatePaper({
                 setTextInputMode("single");
               }}
               className={`
-        flex h-6 w-full items-center justify-center gap-1.5
-        rounded-[5px] px-1.5 text-[11px] font-medium transition-all
-        ${
-          contentType === "text" && textInputMode === "single"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-        }
-      `}
+                flex h-7 w-full items-center justify-center gap-1.5
+                rounded-[5px] px-1.5 text-[11px] font-medium transition-all
+                ${
+                  contentType === "text" && textInputMode === "single"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+                }
+              `}
             >
               <Type className="size-3 shrink-0" />
               <span>Текст</span>
@@ -156,46 +147,48 @@ export default function SettingsCreatePaper({
                 setTextInputMode("sequence");
               }}
               className={`
-        flex h-6 w-full items-center justify-center gap-1.5
-        rounded-[5px] px-1.5 text-[11px] font-medium transition-all
-        ${
-          contentType === "text" && textInputMode === "sequence"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-        }
-      `}
+                flex h-7 w-full items-center justify-center gap-1.5
+                rounded-[5px] px-1.5 text-[11px] font-medium transition-all
+                ${
+                  contentType === "text" && textInputMode === "sequence"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+                }
+              `}
             >
               <ListOrdered className="size-3 shrink-0" />
               <span>Диапазон</span>
             </Button>
           </div>
 
-          {/* Ячейки 2, 3, 4: Штрихкод, QR-код, Data Matrix */}
-          {contentTypes.map(({ id, label, icon: Icon }) => {
-            const active = contentType === id;
-            return (
-              <Button
-                variant="ghost"
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setContentType(id)}
-                className={`
-          flex min-h-8 items-center justify-center gap-1
-          rounded-md px-1 text-[11px] font-medium transition-all
-          ${
-            active
-              ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-              : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
-          }
-        `}
-              >
-                <Icon className="size-3 shrink-0" />
-                <span className="truncate">{label}</span>
-              </Button>
-            );
-          })}
+          {/* Типы кодов */}
+          <div className="grid grid-cols-3 gap-1">
+            {contentTypes.map(({ id, label, icon: Icon }) => {
+              const active = contentType === id;
+              return (
+                <Button
+                  variant="ghost"
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setContentType(id)}
+                  className={`
+                    flex min-h-8 min-w-0 items-center justify-center gap-1
+                    rounded-md bg-muted/30 px-1 text-[11px] font-medium transition-all
+                    ${
+                      active
+                        ? "bg-muted-foreground/10 text-foreground shadow-sm ring-1 ring-border/60"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    }
+                  `}
+                >
+                  <Icon className="size-3 shrink-0" />
+                  <span className="truncate">{label}</span>
+                </Button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Текстовый раздел */}
