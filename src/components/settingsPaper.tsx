@@ -167,7 +167,10 @@ export default function SettingsPaper({
             Автоперестановка
           </span>
 
-          <div className="w-[52px] shrink-0">
+          <div className="w-[72px] shrink-0">
+            <label htmlFor="expand-value" className="mb-0.5 block whitespace-nowrap text-center text-[8px] leading-tight text-muted-foreground">
+              Начиная с номера
+            </label>
             <div
               className={`rounded-sm border bg-background px-1 ${
                 expandValue !== "" && !isValidExpand
@@ -177,8 +180,10 @@ export default function SettingsPaper({
             >
               <Input
                 id="expand-value"
-                type="text"
+                type="number"
                 inputMode="numeric"
+                min={1}
+                step={1}
                 value={expandValue}
                 placeholder="№"
                 onChange={(e) => handleExpandChange(e.target.value)}
@@ -189,13 +194,6 @@ export default function SettingsPaper({
                 className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
               />
             </div>
-            <p
-              className={`mt-0.5 whitespace-nowrap text-center text-[8px] leading-tight ${
-                isHybridActive ? "text-white/90" : "text-muted-foreground"
-              }`}
-            >
-              Введите №
-            </p>
           </div>
         </div>
 
