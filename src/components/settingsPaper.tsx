@@ -1,9 +1,7 @@
 import Background from "./background";
-import type { FontItem, BackgroundItem } from "@/types/api";
 import Font from "./font";
+import { Repeat } from "lucide-react";
 import { Button } from "./ui/button";
-import { Checkbox } from "./ui/checkbox";
-import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 
 interface SettingsPaperProps {
@@ -14,7 +12,6 @@ interface SettingsPaperProps {
   bold: boolean;
   setBold: (checked: boolean) => void;
   font: string;
-
   background: string;
   dataFonts: string[];
   dataBackgrounds: string[];
@@ -52,31 +49,26 @@ export default function SettingsPaper({
   onChangeFont,
   onChangeBackground,
 }: SettingsPaperProps) {
-  const handleExpandChange = (
-    action: "increment" | "decrement" | "blur" | string,
-  ) => {
-    let nextValue: number | string;
+  const expandValue = String(expand ?? "");
+  const isValidExpand =
+    /^[1-9]\d*$/.test(expandValue) &&
+    Number.isSafeInteger(Number(expandValue));
+  const isHybridActive = hybrid && isValidExpand;
 
-    if (action === "increment") {
-      nextValue =
-        typeof expand === "number" ? expand + 1 : Number(expand || 0) + 1;
-    } else if (action === "decrement") {
-      const current = typeof expand === "number" ? expand : Number(expand || 0);
-      nextValue = Math.max(1, current - 1);
-    } else if (action === "blur") {
-      nextValue = expand === "" || Number(expand) < 1 ? 1 : Number(expand);
-    } else {
-      if (action === "") {
-        nextValue = "";
-      } else if (/^\d+$/.test(action)) {
-        const num = Number(action);
-        nextValue = num < 1 ? 1 : num;
-      } else {
-        return;
-      }
+  const handleExpandChange = (value: string) => {
+    if (value === "") {
+      setExpand("");
+      setHybrid(false);
+      return;
     }
 
+    if (!/^\d+$/.test(value)) {
+      return;
+    }
+
+    const nextValue = Number(value);
     setExpand(nextValue);
+    setHybrid(Number.isSafeInteger(nextValue) && nextValue >= 1);
   };
 
   return (
@@ -130,80 +122,54 @@ export default function SettingsPaper({
           </Button>
         </div>
 
-        {/* Гибридный формат */}
+        {/* Автоперестановка */}
         <div
           data-tauri-drag-region
-          className={`flex flex-col items-start justify-center rounded-lg p-0.5 transition-colors ${
-            hybrid ? "border border-border bg-muted/30 w-full" : "w-auto"
+          className={`flex w-full items-center gap-1 rounded-md border p-1 transition-colors ${
+            isHybridActive
+              ? "border-green-700 bg-green-700 text-white"
+              : "border-border bg-muted/40 text-muted-foreground"
           }`}
+          role="group"
+          aria-label="Автоперестановка"
         >
-          <Field
-            orientation="horizontal"
-            className="w-auto gap-2 justify-start"
-          >
-            <Checkbox
-              id="checkbox-hybrid"
-              checked={hybrid}
-              onCheckedChange={setHybrid}
-              className="h-3.5 w-3.5"
-            />
-            <FieldLabel
-              htmlFor="checkbox-hybrid"
-              className="text-xs select-none"
+          <Repeat aria-hidden="true" className="size-3.5 shrink-0" />
+          <span className="min-w-0 flex-1 whitespace-nowrap text-[10px] font-medium">
+            Автоперестановка
+          </span>
+
+          <div className="w-[52px] shrink-0">
+            <div
+              className={`rounded-sm border bg-background px-1 ${
+                expandValue !== "" && !isValidExpand
+                  ? "border-destructive"
+                  : "border-input"
+              }`}
             >
-              Гибридный формат
-            </FieldLabel>
-          </Field>
-
-          {hybrid && (
-            <div className="flex flex-col gap-0.5 pl-5.5 w-full items-start mt-0.5">
-              <label
-                htmlFor="expand-value"
-                className="text-[10px] text-muted-foreground whitespace-nowrap"
-              >
-                Начиная с номера
-              </label>
-
-              <div className="flex items-center gap-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-6 w-6 text-xs"
-                  onClick={() => handleExpandChange("decrement")}
-                >
-                  −
-                </Button>
-
-                <Input
-                  id="expand-value"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  value={expand}
-                  onChange={(e) => handleExpandChange(e.target.value)}
-                  onBlur={() => handleExpandChange("blur")}
-                  className="
-                    h-6 w-12 text-center text-xs p-0
-                    [appearance:textfield]
-                    [&::-webkit-outer-spin-button]:appearance-none
-                    [&::-webkit-inner-spin-button]:appearance-none
-                  "
-                />
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-6 w-6 text-xs"
-                  onClick={() => handleExpandChange("increment")}
-                >
-                  +
-                </Button>
-              </div>
+              <Input
+                id="expand-value"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                step={1}
+                value={expandValue}
+                placeholder="№"
+                onChange={(e) => handleExpandChange(e.target.value)}
+                aria-label="Начальный номер автоперестановки"
+                aria-invalid={expandValue !== "" && !isValidExpand}
+                className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+              />
             </div>
-          )}
+            <p
+              className={`mt-0.5 whitespace-nowrap text-center text-[8px] leading-tight ${
+                isHybridActive ? "text-white/90" : "text-muted-foreground"
+              }`}
+            >
+              Введите №
+            </p>
+          </div>
         </div>
+
         {/* Шрифт */}
         <Font
           font={font}
