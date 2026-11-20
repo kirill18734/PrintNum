@@ -2,6 +2,8 @@ import Background from "./background";
 import type { FontItem, BackgroundItem } from "@/types/api";
 import Font from "./font";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
+import { Field, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
 
 interface SettingsPaperProps {
@@ -50,25 +52,31 @@ export default function SettingsPaper({
   onChangeFont,
   onChangeBackground,
 }: SettingsPaperProps) {
-  const expandValue = String(expand ?? "");
-  const isValidExpand = /^[1-9]\\d*$/.test(expandValue) &&
-    Number.isSafeInteger(Number(expandValue));
-  const isHybridActive = hybrid && isValidExpand;
+  const handleExpandChange = (
+    action: "increment" | "decrement" | "blur" | string,
+  ) => {
+    let nextValue: number | string;
 
-  const handleExpandChange = (value: string) => {
-    if (value === "") {
-      setExpand("");
-      setHybrid(false);
-      return;
+    if (action === "increment") {
+      nextValue =
+        typeof expand === "number" ? expand + 1 : Number(expand || 0) + 1;
+    } else if (action === "decrement") {
+      const current = typeof expand === "number" ? expand : Number(expand || 0);
+      nextValue = Math.max(1, current - 1);
+    } else if (action === "blur") {
+      nextValue = expand === "" || Number(expand) < 1 ? 1 : Number(expand);
+    } else {
+      if (action === "") {
+        nextValue = "";
+      } else if (/^\d+$/.test(action)) {
+        const num = Number(action);
+        nextValue = num < 1 ? 1 : num;
+      } else {
+        return;
+      }
     }
 
-    if (!/^\\d+$/.test(value)) {
-      return;
-    }
-
-    const nextValue = Number(value);
     setExpand(nextValue);
-    setHybrid(Number.isSafeInteger(nextValue) && nextValue >= 1);
   };
 
   return (
@@ -122,49 +130,80 @@ export default function SettingsPaper({
           </Button>
         </div>
 
-        {/* Автоперестановка */}
+        {/* Гибридный формат */}
         <div
           data-tauri-drag-region
-          className={`flex w-full items-center gap-2 rounded-lg border p-2 transition-colors ${
-            isHybridActive
-              ? "border-green-700 bg-green-700 text-white"
-              : "border-border bg-muted/40 text-muted-foreground"
+          className={`flex flex-col items-start justify-center rounded-lg p-0.5 transition-colors ${
+            hybrid ? "border border-border bg-muted/30 w-full" : "w-auto"
           }`}
-          role="group"
-          aria-label="Автоперестановка"
         >
-          <span className="min-w-0 flex-1 text-xs font-medium">
-            Автоперестановка
-          </span>
-
-          <div
-            className={`w-[136px] shrink-0 rounded-md border bg-background px-2 py-1 ${
-              expandValue !== "" && !isValidExpand
-                ? "border-destructive"
-                : "border-input"
-            }`}
+          <Field
+            orientation="horizontal"
+            className="w-auto gap-2 justify-start"
           >
-            <label
-              htmlFor="expand-value"
-              className="block text-[10px] leading-tight text-muted-foreground"
-            >
-              от №
-            </label>
-            <Input
-              id="expand-value"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              step={1}
-              value={expandValue}
-              onChange={(e) => handleExpandChange(e.target.value)}
-              aria-label="Начальный номер автоперестановки"
-              aria-invalid={expandValue !== "" && !isValidExpand}
-              className="h-6 border-0 bg-transparent p-0 text-base font-semibold tabular-nums shadow-none focus-visible:ring-0"
+            <Checkbox
+              id="checkbox-hybrid"
+              checked={hybrid}
+              onCheckedChange={setHybrid}
+              className="h-3.5 w-3.5"
             />
-          </div>
-        </div>
+            <FieldLabel
+              htmlFor="checkbox-hybrid"
+              className="text-xs select-none"
+            >
+              Гибридный формат
+            </FieldLabel>
+          </Field>
 
+          {hybrid && (
+            <div className="flex flex-col gap-0.5 pl-5.5 w-full items-start mt-0.5">
+              <label
+                htmlFor="expand-value"
+                className="text-[10px] text-muted-foreground whitespace-nowrap"
+              >
+                Начиная с номера
+              </label>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-6 w-6 text-xs"
+                  onClick={() => handleExpandChange("decrement")}
+                >
+                  −
+                </Button>
+
+                <Input
+                  id="expand-value"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={expand}
+                  onChange={(e) => handleExpandChange(e.target.value)}
+                  onBlur={() => handleExpandChange("blur")}
+                  className="
+                    h-6 w-12 text-center text-xs p-0
+                    [appearance:textfield]
+                    [&::-webkit-outer-spin-button]:appearance-none
+                    [&::-webkit-inner-spin-button]:appearance-none
+                  "
+                />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-6 w-6 text-xs"
+                  onClick={() => handleExpandChange("increment")}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
         {/* Шрифт */}
         <Font
           font={font}
