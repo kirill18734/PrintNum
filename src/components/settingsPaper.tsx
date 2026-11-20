@@ -88,11 +88,9 @@ export default function SettingsPaper({
     const isValid =
       validValue !== "0" && Number.isSafeInteger(nextValue) && nextValue >= 1;
 
-    // Сохраняем expand сразу после ввода корректного начального номера.
-    if (isValid) {
-      setExpand(nextValue);
-    }
-
+    // Пустое поле соответствует значению 0, чтобы старый номер
+    // не восстанавливался при последующей синхронизации состояния.
+    setExpand(isValid ? nextValue : 0);
     setHybrid(isValid);
   };
 
