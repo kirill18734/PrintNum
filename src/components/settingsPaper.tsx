@@ -77,8 +77,7 @@ export default function SettingsPaper({
   }, [expand, setExpand]);
 
   const isValidExpand =
-    /^[1-9]\d*$/.test(expandValue) &&
-    Number.isSafeInteger(Number(expandValue));
+    /^[1-9]\d*$/.test(expandValue) && Number.isSafeInteger(Number(expandValue));
   const isHybridActive = hybrid && isValidExpand;
 
   const handleExpandChange = (value: string) => {
@@ -87,9 +86,7 @@ export default function SettingsPaper({
     const validValue = validateExpand(value);
     const nextValue = Number(validValue);
     const isValid =
-      validValue !== "0" &&
-      Number.isSafeInteger(nextValue) &&
-      nextValue >= 1;
+      validValue !== "0" && Number.isSafeInteger(nextValue) && nextValue >= 1;
 
     // Сохраняем expand сразу после ввода корректного начального номера.
     if (isValid) {
@@ -103,7 +100,9 @@ export default function SettingsPaper({
     const validValue = validateExpand(expandValue);
     setExpandValue(validValue === "0" ? "" : validValue);
     setExpand(Number(validValue));
-    setHybrid(Number.isSafeInteger(Number(validValue)) && Number(validValue) >= 1);
+    setHybrid(
+      Number.isSafeInteger(Number(validValue)) && Number(validValue) >= 1,
+    );
   };
 
   return (
@@ -174,32 +173,28 @@ export default function SettingsPaper({
           </span>
 
           <div className="w-[72px] shrink-0">
-            <label htmlFor="expand-value" className="mb-0.5 block whitespace-nowrap text-center text-[8px] leading-tight text-muted-foreground">
+            <label
+              htmlFor="expand-value"
+              className="mb-0.5 block whitespace-nowrap text-center text-[8px] leading-tight text-muted-foreground"
+            >
               Начиная с номера
             </label>
-            <div
-              className={`rounded-sm border bg-background px-1 ${
-                expandValue !== "" && !isValidExpand
-                  ? "border-destructive"
-                  : "border-input"
-              }`}
-            >
-              <Input
-                id="expand-value"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                step={1}
-                value={expandValue}
-                placeholder="№"
-                onChange={(e) => handleExpandChange(e.target.value)}
-                onBlur={handleExpandBlur}
-                onKeyDown={(e) => e.stopPropagation()}
-                aria-label="Начальный номер автоперестановки"
-                aria-invalid={expandValue !== "" && !isValidExpand}
-                className="h-5 border-0 bg-transparent p-0 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
-              />
-            </div>
+
+            <Input
+              id="expand-value"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              value={expandValue}
+              placeholder="№"
+              onChange={(e) => handleExpandChange(e.target.value)}
+              onBlur={handleExpandBlur}
+              onKeyDown={(e) => e.stopPropagation()}
+              aria-label="Начальный номер автоперестановки"
+              aria-invalid={expandValue !== "" && !isValidExpand}
+              className="h-5 border-0 bg-transparent p-3 text-center text-xs font-semibold tabular-nums shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+            />
           </div>
         </div>
 
