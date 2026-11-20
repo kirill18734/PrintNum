@@ -151,7 +151,7 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
                   step={1}
                   placeholder="Ширина"
                   value={width}
-                  onChange={(e) => setWidth(e.target.value.replace(/\\D/g, ""))}
+                  onChange={(e) => setWidth(e.target.value.replace(/\D/g, ""))}
                   onBlur={handleBlur}
                   onKeyDown={(e) => e.stopPropagation()}
                   className="h-7 min-w-0 px-1 text-center text-xs"
@@ -168,7 +168,7 @@ export default function Paper({ paper, listPapers, setPaper }: PaperProps) {
                   step={1}
                   placeholder="Высота"
                   value={height}
-                  onChange={(e) => setHeight(e.target.value.replace(/\\D/g, ""))}
+                  onChange={(e) => setHeight(e.target.value.replace(/\D/g, ""))}
                   onBlur={handleBlur}
                   onKeyDown={(e) => e.stopPropagation()}
                   className="h-7 min-w-0 px-1 text-center text-xs"
