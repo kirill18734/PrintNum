@@ -30,6 +30,7 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddFonts = async () => {
     if (isAdding) return;
@@ -81,6 +82,7 @@ export default function Font({
         value={font}
         onValueChange={setFont}
         onOpenChange={(open) => {
+          setIsOpen(open);
           if (!open) onPreviewFont(undefined);
         }}
       >
@@ -98,7 +100,7 @@ export default function Font({
                 className="pr-14 text-xs"
               >
                 <span className="min-w-0 flex-1 whitespace-normal break-all">{item}</span>
-                {item !== "Arial" && (
+                {isOpen && item !== "Arial" && (
                   <button
                     type="button"
                     disabled={isDeleting}
