@@ -88,53 +88,44 @@ export default function SettingsPaper({
         data-tauri-drag-region
         className="flex flex-col items-start justify-center gap-0.5"
       >
-        {/* Показывать ID */}
-        <Field
-          orientation="horizontal"
-          className="p-0.5 w-auto gap-2 justify-start"
-        >
-          <Checkbox
-            id="checkbox-idNum"
-            checked={idNum}
-            onCheckedChange={setIdNum}
-            className="h-3.5 w-3.5"
-          />
-          <FieldLabel htmlFor="checkbox-idNum" className="text-xs select-none">
-            Показывать ID
-          </FieldLabel>
-        </Field>
+        {/* Форматирование текста */}
+        <div className="grid grid-cols-3 gap-1 w-full">
+          <Button
+            type="button"
+            variant={idNum ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+            aria-label="Показывать ID"
+            aria-pressed={idNum}
+            onClick={() => setIdNum(!idNum)}
+          >
+            I'd
+          </Button>
 
-        {/* Нижняя линия */}
-        <Field
-          orientation="horizontal"
-          className="p-0.5 w-auto gap-2 justify-start"
-        >
-          <Checkbox
-            id="checkbox-line"
-            checked={endLine}
-            onCheckedChange={setEndLine}
-            className="h-3.5 w-3.5"
-          />
-          <FieldLabel htmlFor="checkbox-line" className="text-xs select-none">
-            Подчёркивание
-          </FieldLabel>
-        </Field>
+          <Button
+            type="button"
+            variant={endLine ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+            aria-label="Подчёркивание"
+            aria-pressed={endLine}
+            onClick={() => setEndLine(!endLine)}
+          >
+            <span className="underline underline-offset-2">U</span>
+          </Button>
 
-        {/* Жирный шрифт */}
-        <Field
-          orientation="horizontal"
-          className="p-0.5 w-auto gap-2 justify-start"
-        >
-          <Checkbox
-            id="checkbox-bold"
-            checked={bold}
-            onCheckedChange={setBold}
-            className="h-3.5 w-3.5"
-          />
-          <FieldLabel htmlFor="checkbox-bold" className="text-xs select-none">
-            Жирный шрифт
-          </FieldLabel>
-        </Field>
+          <Button
+            type="button"
+            variant={bold ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+            aria-label="Жирный шрифт"
+            aria-pressed={bold}
+            onClick={() => setBold(!bold)}
+          >
+            <span className="font-bold">B</span>
+          </Button>
+        </div>
 
         {/* Гибридный формат */}
         <div
