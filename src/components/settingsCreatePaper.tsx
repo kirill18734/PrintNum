@@ -200,7 +200,7 @@ export default function SettingsCreatePaper({
 
         {/* Текстовый раздел */}
         {/* Область ввода с постоянной высотой */}
-        <div className="h-[100px] w-full min-w-0">
+        <div className="h-[80px] w-full min-w-0">
           {contentType === "text" ? (
             textInputMode === "single" ? (
               <Textarea
