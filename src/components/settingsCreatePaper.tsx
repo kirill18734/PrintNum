@@ -109,7 +109,16 @@ export default function SettingsCreatePaper({
           className="flex w-full min-w-0 flex-col gap-1 rounded-lg border border-border/60 bg-muted/50 p-1"
         >
           {/* Текстовые режимы */}
-          <div className="grid grid-cols-2 gap-0.5 rounded-md bg-background/50 p-0.5">
+          <div
+            className={`
+              grid grid-cols-2 gap-0.5 rounded-md p-0.5 transition-all
+              ${
+                contentType === "text"
+                  ? "bg-muted-foreground/10 ring-1 ring-border/60"
+                  : "bg-background/50"
+              }
+            `}
+          >
             <Button
               variant="ghost"
               type="button"
@@ -267,7 +276,13 @@ export default function SettingsCreatePaper({
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Введите данные для кодирования..."
+              placeholder={
+                contentType === "barcode"
+                  ? "Введите данные для генерации штрихкода..."
+                  : contentType === "qr"
+                    ? "Введите данные для генерации QR-кода..."
+                    : "Введите данные для генерации Data Matrix..."
+              }
               className={`${textareaClass} h-full min-h-0`}
             />
           )}
