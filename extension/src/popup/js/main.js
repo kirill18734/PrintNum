@@ -157,16 +157,6 @@
 
   // Главная точка входа. Запускается при полной сборке DOM дерева
   document.addEventListener("DOMContentLoaded", () => {
-    chrome.storage.local.get(["isDevMode"], ({ isDevMode }) => {
-      if (!isDevMode) {
-        const autoscripts = document.getElementById("autoscripts");
-        const visibilitySettings = document.querySelector(".visibility-settings");
-
-        if (autoscripts) autoscripts.hidden = true;
-        if (visibilitySettings) visibilitySettings.hidden = true;
-      }
-    });
-
     window.PrintNum.statusManager.init();
     window.PrintNum.accordionManager.init();
 
