@@ -7,7 +7,6 @@ import {
 import { useAppStore } from "@/services/store";
 import { appService } from "@/services/app.tauri";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export default function Footer() {
   const isUpdate = useAppStore((state) => state.isUpdate);
@@ -57,34 +56,30 @@ export default function Footer() {
       {/* ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кнопка обновления */}
       <div className="flex justify-center items-center">
         {isUpdate && (
-          <Button
-            type="button"
-            variant="outline"
+          <button
             disabled={isUpdating}
             onClick={handleUpdate}
-            className="h-9 gap-2 rounded-xl border-blue-500/20 bg-blue-500/10 px-3 text-xs font-semibold text-blue-600 shadow-sm transition-all duration-200 hover:bg-blue-500 hover:text-white active:scale-[0.97] dark:bg-blue-500/5 dark:text-blue-400 dark:hover:bg-blue-500 dark:hover:text-white"
+            className="flex items-center gap-2 h-9 px-3 text-xs font-semibold rounded-xl bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white disabled:opacity-60 transition-all duration-200 active:scale-[0.97] cursor-pointer shadow-sm"
           >
             <IconDownload
               size={14}
               className={isUpdating ? "animate-bounce" : ""}
             />
             <span>{isUpdating ? "Обновление..." : "Доступно обновление"}</span>
-          </Button>
+          </button>
         )}
       </div>
 
       {/* ПРАВАЯ ЧАСТЬ: Внешние ссылки */}
       <div className="flex items-center gap-2 justify-end">
         {/* КНОПКА 1: GitHub */}
-        <Button
-          type="button"
-          variant="outline"
+        <button
           onClick={() =>
             appService.openExternalUrl(
               "https://github.com/kirill18734/printnum",
             )
           }
-          className="group h-9 rounded-xl border-neutral-200/60 bg-white/50 px-3 text-[11px] font-medium text-neutral-700 shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-neutral-50 hover:text-neutral-900 active:scale-[0.97] dark:border-neutral-800/60 dark:bg-neutral-900/50 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+          className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-neutral-200/60 dark:border-neutral-800/60 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 shadow-sm active:scale-[0.97] cursor-pointer"
         >
           <IconBrandGithub
             size={14}
@@ -93,14 +88,12 @@ export default function Footer() {
           <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap">
             Документация
           </span>
-        </Button>
+        </button>
 
         {/* КНОПКА 2: Telegram */}
-        <Button
-          type="button"
-          variant="outline"
+        <button
           onClick={() => appService.openExternalUrl("https://t.me/printnum")}
-          className="group h-9 rounded-xl border-sky-500/20 bg-gradient-to-b from-sky-500/5 to-sky-500/[0.12] px-3 text-[11px] font-medium text-sky-600 shadow-sm shadow-sky-500/[0.03] transition-all duration-300 hover:from-sky-500 hover:to-sky-500 hover:text-white active:scale-[0.97] dark:text-sky-400 dark:hover:text-white"
+          className="group inline-flex items-center justify-center h-9 px-3 rounded-xl text-[11px] font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-sky-500/20 bg-gradient-to-b from-sky-500/5 to-sky-500/[0.12] text-sky-600 dark:text-sky-400 hover:from-sky-500 hover:to-sky-500 hover:text-white dark:hover:text-white shadow-sm shadow-sky-500/[0.03] active:scale-[0.97] cursor-pointer"
           title="Telegram-канал PrintNum"
         >
           <IconBrandTelegram
@@ -110,7 +103,7 @@ export default function Footer() {
           <span className="max-w-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[100px] group-focus-visible:max-w-[100px] group-hover:ml-1.5 group-focus-visible:ml-1.5 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 whitespace-nowrap font-semibold">
             @printnum
           </span>
-        </Button>
+        </button>
       </div>
     </footer>
   );
