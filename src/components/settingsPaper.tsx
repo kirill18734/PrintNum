@@ -86,11 +86,17 @@ export default function SettingsPaper({
 
     const validValue = validateExpand(value);
     const nextValue = Number(validValue);
-    setHybrid(
+    const isValid =
       validValue !== "0" &&
-        Number.isSafeInteger(nextValue) &&
-        nextValue >= 1,
-    );
+      Number.isSafeInteger(nextValue) &&
+      nextValue >= 1;
+
+    // Сохраняем expand сразу после ввода корректного начального номера.
+    if (isValid) {
+      setExpand(nextValue);
+    }
+
+    setHybrid(isValid);
   };
 
   const handleExpandBlur = () => {
