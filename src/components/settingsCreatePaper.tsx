@@ -87,6 +87,9 @@ export default function SettingsCreatePaper({
   const inputClass =
     "h-8 w-full min-w-0 rounded-md border border-input bg-background px-2 text-xs outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
 
+  const rangeInputClass =
+    "h-7 w-full min-w-0 rounded-md border border-input bg-background px-1.5 text-[11px] outline-none transition-colors hover:border-ring/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/15";
+
   const labelClass = "text-[10px] font-medium text-muted-foreground";
   const fieldClass = "flex min-w-0 flex-col gap-1";
 
@@ -219,7 +222,7 @@ export default function SettingsCreatePaper({
                       value={sequence.start}
                       onChange={(e) => updateSequence("start", e.target.value)}
                       placeholder="001 или A001"
-                      className={inputClass}
+                      className={rangeInputClass}
                     />
                   </div>
 
@@ -229,7 +232,7 @@ export default function SettingsCreatePaper({
                       value={sequence.end}
                       onChange={(e) => updateSequence("end", e.target.value)}
                       placeholder="30 или A030"
-                      className={inputClass}
+                      className={rangeInputClass}
                     />
                   </div>
 
@@ -241,7 +244,7 @@ export default function SettingsCreatePaper({
                       step={1}
                       value={sequence.step}
                       onChange={(e) => updateSequence("step", e.target.value)}
-                      className={inputClass}
+                      className={rangeInputClass}
                     />
                   </div>
                 </div>
@@ -254,7 +257,7 @@ export default function SettingsCreatePaper({
                       value={sequence.prefix}
                       onChange={(e) => updateSequence("prefix", e.target.value)}
                       placeholder="Например, BOX-"
-                      className={inputClass}
+                      className={rangeInputClass}
                     />
                   </div>
 
@@ -264,7 +267,7 @@ export default function SettingsCreatePaper({
                       value={sequence.suffix}
                       onChange={(e) => updateSequence("suffix", e.target.value)}
                       placeholder="Необязательно"
-                      className={inputClass}
+                      className={rangeInputClass}
                     />
                   </div>
                 </div>
