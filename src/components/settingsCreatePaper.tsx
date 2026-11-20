@@ -170,7 +170,7 @@ export default function SettingsCreatePaper({
                       step={1}
                       value={sequence.step}
                       onChange={(e) => updateSequence("step", e.target.value)}
-                      className={inputClass}
+                      className="h-8 w-full min-w-0 rounded-md px-2 text-xs"
                     />
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function SettingsCreatePaper({
                       value={sequence.prefix}
                       onChange={(e) => updateSequence("prefix", e.target.value)}
                       placeholder="Например, BOX-"
-                      className={inputClass}
+                      className="h-8 w-full min-w-0 rounded-md px-2 text-xs"
                     />
                   </div>
 
@@ -193,7 +193,7 @@ export default function SettingsCreatePaper({
                       value={sequence.suffix}
                       onChange={(e) => updateSequence("suffix", e.target.value)}
                       placeholder="Необязательно"
-                      className={inputClass}
+                      className="h-8 w-full min-w-0 rounded-md px-2 text-xs"
                     />
                   </div>
                 </div>
