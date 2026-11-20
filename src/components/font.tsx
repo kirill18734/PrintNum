@@ -106,32 +106,11 @@ export default function Font({
                 onPointerMove={() => onPreviewFont(item)}
                 onFocus={() => onPreviewFont(item)}
                 className="pr-14 text-xs"
-                action={
-                  isOpen && item !== "Arial" ? (
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      disabled={isDeleting}
-                      title={`Удалить шрифт «${item}»`}
-                      aria-label={`Удалить шрифт «${item}»`}
-                      onPointerDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                      }}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        void handleDeleteFont(item);
-                      }}
-                      className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-                    >
-                      <Trash2 size={13} />
-                    </Button>
-                  ) : undefined
-                }
               >
                 <span className="min-w-0 flex-1 truncate">{item}</span>
-              </SelectItem>
+
+                {isOpen && item !== "Arial" && (
+                  <Button
                     variant="ghost"
                     type="button"
                     disabled={isDeleting}
@@ -149,9 +128,9 @@ export default function Font({
                     className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
                   >
                     <Trash2 size={13} />
-                    </Button>
-                  ) : undefined
-                }
+                  </Button>
+                )}
+              </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
