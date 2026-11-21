@@ -154,6 +154,11 @@ def print_text(text, on_prepared=None):
     """
     config = load_config()
 
+    # Сначала загружаем выбранный шрифт в кеш и фиксируем его для этого задания.
+    # Это выполняется до подготовки и отправки задания в очередь печати.
+    with resource_session():
+        font_name = get_configured_font_name(config.get("font"), "auto")
+
     excluded_rule = find_excluded_rule(
         text,
         config.get("excludedTexts", []),
@@ -182,11 +187,8 @@ def print_text(text, on_prepared=None):
     if on_prepared is not None:
         on_prepared(data["main_text"])
 
-    # Загружаем выбранный шрифт.
+    # Шрифт уже загружен и выбран для этого задания до начала подготовки печати.
     with resource_session():
-
-        font_name = get_configured_font_name(config.get("font"), "auto")
-
         hdc = win32ui.CreateDC()
         document_started = False
 
