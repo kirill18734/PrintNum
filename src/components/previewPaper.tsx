@@ -5,7 +5,6 @@ import { loadBackgroundPreview, loadFontPreview } from "@/services/resources.tau
 interface PreviewPaperProps {
   idNum?: boolean;
   endLine?: boolean;
-  hybrid?: boolean;
   expand?: number;
   font?: string;
   bold?: boolean;
@@ -35,8 +34,7 @@ interface GeneratedCode {
 export default function PreviewPaper({
   idNum = false,
   endLine = false,
-  hybrid = false,
-  expand = 500,
+  expand = 0,
   font = "Arial",
   bold = false,
 
@@ -52,6 +50,8 @@ export default function PreviewPaper({
   background = "Без фона",
   opacity,
 }: PreviewPaperProps) {
+  const isExpandActive = expand > 0;
+
   // Шрифт и фон относятся только к текстовым этикеткам.
   const isTextLabel = mode === "autoprint" || contentType === "text";
   const cssFontFamily = `"${font.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
@@ -208,7 +208,7 @@ export default function PreviewPaper({
     <div
       style={fontStyle}
       className={`relative flex flex-col justify-center items-center
-        ${hybrid && mode === "autoprint" ? "w-25 h-15 p-1.5" : "w-36 h-24 p-2"}
+        ${isExpandActive && mode === "autoprint" ? "w-25 h-15 p-1.5" : "w-36 h-24 p-2"}
         rounded-lg border border-border
         bg-white text-black shadow-sm overflow-hidden`}
     >
@@ -227,7 +227,7 @@ export default function PreviewPaper({
         {mode === "autoprint" ? (
           <div className="flex justify-center items-center leading-none flex-1 min-h-0">
             <span
-              className={`${hybrid ? "text-4xl" : "text-6xl"}
+              className={`${isExpandActive ? "text-4xl" : "text-6xl"}
                 ${endLine ? "underline decoration-3" : ""}
                 ${bold ? "font-bold" : ""}`}
             >
@@ -295,8 +295,8 @@ export default function PreviewPaper({
     </div>
   );
 
-  // Вторая этикетка для гибридного режима
-  const hybridLabel = (
+  // Вторая этикетка для режима автоперестановки
+  const nextLabel = (
     <div
       style={fontStyle}
       className="relative flex flex-col justify-center items-center
@@ -326,11 +326,11 @@ export default function PreviewPaper({
     <div
       data-tauri-drag-region
       className={`flex items-center w-full
-        ${hybrid ? "justify-between gap-1" : "justify-center"}`}
+        ${isExpandActive ? "justify-between gap-1" : "justify-center"}`}
     >
       {fontFace && <style>{fontFace}</style>}
       <div className="flex flex-col items-center gap-1">
-        {hybrid && mode === "autoprint" && (
+        {isExpandActive && mode === "autoprint" && (
           <span className="text-xs text-muted-foreground">
             Этикетки 1 – {expand - 1 < 1 ? expand : expand - 1}
           </span>
@@ -339,13 +339,13 @@ export default function PreviewPaper({
         {label}
       </div>
 
-      {hybrid && mode === "autoprint" && (
+      {isExpandActive && mode === "autoprint" && (
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-muted-foreground">
             Этикетки от {expand}
           </span>
 
-          {hybridLabel}
+          {nextLabel}
         </div>
       )}
     </div>

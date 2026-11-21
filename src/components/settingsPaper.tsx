@@ -16,8 +16,6 @@ interface SettingsPaperProps {
   background: string;
   dataFonts: string[];
   dataBackgrounds: string[];
-  hybrid: boolean;
-  setHybrid: (checked: boolean) => void;
   expand: number | string;
   setExpand: (valueOrFn: any) => void;
   opacity: number;
@@ -39,8 +37,6 @@ export default function SettingsPaper({
   dataFonts,
   background,
   dataBackgrounds,
-  hybrid,
-  setHybrid,
   expand,
   setExpand,
   opacity,
@@ -78,7 +74,7 @@ export default function SettingsPaper({
 
   const isValidExpand =
     /^[1-9]\d*$/.test(expandValue) && Number.isSafeInteger(Number(expandValue));
-  const isHybridActive = hybrid && isValidExpand;
+  const isExpandActive = isValidExpand;
 
   const handleExpandChange = (value: string) => {
     setExpandValue(value);
@@ -91,16 +87,12 @@ export default function SettingsPaper({
     // Пустое поле соответствует значению 0, чтобы старый номер
     // не восстанавливался при последующей синхронизации состояния.
     setExpand(isValid ? nextValue : 0);
-    setHybrid(isValid);
   };
 
   const handleExpandBlur = () => {
     const validValue = validateExpand(expandValue);
     setExpandValue(validValue === "0" ? "" : validValue);
     setExpand(Number(validValue));
-    setHybrid(
-      Number.isSafeInteger(Number(validValue)) && Number(validValue) >= 1,
-    );
   };
 
   return (
@@ -158,7 +150,7 @@ export default function SettingsPaper({
         <div
           data-tauri-drag-region
           className={`flex w-full items-center gap-1 rounded-md border p-1 transition-colors ${
-            isHybridActive
+            isExpandActive
               ? "border-green-700 bg-green-700 text-white"
               : "border-border bg-muted/40 text-muted-foreground"
           }`}
