@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import {
   Select,
@@ -38,6 +48,7 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   useEffect(() => {
     setDraftOpacity(opacity);
@@ -70,7 +81,6 @@ export default function Background({
 
   const handleDeleteBackground = async (selectedName: string) => {
     if (selectedName === "Без фона" || isDeleting) return;
-    if (!window.confirm(`Удалить фон «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
@@ -142,7 +152,7 @@ export default function Background({
           <Button
             variant="ghost"
             type="button"
-            onClick={() => void handleDeleteBackground(background)}
+            onClick={() => setPendingDelete(background)}
             disabled={background === "Без фона" || isDeleting}
             title={background === "Без фона" ? "Стандартный фон нельзя удалить" : `Удалить фон «${background}»`}
             aria-label={background === "Без фона" ? "Удаление недоступно" : `Удалить фон «${background}»`}
@@ -194,6 +204,40 @@ export default function Background({
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить фон?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы действительно хотите удалить этот фон?
+            </AlertDialogDescription>
+            <div className="w-full rounded-md bg-muted px-3 py-2 text-sm font-medium break-all">
+              {pendingDelete}
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={() => {
+                if (pendingDelete) void handleDeleteBackground(pendingDelete);
+                setPendingDelete(null);
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+            <AlertDialogCancel disabled={isDeleting}>
+              Отмена
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
