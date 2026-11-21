@@ -5,13 +5,7 @@
   "idNum": false,
   "running": true,
   "endLine": false,
-  "excludedTexts": [
-    "Прямой поток",
-    "Расходники",
-    "Продавцу",
-    "Ozon Полка",
-    "Возврат"
-  ],
+  "excludedTexts": ["Прямой поток", "Расходники", "Продавцу", "Возврат"],
   "theme": "dark",
   "themeStyle": "vercel",
   "printer": "CHITENG-CT221B",
