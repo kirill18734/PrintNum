@@ -184,7 +184,7 @@ export default function SettingsPaper({
               min={1}
               step={1}
               value={expandValue}
-              placeholder="№"
+              placeholder=""
               onChange={(e) =>
                 handleExpandChange(e.target.value.replace(/\D/g, ""))
               }

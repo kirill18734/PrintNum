@@ -1,7 +1,6 @@
 // Тип и значения настроек приложения, используемые при первом запуске и хранении.
 export interface AppSettings {
   printer: string;
-  hybrid: boolean;
   idNum: boolean;
   endLine: boolean;
   endLine_manual: boolean;
@@ -23,7 +22,6 @@ export interface AppSettings {
 
 export const defaultConfig: AppSettings = {
   printer: "",
-  hybrid: false,
   idNum: false,
   endLine: false,
   endLine_manual: false,
