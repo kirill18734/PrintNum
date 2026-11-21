@@ -172,20 +172,22 @@ def print_text(text, on_prepared=None):
     if not isinstance(printer_name, str) or not printer_name.strip():
         raise ValueError("Не задан принтер для печати")
 
-    # Используем имя принтера из уже загруженного конфига.
-    # Ошибки очистки очереди не должны блокировать отправку этикетки.
-    clear_printer_queue(printer_name)
-
-    data = prepare_label_data(text, config)
-
-    # Передаём UI преобразованный основной текст до начала печати.
-    if on_prepared is not None:
-        on_prepared(data["main_text"])
-
-    # Загружаем выбранный шрифт.
+    # Сначала загружаем выбранный шрифт в кеш и регистрируем его в GDI.
+    # Только после этого выполняем подготовку и отправку задания на печать.
+    # resource_session удерживает ресурс доступным до завершения печати.
     with resource_session():
 
         font_name = get_configured_font_name(config.get("font"), "auto")
+
+        # Используем имя принтера из уже загруженного конфига.
+        # Ошибки очистки очереди не должны блокировать отправку этикетки.
+        clear_printer_queue(printer_name)
+
+        data = prepare_label_data(text, config)
+
+        # Передаём UI преобразованный основной текст до начала печати.
+        if on_prepared is not None:
+            on_prepared(data["main_text"])
 
         hdc = win32ui.CreateDC()
         document_started = False
