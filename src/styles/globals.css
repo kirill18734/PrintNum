@@ -80,3 +80,70 @@
   animation: reveal 0.4s ease-in-out forwards;
 }
 /* Подключает базовые стили Tailwind и задаёт общие правила оформления приложения. */
+
+
+@keyframes status-waiting {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes status-processing {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes status-printed {
+  0% { transform: scale(0.5); opacity: 0.3; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes status-excluded {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes status-printer {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.12); }
+}
+
+@keyframes status-error {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-2px); }
+  40%, 80% { transform: translateX(2px); }
+}
+
+.animate-status-waiting {
+  animation: status-waiting 2s ease-in-out infinite;
+}
+
+.animate-status-processing {
+  animation: status-processing 1.2s linear infinite;
+}
+
+.animate-status-printed {
+  animation: status-printed 0.5s ease-out;
+}
+
+.animate-status-excluded {
+  animation: status-excluded 2s ease-in-out infinite;
+}
+
+.animate-status-printer {
+  animation: status-printer 1.5s ease-in-out infinite;
+}
+
+.animate-status-error {
+  animation: status-error 0.45s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-status-waiting,
+  .animate-status-processing,
+  .animate-status-printed,
+  .animate-status-excluded,
+  .animate-status-printer,
+  .animate-status-error {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "opacity_manual": 50,
+  "expand": 0,
+  "excludedTexts": ["Прямой поток", "Расходники", "Возврат", "Продавцу"],
+  "showCodeText": false,
+  "background": "Без фона",
+  "font_manual": "Arial",
+  "running": true,
+  "opacity": 50,
+  "deletedResources": [],
+  "idNum": false,
+  "theme": "dark",
+  "bold_manual": false,
+  "font": "Arial",
+  "background_manual": "Без фона",
+  "paper": "30*20",
+  "themeStyle": "vercel",
+  "endLine_manual": false,
+  "printer": "CHITENG-CT221B",
+  "endLine": false,
+  "hybrid": false,
+  "bold": false
+}

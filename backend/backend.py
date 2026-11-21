@@ -1,46 +1,456 @@
-"""Запускает локальный сервер Flask и штатно останавливает его при простое."""
-
-import argparse
-import logging
+import sys
+import time
 import threading
+from datetime import datetime
 
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from werkzeug.serving import make_server
 
-from app.factory import create_app
+from app.utils import list_printers, status_printer
+from app.auto_print import print_text
+from app.label_print import (
+    print_label,
+    LabelRequestError,
+    PrinterNotConfiguredError,
+)
+from app.config import load_config
+
+from app.resources import (
+    init_resources,
+    shutdown_resources,
+)
+from app.resources.backgrounds import (
+    BACKGROUNDS_DIR,
+    SUPPORTED_BACKGROUND_EXTENSIONS,
+)
+from app.resources.fonts import (
+    FONTS_DIR,
+    SUPPORTED_EXTENSIONS as SUPPORTED_FONT_EXTENSIONS,
+)
 
 
-logger = logging.getLogger(__name__)
+app = Flask(__name__)
+CORS(app)
+
+TIMEOUT = 10
+STANDALONE = "--standalone" in sys.argv
+
+PRINTER_STATUS_INTERVAL = 1
+PRINTER_LIST_INTERVAL = 5
+RESOURCE_SCAN_INTERVAL = 1
+PRINT_QUEUE_LIMIT = 100
+
+# Единое состояние, которое читается frontend через /printer-data.
+printer_data = {
+    "listPrinters": [],
+    "printerOnline": False,
+    "printQueue": [],
+    "backgrounds": [],
+    "fonts": [],
+}
+
+# Защита состояния, последовательное выполнение печати и остановка потоков.
+_state_lock = threading.Lock()
+_print_lock = threading.Lock()
+_monitor_stop_requested = threading.Event()
+_monitor_threads = []
+
+_last_request_time = time.monotonic()
+_shutdown_requested = threading.Event()
+_server = None
+def _get_printer_online():
+    with _state_lock:
+        return printer_data["printerOnline"]
 
 
-def run_server(host="127.0.0.1", port=5000, idle_timeout=10, standalone=False):
-    app = create_app(idle_timeout=idle_timeout, standalone=standalone)
-    server = make_server(host, port, app, threaded=True)
-    activity = app.extensions["printnum"]["activity"]
-    watcher = threading.Thread(
-        target=activity.watch,
-        args=(server.shutdown,),
-        name="backend-idle-watchdog",
-        daemon=True,
-    )
-    watcher.start()
+def _set_printer_online(value):
+    with _state_lock:
+        printer_data["printerOnline"] = bool(value)
+
+
+def _register_print_job(text):
+    """Добавляет поступивший текст в историю обработки."""
+    job = {
+        "status": "processing",
+        "text": text,
+        "renameText": None,
+        "receivedAt": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+
+    with _state_lock:
+        jobs = printer_data["printQueue"]
+        jobs.insert(0, job)
+
+        if len(jobs) > PRINT_QUEUE_LIMIT:
+            del jobs[PRINT_QUEUE_LIMIT:]
+
+    return job
+
+
+def _set_print_job_status(job, status, rename_text=None):
+    """Обновляет статус задания, не меняя исходный текст и время получения."""
+    with _state_lock:
+        job["status"] = status
+
+        if rename_text is not None:
+            job["renameText"] = rename_text
+
+
+def _get_printer_data():
+    """Возвращает согласованную копию состояния для HTTP-ответа."""
+    with _state_lock:
+        jobs = [
+            {
+                "status": job["status"],
+                "text": job["text"],
+                "renameText": job["renameText"],
+                "receivedAt": job["receivedAt"],
+            }
+            for job in printer_data["printQueue"]
+        ]
+
+        if not jobs:
+            jobs = [{
+                "status": "waiting",
+                "text": None,
+                "renameText": None,
+                "receivedAt": None,
+            }]
+
+        return {
+            "listPrinters": list(printer_data["listPrinters"]),
+            "printerOnline": printer_data["printerOnline"],
+            "printQueue": jobs,
+            "backgrounds": list(printer_data["backgrounds"]),
+            "fonts": list(printer_data["fonts"]),
+        }
+
+
+def _refresh_printer_status():
+    """Обновляет кеш состояния выбранного принтера."""
     try:
-        server.serve_forever()
-    finally:
-        activity.stop()
-        server.server_close()
+        online = status_printer()
+    except Exception:
+        app.logger.exception("Не удалось проверить состояние принтера")
+        online = False
+
+    _set_printer_online(online)
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--standalone",
-        action="store_true",
-        help="Отключить тайм-аут простоя и проверять статус принтера перед каждой печатью",
+def _refresh_printer_list():
+    """Обновляет кеш списка принтеров, сохраняя последнее успешное значение при ошибке."""
+    try:
+        printers = list_printers()
+    except Exception:
+        app.logger.exception("Не удалось получить список принтеров")
+        return
+
+    with _state_lock:
+        if printers != printer_data["listPrinters"]:
+            printer_data["listPrinters"] = list(printers)
+
+
+def _list_resource_files(directory, supported_extensions):
+    """Возвращает полные имена файлов ресурсов с поддерживаемыми расширениями."""
+    try:
+        return sorted(
+            entry.name
+            for entry in directory.iterdir()
+            if entry.is_file() and entry.suffix.lower() in supported_extensions
+        )
+    except FileNotFoundError:
+        return []
+    except OSError:
+        app.logger.exception("Не удалось прочитать каталог ресурсов: %s", directory)
+        return None
+
+
+def _refresh_resource_lists():
+    """Обновляет кеш имён фонов и шрифтов, сохраняя последнее значение при ошибке."""
+    backgrounds = _list_resource_files(
+        BACKGROUNDS_DIR,
+        SUPPORTED_BACKGROUND_EXTENSIONS,
     )
-    args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.INFO)
-    run_server(standalone=args.standalone)
+    fonts = _list_resource_files(FONTS_DIR, SUPPORTED_FONT_EXTENSIONS)
+
+    with _state_lock:
+        if backgrounds is not None and backgrounds != printer_data["backgrounds"]:
+            printer_data["backgrounds"] = backgrounds
+        if fonts is not None and fonts != printer_data["fonts"]:
+            printer_data["fonts"] = fonts
+
+
+def _printer_status_monitor():
+    while not _monitor_stop_requested.wait(PRINTER_STATUS_INTERVAL):
+        _refresh_printer_status()
+
+
+def _resource_list_monitor():
+    while not _monitor_stop_requested.wait(RESOURCE_SCAN_INTERVAL):
+        _refresh_resource_lists()
+
+
+def _printer_list_monitor():
+    while not _monitor_stop_requested.wait(PRINTER_LIST_INTERVAL):
+        _refresh_printer_list()
+
+
+def _start_background_monitors():
+    """Сначала заполняет начальное состояние, затем запускает независимые мониторы."""
+    _refresh_printer_status()
+    _refresh_printer_list()
+    _refresh_resource_lists()
+
+    monitors = (
+        ("printer_status_monitor", _printer_status_monitor),
+        ("printer_list_monitor", _printer_list_monitor),
+        ("resource_list_monitor", _resource_list_monitor),
+    )
+
+    for name, target in monitors:
+        thread = threading.Thread(
+            target=target,
+            name=name,
+            daemon=True,
+        )
+        _monitor_threads.append(thread)
+        thread.start()
+
+
+def _stop_background_monitors():
+    _monitor_stop_requested.set()
+
+    for thread in _monitor_threads:
+        if thread.is_alive():
+            thread.join(timeout=PRINTER_LIST_INTERVAL + 1)
+
+    _monitor_threads.clear()
+
+
+@app.before_request
+def update_activity():
+    """Обновляет время активности приложения."""
+    global _last_request_time
+
+    with _state_lock:
+        _last_request_time = time.monotonic()
+
+
+def watchdog():
+    """Останавливает сервер по запросу или тайм-ауту простоя."""
+    global _last_request_time
+
+    while True:
+        loop_start = time.monotonic()
+
+        if _shutdown_requested.wait(1):
+            print("Получен запрос на остановку сервера")
+            break
+
+        actual_elapsed = time.monotonic() - loop_start
+        if actual_elapsed > 2.0:
+            print(
+                "Обнаружено пробуждение ПК из спящего режима "
+                f"(пропущено {actual_elapsed:.1f} сек). "
+                "Сброс таймера активности."
+            )
+            with _state_lock:
+                _last_request_time = time.monotonic()
+            continue
+
+        if STANDALONE:
+            continue
+
+        with _state_lock:
+            inactive_time = time.monotonic() - _last_request_time
+
+        if inactive_time > TIMEOUT:
+            print(f"Нет запросов {TIMEOUT} секунд")
+            break
+
+    print("Остановка Flask-сервера")
+
+    if _server is not None:
+        _server.shutdown()
+
+
+@app.get("/")
+def hello_world():
+    return jsonify({"status": True})
+
+
+@app.post("/shutdown")
+def shutdown_route():
+    """Запрашивает штатную остановку HTTP-сервера."""
+    if request.remote_addr not in ("127.0.0.1", "::1"):
+        return jsonify({
+            "status": False,
+            "error": "Доступ запрещён",
+        }), 403
+
+    if request.headers.get("X-PrintNum-Shutdown") != "local-client":
+        return jsonify({
+            "status": False,
+            "error": "Отсутствует заголовок остановки",
+        }), 403
+
+    _shutdown_requested.set()
+
+    return jsonify({
+        "status": True,
+        "message": "Запрошена остановка сервера",
+    })
+
+
+@app.get("/printer-data")
+def printer_data_route():
+    """Возвращает готовое состояние принтера и историю текстовых заданий."""
+    return jsonify(_get_printer_data())
+
+
+@app.post("/print-label")
+def print_label_route():
+    body = request.get_json(silent=True)
+
+    if not isinstance(body, dict):
+        return jsonify({"error": "Ожидается JSON-объект"}), 400
+
+    if not _get_printer_online():
+        return jsonify({
+            "status": False,
+            "error": "Принтер недоступен",
+        }), 503
+
+    try:
+        with _print_lock:
+            print_label(body)
+
+        return jsonify({"status": True})
+
+    except LabelRequestError as error:
+        return jsonify({"error": str(error)}), 400
+
+    except PrinterNotConfiguredError as error:
+        return jsonify({"error": str(error)}), 400
+
+    except Exception:
+        app.logger.exception("Ошибка печати этикетки")
+        return jsonify({"error": "Ошибка печати этикетки"}), 500
+
+
+@app.post("/print-number")
+@app.post("/ozon-shelf")
+def print_number_route():
+    body = request.get_json(silent=True)
+
+    if not isinstance(body, dict):
+        return "OK"
+
+    text = body.get("text")
+
+    if not isinstance(text, str):
+        return "OK"
+
+    text = text.strip()
+
+    if not text:
+        return "OK"
+
+    # Регистрируем задание до проверок, чтобы frontend сразу видел processing.
+    job = _register_print_job(text)
+
+    # Проверяем принтер непосредственно при поступлении каждого текста.
+    # Не используем кеш фонового монитора для принятия решения о печати.
+    try:
+        online = status_printer()
+    except Exception:
+        app.logger.exception("Ошибка непосредственной проверки принтера")
+        online = False
+
+    _set_printer_online(online)
+
+    if not online:
+        _set_print_job_status(job, "printer_unavailable")
+        return "OK"
+
+    try:
+        # Показываем результат переименования только для заданий Ozon Полки.
+        on_prepared = None
+        if request.path == "/ozon-shelf":
+            on_prepared = lambda rename_text: _set_print_job_status(
+                job,
+                "processing",
+                rename_text,
+            )
+
+        with _print_lock:
+            printed = print_text(
+                text,
+                on_prepared=on_prepared,
+            )
+
+        _set_print_job_status(
+            job,
+            "excluded" if printed is False else "printed",
+        )
+
+        return "OK"
+
+    except Exception:
+        _set_print_job_status(job, "print_error")
+        app.logger.exception("Ошибка автоматической печати")
+        return jsonify({"error": "Ошибка печати"}), 500
 
 
 if __name__ == "__main__":
-    main()
+    # Сразу занимаем порт. Если backend уже работает, make_server
+    # завершится с ошибкой до инициализации ресурсов и фоновых потоков.
+    _server = make_server(
+        "127.0.0.1",
+        5000,
+        app,
+        threaded=True,
+    )
+
+    try:
+        load_config()
+
+        print("Инициализация ресурсов...")
+        init_resources()
+
+        # Первичное состояние и фоновые мониторы запускаются до Flask.
+        _start_background_monitors()
+
+        if STANDALONE:
+            print("Запуск в standalone-режиме")
+            print("Автоматическое завершение по простою отключено")
+        else:
+            print(
+                f"Запуск с автоматическим завершением "
+                f"через {TIMEOUT} секунд простоя"
+            )
+
+        threading.Thread(
+            target=watchdog,
+            name="backend_watchdog",
+            daemon=True,
+        ).start()
+
+        _server.serve_forever()
+
+    except KeyboardInterrupt:
+        print("Получен сигнал завершения")
+
+    finally:
+        print("Завершение приложения...")
+
+        # Сначала останавливаем мониторинг, затем закрываем ресурсы.
+        _stop_background_monitors()
+
+        if _server is not None:
+            _server.server_close()
+
+        shutdown_resources()
+
+        print("Приложение завершено")

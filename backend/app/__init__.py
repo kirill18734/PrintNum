@@ -1,1 +1,3 @@
-"""Пакет локального сервиса печати PrintNum."""
+
+"""PrintNum application package."""
+# app/__init__.py

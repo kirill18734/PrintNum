@@ -1,0 +1,400 @@
+import PreviewPaper from "@/components/previewPaper";
+import SettingsCreatePaper from "@/components/settingsCreatePaper";
+import SettingsPrinter from "@/components/settingsPrinter";
+import { Button } from "@/components/ui/button";
+import { useAppStore } from "@/services/store";
+import type {
+  LabelContentType,
+  SequenceConfig,
+  TextInputMode,
+} from "@/types/label";
+import type { PrinterPageProps } from "@/types/printer";
+import { generateSequence } from "@/shared/utils/generateSequence";
+import { useLabelPrinting } from "./useLabelPrinting";
+import { AlertCircle, Printer } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+
+interface PrintScenarioContext {
+  backendOnline: boolean;
+  printerOnline: boolean;
+  isPrinting: boolean;
+  isSequenceMode: boolean;
+}
+
+interface PrintScenario {
+  id: string;
+  check: (context: PrintScenarioContext) => boolean;
+  topText: (text: string) => ReactNode;
+  topTextClass: string;
+  buttonText: string;
+  buttonDisabled: boolean;
+  isStopButton: boolean;
+  hasCustomBg: boolean;
+}
+
+const PRINT_SCENARIOS: PrintScenario[] = [
+  {
+    id: "waiting",
+    check: ({ backendOnline }) => !backendOnline,
+    topText: () => <span>Подключение к backend...</span>,
+    topTextClass: "text-xs text-muted-foreground",
+    buttonText: "Распечатать",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
+    id: "offline",
+    check: ({ backendOnline, printerOnline }) =>
+      backendOnline && !printerOnline,
+    topText: () => <span>Принтер недоступен. Проверьте подключение</span>,
+    topTextClass: "text-xs font-semibold text-red-500 animate-pulse",
+    buttonText: "Распечатать",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
+    id: "single-printing",
+    check: ({ backendOnline, printerOnline, isPrinting, isSequenceMode }) =>
+      backendOnline && printerOnline && isPrinting && !isSequenceMode,
+    topText: () => <span>Отправка на печать...</span>,
+    topTextClass: "text-xs font-medium text-primary animate-bounce",
+    buttonText: "Печать…",
+    buttonDisabled: true,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+  {
+    id: "sequence-printing",
+    check: ({ backendOnline, printerOnline, isPrinting, isSequenceMode }) =>
+      backendOnline && printerOnline && isPrinting && isSequenceMode,
+    // Реализация Варианта 1 (со стрелочкой) + выделение значения контрастным фоном
+    topText: (text: string) => (
+      <span className="flex items-center gap-1.5">
+        Отправка на печать ➔
+        <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 shadow-sm transition-all">
+          {text || "..."}
+        </span>
+      </span>
+    ),
+    topTextClass:
+      "text-xs font-semibold text-amber-700 dark:text-amber-400 animate-pulse",
+    buttonText: "Остановить",
+    buttonDisabled: false,
+    isStopButton: true,
+    hasCustomBg: true,
+  },
+  {
+    id: "ready",
+    check: ({ backendOnline, printerOnline, isPrinting }) =>
+      backendOnline && printerOnline && !isPrinting,
+    topText: () => <span>Готово к печати</span>,
+    topTextClass: "text-xs text-muted-foreground",
+    buttonText: "Распечатать",
+    buttonDisabled: false,
+    isStopButton: false,
+    hasCustomBg: false,
+  },
+];
+
+export default function CreateLabel({
+  printer,
+  listPrinters,
+  setPrinter,
+  paper,
+  setPaper,
+  listPapers,
+  dataFonts,
+  dataBackgrounds,
+  backendOnline,
+  printerOnline,
+}: PrinterPageProps) {
+  const [contentByType, setContentByType] = useState<
+    Record<LabelContentType, string>
+  >({
+    text: "",
+    barcode: "",
+    qr: "",
+    datamatrix: "",
+  });
+
+  const [contentType, setContentType] = useState<LabelContentType>("text");
+  const opacity_manual = useAppStore((state) => state.opacity_manual);
+  const bold_manual = useAppStore((state) => state.bold_manual);
+  const showCodeText = useAppStore((state) => state.showCodeText);
+  const endLine_manual = useAppStore((state) => state.endLine_manual);
+  const font_manual = useAppStore((state) => state.font_manual);
+  const background_manual = useAppStore((state) => state.background_manual);
+  const [codeImage, setCodeImage] = useState<string>("");
+  const [isCodeImageGenerating, setIsCodeImageGenerating] = useState(false);
+  const [previewFont_Manual, setPreviewFont_Manual] = useState<
+    string | undefined
+  >();
+  const [previewBackground_Manual, setPreviewBackground_Manual] = useState<
+    string | undefined
+  >();
+
+  const setSetting = useAppStore((state) => state.setSetting);
+
+  const handleFontChange = (value: string) => {
+    setSetting("font_manual", value);
+    setPreviewFont_Manual(undefined);
+  };
+
+  const handleBackgroundChange = (value: string) => {
+    setSetting("background_manual", value);
+    setPreviewBackground_Manual(undefined);
+  };
+
+  const setOpacity_Manual = (value: number) =>
+    setSetting("opacity_manual", value);
+  const setBold_Manual = (value: boolean) => setSetting("bold_manual", value);
+  const setShowCodeText = (value: boolean) => setSetting("showCodeText", value);
+  const setEndLine_Manual = (value: boolean) =>
+    setSetting("endLine_manual", value);
+
+  const updateLabelContent = (value: string) => {
+    setContentByType((current) => ({ ...current, [contentType]: value }));
+    if (contentType !== "text") {
+      // Сбрасываем предыдущий код сразу, не дожидаясь useEffect Preview.
+      setCodeImage("");
+    }
+  };
+
+  const handleContentTypeChange = (nextType: LabelContentType) => {
+    if (nextType !== contentType) {
+      setCodeImage("");
+      setIsCodeImageGenerating(false);
+      setContentType(nextType);
+    }
+  };
+  const [textInputMode, setTextInputMode] = useState<TextInputMode>("single");
+  const [sequence, setSequence] = useState<SequenceConfig>({
+    start: "1",
+    end: "5",
+    step: "1",
+    prefix: "",
+    suffix: "",
+  });
+
+  const sequenceResult = useMemo(() => generateSequence(sequence), [sequence]);
+
+  // Режим диапазона применим только к текстовым этикеткам.
+  const isSequenceMode = contentType === "text" && textInputMode === "sequence";
+  const sequenceValues = sequenceResult.values;
+
+  const updateSequence = (key: keyof SequenceConfig, value: string) => {
+    setSequence((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const {
+    isPrinting,
+    currentPrintingItem,
+    startPrinting: sendPrintJob,
+    stopSequencePrinting,
+  } = useLabelPrinting({
+    contentType,
+    content: contentByType[contentType],
+    codeImage,
+    isSequenceMode,
+    sequenceValues,
+    bold: bold_manual,
+    underline: endLine_manual,
+    showCodeText,
+  });
+
+  // Пустое содержимое не должно запускать печать. Для диапазона проверяем
+  // результат генерации, чтобы не блокировать корректную последовательность.
+  const hasPrintContent = isSequenceMode
+    ? sequenceValues.length > 0
+    : contentByType[contentType].trim().length > 0;
+
+  // Находим активный сценарий интерфейса на основе текущего состояния.
+  const currentScenario =
+    PRINT_SCENARIOS.find((scenario) =>
+      scenario.check({
+        backendOnline,
+        printerOnline,
+        isPrinting,
+        isSequenceMode,
+      }),
+    ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 w-full">
+      <SettingsPrinter
+        printer={printer}
+        listPrinters={listPrinters}
+        setPrinter={setPrinter}
+        paper={paper}
+        setPaper={setPaper}
+        listPapers={listPapers}
+        backendOnline={backendOnline}
+        printerOnline={printerOnline}
+      />
+      <div className="flex flex-col w-full rounded-xl border border-border bg-card p-2.5 gap-2">
+        <div className="flex items-center justify-center gap-1">
+          <SettingsCreatePaper
+            contentType={contentType}
+            setContentType={handleContentTypeChange}
+            content={contentByType[contentType]}
+            setContent={updateLabelContent}
+            bold={bold_manual}
+            setBold={setBold_Manual}
+            opacity={opacity_manual}
+            setOpacity={setOpacity_Manual}
+            underline={endLine_manual}
+            setUnderline={setEndLine_Manual}
+            showCodeText={showCodeText}
+            setShowCodeText={setShowCodeText}
+            sequence={sequence}
+            updateSequence={updateSequence}
+            textInputMode={textInputMode}
+            setTextInputMode={setTextInputMode}
+            font={font_manual}
+            setFont={handleFontChange}
+            dataFonts={dataFonts}
+            background={background_manual}
+            setBackground={handleBackgroundChange}
+            dataBackgrounds={dataBackgrounds}
+            onPreviewFont_Manual={setPreviewFont_Manual}
+            onPreviewBackground_Manual={setPreviewBackground_Manual}
+          />
+          <div className="flex flex-col w-full gap-2">
+            <PreviewPaper
+              mode="create"
+              contentType={contentType}
+              bold={bold_manual}
+              underline={endLine_manual}
+              content={contentByType[contentType]}
+              showCodeText={showCodeText}
+              setCodeImage={setCodeImage}
+              onCodeImageLoadingChange={setIsCodeImageGenerating}
+              textInputMode={textInputMode}
+              font={previewFont_Manual ?? font_manual}
+              sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}
+              background={previewBackground_Manual ?? background_manual}
+              opacity={opacity_manual}
+            />
+            {/* Предпросмотр */}
+
+            {/* Зарезервированная область для результатов диапазона */}
+            <div className="min-h-[84px]">
+              {isSequenceMode && (
+                <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-2.5">
+                  {sequenceResult.error ? (
+                    <div className="flex items-start gap-2 text-destructive">
+                      <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                      <p className="text-xs">{sequenceResult.error}</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                          <Printer className="size-3.5" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-foreground">
+                            Будет напечатано
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {sequenceValues.length} значений
+                          </p>
+                        </div>
+
+                        <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold tabular-nums text-primary">
+                          {sequenceValues.length}
+                        </span>
+                      </div>
+
+                      <div className="my-2 border-t border-primary/10" />
+
+                      <div className="flex flex-wrap gap-1.5">
+                        {sequenceValues.slice(0, 5).map((value, index) => (
+                          <span
+                            key={index}
+                            className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground"
+                          >
+                            {value}
+                          </span>
+                        ))}
+
+                        {sequenceValues.length > 6 && (
+                          <span className="flex items-center px-1 text-xs font-medium text-primary">
+                            +{sequenceValues.length - 6}
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+          {/* Элемент 1: Статичное сообщение статуса с общим фоном для серии */}
+          <div
+            className={`h-7 px-3 flex items-center justify-center rounded-md transition-all duration-200 ${
+              currentScenario.hasCustomBg
+                ? "bg-amber-50 dark:bg-amber-950/20 border border-amber-200/40 dark:border-amber-900/30"
+                : "bg-transparent border border-transparent"
+            }`}
+          >
+            <span className={currentScenario.topTextClass}>
+              {/* Вызываем функцию, которая отрендерит текст со стрелочкой и подсвеченным бейджем */}
+              {currentScenario.topText(currentPrintingItem)}
+            </span>
+          </div>
+
+          {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
+          <Button
+            type="button"
+            disabled={
+              currentScenario.buttonDisabled ||
+              (!currentScenario.isStopButton && !hasPrintContent) ||
+              (contentType !== "text" && (isCodeImageGenerating || !codeImage))
+            }
+            onClick={
+              currentScenario.isStopButton ? stopSequencePrinting : sendPrintJob
+            }
+            className={`h-9 w-full shrink-0 rounded-lg text-sm sm:w-auto font-medium transition-all ${
+              currentScenario.isStopButton
+                ? "bg-red-600 hover:bg-red-700 text-white shadow-sm"
+                : ""
+            }`}
+          >
+            {isPrinting && (
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            )}
+            {currentScenario.buttonText}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

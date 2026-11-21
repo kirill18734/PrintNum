@@ -6,7 +6,6 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "core:window:allow-set-size",
     "core:window:allow-destroy",
     "shell:allow-open",
     "core:window:allow-close",
@@ -14,6 +13,30 @@
     "core:window:allow-show",
     "log:allow-log",
     "store:default",
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": ["$APPDATA/**"]
+    },
     {
       "identifier": "shell:allow-spawn",
       "allow": [
