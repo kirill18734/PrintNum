@@ -38,7 +38,6 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setDraftOpacity(opacity);
@@ -82,6 +81,7 @@ export default function Background({
       if (store.background_manual === selectedName)
         await store.setSetting("background_manual", "Без фона");
 
+      setBackground("Без фона");
       onPreviewBackground(undefined);
       toast.add({ title: "Фон удалён", type: "success" });
     } catch (error) {
@@ -103,7 +103,6 @@ export default function Background({
             value={background}
             onValueChange={setBackground}
             onOpenChange={(open) => {
-              setIsOpen(open);
               if (!open) onPreviewBackground(undefined);
             }}
           >
@@ -129,38 +128,28 @@ export default function Background({
                   <SelectItem
                     value={name}
                     key={name}
-                    className="pr-14 text-xs"
+                    className="text-xs"
                     onPointerMove={() => onPreviewBackground(name)}
                     onFocus={() => onPreviewBackground(name)}
                   >
                     <span className="min-w-0 flex-1 truncate">{name}</span>
-
-                    {isOpen && (
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        disabled={isDeleting}
-                        title={`Удалить фон «${name}»`}
-                        aria-label={`Удалить фон «${name}»`}
-                        onPointerDown={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                        }}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          void handleDeleteBackground(name);
-                        }}
-                        className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-                      >
-                        <Trash2 size={13} />
-                      </Button>
-                    )}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
+
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => void handleDeleteBackground(background)}
+            disabled={background === "Без фона" || isDeleting}
+            title={background === "Без фона" ? "Стандартный фон нельзя удалить" : `Удалить фон «${background}»`}
+            aria-label={background === "Без фона" ? "Удаление недоступно" : `Удалить фон «${background}»`}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+          >
+            <Trash2 size={14} />
+          </Button>
 
           <Button
             variant="ghost"
