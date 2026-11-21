@@ -2,6 +2,16 @@ import { useState } from "react";
 import { Plus, Trash2, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -31,6 +41,7 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const handleAddFonts = async () => {
     if (isAdding) return;
@@ -56,7 +67,6 @@ export default function Font({
 
   const handleDeleteFont = async (selectedName: string) => {
     if (selectedName === "Arial" || isDeleting) return;
-    if (!window.confirm(`Удалить шрифт «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
@@ -116,7 +126,7 @@ export default function Font({
       <Button
         variant="ghost"
         type="button"
-        onClick={() => void handleDeleteFont(font)}
+        onClick={() => setPendingDelete(font)}
         disabled={font === "Arial" || isDeleting}
         title={font === "Arial" ? "Стандартный шрифт нельзя удалить" : `Удалить шрифт «${font}»`}
         aria-label={font === "Arial" ? "Удаление недоступно" : `Удалить шрифт «${font}»`}
@@ -139,6 +149,40 @@ export default function Font({
           <Plus size={8} className="absolute -right-1 -top-1" />
         </span>
       </Button>
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить шрифт?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы действительно хотите удалить этот шрифт?
+            </AlertDialogDescription>
+            <div className="w-full rounded-md bg-muted px-3 py-2 text-sm font-medium break-all">
+              {pendingDelete}
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={() => {
+                if (pendingDelete) void handleDeleteFont(pendingDelete);
+                setPendingDelete(null);
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+            <AlertDialogCancel disabled={isDeleting}>
+              Отмена
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
