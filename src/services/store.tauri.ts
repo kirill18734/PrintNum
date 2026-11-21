@@ -14,31 +14,20 @@ interface StoreService {
 
 const memoryConfig = { ...defaultConfig };
 
-// Динамическая валидация на основе defaultConfig
+// Динамическая валидация на основе defaultConfig.
 function isAppSettingsEntry(
   key: string,
   value: unknown,
 ): key is keyof AppSettings {
-  // Проверяем, существует ли вообще такой ключ в дефолтном конфиге
   if (!(key in defaultConfig)) return false;
-
-  // Для массива excludedTexts нельзя определять тип элементов через
-  // defaultValue[0]: у пустого массива этот элемент равен undefined.
-  if (key === "excludedTexts") {
-    return Array.isArray(value) && value.every((item) => typeof item === "string");
-  }
 
   const defaultValue = defaultConfig[key as keyof AppSettings];
 
-  // Обработка остальных массивов
+  // Все массивы настроек в конфиге содержат строки.
   if (Array.isArray(defaultValue)) {
-    return (
-      Array.isArray(value) &&
-      value.every((item) => typeof item === typeof defaultValue[0])
-    );
+    return Array.isArray(value) && value.every((item) => typeof item === "string");
   }
 
-  // Для остальных типов (string, number, boolean) сравниваем типы напрямую
   return typeof value === typeof defaultValue;
 }
 
