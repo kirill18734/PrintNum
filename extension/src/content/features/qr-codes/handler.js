@@ -50,29 +50,33 @@
   // Клик по элементу
   // ============================================================
 
-  // Последовательно проверяем варианты, сохраняя заданный порядок приоритета.
+  // Вспомогательная функция для одновременного поиска нескольких вариантов текста
   async function findFirstButton(candidates, timeout = 100) {
-    for (const candidate of candidates) {
-      const el = await waitLoadElement("button", candidate, "", document, timeout);
-      if (el) return el;
+    try {
+      return await Promise.any(
+        candidates.map(async (candidate) => {
+          const el = await waitLoadElement("button", candidate, "", document, timeout);
+          if (!el) throw new Error("Not found");
+          return el;
+        })
+      );
+    } catch {
+      return null;
     }
-
-    return null;
   }
 
   async function clickByElem(selector, textValue, name, isLoop) {
     let btn = null;
 
-    // Приоритет: «Попробовать ещё» → «Оплатить».
+    // Одновременный поиск кнопок (побеждает первая найденная)
     if (!isLoop && name?.startsWith("Оплатить") && textValue === TEXT.pay) {
-      btn = await findFirstButton([TEXT.payAgain, TEXT.pay], 100);
+      btn = await findFirstButton([TEXT.pay, TEXT.payAgain], 100);
     } else if (
       !isLoop &&
       name === "Автосценарий" &&
       textValue === TEXT.issue
     ) {
-      // Приоритет: «Выдать» → «Попробовать ещё» → «Оплатить».
-      btn = await findFirstButton([TEXT.issue, TEXT.payAgain, TEXT.pay], 100);
+      btn = await findFirstButton([TEXT.issue, TEXT.pay, TEXT.payAgain], 100);
     } else {
       const timeout = isLoop ? 5000 : 1000;
       btn = await waitLoadElement(
