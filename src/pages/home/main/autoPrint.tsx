@@ -22,7 +22,6 @@ export default function AutoPrint({
   const excludedTexts = useAppStore((state) => state.excludedTexts);
   const idNum = useAppStore((state) => state.idNum);
   const endLine = useAppStore((state) => state.endLine);
-  const hybrid = useAppStore((state) => state.hybrid);
   const font = useAppStore((state) => state.font);
   const expand = useAppStore((state) => state.expand);
   const opacity = useAppStore((state) => state.opacity);
@@ -50,7 +49,6 @@ export default function AutoPrint({
     setSetting("excludedTexts", rules);
 
   const setIdNum = (value: boolean) => setSetting("idNum", value);
-  const setHybrid = (value: boolean) => setSetting("hybrid", value);
   const setExpand = (value: number) => setSetting("expand", value);
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
@@ -95,8 +93,6 @@ export default function AutoPrint({
             dataBackgrounds={dataBackgrounds}
             dataFonts={dataFonts}
             setBold={setBold}
-            hybrid={hybrid}
-            setHybrid={setHybrid}
             expand={expand}
             setExpand={setExpand}
             opacity={opacity}
@@ -111,7 +107,6 @@ export default function AutoPrint({
             idNum={idNum}
             font={previewFont ?? font}
             endLine={endLine}
-            hybrid={hybrid}
             expand={expand}
             bold={bold}
             mode="autoprint"

@@ -12,7 +12,6 @@ def prepare_label_data(text, config):
     """Подготавливает текст и параметры форматирования этикетки."""
     end_line = config.get("endLine", False)
     id_num = config.get("idNum", True)
-    hybrid = config.get("hybrid", False)
     expand = config.get("expand", 0)
     bold = config.get("bold", False)
 
@@ -33,7 +32,7 @@ def prepare_label_data(text, config):
         is_kgt = raw_main.upper() == "КГТ"
 
         is_swapped = (
-                (hybrid and main_text_val >= expand)
+                (expand > 0 and main_text_val >= expand)
                 or is_kgt
         )
 
