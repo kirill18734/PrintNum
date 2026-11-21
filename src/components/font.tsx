@@ -31,7 +31,6 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddFonts = async () => {
     if (isAdding) return;
@@ -67,6 +66,7 @@ export default function Font({
       if (store.font_manual === selectedName)
         await store.setSetting("font_manual", "Arial");
 
+      setFont("Arial");
       onPreviewFont(undefined);
       toast.add({ title: "Шрифт удалён", type: "success" });
     } catch (error) {
@@ -86,7 +86,6 @@ export default function Font({
         value={font}
         onValueChange={setFont}
         onOpenChange={(open) => {
-          setIsOpen(open);
           if (!open) onPreviewFont(undefined);
         }}
       >
@@ -105,36 +104,26 @@ export default function Font({
                 key={item}
                 onPointerMove={() => onPreviewFont(item)}
                 onFocus={() => onPreviewFont(item)}
-                className="pr-14 text-xs"
+                className="text-xs"
               >
                 <span className="min-w-0 flex-1 truncate">{item}</span>
-
-                {isOpen && item !== "Arial" && (
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    disabled={isDeleting}
-                    title={`Удалить шрифт «${item}»`}
-                    aria-label={`Удалить шрифт «${item}»`}
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      void handleDeleteFont(item);
-                    }}
-                    className="absolute right-7 z-10 flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-                  >
-                    <Trash2 size={13} />
-                  </Button>
-                )}
               </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
       </Select>
+
+      <Button
+        variant="ghost"
+        type="button"
+        onClick={() => void handleDeleteFont(font)}
+        disabled={font === "Arial" || isDeleting}
+        title={font === "Arial" ? "Стандартный шрифт нельзя удалить" : `Удалить шрифт «${font}»`}
+        aria-label={font === "Arial" ? "Удаление недоступно" : `Удалить шрифт «${font}»`}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+      >
+        <Trash2 size={14} />
+      </Button>
 
       <Button
         variant="ghost"
