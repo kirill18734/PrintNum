@@ -88,7 +88,8 @@ export function StatusCard({
   text,
   renameText,
   receivedAt,
-}: StatusCardProps) {
+  printerOnline,
+}: StatusCardProps & { printerOnline?: boolean }) {
   const config = STATUS_CONFIG[status];
   const Icon = config.Icon;
 
@@ -104,7 +105,15 @@ export function StatusCard({
 
   const description = isWaiting ? "Новых заданий пока нет" : null;
   const statusHint =
-    status === "printer_unavailable" ? "Принтер недоступен" : null;
+    status === "printer_unavailable"
+      ? printerOnline
+        ? "Принтер был недоступен"
+        : "Принтер недоступен"
+      : null;
+  const statusHintColor =
+    printerOnline && status === "printer_unavailable"
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-destructive";
 
   return (
     <Card
@@ -161,7 +170,7 @@ export function StatusCard({
               </span>
 
               {statusHint && (
-                <span className="truncate text-[11px] text-muted-foreground">
+                <span className={`truncate text-[11px] ${statusHintColor}`}>
                   • {statusHint}
                 </span>
               )}
