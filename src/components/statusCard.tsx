@@ -113,9 +113,11 @@ export function StatusCard({
           : "Принтер недоступен"
         : null;
   const statusHintColor =
-    printerOnline && status === "printer_unavailable"
-      ? "text-violet-600 dark:text-violet-400"
-      : "text-destructive";
+    status === "excluded"
+      ? config.color
+      : printerOnline && status === "printer_unavailable"
+        ? "text-violet-600 dark:text-violet-400"
+        : "text-destructive";
 
   return (
     <Card
