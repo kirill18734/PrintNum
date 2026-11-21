@@ -105,11 +105,13 @@ export function StatusCard({
 
   const description = isWaiting ? "Новых заданий пока нет" : null;
   const statusHint =
-    status === "printer_unavailable"
-      ? printerOnline
-        ? "Принтер был недоступен"
-        : "Принтер недоступен"
-      : null;
+    status === "excluded"
+      ? "Найдено в исключениях"
+      : status === "printer_unavailable"
+        ? printerOnline
+          ? "Принтер был недоступен"
+          : "Принтер недоступен"
+        : null;
   const statusHintColor =
     printerOnline && status === "printer_unavailable"
       ? "text-violet-600 dark:text-violet-400"
