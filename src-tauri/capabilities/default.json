@@ -13,9 +13,16 @@
     "core:window:allow-show",
     "log:allow-log",
     "store:default",
-    "fs:default",
     {
       "identifier": "fs:allow-read-dir",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": ["$APPDATA/**"]
+    },
+    {
+      "identifier": "fs:allow-exists",
       "allow": ["$APPDATA/**"]
     },
     {
