@@ -34,8 +34,8 @@ const STATUS_CONFIG = {
   },
   excluded: {
     label: "Пропущено",
-    color: "text-amber-600 dark:text-amber-400",
-    border: "border-amber-500/30 bg-amber-500/[0.03]",
+    color: "text-amber-800 dark:text-amber-300",
+    border: "border-amber-500/30 bg-amber-500/[0.04] dark:bg-amber-500/[0.03]",
     Icon: Ban,
   },
   printer_unavailable: {
@@ -113,9 +113,11 @@ export function StatusCard({
           : "Принтер недоступен"
         : null;
   const statusHintColor =
-    printerOnline && status === "printer_unavailable"
-      ? "text-violet-600 dark:text-violet-400"
-      : "text-destructive";
+    status === "excluded"
+      ? config.color
+      : printerOnline && status === "printer_unavailable"
+        ? "text-violet-600 dark:text-violet-400"
+        : "text-destructive";
 
   return (
     <Card
