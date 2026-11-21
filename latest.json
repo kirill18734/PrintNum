@@ -3,8 +3,8 @@
   "note": "current version",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUWZ0TUx0NUVWeFIxOXlOdHZoUndYWWl4TlZZWjlNUDBiZk1MT1l3cHVYTG1kY3NNeFRzM0JZbVZqeTVsZUxLcGd5SmFpbnhHOHZabVliaUJYS3FCZXdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkyNTE5MzUzCWZpbGU6UHJpbnROdW1fMi4wLjNfeDY0LXNldHVwLmV4ZQo5UWRVMmJEWmNNdE9UY09NTU8vK2dFcTNCVFBIMS9OMkVBN2M3VVJFcXdqSjFOQWM1VjM1bGdYNzVzZmZIMkFNTlNvVk9SVDlDTEpUMHhWNmxiMFdDZz09Cg==",
-      "url": "https://github.com/kirill18734/PrintNum/releases/download/v2.0.3/PrintNum_2.0.3_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSV1JORHJSeldYUVNBQVZya3ZSeXJxZ2ZwYUF0aDhDZkh3MHhkQm90MGxobzZwbUF3Mk9RK2JENm10NGtpQTdBMjhKRkEzUG1YSHZ0YWZpTDNaYmdMc1YvZlRxOW5BL1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgwODc4CWZpbGU6UHJpbnROdW1fMi4wLjRfeDY0LXNldHVwLmV4ZQoyb0NZc2w4V09WY21rUEY5SXErZ0E4bUtwSnIvZStkaWVIbXBHbS9zaGdRbnV1SWFzYXV4NTBiWEF1Q1QzOXVkS1FHYTY2SXA1b3Zxb0JFcUovK3BBZz09Cg==",
+      "url": "https://github.com/kirill18734/PrintNum/releases/download/v2.0.4/PrintNum_2.0.4_x64-setup.exe"
     }
   }
 }

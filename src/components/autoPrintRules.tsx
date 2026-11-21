@@ -3,13 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const suggestedRules = [
-  "Прямой поток",
-  "Расходники",
-  "Возврат",
-  "Продавцу",
-  "Ozon Полка",
-];
+const suggestedRules = ["Прямой поток", "Расходники", "Возврат", "Продавцу"];
 
 interface AutoPrintRulesProps {
   rules: string[];
@@ -100,7 +94,8 @@ export default function AutoPrintRules({
                 className="inline-flex max-w-full items-center gap-0.5 rounded-full border border-amber-500/20 bg-background py-0.5 pl-2 pr-0.5 text-[11px] font-medium leading-none"
               >
                 <span className="break-all truncate max-w-[150px]">{rule}</span>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   aria-label={`Удалить исключение «${rule}»`}
                   onClick={() =>
@@ -172,7 +167,8 @@ export default function AutoPrintRules({
               <span className="text-[10px] font-semibold text-muted-foreground">
                 Готовые исключения
               </span>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 disabled={allSuggestionsSelected}
                 onMouseDown={(event) => event.preventDefault()}
@@ -204,7 +200,8 @@ export default function AutoPrintRules({
                 );
                 return (
                   <li key={suggestion}>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       aria-pressed={selected}
                       onMouseDown={(event) => event.preventDefault()}
