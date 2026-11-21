@@ -172,7 +172,7 @@ export default function CreateLabel({
   const [textInputMode, setTextInputMode] = useState<TextInputMode>("single");
   const [sequence, setSequence] = useState<SequenceConfig>({
     start: "1",
-    end: "10",
+    end: "5",
     step: "1",
     prefix: "",
     suffix: "",
