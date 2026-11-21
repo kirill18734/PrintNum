@@ -1,5 +1,7 @@
 // Адаптер системных возможностей приложения для Tauri и браузерного режима.
 
+import type { Update } from "@tauri-apps/plugin-updater";
+
 export const isTauri = typeof window !== "undefined" && "__TAURI__" in window;
 
 // ─── ИНТЕРФЕЙС СИСТЕМНОГО СЕРВИСА ───
@@ -39,11 +41,7 @@ const webAppService: IAppService = {
 
 // ─── РЕАЛИЗАЦИЯ ДЛЯ TAURI V2 ───
 
-interface UpdateHandle {
-  downloadAndInstall(): Promise<void>;
-}
-
-let realUpdateObject: UpdateHandle | null = null;
+let realUpdateObject: Update | null = null;
 
 let backendChild: import("@tauri-apps/plugin-shell").Child | null = null;
 
