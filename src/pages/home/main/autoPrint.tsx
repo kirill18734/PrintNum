@@ -58,6 +58,7 @@ export default function AutoPrint({
     <div className="flex flex-col items-center justify-center gap-2 w-full">
       <StatusCard
         {...(printJobs.length ? printJobs[0] : { status: "waiting" })}
+        printerOnline={printerOnline}
       />
 
       <SettingsPrinter
