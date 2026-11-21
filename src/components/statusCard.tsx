@@ -39,9 +39,9 @@ const STATUS_CONFIG = {
     Icon: Ban,
   },
   printer_unavailable: {
-    label: "Принтер недоступен",
-    color: "text-destructive",
-    border: "border-destructive/30 bg-destructive/[0.03]",
+    label: "Не отправлено",
+    color: "text-amber-600 dark:text-amber-400",
+    border: "border-border",
     Icon: Printer,
   },
   print_error: {
@@ -103,6 +103,8 @@ export function StatusCard({
   const time = formatTime(receivedAt);
 
   const description = isWaiting ? "Новых заданий пока нет" : null;
+  const statusHint =
+    status === "printer_unavailable" ? "Принтер недоступен" : null;
 
   return (
     <Card
@@ -135,23 +137,35 @@ export function StatusCard({
           )}
         </div>
       ) : (
-        <div className="flex min-h-0 w-full flex-1 flex-col justify-evenly gap-1">
+        <div
+          className={`flex min-h-0 w-full flex-1 flex-col justify-evenly ${
+            statusHint ? "gap-0.5" : "gap-1"
+          }`}
+        >
           {/* Статус — без времени */}
-          <div className="flex shrink-0 items-center gap-1.5">
-            <Icon
-              size={13}
-              strokeWidth={2}
-              className={`
-                shrink-0 ${config.color}
-                ${STATUS_ANIMATION[status]}
-              `}
-            />
+          <div className="flex shrink-0 flex-col items-start gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <Icon
+                size={13}
+                strokeWidth={2}
+                className={`
+                  shrink-0 ${config.color}
+                  ${STATUS_ANIMATION[status]}
+                `}
+              />
 
-            <span
-              className={`truncate text-[11px] font-semibold ${config.color}`}
-            >
-              {config.label}
-            </span>
+              <span
+                className={`truncate text-[11px] font-semibold ${config.color}`}
+              >
+                {config.label}
+              </span>
+            </div>
+
+            {statusHint && (
+              <span className="pl-[19px] text-[9px] leading-tight text-muted-foreground">
+                {statusHint}
+              </span>
+            )}
           </div>
 
           {/* Полученный текст */}
