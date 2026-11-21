@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType, TextInputMode } from "@/types/label";
 import { loadBackgroundPreview, loadFontPreview } from "@/services/resources.tauri";
 
@@ -29,6 +29,63 @@ interface GeneratedCode {
   svg: string | null;
   error: string | null;
   loading: boolean;
+}
+
+interface FittedTextProps {
+  children: string;
+  className?: string;
+  fontFamilyKey?: string;
+}
+
+/** Подбирает максимальный размер шрифта, при котором строка целиком помещается в этикетку. */
+function FittedText({ children, className = "", fontFamilyKey = "" }: FittedTextProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [fontSize, setFontSize] = useState(8);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    const fitText = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (!width || !height) return;
+
+      let low = 4;
+      let high = Math.max(width, height) * 2;
+      for (let i = 0; i < 16; i += 1) {
+        const candidate = (low + high) / 2;
+        text.style.fontSize = `${candidate}px`;
+        if (text.scrollWidth <= width + 1 && text.scrollHeight <= height + 1) {
+          low = candidate;
+        } else {
+          high = candidate;
+        }
+      }
+
+      const nextSize = Math.max(4, Math.floor(low * 10) / 10);
+      setFontSize((current) => current === nextSize ? current : nextSize);
+    };
+
+    fitText();
+    const observer = new ResizeObserver(fitText);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [children, fontFamilyKey]);
+
+  return (
+    <div ref={containerRef} className="h-full min-h-0 w-full min-w-0">
+      <span
+        ref={textRef}
+        className={`block h-full w-full whitespace-nowrap leading-none ${className}`}
+        style={{ alignContent: "center", fontSize: `${fontSize}px`, textAlign: "center" }}
+      >
+        {children}
+      </span>
+    </div>
+  );
 }
 
 export default function PreviewPaper({
@@ -235,29 +292,16 @@ export default function PreviewPaper({
             </span>
           </div>
         ) : contentType === "text" ? (
-          /* Обычный текст — Автомасштабируемый через SVG */
-          <div className="flex justify-center items-center w-full h-full flex-1 min-h-0 overflow-hidden select-none">
-            <svg
-              viewBox="0 0 100 50" /* Пропорции контейнера, подстроятся под flex-1 */
-              className="w-full h-full"
-              preserveAspectRatio="xMidYMid meet" /* Центрирует и вписывает текст */
+          /* Обычный текст: подбираем размер шрифта под фактическую область этикетки. */
+          <div className="flex flex-1 min-h-0 w-full items-center justify-center overflow-hidden select-none">
+            <FittedText
+              fontFamilyKey={font}
+              className={`${bold ? "font-bold" : "font-medium"} ${underline ? "underline decoration-2 underline-offset-2" : ""}`}
             >
-              <text
-                x="50"
-                y="25"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fontSize="18" /* Базовый размер, который будет масштабироваться */
-                style={{ fontFamily: fontStyle?.fontFamily ?? "Arial, sans-serif" }}
-                className={`fill-current
-                ${bold ? "font-bold" : ""}
-                ${underline ? "underline" : ""}`}
-              >
-                {textInputMode === "single"
-                  ? content || "Ваш текст"
-                  : sequenceValue}
-              </text>
-            </svg>
+              {textInputMode === "single"
+                ? content || "Ваш текст"
+                : sequenceValue}
+            </FittedText>
           </div>
         ) : (
           /* Штрихкод / QR / Data Matrix */
