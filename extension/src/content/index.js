@@ -1,5 +1,5 @@
 // Initializes and synchronizes extension feature settings in local storage.
-(async function () {
+window.PrintNum.featureModeReady = (async function () {
   const { banners, autoscripts, qrCodes } = window.PrintNum.config;
   const { getLocal: get_local_storage, setLocal: set_local_storage } =
     window.PrintNum.storage;
@@ -15,6 +15,8 @@
 
     // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище дефолтными значениями
     if (!isInitialized) {
+      const IS_DEV_MODE = false;
+      await set_local_storage("isDevMode", IS_DEV_MODE);
       await set_local_storage("isInitialized", true);
 
       await set_local_storage("banners", namesBanners);

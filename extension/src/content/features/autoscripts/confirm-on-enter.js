@@ -5,6 +5,11 @@
   const { listen: listening } = window.PrintNum.keyboard;
   const { getLocal: get_local_storage } = window.PrintNum.storage;
 
+  // Wait for the feature mode to be initialized before registering handlers.
+  await window.PrintNum.featureModeReady;
+  const isDevMode = await get_local_storage("isDevMode");
+  if (!isDevMode) return;
+
   let lastEnterTime = 0;
   let isRunning = false;
 

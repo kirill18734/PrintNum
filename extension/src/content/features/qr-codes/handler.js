@@ -50,17 +50,46 @@
   // Клик по элементу
   // ============================================================
 
+  // Вспомогательная функция для одновременного поиска нескольких вариантов текста
+  async function findFirstButton(candidates, timeout = 100) {
+    try {
+      return await Promise.any(
+        candidates.map(async (candidate) => {
+          const el = await waitLoadElement("button", candidate, "", document, timeout);
+          if (!el) throw new Error("Not found");
+          return el;
+        })
+      );
+    } catch {
+      return null;
+    }
+  }
+
   async function clickByElem(selector, textValue, name, isLoop) {
-    const timeout = isLoop ? 5000 : 1000;
-    const btn = await waitLoadElement(
-      selector,
-      textValue,
-      name,
-      document,
-      timeout,
-      false,
-      isLoop,
-    );
+    let btn = null;
+
+    // Одновременный поиск кнопок (побеждает первая найденная)
+    if (!isLoop && name?.startsWith("Оплатить") && textValue === TEXT.pay) {
+      btn = await findFirstButton([TEXT.pay, TEXT.payAgain], 100);
+    } else if (
+      !isLoop &&
+      name === "Автосценарий" &&
+      textValue === TEXT.issue
+    ) {
+      btn = await findFirstButton([TEXT.issue, TEXT.pay, TEXT.payAgain], 100);
+    } else {
+      const timeout = isLoop ? 5000 : 1000;
+      btn = await waitLoadElement(
+        selector,
+        textValue,
+        name,
+        document,
+        timeout,
+        false,
+        isLoop,
+      );
+    }
+
     if (!btn) return null;
 
     btn.click();
