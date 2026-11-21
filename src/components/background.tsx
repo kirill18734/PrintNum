@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, ImagePlus, Trash2, X } from "lucide-react";
+import { ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -38,7 +38,6 @@ export default function Background({
   const [draftOpacity, setDraftOpacity] = useState(opacity);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
 
   useEffect(() => {
     setDraftOpacity(opacity);
@@ -71,6 +70,7 @@ export default function Background({
 
   const handleDeleteBackground = async (selectedName: string) => {
     if (selectedName === "Без фона" || isDeleting) return;
+    if (!window.confirm(`Удалить фон «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
@@ -82,7 +82,6 @@ export default function Background({
         await store.setSetting("background_manual", "Без фона");
 
       setBackground("Без фона");
-      setIsDeleteConfirmationOpen(false);
       onPreviewBackground(undefined);
       toast.add({ title: "Фон удалён", type: "success" });
     } catch (error) {
@@ -140,44 +139,17 @@ export default function Background({
             </SelectContent>
           </Select>
 
-          {isDeleteConfirmationOpen ? (
-            <>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={() => void handleDeleteBackground(background)}
-                disabled={isDeleting}
-                title={`Подтвердить удаление фона «${background}»`}
-                aria-label="Подтвердить удаление фона"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-destructive bg-destructive/10 px-1.5 text-destructive outline-none transition-colors hover:bg-destructive/20 disabled:opacity-50"
-              >
-                <Check size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={() => setIsDeleteConfirmationOpen(false)}
-                disabled={isDeleting}
-                title="Отменить удаление"
-                aria-label="Отменить удаление"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-accent disabled:opacity-50"
-              >
-                <X size={14} />
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={() => setIsDeleteConfirmationOpen(true)}
-              disabled={background === "Без фона" || isDeleting}
-              title={background === "Без фона" ? "Стандартный фон нельзя удалить" : `Удалить фон «${background}»`}
-              aria-label={background === "Без фона" ? "Удаление недоступно" : `Удалить фон «${background}»`}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-            >
-              <Trash2 size={14} />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => void handleDeleteBackground(background)}
+            disabled={background === "Без фона" || isDeleting}
+            title={background === "Без фона" ? "Стандартный фон нельзя удалить" : `Удалить фон «${background}»`}
+            aria-label={background === "Без фона" ? "Удаление недоступно" : `Удалить фон «${background}»`}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+          >
+            <Trash2 size={14} />
+          </Button>
 
           <Button
             variant="ghost"
