@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Type } from "lucide-react";
+import { Check, Plus, Trash2, Type, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -31,6 +31,7 @@ export default function Font({
 }: FontProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
 
   const handleAddFonts = async () => {
     if (isAdding) return;
@@ -56,7 +57,6 @@ export default function Font({
 
   const handleDeleteFont = async (selectedName: string) => {
     if (selectedName === "Arial" || isDeleting) return;
-    if (!window.confirm(`Удалить шрифт «${selectedName}»?`)) return;
 
     setIsDeleting(true);
     try {
@@ -67,6 +67,7 @@ export default function Font({
         await store.setSetting("font_manual", "Arial");
 
       setFont("Arial");
+      setIsDeleteConfirmationOpen(false);
       onPreviewFont(undefined);
       toast.add({ title: "Шрифт удалён", type: "success" });
     } catch (error) {
@@ -113,17 +114,44 @@ export default function Font({
         </SelectContent>
       </Select>
 
-      <Button
-        variant="ghost"
-        type="button"
-        onClick={() => void handleDeleteFont(font)}
-        disabled={font === "Arial" || isDeleting}
-        title={font === "Arial" ? "Стандартный шрифт нельзя удалить" : `Удалить шрифт «${font}»`}
-        aria-label={font === "Arial" ? "Удаление недоступно" : `Удалить шрифт «${font}»`}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
-      >
-        <Trash2 size={14} />
-      </Button>
+      {isDeleteConfirmationOpen ? (
+        <>
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => void handleDeleteFont(font)}
+            disabled={isDeleting}
+            title={`Подтвердить удаление шрифта «${font}»`}
+            aria-label="Подтвердить удаление шрифта"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-destructive bg-destructive/10 px-1.5 text-destructive outline-none transition-colors hover:bg-destructive/20 disabled:opacity-50"
+          >
+            <Check size={14} />
+          </Button>
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => setIsDeleteConfirmationOpen(false)}
+            disabled={isDeleting}
+            title="Отменить удаление"
+            aria-label="Отменить удаление"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-accent disabled:opacity-50"
+          >
+            <X size={14} />
+          </Button>
+        </>
+      ) : (
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => setIsDeleteConfirmationOpen(true)}
+          disabled={font === "Arial" || isDeleting}
+          title={font === "Arial" ? "Стандартный шрифт нельзя удалить" : `Удалить шрифт «${font}»`}
+          aria-label={font === "Arial" ? "Удаление недоступно" : `Удалить шрифт «${font}»`}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+        >
+          <Trash2 size={14} />
+        </Button>
+      )}
 
       <Button
         variant="ghost"
