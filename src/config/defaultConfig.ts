@@ -18,6 +18,7 @@ export interface AppSettings {
   theme: "system" | "light" | "dark";
   themeStyle: string;
   excludedTexts: string[];
+  deletedResources: string[];
 }
 
 export const defaultConfig: AppSettings = {
@@ -39,6 +40,7 @@ export const defaultConfig: AppSettings = {
   theme: "system",
   themeStyle: "vercel",
   excludedTexts: [],
+  deletedResources: [],
 };
 
 export interface PaperFormat {

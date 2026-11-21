@@ -13,15 +13,42 @@ fn get_version(app_handle: tauri::AppHandle) -> String {
         .unwrap_or_else(|| "".into())
 }
 
-/// Список ресурсов, удалённых пользователем. Путь относительно AppData.
-fn load_deleted_resources(app_data_dir: &Path) -> HashSet<String> {
-    let manifest = app_data_dir.join("deleted-resources.txt");
-    fs::read_to_string(manifest)
-        .map(|content| content.lines().map(str::trim).filter(|line| !line.is_empty()).map(str::to_owned).collect())
-        .unwrap_or_default()
+/// Возвращает каталог встроенных ресурсов приложения.
+fn resource_source_root(app: &tauri::AppHandle) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let resource_dir = app.path().resource_dir()?;
+    let source_root = if resource_dir.join("fonts").exists()
+        || resource_dir.join("backgrounds").exists()
+    {
+        resource_dir
+    } else {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../resources")
+    };
+
+    Ok(source_root)
 }
 
-/// Копирует только отсутствующие файлы и пропускает ресурсы из списка удалённых.
+/// Читает список удалённых встроенных ресурсов из config.json Tauri Store.
+fn load_deleted_resources(app_config_dir: &Path) -> HashSet<String> {
+    let config_path = app_config_dir.join("config.json");
+    let Ok(content) = fs::read_to_string(config_path) else {
+        return HashSet::new();
+    };
+
+    let Ok(config) = serde_json::from_str::<serde_json::Value>(&content) else {
+        return HashSet::new();
+    };
+
+    config
+        .get("deletedResources")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(serde_json::Value::as_str)
+        .map(str::to_owned)
+        .collect()
+}
+
+/// Копирует только отсутствующие файлы и пропускает удалённые встроенные ресурсы.
 fn copy_missing_files(
     source: &Path,
     destination: &Path,
@@ -54,19 +81,36 @@ fn copy_missing_files(
     Ok(())
 }
 
+/// Проверяет, входит ли файл в комплект встроенных ресурсов приложения.
+#[tauri::command]
+fn is_builtin_resource(app: tauri::AppHandle, kind: String, file_name: String) -> bool {
+    let directory = match kind.as_str() {
+        "font" => "fonts",
+        "background" => "backgrounds",
+        _ => return false,
+    };
+
+    if file_name.is_empty()
+        || file_name == "."
+        || file_name == ".."
+        || file_name.contains('/')
+        || file_name.contains('\\')
+    {
+        return false;
+    }
+
+    resource_source_root(&app)
+        .map(|root| root.join(directory).join(file_name).is_file())
+        .unwrap_or(false)
+}
+
 /// Подготавливает каталоги ресурсов в AppData при каждом запуске.
 fn install_app_resources(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_data_dir = app.path().app_data_dir()?;
-    let resource_dir = app.path().resource_dir()?;
-    let source_root = if resource_dir.join("fonts").exists()
-        || resource_dir.join("backgrounds").exists()
-    {
-        resource_dir
-    } else {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../resources")
-    };
+    let app_config_dir = app.path().app_config_dir()?;
+    let source_root = resource_source_root(app)?;
+    let deleted = load_deleted_resources(&app_config_dir);
 
-    let deleted = load_deleted_resources(&app_data_dir);
     copy_missing_files(
         &source_root.join("backgrounds"),
         &app_data_dir.join("backgrounds"),
@@ -118,7 +162,7 @@ pub fn run() {
                 .default_version_comparator(|current, update| update.version != current)
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![get_version])
+        .invoke_handler(tauri::generate_handler![get_version, is_builtin_resource])
         .setup(|app| {
             if let Err(error) = install_app_resources(app.handle()) {
                 log::error!("Не удалось подготовить ресурсы AppData: {error}");
