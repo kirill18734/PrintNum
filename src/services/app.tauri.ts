@@ -92,14 +92,17 @@ const tauriAppService: IAppService = {
 
   installAndRelaunch: async () => {
     if (!realUpdateObject) {
-      console.error("No update object found. Run checkForUpdates first.");
-
-      return;
+      throw new Error("No update object found. Run checkForUpdates first.");
     }
+
+    const update = realUpdateObject;
+
+    // Сначала полностью скачиваем обновление, пока backend продолжает работать.
+    await update.download();
 
     const { relaunch } = await import("@tauri-apps/plugin-process");
 
-    // Останавливаем backend через HTTP
+    // Останавливаем backend только после успешного скачивания.
     try {
       await fetch("http://127.0.0.1:5000/shutdown", {
         method: "POST",
@@ -109,7 +112,7 @@ const tauriAppService: IAppService = {
       });
     } catch {}
 
-    // Fallback: завершаем дочерний процесс
+    // Fallback: завершаем дочерний процесс.
     try {
       if (backendChild) {
         await backendChild.kill();
@@ -118,7 +121,10 @@ const tauriAppService: IAppService = {
       }
     } catch {}
 
-    await realUpdateObject.downloadAndInstall();
+    // Устанавливаем уже скачанное обновление.
+    await update.install();
+
+    realUpdateObject = null;
 
     await relaunch();
   },
