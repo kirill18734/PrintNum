@@ -155,17 +155,17 @@ export function StatusCard({
               />
 
               <span
-                className={`truncate text-[11px] font-semibold ${config.color}`}
+                className={`shrink-0 text-[11px] font-semibold ${config.color}`}
               >
                 {config.label}
               </span>
-            </div>
 
-            {statusHint && (
-              <span className="pl-[19px] text-[9px] leading-tight text-muted-foreground">
-                {statusHint}
-              </span>
-            )}
+              {statusHint && (
+                <span className="truncate text-[11px] text-muted-foreground">
+                  • {statusHint}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Полученный текст */}
