@@ -40,7 +40,7 @@ const STATUS_CONFIG = {
   },
   printer_unavailable: {
     label: "Не отправлено",
-    color: "text-amber-600 dark:text-amber-400",
+    color: "text-violet-600 dark:text-violet-400",
     border: "border-border",
     Icon: Printer,
   },
@@ -112,7 +112,7 @@ export function StatusCard({
       : null;
   const statusHintColor =
     printerOnline && status === "printer_unavailable"
-      ? "text-amber-600 dark:text-amber-400"
+      ? "text-violet-600 dark:text-violet-400"
       : "text-destructive";
 
   return (
