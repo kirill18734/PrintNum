@@ -154,8 +154,16 @@ export default function Background({
             type="button"
             onClick={() => setPendingDelete(background)}
             disabled={background === "Без фона" || isDeleting}
-            title={background === "Без фона" ? "Стандартный фон нельзя удалить" : `Удалить фон «${background}»`}
-            aria-label={background === "Без фона" ? "Удаление недоступно" : `Удалить фон «${background}»`}
+            title={
+              background === "Без фона"
+                ? "Стандартный фон нельзя удалить"
+                : `Удалить фон «${background}»`
+            }
+            aria-label={
+              background === "Без фона"
+                ? "Удаление недоступно"
+                : `Удалить фон «${background}»`
+            }
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-input bg-transparent px-1.5 text-muted-foreground outline-none transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
           >
             <Trash2 size={14} />
@@ -211,28 +219,39 @@ export default function Background({
           if (!open) setPendingDelete(null);
         }}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Удалить фон?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Вы действительно хотите удалить этот фон?
+        <AlertDialogContent className="max-w-[380px] gap-3 p-5">
+          <AlertDialogHeader className="space-y-1 text-left">
+            <AlertDialogTitle className="text-base font-semibold">
+              Удаление фона
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs">
+              Вы действительно хотите безвозвратно удалить этот файл?
             </AlertDialogDescription>
-            <div className="w-full rounded-md bg-muted px-3 py-2 text-sm font-medium break-all">
+          </AlertDialogHeader>
+
+          {pendingDelete && (
+            <div className="w-full rounded border bg-muted/40 px-2.5 py-1.5 font-mono text-xs break-all text-foreground">
               {pendingDelete}
             </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
+          )}
+
+          <AlertDialogFooter className="mt-1 flex-row justify-end space-x-2 space-y-0">
             <AlertDialogAction
               variant="destructive"
               disabled={isDeleting}
+              className="h-8 px-3 text-xs"
               onClick={() => {
                 if (pendingDelete) void handleDeleteBackground(pendingDelete);
                 setPendingDelete(null);
               }}
             >
-              Удалить
+              {isDeleting ? "Удаление..." : "Удалить"}
             </AlertDialogAction>
-            <AlertDialogCancel disabled={isDeleting}>
+
+            <AlertDialogCancel
+              disabled={isDeleting}
+              className="mt-0 h-8 px-3 text-xs"
+            >
               Отмена
             </AlertDialogCancel>
           </AlertDialogFooter>
