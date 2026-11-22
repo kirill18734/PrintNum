@@ -13,6 +13,11 @@
     isRunning = true;
 
     try {
+      // Wait for feature settings initialization and run only in DEV mode.
+      await window.PrintNum.featureModeReady;
+      const isDevMode = await get_local_storage("isDevMode");
+      if (!isDevMode) return;
+
       const command = autoscripts?.find(
         (item) => item.id == "confirm-placement",
       );
