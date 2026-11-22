@@ -244,7 +244,7 @@ src-tauri/target/release/bundle/nsis/
 
 В проекте включено создание артефактов обновления через `bundle.createUpdaterArtifacts`, а в конфигурации Tauri задан публичный ключ. Для создания подписанных updater-артефактов необходим соответствующий **закрытый ключ**.
 
-В корне репозитория уже предусмотрен файл `.env` с переменными `TAURI_SIGNING_PRIVATE_KEY` и `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Для быстрой локальной сборки можно загрузить их в окружение текущего окна PowerShell и сразу запустить Tauri:
+В корне репозитория предусмотрен файл `.env` с переменными `TAURI_SIGNING_PRIVATE_KEY` и `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Для быстрой локальной сборки загрузите эти значения в окружение текущего окна PowerShell и запустите Tauri:
 
 ```powershell
 if (-not (Test-Path .env)) {
@@ -254,7 +254,28 @@ if (-not (Test-Path .env)) {
 Get-Content .env | ForEach-Object {
     $line = $_.Trim()
 
-    if ($line -match '^(TAURI_SIGNING_PRIVATE_KEY|TAURI_SIGNING_PRIVATE_KEY_PASSWORD)=(.*)
+    if ($line.StartsWith("TAURI_SIGNING_PRIVATE_KEY=")) {
+        $value = $line.Substring("TAURI_SIGNING_PRIVATE_KEY=".Length).Trim().Trim('"').Trim("'")
+        $env:TAURI_SIGNING_PRIVATE_KEY = $value
+    }
+    elseif ($line.StartsWith("TAURI_SIGNING_PRIVATE_KEY_PASSWORD=")) {
+        $value = $line.Substring("TAURI_SIGNING_PRIVATE_KEY_PASSWORD=".Length).Trim().Trim('"').Trim("'")
+        $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $value
+    }
+}
+
+if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
+    throw "В .env не задан TAURI_SIGNING_PRIVATE_KEY"
+}
+
+npm run tauri build
+```
+
+Команда читает только две переменные подписи и не выводит их значения в консоль. Запускайте её из корня репозитория. Переменные будут доступны процессу сборки и дочерним процессам в этом окне PowerShell; после его закрытия они исчезнут.
+
+Используйте существующий закрытый ключ, соответствующий публичному ключу в `src-tauri/tauri.conf.json`. Не генерируйте новый ключ для публикации обновлений уже установленным пользователям: новые подписи не будут соответствовать ключу, которому доверяет их приложение.
+
+**Безопасность:** файл `.env` с реальными секретами не должен попадать в Git, коммиты, публичные логи или установщик. Он добавлен в корневой `.gitignore`, чтобы Git не предлагал добавлять его в новые коммиты. Если файл уже был закоммичен ранее, одного `.gitignore` недостаточно — его нужно отдельно исключить из индекса Git и при необходимости сменить опубликованные секреты. Официальная документация: [Tauri Updater — Signing updates](https://v2.tauri.app/plugin/updater/).
 
 ## Диагностика
 
