@@ -45,3 +45,9 @@ body {
   letter-spacing: 0.03em;
   color: var(--text-muted);
 }
+
+
+/* Гарантируем скрытие элементов с hidden даже при заданном display в стилях. */
+[hidden] {
+  display: none !important;
+}
