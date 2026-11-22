@@ -1,0 +1,45 @@
+site_name: PrintNum — документация
+site_description: Руководство пользователя и техническая документация PrintNum
+site_url: https://kirill18734.github.io/PrintNum/
+repo_url: https://github.com/kirill18734/PrintNum
+repo_name: kirill18734/PrintNum
+
+theme:
+  name: material
+  language: ru
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Переключить на тёмную тему
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Переключить на светлую тему
+
+plugins:
+  - search:
+      lang: ru
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Главная: index.md
+  - Пользователям:
+      - Обзор: user/index.md
+  - Разработчикам:
+      - Обзор: developer/index.md
+
