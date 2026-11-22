@@ -1,6 +1,19 @@
 (async function () {
-  const { autoscripts, TEXT } = window.PrintNum.config;
   const { getLocal: get_local_storage } = window.PrintNum.storage;
+
+  // Keep the public method available while feature settings are initializing.
+  // In PROD it remains a no-op; in DEV it delegates to the actual script.
+  let runScriptImpl = async () => {};
+  window.PrintNum.confirmPlacement = {
+    runScript: (...args) => runScriptImpl(...args),
+  };
+
+  // Match the feature-mode guard used by the other content scripts.
+  await window.PrintNum.featureModeReady;
+  const isDevMode = await get_local_storage("isDevMode");
+  if (!isDevMode) return;
+
+  const { autoscripts, TEXT } = window.PrintNum.config;
   const { waitForElement: waitLoadElement } = window.PrintNum.dom;
 
   let isRunning = false;
@@ -38,6 +51,5 @@
     }
   }
 
-  window.PrintNum = window.PrintNum || {};
-  window.PrintNum.confirmPlacement = { runScript };
+  runScriptImpl = runScript;
 })();
