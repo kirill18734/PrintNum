@@ -244,18 +244,81 @@ src-tauri/target/release/bundle/nsis/
 
 В проекте включено создание артефактов обновления через `bundle.createUpdaterArtifacts`, а в конфигурации Tauri задан публичный ключ. Для создания подписанных updater-артефактов необходим соответствующий **закрытый ключ**.
 
-Если у вас есть доступ к действующему ключу проекта, задайте путь к нему в PowerShell перед сборкой:
+В корне репозитория уже предусмотрен файл `.env` с переменными `TAURI_SIGNING_PRIVATE_KEY` и `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Для быстрой локальной сборки можно загрузить их в окружение текущего окна PowerShell и сразу запустить Tauri:
 
 ```powershell
-$env:TAURI_SIGNING_PRIVATE_KEY = "C:\путь\к\закрытому\ключу"
-# Если ключ защищён паролем:
-$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "пароль"
+if (-not (Test-Path .env)) {
+    throw "Файл .env не найден в корне проекта"
+}
+
+Get-Content .env | ForEach-Object {
+    $line = $_.Trim()
+
+    if ($line -match '^(TAURI_SIGNING_PRIVATE_KEY|TAURI_SIGNING_PRIVATE_KEY_PASSWORD)=(.*)
+
+## Диагностика
+
+### `npm` или `node` не найдены
+
+Проверьте установку Node.js и откройте новое окно PowerShell. Убедитесь, что команды `node --version` и `npm --version` возвращают версии.
+
+### Ошибка компиляции Rust или `link.exe` не найден
+
+Проверьте, что установлен Rust toolchain `stable-x86_64-pc-windows-msvc` и рабочая нагрузка **Desktop development with C++** в Visual Studio Build Tools. После установки перезапустите терминал.
+
+### Не найден Backend sidecar
+
+Проверьте, что подготовленный Backend находится по пути `backend/output/backend-x86_64-pc-windows-msvc.exe`. Также проверьте результат команды `rustc --print host-tuple` и соответствие суффикса целевой платформы.
+
+### Не запускается окно приложения или отсутствует WebView
+
+Проверьте наличие Microsoft Edge WebView2 Runtime. При необходимости установите Evergreen Runtime с официального сайта Microsoft.
+
+### Порт 1420 занят
+
+Vite настроен на фиксированный порт `1420` и не переключается автоматически на другой. Освободите порт или завершите другой процесс разработки, который его использует.
+
+### Сборка updater-артефактов завершается ошибкой подписи
+
+Проверьте, что переменная `TAURI_SIGNING_PRIVATE_KEY` указывает на существующий закрытый ключ проекта, а при необходимости задана правильная переменная `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Не заменяйте публичный ключ в конфигурации случайно сгенерированным ключом.
+
+---
+
+## Полезные ссылки
+
+- [Официальная документация Tauri 2](https://v2.tauri.app/)
+- [Системные требования Tauri для Windows](https://v2.tauri.app/start/prerequisites/)
+- [Разработка приложения Tauri](https://v2.tauri.app/develop/)
+- [Подключение внешних бинарных файлов (sidecar)](https://v2.tauri.app/develop/sidecar/)
+- [Плагин обновлений Tauri](https://v2.tauri.app/plugin/updater/)
+- [Документация Backend PrintNum](../backend/README.md)
+- [Документация Extension PrintNum](../extension/README.md)
+) {
+        $name = $Matches[1]
+        $value = $Matches[2].Trim()
+
+        if ($value.Length -ge 2 -and
+            (($value.StartsWith('"') -and $value.EndsWith('"')) -or
+             ($value.StartsWith("'") -and $value.EndsWith("'")))) {
+            $value = $value.Substring(1, $value.Length - 2)
+        }
+
+        [Environment]::SetEnvironmentVariable($name, $value, "Process")
+    }
+}
+
+if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
+    throw "В .env не задан TAURI_SIGNING_PRIVATE_KEY"
+}
+
 npm run tauri build
 ```
 
-Используйте именно существующий закрытый ключ, соответствующий публичному ключу в `src-tauri/tauri.conf.json`. Не генерируйте новый ключ для публикации обновлений уже установленным пользователям: новые подписи не будут соответствовать ключу, которому доверяет их приложение.
+Команда читает только две переменные подписи и не выводит их значения в консоль. Запускайте её из корня репозитория. Переменные будут доступны процессу сборки и дочерним процессам в этом окне PowerShell; после его закрытия они исчезнут.
 
-Закрытый ключ и пароль нельзя добавлять в репозиторий, коммиты, публичные логи или передавать вместе с установщиком. Если ключ недоступен, обратитесь к владельцу релизной инфраструктуры. Официальная документация: [Tauri Updater — Signing updates](https://v2.tauri.app/plugin/updater/).
+Если сборка выполняется в другом окружении или файл `.env` отсутствует, задайте эти две переменные другим безопасным способом. Используйте именно существующий закрытый ключ, соответствующий публичному ключу в `src-tauri/tauri.conf.json`. Не генерируйте новый ключ для публикации обновлений уже установленным пользователям: новые подписи не будут соответствовать ключу, которому доверяет их приложение.
+
+**Безопасность:** не добавляйте `.env` с реальными секретами в Git, коммиты, публичные логи или установщик. Убедитесь, что файл исключён через `.gitignore`, и не публикуйте значения ключа и пароля. Официальная документация: [Tauri Updater — Signing updates](https://v2.tauri.app/plugin/updater/).
 
 ## Диагностика
 
