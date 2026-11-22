@@ -155,8 +155,40 @@
     },
   };
 
+  // Управление DEV-разделами Popup через chrome.storage.
+  function applyFeatureVisibility(isDevMode) {
+    const devOnlySections = [
+      "autoscripts",
+      "menu",
+      "notification",
+      "returns",
+      "banners",
+    ];
+
+    devOnlySections.forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) section.hidden = !isDevMode;
+    });
+
+    const visibilitySettings = document.querySelector(".visibility-settings");
+    if (visibilitySettings) visibilitySettings.hidden = !isDevMode;
+  }
+
   // Главная точка входа. Запускается при полной сборке DOM дерева
   document.addEventListener("DOMContentLoaded", () => {
+    // DEV-разделы скрыты в HTML до получения настройки, поэтому не мигают в PROD.
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      chrome.storage.local.get("isDevMode", (result) => {
+        applyFeatureVisibility(result.isDevMode === true);
+      });
+
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === "local" && changes.isDevMode) {
+          applyFeatureVisibility(changes.isDevMode.newValue === true);
+        }
+      });
+    }
+
     window.PrintNum.statusManager.init();
     window.PrintNum.accordionManager.init();
 
