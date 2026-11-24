@@ -12,7 +12,11 @@ def prepare_label_data(text, config):
     """Подготавливает текст и параметры форматирования этикетки."""
     end_line = config.get("endLine", False)
     id_num = config.get("idNum", True)
-    expand = config.get("expand", 0)
+    expand_value = config.get("expand", "")
+    try:
+        expand = int(str(expand_value).strip() or 0)
+    except (TypeError, ValueError):
+        expand = 0
     bold = config.get("bold", False)
 
     raw_main, _, raw_header = text.partition("-")
