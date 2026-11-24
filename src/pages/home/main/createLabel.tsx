@@ -254,11 +254,7 @@ export default function CreateLabel({
 
     window.addEventListener("keydown", handlePrintShortcut);
     return () => window.removeEventListener("keydown", handlePrintShortcut);
-  }, [
-    currentScenario.isStopButton,
-    isPrintButtonDisabled,
-    sendPrintJob,
-  ]);
+  }, [currentScenario.isStopButton, isPrintButtonDisabled, sendPrintJob]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
@@ -327,27 +323,51 @@ export default function CreateLabel({
                     <p className="text-xs">{sequenceResult.error}</p>
                   </div>
                 </div>
-              ) : (isSequenceMode ? sequenceValues : contentValues).length > 0 ? (
+              ) : (isSequenceMode ? sequenceValues : contentValues).length >
+                0 ? (
                 <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-2.5">
                   <div className="flex items-center gap-2">
                     <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <Printer className="size-3.5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-foreground">Будет напечатано</p>
-                      <p className="text-[11px] text-muted-foreground">{(isSequenceMode ? sequenceValues : contentValues).length} значений</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        Будет напечатано
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {
+                          (isSequenceMode ? sequenceValues : contentValues)
+                            .length
+                        }{" "}
+                        значений
+                      </p>
                     </div>
-                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold tabular-nums text-primary">{(isSequenceMode ? sequenceValues : contentValues).length}</span>
+                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold tabular-nums text-primary">
+                      {(isSequenceMode ? sequenceValues : contentValues).length}
+                    </span>
                   </div>
-                  {(isSequenceMode ? sequenceValues : contentValues).length > 1 && (
+                  {(isSequenceMode ? sequenceValues : contentValues).length >
+                    1 && (
                     <>
                       <div className="my-2 border-t border-primary/10" />
                       <div className="flex flex-wrap gap-1.5">
-                        {(isSequenceMode ? sequenceValues : contentValues).slice(0, 5).map((value, index) => (
-                          <span key={index} className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground">{value}</span>
-                        ))}
-                        {(isSequenceMode ? sequenceValues : contentValues).length > 5 && (
-                          <span className="flex items-center px-1 text-xs font-medium text-primary">+{(isSequenceMode ? sequenceValues : contentValues).length - 5}</span>
+                        {(isSequenceMode ? sequenceValues : contentValues)
+                          .slice(0, 5)
+                          .map((value, index) => (
+                            <span
+                              key={index}
+                              className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground"
+                            >
+                              {value}
+                            </span>
+                          ))}
+                        {(isSequenceMode ? sequenceValues : contentValues)
+                          .length > 5 && (
+                          <span className="flex items-center px-1 text-xs font-medium text-primary">
+                            +
+                            {(isSequenceMode ? sequenceValues : contentValues)
+                              .length - 5}
+                          </span>
                         )}
                       </div>
                     </>
@@ -409,12 +429,12 @@ export default function CreateLabel({
             )}
             {currentScenario.buttonText}
             {!currentScenario.isStopButton && (
-              <KbdGroup className="ml-2">
-                <Kbd className="h-5 min-w-5 rounded-[4px] border border-border/80 bg-background px-1.5 font-mono text-[10px] font-semibold text-foreground shadow-[0_1px_0_0_hsl(var(--border))]">
+              <KbdGroup className="ml-2 inline-flex items-center gap-1 select-none">
+                <Kbd className="inline-flex h-[18px] items-center justify-center rounded-[3px] border border-white/25 border-b-[1.5px] bg-white/[0.16] px-1.5 font-sans text-[10px] font-medium leading-none text-current dark:border-black/20 dark:bg-black/[0.09]">
                   Ctrl
                 </Kbd>
-                <span className="text-[10px] text-muted-foreground">+</span>
-                <Kbd className="h-5 min-w-5 rounded-[4px] border border-border/80 bg-background px-1.5 font-mono text-[10px] font-semibold text-foreground shadow-[0_1px_0_0_hsl(var(--border))]">
+                <span className="text-[10px] font-medium opacity-70">+</span>
+                <Kbd className="inline-flex h-[18px] items-center justify-center rounded-[3px] border border-white/25 border-b-[1.5px] bg-white/[0.16] px-1.5 font-sans text-[10px] font-medium leading-none text-current dark:border-black/20 dark:bg-black/[0.09]">
                   Enter
                 </Kbd>
               </KbdGroup>
