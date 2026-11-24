@@ -10,6 +10,7 @@ import type {
 } from "@/types/label";
 import type { PrinterPageProps } from "@/types/printer";
 import { generateSequence } from "@/shared/utils/generateSequence";
+import { parseNonEmptyLines } from "@/lib/parse-non-empty-lines";
 import { useLabelPrinting } from "./useLabelPrinting";
 import { AlertCircle, Printer } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
@@ -183,6 +184,8 @@ export default function CreateLabel({
   // Режим диапазона применим только к текстовым этикеткам.
   const isSequenceMode = contentType === "text" && textInputMode === "sequence";
   const sequenceValues = sequenceResult.values;
+  const contentValues = parseNonEmptyLines(contentByType[contentType]);
+  const previewContent = contentValues[0] ?? "";
 
   const updateSequence = (key: keyof SequenceConfig, value: string) => {
     setSequence((prev) => ({
@@ -211,7 +214,7 @@ export default function CreateLabel({
   // результат генерации, чтобы не блокировать корректную последовательность.
   const hasPrintContent = isSequenceMode
     ? sequenceValues.length > 0
-    : contentByType[contentType].trim().length > 0;
+    : contentValues.length > 0;
 
   // Находим активный сценарий интерфейса на основе текущего состояния.
   const currentScenario =
@@ -241,7 +244,7 @@ export default function CreateLabel({
           <SettingsCreatePaper
             contentType={contentType}
             setContentType={handleContentTypeChange}
-            content={contentByType[contentType]}
+            content={previewContent}
             setContent={updateLabelContent}
             bold={bold_manual}
             setBold={setBold_Manual}
