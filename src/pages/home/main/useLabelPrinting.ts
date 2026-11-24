@@ -39,13 +39,12 @@ export function useLabelPrinting({
     stopPrinting.current = false;
 
     try {
-      for (let index = 0; index < values.length; index += 1) {
+      for (const item of values) {
         if (stopPrinting.current) {
           console.log("Печать остановлена пользователем");
           break;
         }
 
-        const item = values[index];
         setCurrentPrintingItem(item);
 
         try {
