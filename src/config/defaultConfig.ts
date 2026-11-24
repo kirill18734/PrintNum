@@ -35,7 +35,7 @@ export const defaultConfig: AppSettings = {
   font_manual: "Arial",
   opacity: 50,
   opacity_manual: 50,
-  paper: "23*20",
+  paper: "30*20",
   expand: "",
   theme: "system",
   themeStyle: "vercel",
