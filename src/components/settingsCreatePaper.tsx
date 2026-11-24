@@ -209,7 +209,7 @@ export default function SettingsCreatePaper({
               <LineNumberedTextarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Введите текст. 1 строка = 1 этикетка"
+                placeholder={"Введите текст.\n1 строка = 1 этикетка"}
                 className={`${textareaClass} h-full min-h-0`}
               />
             ) : (
@@ -279,10 +279,10 @@ export default function SettingsCreatePaper({
               onChange={(e) => setContent(e.target.value)}
               placeholder={
                 contentType === "barcode"
-                  ? "Введите данные. 1 строка = 1 штрихкод"
+                  ? "Введите данные.\n1 строка = 1 штрихкод"
                   : contentType === "qr"
-                    ? "Введите данные. 1 строка = 1 QR-код"
-                    : "Введите данные. 1 строка = 1 Data Matrix"
+                    ? "Введите данные.\n1 строка = 1 QR-код"
+                    : "Введите данные.\n1 строка = 1 Data Matrix"
               }
               className={`${textareaClass} h-full min-h-0`}
             />
