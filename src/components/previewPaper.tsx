@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType, TextInputMode } from "@/types/label";
 import { loadBackgroundPreview, loadFontPreview } from "@/services/resources.tauri";
+import { generateCodeImage } from "@/shared/utils/generateCodeImage";
 
 interface PreviewPaperProps {
   idNum?: boolean;
@@ -18,12 +19,7 @@ interface PreviewPaperProps {
   textInputMode?: TextInputMode;
   sequenceValue?: string;
   background?: string;
-  setCodeImage?: (image: string) => void;
-  onCodeImageLoadingChange?: (loading: boolean) => void;
 }
-
-const NOOP_SET_CODE_IMAGE = (_image: string) => {};
-const NOOP_SET_LOADING = (_loading: boolean) => {};
 
 interface GeneratedCode {
   svg: string | null;
@@ -101,8 +97,6 @@ export default function PreviewPaper({
   underline = false,
   showCodeText = false,
   textInputMode = "single",
-  setCodeImage = NOOP_SET_CODE_IMAGE,
-  onCodeImageLoadingChange = NOOP_SET_LOADING,
   sequenceValue = "",
   background = "Без фона",
   opacity,
@@ -171,8 +165,6 @@ export default function PreviewPaper({
     // Проверяем условия отмены в самом начале
     if (mode === "autoprint" || contentType === "text" || !content.trim()) {
       setGeneratedCode({ svg: null, error: null, loading: false });
-      setCodeImage("");
-      onCodeImageLoadingChange(false);
       return;
     }
 
@@ -180,42 +172,10 @@ export default function PreviewPaper({
 
     // Включаем лоадер одним махом
     setGeneratedCode({ svg: null, error: null, loading: true });
-    setCodeImage("");
-    onCodeImageLoadingChange(true);
 
     const generateCode = async () => {
       try {
-        // Динамический импорт bwip-js
-        const bwipjs = await import("bwip-js/browser");
-        if (cancelled) return;
-
-        const bcid =
-          contentType === "barcode"
-            ? "code128"
-            : contentType === "qr"
-              ? "qrcode"
-              : "datamatrix";
-
-        const options = {
-          bcid,
-          text: content,
-          scale: 3,
-          padding: 0,
-          backgroundcolor: "FFFFFF",
-          barcolor: "000000",
-        };
-
-        // 1. Генерируем SVG (синхронно)
-        const svg = bwipjs.toSVG(options);
-
-        // 2. Генерируем Canvas (используем колбэк для гарантии отрисовки)
-        const canvas = document.createElement("canvas");
-
-        // bwipjs.toCanvas возвращает canvas, но надежнее дождаться завершения отрисовки
-        bwipjs.toCanvas(canvas, options);
-
-        // Получаем чистый Base64 (без префикса data:image/png;base64,)
-        const codeImage = canvas.toDataURL("image/png").split(",")[1];
+        const { svg } = await generateCodeImage(contentType, content);
 
         if (!cancelled) {
           setGeneratedCode({
@@ -223,8 +183,6 @@ export default function PreviewPaper({
             error: null,
             loading: false,
           });
-          setCodeImage(codeImage);
-          onCodeImageLoadingChange(false);
         }
       } catch (error) {
         if (!cancelled) {
@@ -233,8 +191,6 @@ export default function PreviewPaper({
             error: error instanceof Error ? error.message : String(error),
             loading: false,
           });
-          setCodeImage("");
-          onCodeImageLoadingChange(false);
         }
       }
     };
@@ -244,7 +200,7 @@ export default function PreviewPaper({
     return () => {
       cancelled = true;
     };
-  }, [mode, content, contentType, setCodeImage, onCodeImageLoadingChange]);
+  }, [mode, content, contentType]);
 
   // Общий слой фонового изображения
   const backgroundLayer = backgroundImage && (

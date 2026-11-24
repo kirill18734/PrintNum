@@ -128,8 +128,6 @@ export default function CreateLabel({
   const endLine_manual = useAppStore((state) => state.endLine_manual);
   const font_manual = useAppStore((state) => state.font_manual);
   const background_manual = useAppStore((state) => state.background_manual);
-  const [codeImage, setCodeImage] = useState<string>("");
-  const [isCodeImageGenerating, setIsCodeImageGenerating] = useState(false);
   const [previewFont_Manual, setPreviewFont_Manual] = useState<
     string | undefined
   >();
@@ -158,16 +156,10 @@ export default function CreateLabel({
 
   const updateLabelContent = (value: string) => {
     setContentByType((current) => ({ ...current, [contentType]: value }));
-    if (contentType !== "text") {
-      // Сбрасываем предыдущий код сразу, не дожидаясь useEffect Preview.
-      setCodeImage("");
-    }
   };
 
   const handleContentTypeChange = (nextType: LabelContentType) => {
     if (nextType !== contentType) {
-      setCodeImage("");
-      setIsCodeImageGenerating(false);
       setContentType(nextType);
     }
   };
@@ -203,7 +195,6 @@ export default function CreateLabel({
   } = useLabelPrinting({
     contentType,
     content: contentByType[contentType],
-    codeImage,
     isSequenceMode,
     sequenceValues,
     bold: bold_manual,
@@ -304,8 +295,6 @@ export default function CreateLabel({
               underline={endLine_manual}
               content={previewContent}
               showCodeText={showCodeText}
-              setCodeImage={setCodeImage}
-              onCodeImageLoadingChange={setIsCodeImageGenerating}
               textInputMode={textInputMode}
               font={previewFont_Manual ?? font_manual}
               sequenceValue={`${sequenceValues.length && sequenceValues[0]}`}

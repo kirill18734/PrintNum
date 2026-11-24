@@ -67,10 +67,12 @@ export function useLabelPrinting({
           });
 
           if (!response.status) {
-            console.error(`Backend не подтвердил отправку значения "${item}"`);
+            console.error(`Backend не подтвердил отправку значения "${item}". Очередь остановлена.`);
+            break;
           }
         } catch (error) {
-          console.error(`Не удалось подготовить или отправить значение "${item}"`, error);
+          console.error(`Не удалось подготовить или отправить значение "${item}". Очередь остановлена.`, error);
+          break;
         }
       }
     } catch (error) {
