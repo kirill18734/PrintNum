@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { backendClient } from "@/shared/api/backendClient";
+import { parseNonEmptyLines } from "@/lib/parse-non-empty-lines";
+import { generateCodeImage } from "@/shared/utils/generateCodeImage";
 import type { LabelContentType } from "@/types/label";
 
 interface UseLabelPrintingOptions {
@@ -13,7 +15,7 @@ interface UseLabelPrintingOptions {
   showCodeText: boolean;
 }
 
-/** Управляет одиночной и последовательной печатью этикеток. */
+/** Manages single-label and multi-value sequential printing. */
 export function useLabelPrinting({
   contentType,
   content,
@@ -29,49 +31,53 @@ export function useLabelPrinting({
   const stopPrinting = useRef(false);
 
   const startPrinting = async () => {
-    if (!isSequenceMode && !content.trim()) return;
+    const values = isSequenceMode
+      ? sequenceValues
+      : parseNonEmptyLines(content);
+
+    if (!values.length) return;
     if (contentType !== "text" && !codeImage) return;
-    if (isSequenceMode && !sequenceValues.length) return;
 
     setIsPrinting(true);
     setCurrentPrintingItem("");
     stopPrinting.current = false;
 
     try {
-      if (!isSequenceMode) {
-        const response = await backendClient.printLabel({
-          contentType,
-          content,
-          codeImage: codeImage || undefined,
-          bold,
-          underline,
-          showCodeText,
-        });
-
-        if (!response.status) {
-          console.error("Backend не подтвердил отправку этикетки на печать");
+      for (let index = 0; index < values.length; index += 1) {
+        if (stopPrinting.current) {
+          console.log("Печать остановлена пользователем");
+          break;
         }
-      } else {
-        for (const item of sequenceValues) {
-          if (stopPrinting.current) {
-            console.log("Печать остановлена пользователем");
-            break;
-          }
 
-          setCurrentPrintingItem(item);
+        const item = values[index];
+        setCurrentPrintingItem(item);
+
+        try {
+          // The preview-generated image is reusable only for the first input value.
+          // Every following value receives its own freshly generated code image.
+          const itemCodeImage =
+            contentType === "text"
+              ? undefined
+              : index === 0 && !isSequenceMode
+                ? codeImage
+                : (await generateCodeImage(contentType, item)).image;
+
+          if (stopPrinting.current) break;
 
           const response = await backendClient.printLabel({
             contentType,
             content: item,
+            codeImage: itemCodeImage,
             bold,
             underline,
+            showCodeText,
           });
 
-          // Backend возвращает { status: true } при успешной отправке.
           if (!response.status) {
-            console.error("Печать последовательности остановлена: backend вернул status=false");
-            break;
+            console.error(`Backend не подтвердил отправку значения "${item}"`);
           }
+        } catch (error) {
+          console.error(`Не удалось подготовить или отправить значение "${item}"`, error);
         }
       }
     } catch (error) {

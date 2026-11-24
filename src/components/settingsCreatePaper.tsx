@@ -9,7 +9,7 @@ import {
   Underline,
 } from "lucide-react";
 import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
+import { LineNumberedTextarea } from "./ui/line-numbered-textarea";
 import { Label } from "./ui/label";
 import { Button } from "@/components/ui/button";
 import Font from "./font";
@@ -206,7 +206,7 @@ export default function SettingsCreatePaper({
         <div className="h-[100px] w-full min-w-0">
           {contentType === "text" ? (
             textInputMode === "single" ? (
-              <Textarea
+              <LineNumberedTextarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Введите текст этикетки..."
@@ -274,7 +274,7 @@ export default function SettingsCreatePaper({
               </div>
             )
           ) : (
-            <Textarea
+            <LineNumberedTextarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={
