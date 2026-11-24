@@ -45,6 +45,7 @@ function LineNumberedTextarea({
         {...props}
         value={value}
         defaultValue={defaultValue}
+        wrap="off"
         onScroll={handleScroll}
         className={cn(
           className,
