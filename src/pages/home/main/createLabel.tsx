@@ -236,6 +236,9 @@ export default function CreateLabel({
     const handlePrintShortcut = (event: KeyboardEvent) => {
       if (
         !event.ctrlKey ||
+        event.altKey ||
+        event.shiftKey ||
+        event.metaKey ||
         event.key !== "Enter" ||
         event.repeat ||
         currentScenario.isStopButton ||
@@ -244,16 +247,7 @@ export default function CreateLabel({
         return;
       }
 
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        target.closest(
-          'input, textarea, select, [contenteditable="true"], [role="textbox"]',
-        )
-      ) {
-        return;
-      }
-
+      // Горячая клавиша глобальная: работает и при фокусе в input/textarea.
       event.preventDefault();
       void sendPrintJob();
     };
@@ -416,9 +410,13 @@ export default function CreateLabel({
             {currentScenario.buttonText}
             {!currentScenario.isStopButton && (
               <KbdGroup className="ml-2">
-                <Kbd>Ctrl</Kbd>
-                <span>+</span>
-                <Kbd>Enter</Kbd>
+                <Kbd className="h-5 min-w-5 rounded-[4px] border border-border/80 bg-background px-1.5 font-mono text-[10px] font-semibold text-foreground shadow-[0_1px_0_0_hsl(var(--border))]">
+                  Ctrl
+                </Kbd>
+                <span className="text-[10px] text-muted-foreground">+</span>
+                <Kbd className="h-5 min-w-5 rounded-[4px] border border-border/80 bg-background px-1.5 font-mono text-[10px] font-semibold text-foreground shadow-[0_1px_0_0_hsl(var(--border))]">
+                  Enter
+                </Kbd>
               </KbdGroup>
             )}
           </Button>
