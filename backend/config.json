@@ -1,6 +1,6 @@
 {
   "opacity_manual": 50,
-  "expand": 0,
+  "expand": "",
   "excludedTexts": ["Прямой поток", "Расходники", "Возврат", "Продавцу"],
   "showCodeText": false,
   "background": "Без фона",
