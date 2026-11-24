@@ -2,6 +2,7 @@ import PreviewPaper from "@/components/previewPaper";
 import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useAppStore } from "@/services/store";
 import type {
   LabelContentType,
@@ -13,7 +14,7 @@ import { generateSequence } from "@/shared/utils/generateSequence";
 import { parseNonEmptyLines } from "@/lib/parse-non-empty-lines";
 import { useLabelPrinting } from "./useLabelPrinting";
 import { AlertCircle, Printer } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 interface PrintScenarioContext {
   backendOnline: boolean;
@@ -227,6 +228,42 @@ export default function CreateLabel({
       }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
+  const printControlsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handlePrintShortcut = (event: KeyboardEvent) => {
+      if (
+        !event.ctrlKey ||
+        event.key !== "Enter" ||
+        event.repeat ||
+        currentScenario.isStopButton
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest(
+          'input, textarea, select, [contenteditable="true"], [role="textbox"]',
+        )
+      ) {
+        return;
+      }
+
+      const printButton =
+        printControlsRef.current?.querySelector<HTMLButtonElement>("button");
+
+      if (!printButton || printButton.disabled) return;
+
+      event.preventDefault();
+      printButton.click();
+    };
+
+    window.addEventListener("keydown", handlePrintShortcut);
+    return () => window.removeEventListener("keydown", handlePrintShortcut);
+  }, [currentScenario.isStopButton]);
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
       <SettingsPrinter
@@ -325,7 +362,7 @@ export default function CreateLabel({
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
+        <div ref={printControlsRef} className="flex flex-col items-center gap-2 w-full sm:w-auto">
           {/* Элемент 1: Статичное сообщение статуса с общим фоном для серии */}
           <div
             className={`h-7 px-3 flex items-center justify-center rounded-md transition-all duration-200 ${
@@ -378,6 +415,13 @@ export default function CreateLabel({
               </svg>
             )}
             {currentScenario.buttonText}
+            {!currentScenario.isStopButton && (
+              <KbdGroup className="ml-2">
+                <Kbd>Ctrl</Kbd>
+                <span>+</span>
+                <Kbd>Enter</Kbd>
+              </KbdGroup>
+            )}
           </Button>
         </div>
       </div>
