@@ -223,7 +223,7 @@ export default function CreateLabel({
         backendOnline,
         printerOnline,
         isPrinting,
-        isSequenceMode,
+        isSequenceMode: isSequenceMode || contentValues.length > 1,
       }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
