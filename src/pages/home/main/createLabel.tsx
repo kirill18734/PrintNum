@@ -2,6 +2,7 @@ import PreviewPaper from "@/components/previewPaper";
 import SettingsCreatePaper from "@/components/settingsCreatePaper";
 import SettingsPrinter from "@/components/settingsPrinter";
 import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useAppStore } from "@/services/store";
 import type {
   LabelContentType,
@@ -13,7 +14,7 @@ import { generateSequence } from "@/shared/utils/generateSequence";
 import { parseNonEmptyLines } from "@/lib/parse-non-empty-lines";
 import { useLabelPrinting } from "./useLabelPrinting";
 import { AlertCircle, Printer } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 interface PrintScenarioContext {
   backendOnline: boolean;
@@ -227,6 +228,44 @@ export default function CreateLabel({
       }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
+  const isPrintButtonDisabled =
+    currentScenario.buttonDisabled ||
+    (!currentScenario.isStopButton && !hasPrintContent);
+
+  useEffect(() => {
+    const handlePrintShortcut = (event: KeyboardEvent) => {
+      if (
+        !event.ctrlKey ||
+        event.key !== "Enter" ||
+        event.repeat ||
+        currentScenario.isStopButton ||
+        isPrintButtonDisabled
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest(
+          'input, textarea, select, [contenteditable="true"], [role="textbox"]',
+        )
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      void sendPrintJob();
+    };
+
+    window.addEventListener("keydown", handlePrintShortcut);
+    return () => window.removeEventListener("keydown", handlePrintShortcut);
+  }, [
+    currentScenario.isStopButton,
+    isPrintButtonDisabled,
+    sendPrintJob,
+  ]);
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
       <SettingsPrinter
@@ -343,10 +382,7 @@ export default function CreateLabel({
           {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
           <Button
             type="button"
-            disabled={
-              currentScenario.buttonDisabled ||
-              (!currentScenario.isStopButton && !hasPrintContent)
-            }
+            disabled={isPrintButtonDisabled}
             onClick={
               currentScenario.isStopButton ? stopSequencePrinting : sendPrintJob
             }
@@ -378,6 +414,13 @@ export default function CreateLabel({
               </svg>
             )}
             {currentScenario.buttonText}
+            {!currentScenario.isStopButton && (
+              <KbdGroup className="ml-2">
+                <Kbd>Ctrl</Kbd>
+                <span>+</span>
+                <Kbd>Enter</Kbd>
+              </KbdGroup>
+            )}
           </Button>
         </div>
       </div>
