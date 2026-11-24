@@ -14,7 +14,7 @@ import { generateSequence } from "@/shared/utils/generateSequence";
 import { parseNonEmptyLines } from "@/lib/parse-non-empty-lines";
 import { useLabelPrinting } from "./useLabelPrinting";
 import { AlertCircle, Printer } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 interface PrintScenarioContext {
   backendOnline: boolean;
@@ -228,7 +228,9 @@ export default function CreateLabel({
       }),
     ) || PRINT_SCENARIOS[PRINT_SCENARIOS.length - 1];
 
-  const printControlsRef = useRef<HTMLDivElement>(null);
+  const isPrintButtonDisabled =
+    currentScenario.buttonDisabled ||
+    (!currentScenario.isStopButton && !hasPrintContent);
 
   useEffect(() => {
     const handlePrintShortcut = (event: KeyboardEvent) => {
@@ -236,7 +238,8 @@ export default function CreateLabel({
         !event.ctrlKey ||
         event.key !== "Enter" ||
         event.repeat ||
-        currentScenario.isStopButton
+        currentScenario.isStopButton ||
+        isPrintButtonDisabled
       ) {
         return;
       }
@@ -251,18 +254,17 @@ export default function CreateLabel({
         return;
       }
 
-      const printButton =
-        printControlsRef.current?.querySelector<HTMLButtonElement>("button");
-
-      if (!printButton || printButton.disabled) return;
-
       event.preventDefault();
-      printButton.click();
+      void sendPrintJob();
     };
 
     window.addEventListener("keydown", handlePrintShortcut);
     return () => window.removeEventListener("keydown", handlePrintShortcut);
-  }, [currentScenario.isStopButton]);
+  }, [
+    currentScenario.isStopButton,
+    isPrintButtonDisabled,
+    sendPrintJob,
+  ]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-2 w-full">
@@ -362,7 +364,7 @@ export default function CreateLabel({
           </div>
         </div>
 
-        <div ref={printControlsRef} className="flex flex-col items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-col items-center gap-2 w-full sm:w-auto">
           {/* Элемент 1: Статичное сообщение статуса с общим фоном для серии */}
           <div
             className={`h-7 px-3 flex items-center justify-center rounded-md transition-all duration-200 ${
@@ -380,10 +382,7 @@ export default function CreateLabel({
           {/* Элемент 2: Кнопка управления (Всегда зафиксирована на своем месте) */}
           <Button
             type="button"
-            disabled={
-              currentScenario.buttonDisabled ||
-              (!currentScenario.isStopButton && !hasPrintContent)
-            }
+            disabled={isPrintButtonDisabled}
             onClick={
               currentScenario.isStopButton ? stopSequencePrinting : sendPrintJob
             }
