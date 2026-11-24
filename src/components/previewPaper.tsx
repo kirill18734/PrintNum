@@ -6,7 +6,7 @@ import { generateCodeImage } from "@/shared/utils/generateCodeImage";
 interface PreviewPaperProps {
   idNum?: boolean;
   endLine?: boolean;
-  expand?: number;
+  expand?: string;
   font?: string;
   bold?: boolean;
   opacity?: number;
@@ -87,7 +87,7 @@ function FittedText({ children, className = "", fontFamilyKey = "" }: FittedText
 export default function PreviewPaper({
   idNum = false,
   endLine = false,
-  expand = 0,
+  expand = "",
   font = "Arial",
   bold = false,
 
@@ -101,7 +101,8 @@ export default function PreviewPaper({
   background = "Без фона",
   opacity,
 }: PreviewPaperProps) {
-  const isExpandActive = expand > 0;
+  const expandNumber = Number(expand) || 0;
+  const isExpandActive = expandNumber > 0;
 
   // Шрифт и фон относятся только к текстовым этикеткам.
   const isTextLabel = mode === "autoprint" || contentType === "text";
@@ -307,7 +308,7 @@ export default function PreviewPaper({
 
       <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
         <div className="flex justify-start items-center w-full h-[0.5rem] shrink-0">
-          <span className="text-[0.6rem]">{expand}−</span>
+          <span className="text-[0.6rem]">{expandNumber}−</span>
         </div>
 
         <div className="flex justify-center items-center leading-none flex-1 min-h-0">
@@ -332,7 +333,7 @@ export default function PreviewPaper({
       <div className="flex flex-col items-center gap-1">
         {isExpandActive && mode === "autoprint" && (
           <span className="text-xs text-muted-foreground">
-            Этикетки 1 – {expand - 1 < 1 ? expand : expand - 1}
+            Этикетки 1 – {expandNumber - 1 < 1 ? expandNumber : expandNumber - 1}
           </span>
         )}
 
@@ -342,7 +343,7 @@ export default function PreviewPaper({
       {isExpandActive && mode === "autoprint" && (
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-muted-foreground">
-            Этикетки от {expand}
+            Этикетки от {expandNumber}
           </span>
 
           {nextLabel}

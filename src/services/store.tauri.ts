@@ -55,6 +55,15 @@ export const initStoreService = async (): Promise<void> => {
 
     const entries = await tauriStoreInstance.entries();
     for (const [key, value] of entries) {
+      // В старых версиях expand хранился числом и мог быть включён
+      // автоматически. Однократно сбрасываем такой формат при миграции.
+      if (key === "expand" && typeof value === "number") {
+        Object.assign(memoryConfig, { expand: "" });
+        await tauriStoreInstance.set("expand", "");
+        console.log("[Store] Старое числовое значение expand сброшено");
+        continue;
+      }
+
       if (isAppSettingsEntry(key, value)) {
         Object.assign(memoryConfig, { [key]: value });
       }

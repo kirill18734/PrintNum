@@ -16,8 +16,8 @@ interface SettingsPaperProps {
   background: string;
   dataFonts: string[];
   dataBackgrounds: string[];
-  expand: number | string;
-  setExpand: (valueOrFn: any) => void;
+  expand: string;
+  setExpand: (value: string) => void;
   opacity: number;
   setOpacity: (value: number) => void;
   onPreviewFont: (font: string | undefined) => void;
@@ -58,18 +58,15 @@ export default function SettingsPaper({
 
   // Синхронизация локального поля с внешним значением expand.
   useEffect(() => {
-    const currentValue = String(expand ?? "0");
+    const currentValue = expand ?? "";
     const validValue = validateExpand(currentValue);
+    const normalizedValue = validValue === "0" ? "" : validValue;
 
-    if (validValue !== currentValue) {
-      setExpand(Number(validValue));
-    } else {
-      setExpandValue(validValue === "0" ? "" : validValue);
+    if (normalizedValue !== currentValue) {
+      setExpand(normalizedValue);
     }
 
-    if (validValue !== currentValue) {
-      setExpandValue(validValue === "0" ? "" : validValue);
-    }
+    setExpandValue(normalizedValue);
   }, [expand, setExpand]);
 
   const isValidExpand =
@@ -86,13 +83,13 @@ export default function SettingsPaper({
 
     // Пустое поле соответствует значению 0, чтобы старый номер
     // не восстанавливался при последующей синхронизации состояния.
-    setExpand(isValid ? nextValue : 0);
+    setExpand(isValid ? validValue : "");
   };
 
   const handleExpandBlur = () => {
     const validValue = validateExpand(expandValue);
     setExpandValue(validValue === "0" ? "" : validValue);
-    setExpand(Number(validValue));
+    setExpand(validValue === "0" ? "" : validValue);
   };
 
   return (
