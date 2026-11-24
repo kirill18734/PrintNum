@@ -346,7 +346,7 @@ export default function CreateLabel({
             disabled={
               currentScenario.buttonDisabled ||
               (!currentScenario.isStopButton && !hasPrintContent) ||
-              (contentType !== "text" && (isCodeImageGenerating || !codeImage))
+
             }
             onClick={
               currentScenario.isStopButton ? stopSequencePrinting : sendPrintJob
