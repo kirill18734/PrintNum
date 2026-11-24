@@ -1,5 +1,5 @@
 // Sends changed cell values from the micro-FF stock report to the printer.
-(function () {
+(async function () {
   const { PATH } = window.PrintNum.config;
   const { subscribe } = window.PrintNum.navigation;
 
@@ -38,9 +38,7 @@
       const rows = Array.from(table.querySelectorAll("tbody tr"));
       if (rows.length === 0) continue;
 
-      return rows.map(
-        (row) => row.cells[cellIndex]?.textContent?.trim() || "",
-      );
+      return rows.map((row) => row.cells[cellIndex]?.textContent?.trim() || "");
     }
 
     return null;
