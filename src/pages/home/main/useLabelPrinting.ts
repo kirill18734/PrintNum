@@ -7,7 +7,6 @@ import type { LabelContentType } from "@/types/label";
 interface UseLabelPrintingOptions {
   contentType: LabelContentType;
   content: string;
-  codeImage: string;
   isSequenceMode: boolean;
   sequenceValues: string[];
   bold: boolean;
@@ -19,7 +18,6 @@ interface UseLabelPrintingOptions {
 export function useLabelPrinting({
   contentType,
   content,
-  codeImage,
   isSequenceMode,
   sequenceValues,
   bold,
@@ -36,8 +34,6 @@ export function useLabelPrinting({
       : parseNonEmptyLines(content);
 
     if (!values.length) return;
-    if (contentType !== "text" && !codeImage) return;
-
     setIsPrinting(true);
     setCurrentPrintingItem("");
     stopPrinting.current = false;
@@ -53,14 +49,12 @@ export function useLabelPrinting({
         setCurrentPrintingItem(item);
 
         try {
-          // The preview-generated image is reusable only for the first input value.
-          // Every following value receives its own freshly generated code image.
+          // Generate a fresh image for each code value. Printing must not depend
+          // on whether the asynchronous preview image has finished generating.
           const itemCodeImage =
             contentType === "text"
               ? undefined
-              : index === 0 && !isSequenceMode
-                ? codeImage
-                : (await generateCodeImage(contentType, item)).image;
+              : (await generateCodeImage(contentType, item)).image;
 
           if (stopPrinting.current) break;
 
