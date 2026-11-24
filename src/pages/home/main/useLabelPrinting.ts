@@ -52,34 +52,32 @@ export function useLabelPrinting({
         const item = values[index];
         setCurrentPrintingItem(item);
 
-        // The preview-generated image is reusable only for the first input value.
-        // Every following value receives its own freshly generated code image.
-        const itemCodeImage =
-          contentType === "text"
-            ? undefined
-            : index === 0 && !isSequenceMode
-              ? codeImage
-              : (await generateCodeImage(
-                  contentType,
-                  item,
-                )).image;
+        try {
+          // The preview-generated image is reusable only for the first input value.
+          // Every following value receives its own freshly generated code image.
+          const itemCodeImage =
+            contentType === "text"
+              ? undefined
+              : index === 0 && !isSequenceMode
+                ? codeImage
+                : (await generateCodeImage(contentType, item)).image;
 
-        if (stopPrinting.current) break;
+          if (stopPrinting.current) break;
 
-        const response = await backendClient.printLabel({
-          contentType,
-          content: item,
-          codeImage: itemCodeImage,
-          bold,
-          underline,
-          showCodeText,
-        });
+          const response = await backendClient.printLabel({
+            contentType,
+            content: item,
+            codeImage: itemCodeImage,
+            bold,
+            underline,
+            showCodeText,
+          });
 
-        if (!response.status) {
-          console.error(
-            `Печать остановлена: backend не подтвердил отправку значения "${item}"`,
-          );
-          break;
+          if (!response.status) {
+            console.error(`Backend не подтвердил отправку значения "${item}"`);
+          }
+        } catch (error) {
+          console.error(`Не удалось подготовить или отправить значение "${item}"`, error);
         }
       }
     } catch (error) {
