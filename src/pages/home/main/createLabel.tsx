@@ -244,7 +244,7 @@ export default function CreateLabel({
           <SettingsCreatePaper
             contentType={contentType}
             setContentType={handleContentTypeChange}
-            content={previewContent}
+            content={contentByType[contentType]}
             setContent={updateLabelContent}
             bold={bold_manual}
             setBold={setBold_Manual}
@@ -273,7 +273,7 @@ export default function CreateLabel({
               contentType={contentType}
               bold={bold_manual}
               underline={endLine_manual}
-              content={contentByType[contentType]}
+              content={previewContent}
               showCodeText={showCodeText}
               setCodeImage={setCodeImage}
               onCodeImageLoadingChange={setIsCodeImageGenerating}
