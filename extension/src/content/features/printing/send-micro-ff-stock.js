@@ -36,6 +36,8 @@
       if (cellIndex === -1) continue;
 
       const rows = Array.from(table.querySelectorAll("tbody tr"));
+      if (rows.length === 0) continue;
+
       return rows.map(
         (row) => row.cells[cellIndex]?.textContent?.trim() || "",
       );
