@@ -38,6 +38,7 @@
     recommendation: "/receiving-v2/main",
     package: "/outbound",
     shelf: "/outbound/selection",
+    microFFStock: "/reports/micro-ff-stock",
   };
   const cmd = (id, code, name, path, actions, group, isLoop) => ({
     id,
