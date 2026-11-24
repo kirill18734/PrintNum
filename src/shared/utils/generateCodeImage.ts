@@ -1,10 +1,15 @@
 import type { LabelContentType } from "@/types/label";
 
-/** Generates a PNG image (base64 without data URL prefix) for one code value. */
+export interface GeneratedCodeImage {
+  image: string;
+  svg: string;
+}
+
+/** Generates both preview SVG and printer PNG for one code value. */
 export async function generateCodeImage(
   contentType: Exclude<LabelContentType, "text">,
   content: string,
-): Promise<string> {
+): Promise<GeneratedCodeImage> {
   const bwipjs = await import("bwip-js/browser");
   const bcid =
     contentType === "barcode"
@@ -12,16 +17,20 @@ export async function generateCodeImage(
       : contentType === "qr"
         ? "qrcode"
         : "datamatrix";
-  const canvas = document.createElement("canvas");
-
-  bwipjs.toCanvas(canvas, {
+  const options = {
     bcid,
     text: content,
     scale: 3,
     padding: 0,
     backgroundcolor: "FFFFFF",
     barcolor: "000000",
-  });
+  };
+  const svg = bwipjs.toSVG(options);
+  const canvas = document.createElement("canvas");
+  bwipjs.toCanvas(canvas, options);
 
-  return canvas.toDataURL("image/png").split(",")[1];
+  return {
+    svg,
+    image: canvas.toDataURL("image/png").split(",")[1],
+  };
 }
