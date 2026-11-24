@@ -285,58 +285,42 @@ export default function CreateLabel({
             />
             {/* Предпросмотр */}
 
-            {/* Зарезервированная область для результатов диапазона */}
+            {/* Existing summary area for sequence and multiline values. */}
             <div className="min-h-[84px]">
-              {isSequenceMode && (
+              {isSequenceMode && sequenceResult.error ? (
                 <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-2.5">
-                  {sequenceResult.error ? (
-                    <div className="flex items-start gap-2 text-destructive">
-                      <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                      <p className="text-xs">{sequenceResult.error}</p>
+                  <div className="flex items-start gap-2 text-destructive">
+                    <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                    <p className="text-xs">{sequenceResult.error}</p>
+                  </div>
+                </div>
+              ) : (isSequenceMode ? sequenceValues : contentValues).length > 0 ? (
+                <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <Printer className="size-3.5" />
                     </div>
-                  ) : (
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-foreground">Будет напечатано</p>
+                      <p className="text-[11px] text-muted-foreground">{(isSequenceMode ? sequenceValues : contentValues).length} значений</p>
+                    </div>
+                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold tabular-nums text-primary">{(isSequenceMode ? sequenceValues : contentValues).length}</span>
+                  </div>
+                  {(isSequenceMode ? sequenceValues : contentValues).length > 1 && (
                     <>
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                          <Printer className="size-3.5" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-foreground">
-                            Будет напечатано
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {sequenceValues.length} значений
-                          </p>
-                        </div>
-
-                        <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold tabular-nums text-primary">
-                          {sequenceValues.length}
-                        </span>
-                      </div>
-
                       <div className="my-2 border-t border-primary/10" />
-
                       <div className="flex flex-wrap gap-1.5">
-                        {sequenceValues.slice(0, 5).map((value, index) => (
-                          <span
-                            key={index}
-                            className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground"
-                          >
-                            {value}
-                          </span>
+                        {(isSequenceMode ? sequenceValues : contentValues).slice(0, 5).map((value, index) => (
+                          <span key={index} className="rounded-md border border-primary/15 bg-background px-2 py-1 text-xs font-medium tabular-nums text-foreground">{value}</span>
                         ))}
-
-                        {sequenceValues.length > 6 && (
-                          <span className="flex items-center px-1 text-xs font-medium text-primary">
-                            +{sequenceValues.length - 6}
-                          </span>
+                        {(isSequenceMode ? sequenceValues : contentValues).length > 5 && (
+                          <span className="flex items-center px-1 text-xs font-medium text-primary">+{(isSequenceMode ? sequenceValues : contentValues).length - 5}</span>
                         )}
                       </div>
                     </>
                   )}
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
