@@ -14,7 +14,7 @@ export interface AppSettings {
   showCodeText: boolean;
   background: string;
   background_manual: string;
-  expand: number;
+  expand: string;
   theme: "system" | "light" | "dark";
   themeStyle: string;
   excludedTexts: string[];
@@ -36,7 +36,7 @@ export const defaultConfig: AppSettings = {
   opacity: 50,
   opacity_manual: 50,
   paper: "23*20",
-  expand: 0,
+  expand: "",
   theme: "system",
   themeStyle: "vercel",
   excludedTexts: [],
