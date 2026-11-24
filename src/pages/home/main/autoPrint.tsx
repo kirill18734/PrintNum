@@ -49,7 +49,7 @@ export default function AutoPrint({
     setSetting("excludedTexts", rules);
 
   const setIdNum = (value: boolean) => setSetting("idNum", value);
-  const setExpand = (value: number) => setSetting("expand", value);
+  const setExpand = (value: string) => setSetting("expand", value);
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
   const setOpacity = (value: number) => setSetting("opacity", value);
