@@ -46,9 +46,11 @@
     if (!titleReturns) return null;
 
     const container = await waitLoadElement(SELECTOR.returns);
+    const containerText = container?.textContent || "";
     if (
       !container ||
-      !container.textContent.startsWith("Добавьте содержимое в перевозку")
+      (!containerText.startsWith("Добавить содержимое") &&
+        !containerText.startsWith("Проверьте раздел"))
     ) {
       return null;
     }
