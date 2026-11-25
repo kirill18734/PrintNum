@@ -45,11 +45,15 @@
     const titleReturns = await waitLoadElement(SELECTOR.returnTitle);
     if (!titleReturns) return null;
 
-    await waitLoadElement('div[class^="_block_"]');
-    const container = [...document.querySelectorAll('div[class^="_block_"]')].find(
-      (block) => !block.querySelector("nav"),
-    );
-    if (!container) return null;
+    const container = await waitLoadElement(SELECTOR.returns);
+    const containerText = container?.textContent || "";
+    if (
+      !container ||
+      (!containerText.startsWith("Добавить содержимое") &&
+        !containerText.startsWith("Проверьте раздел"))
+    ) {
+      return null;
+    }
 
     const items = [];
     const itemsValue = [];
