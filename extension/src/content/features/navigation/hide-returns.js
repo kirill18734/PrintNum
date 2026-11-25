@@ -48,7 +48,7 @@
     const container = await waitLoadElement(SELECTOR.returns);
     if (
       !container ||
-      !container.textContent.startsWith("Добавьте содержимое в перевозку")
+      !container.textContent.startsWith("Проверьте раздел")
     ) {
       return null;
     }
