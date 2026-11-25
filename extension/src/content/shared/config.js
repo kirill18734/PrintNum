@@ -5,7 +5,7 @@
   const SELECTOR = {
     menu: 'div[class^="_wrapperMenuItems_"]',
     notification: "#ozi-notifications-container",
-    returnTitle: 'div[class^="_preparationInformer_"]',
+    returnTitle: 'div[class*="_preparationInformer_"]',
     returns: 'div[class^="_block_"]:nth-of-type(2)',
     returnItem: 'div[class*="_itemsElement_"]',
     returnName: 'div[class^="_titleWrap_"]',
