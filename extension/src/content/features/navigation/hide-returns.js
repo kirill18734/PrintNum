@@ -45,13 +45,10 @@
     const titleReturns = await waitLoadElement(SELECTOR.returnTitle);
     if (!titleReturns) return null;
 
-    const container = await waitLoadElement(SELECTOR.returns);
-    if (
-      !container ||
-      !container.textContent.startsWith("Добавьте содержимое в перевозку")
-    ) {
-      return null;
-    }
+    const container = [...document.querySelectorAll('div[class^="_block_"]')].find(
+      (block) => !block.querySelector("nav"),
+    );
+    if (!container) return null;
 
     const items = [];
     const itemsValue = [];
