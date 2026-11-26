@@ -38,6 +38,11 @@
     }
   });
 
+  window.postMessage(
+    { source: MESSAGE_SOURCE, ready: true },
+    window.location.origin,
+  );
+
   window.PrintNum = window.PrintNum || {};
   window.PrintNum.requestHandler = { subscribe };
 })();
