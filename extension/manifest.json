@@ -30,6 +30,7 @@
         "src/content/shared/dom.js",
         "src/content/shared/api.js",
         "src/content/shared/navigation.js",
+        "src/content/shared/network.js",
         "src/content/shared/keyboard.js",
         "src/content/shared/storage-events.js",
         "src/content/index.js",
