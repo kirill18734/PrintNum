@@ -24,6 +24,12 @@
   "content_scripts": [
     {
       "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": ["src/content/shared/network-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
       "js": [
         "src/content/shared/config.js",
         "src/content/shared/storage.js",
