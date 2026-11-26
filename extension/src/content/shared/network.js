@@ -1,36 +1,67 @@
-// Мост между MAIN world (сетевые запросы Ozon) и content script.
+// Перехват сетевых ответов Ozon в MAIN world страницы.
 (function () {
-  const listeners = [];
+  if (window.__printNumNetworkInstalled) return;
+  window.__printNumNetworkInstalled = true;
 
-  function notify(payload) {
-    listeners.forEach((listener) => {
-      try {
-        listener(payload);
-      } catch (error) {
-        console.error("PrintNum: ошибка обработчика сетевого ответа:", error);
-      }
-    });
+  function notify({ type, method, url, status, data }) {
+    window.postMessage({
+      source: "PRINTNUM_NETWORK",
+      payload: { type, method, url, status, data },
+    }, "*");
   }
 
-  window.addEventListener("message", (event) => {
-    if (event.source !== window || event.data?.source !== "PRINTNUM_NETWORK") return;
-    notify(event.data.payload);
-  });
+  function parseResponse(value) {
+    if (typeof value !== "string") return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
 
-  const script = document.createElement("script");
-  script.src = chrome.runtime.getURL("src/content/shared/network-main.js");
-  script.onload = () => script.remove();
-  (document.head || document.documentElement).appendChild(script);
+  const originalFetch = window.fetch;
+  window.fetch = function (...args) {
+    const request = args[0];
+    const options = args[1] || {};
+    const method = (options.method || request?.method || "GET").toUpperCase();
+    const url = typeof request === "string" || request instanceof URL
+      ? String(request)
+      : request?.url || "";
 
-  window.PrintNum = window.PrintNum || {};
-  window.PrintNum.network = {
-    subscribe(listener) {
-      if (typeof listener !== "function") return () => {};
-      listeners.push(listener);
-      return () => {
-        const index = listeners.indexOf(listener);
-        if (index !== -1) listeners.splice(index, 1);
-      };
-    },
+    return originalFetch.apply(this, args).then((response) => {
+      response.clone().text().then((text) => {
+        notify({ type: "FETCH", method, url, status: response.status, data: parseResponse(text) });
+      }).catch(() => {});
+      return response;
+    });
+  };
+
+  const originalOpen = XMLHttpRequest.prototype.open;
+  const originalSend = XMLHttpRequest.prototype.send;
+  const requestInfo = new WeakMap();
+
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    requestInfo.set(this, { method: String(method || "GET").toUpperCase(), url: String(url || "") });
+    return originalOpen.call(this, method, url, ...rest);
+  };
+
+  XMLHttpRequest.prototype.send = function (...args) {
+    this.addEventListener("load", function () {
+      const request = requestInfo.get(this) || {};
+      let data = null;
+      try {
+        data = this.responseType === "json" ? this.response : parseResponse(this.responseText);
+      } catch {
+        data = null;
+      }
+      notify({
+        type: "XHR",
+        method: request.method || "GET",
+        url: request.url || "",
+        status: this.status,
+        data,
+      });
+    }, { once: true });
+    return originalSend.apply(this, args);
   };
 })();
