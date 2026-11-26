@@ -24,6 +24,17 @@
   "content_scripts": [
     {
       "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": ["src/content/shared/request-handler.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": ["src/content/shared/request-interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
       "js": [
         "src/content/shared/config.js",
         "src/content/shared/storage.js",
