@@ -10,9 +10,14 @@
     "96": "assets/icons/96.png",
     "128": "assets/icons/128.png"
   },
-  "permissions": ["storage", "tabs"],
-  "host_permissions": ["http://127.0.0.1/*", "https://printnum.s3.cloud.ru/*"],
-
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "https://printnum.s3.cloud.ru/*"
+  ],
   "action": {
     "default_title": "PrintNum",
     "default_popup": "src/popup/index.html"
@@ -20,15 +25,17 @@
   "background": {
     "service_worker": "src/background/index.js"
   },
-
   "content_scripts": [
     {
-      "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "matches": [
+        "https://turbo-pvz.ozon.ru/*"
+      ],
       "js": [
         "src/content/shared/config.js",
         "src/content/shared/storage.js",
         "src/content/shared/dom.js",
         "src/content/shared/api.js",
+        "src/content/shared/network.js",
         "src/content/shared/navigation.js",
         "src/content/shared/keyboard.js",
         "src/content/shared/storage-events.js",
@@ -44,6 +51,16 @@
         "src/content/features/navigation/hide-menu-notification.js",
         "src/content/features/navigation/hide-returns.js",
         "src/content/features/banners/hide-banner.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/content/shared/network-main.js"
+      ],
+      "matches": [
+        "https://turbo-pvz.ozon.ru/*"
       ]
     }
   ]
