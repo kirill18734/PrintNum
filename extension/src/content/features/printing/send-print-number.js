@@ -2,6 +2,7 @@
 (async function () {
   const { SELECTOR, PATH } = window.PrintNum.config;
   const { subscribe } = window.PrintNum.navigation;
+  const { subscribe: subscribeNetwork } = window.PrintNum.network;
   const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
 
   let firstRun = false;
@@ -29,12 +30,38 @@
       return true;
     } catch (error) {
       console.error(
-        `Ошибка отправки номера ячейки "${number}" через фоновый скрипт: `,
+        `Ошибка отправки данных на печать через фоновый скрипт: `,
         error,
       );
       return false;
     }
   }
+
+  // Получаем ячейки и штрихкоды из ответа ручного запроса Ozon.
+  function handleNetworkResponse({ method, url, data }) {
+    if (method !== "POST" || !url) return;
+
+    let pathname;
+    try {
+      pathname = new URL(url, location.origin).pathname;
+    } catch {
+      return;
+    }
+
+    if (pathname !== "/api2/address-storage/Movement/put/v2") return;
+
+    const articlePositions = data?.articlePositions || data?.data?.articlePositions;
+    if (!Array.isArray(articlePositions)) return;
+
+    articlePositions.forEach((position) => {
+      const text = String(position?.address ?? "").trim();
+      const barcode = String(position?.articleId ?? "").trim();
+      if (!text || !barcode) return;
+      sendNumber({ text, barcode });
+    });
+  }
+
+  subscribeNetwork(handleNetworkResponse);
 
   function getTexts() {
     const tags = document.querySelectorAll(SELECTOR.printNumber);
