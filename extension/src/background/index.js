@@ -37,7 +37,10 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendNumberToFlask") {
-    sendRequest("print-number", { text: message.number })
+    const payload = typeof message.number === "string"
+      ? { text: message.number }
+      : message.number;
+    sendRequest("print-number", payload)
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ success: false, error: error.message }));
 
