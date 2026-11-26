@@ -2,8 +2,15 @@
 (function () {
   const MESSAGE_SOURCE = "PRINTNUM_REQUEST_INTERCEPTOR";
   const xhrRequests = new WeakMap();
+  const pendingResponses = [];
+  let bridgeReady = false;
 
   function publish(response) {
+    if (!bridgeReady) {
+      pendingResponses.push(response);
+      return;
+    }
+
     try {
       window.postMessage(
         {
@@ -16,6 +23,21 @@
       // Monitoring must never interfere with the page.
     }
   }
+
+  window.addEventListener("message", (event) => {
+    if (
+      event.source === window &&
+      event.origin === window.location.origin &&
+      event.data &&
+      event.data.source === MESSAGE_SOURCE &&
+      event.data.ready === true
+    ) {
+      bridgeReady = true;
+      while (pendingResponses.length) {
+        publish(pendingResponses.shift());
+      }
+    }
+  });
 
   function parseText(text) {
     try {
