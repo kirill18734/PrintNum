@@ -2,7 +2,6 @@
 (async function () {
   const { SELECTOR, PATH } = window.PrintNum.config;
   const { subscribe } = window.PrintNum.navigation;
-  const { subscribe: subscribeNetwork } = window.PrintNum.network;
   const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
 
   let firstRun = false;
@@ -61,7 +60,11 @@
     });
   }
 
-  subscribeNetwork(handleNetworkResponse);
+  // Получаем события от перехватчика, работающего в MAIN world.
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || event.data?.source !== "PRINTNUM_NETWORK") return;
+    handleNetworkResponse(event.data.payload || {});
+  });
 
   function getTexts() {
     const tags = document.querySelectorAll(SELECTOR.printNumber);
