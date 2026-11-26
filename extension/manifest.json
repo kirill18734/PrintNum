@@ -29,7 +29,7 @@
     },
     {
       "matches": ["https://turbo-pvz.ozon.ru/*"],
-      "js": ["src/content/shared/request-interceptor.js"],
+      "js": ["src/content/shared/request-handler.js"],
       "run_at": "document_start",
       "world": "MAIN"
     },
