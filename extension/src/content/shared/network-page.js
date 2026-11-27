@@ -51,15 +51,18 @@
         try {
           const responseCopy = response.clone();
 
-          responseCopy.text().then((text) => {
-            publish({
-              type: "FETCH",
-              method,
-              url: response.url || url,
-              status: response.status,
-              data: parseText(text),
-            });
-          }).catch(() => {});
+          responseCopy
+            .text()
+            .then((text) => {
+              publish({
+                type: "FETCH",
+                method,
+                url: response.url || url,
+                status: response.status,
+                data: parseText(text),
+              });
+            })
+            .catch(() => {});
         } catch {
           // Reading a response copy is best-effort only.
         }
@@ -105,9 +108,10 @@
               data = this.response;
               break;
             case "document":
-              data = this.response && this.response.documentElement
-                ? this.response.documentElement.outerHTML
-                : null;
+              data =
+                this.response && this.response.documentElement
+                  ? this.response.documentElement.outerHTML
+                  : null;
               break;
             case "":
             case "text":
