@@ -44,7 +44,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
   if (message.action === "sendShelfToFlask") {
-    sendRequest("ozon-shelf", { text: message.number })
+    const payload =
+      message.number && typeof message.number === "object"
+        ? message.number
+        : { text: message.number };
+    sendRequest("ozon-shelf", payload)
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ success: false, error: error.message }));
 
