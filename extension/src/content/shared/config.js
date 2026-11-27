@@ -40,8 +40,14 @@
     microFFStock: "/reports/micro-ff-stock",
 
     // API для печати ячеек
+    // Раздел "Приемка"
     receivingPutApi: "/api2/address-storage/Movement/put/v2",
+    // Раздел "Выдача"
     outboundArticleApi: "/p-api/inbound/Articles/GetReceivedArticleInfo",
+    // Раздел "Перемещение товаров"
+    moveArticleApi: "",
+    // Раздел "Остатки на Ozon Полке"
+    microFFStockApi: "/p-api/address-storage/AddressStorageApi/PutEntities",
   };
 
   const cmd = (id, code, name, path, actions, group, isLoop) => ({
