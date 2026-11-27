@@ -45,6 +45,9 @@
       const url = request && request.url ? request.url : String(request);
 
       return Reflect.apply(originalFetch, this, args).then((response) => {
+        // Forward only successful HTTP responses (2xx).
+        if (!response.ok) return response;
+
         try {
           const responseCopy = response.clone();
 
@@ -87,6 +90,9 @@
       this.addEventListener("loadend", () => {
         const requestInfo = xhrInfo.get(this);
         if (!requestInfo) return;
+
+        // Ignore redirects, HTTP errors, and network failures.
+        if (this.status < 200 || this.status >= 300) return;
 
         let data;
         try {
