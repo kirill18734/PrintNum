@@ -15,7 +15,6 @@
   const autoscriptBox = autoscripts.find((item) => item.id == "box");
 
   async function runScript() {
-
     if (!location.href.includes(autoscriptBox.path)) return;
 
     if (isRunning) return;
@@ -29,10 +28,7 @@
       if (!titleReturns) return null;
 
       const container = await waitLoadElement(SELECTOR.returns);
-      if (
-        !container ||
-        !container.textContent.startsWith("Добавьте содержимое в перевозку")
-      )
+      if (!container || !container.textContent.startsWith("Проверьте раздел"))
         return null;
 
       // Ждем появления хотя бы одного элемента списка, чтобы гарантировать загрузку данных
