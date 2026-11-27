@@ -1,145 +1,63 @@
-// отправка ячейки на печать
-(async function () {
-  const { SELECTOR, PATH } = window.PrintNum.config;
-  const { subscribe } = window.PrintNum.navigation;
-  const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
+// Sends shelf addresses and article barcodes from the Ozon movement response.
+(function () {
+  const TARGET_PATH = "/api2/address-storage/Movement/put/v2";
+  const { subscribe } = window.PrintNum.network;
 
-  let firstRun = false;
-  let observerPrint = null;
-
-  let previousTexts = [];
-  let lastSentOrderTag = "";
-
-  async function sendNumber(number) {
+  async function sendPrintData(address, articleId) {
     try {
-      // Отправляем сообщение в Background Script и ждем промис
       const response = await chrome.runtime.sendMessage({
         action: "sendNumberToFlask",
-        number: number,
+        text: address,
+        barcode: articleId,
       });
 
-      // Если фоновый скрипт вернул ошибку или статус неуспеха
       if (!response || !response.success) {
         console.error(
-          `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
+          `[PrintNum] Не удалось отправить данные для печати "${address}": ${response?.error || "Неизвестная ошибка"}`,
         );
-        return false;
       }
-
-      return true;
     } catch (error) {
       console.error(
-        `Ошибка отправки номера ячейки "${number}" через фоновый скрипт: `,
+        `[PrintNum] Ошибка отправки данных для печати "${address}":`,
         error,
       );
-      return false;
     }
   }
 
-  function getTexts() {
-    const tags = document.querySelectorAll(SELECTOR.printNumber);
-
-    return Array.from(tags)
-      .map((tag) => tag.textContent?.trim() || "")
-      .filter(Boolean)
-      .slice(0, 10);
-  }
-
-  function areListsEqual(first, second) {
-    if (first.length !== second.length) {
-      return false;
-    }
-
-    return first.every((text, index) => text === second[index]);
-  }
-
-  // отправка ячеек (Приемка)
-  function runScript() {
-    const currentTexts = getTexts();
-
-    if (!currentTexts.length) return;
-
-    // Первый запуск: просто сохраняем список, ничего не отправляем
-    if (!firstRun) {
-      previousTexts = currentTexts;
-      firstRun = true;
+  function handleNetworkResponse(response) {
+    if (
+      String(response.method || "").toUpperCase() !== "POST" ||
+      response.status < 200 ||
+      response.status >= 300
+    ) {
       return;
     }
 
-    // Если список не изменился — ничего не делаем
-    if (areListsEqual(currentTexts, previousTexts)) {
+    let pathname;
+    try {
+      pathname = new URL(response.url, location.origin).pathname;
+    } catch {
       return;
     }
 
-    // Список изменился. Фиксируем новый текст
-    const newText = currentTexts[0];
+    if (pathname !== TARGET_PATH) return;
 
-    // скрипт НЕ будет пытаться отправить этот номер повторно.
-    previousTexts = currentTexts;
+    const positions = response.data?.articlePositions;
+    if (!Array.isArray(positions)) return;
 
-    // Отправляем первый текст нового списка в фоновом режиме (без await)
-    sendNumber(newText);
-  }
+    positions.forEach((position) => {
+      const address = typeof position?.address === "string"
+        ? position.address.trim()
+        : "";
+      const articleId = position?.articleId;
 
-  // отправка ячеек (Выдача заказов)
-  async function runOrderScript() {
-    const tagElement = document.querySelector(SELECTOR.shelfTagOrder);
-    if (!tagElement) return;
+      if (!address || articleId === undefined || articleId === null || articleId === "") {
+        return;
+      }
 
-    // Используем абсолютно то же форматирование, что и в getTexts()
-    const currentText = tagElement.textContent?.trim() || "";
-
-    // Если после форматирования строка оказалась пустой или совпадает с прошлой — выходим
-    if (!currentText || currentText === lastSentOrderTag) return;
-
-    lastSentOrderTag = currentText;
-    sendNumber(currentText);
-    confirmPlacement();
-  }
-
-  // Главный обработчик изменений на страницах
-  function handleMutations() {
-    if (location.pathname === PATH.recommendation) {
-      runScript();
-    } else if (location.pathname.startsWith(PATH.order)) {
-      runOrderScript();
-    }
-  }
-
-  function resetState() {
-    if (observerPrint) {
-      observerPrint.disconnect();
-      observerPrint = null;
-    }
-
-    firstRun = false;
-    previousTexts = [];
-    lastSentOrderTag = ""; // Сбрасываем при смене страницы
-  }
-
-  function toggleState() {
-    // Гарантированный сброс состояния при любом переходе
-    resetState();
-
-    // Проверяем, находимся ли мы на одной из двух целевых страниц
-    const isRecommendation = location.pathname === PATH.recommendation;
-    const isOrder = location.pathname.startsWith(PATH.order);
-
-    if (!isRecommendation && !isOrder) {
-      return;
-    }
-
-    // Создаем единый observerPrint для отслеживания изменений DOM
-    observerPrint = new MutationObserver(() => handleMutations());
-
-    observerPrint.observe(document.body, {
-      childList: true,
-      subtree: true,
+      sendPrintData(address, articleId);
     });
-
-    // Первичный запуск для фиксации исходного состояния элементов
-    handleMutations();
   }
 
-  subscribe(toggleState);
+  subscribe(handleNetworkResponse);
 })();
