@@ -37,18 +37,18 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendNumberToFlask") {
-    sendRequest("print-number", { text: message.number })
+    const payload =
+      message.number && typeof message.number === "object"
+        ? message.number
+        : { text: message.number };
+    sendRequest("print-number", payload)
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ success: false, error: error.message }));
 
     return true;
   }
   if (message.action === "sendShelfToFlask") {
-    const payload =
-      message.number && typeof message.number === "object"
-        ? message.number
-        : { text: message.number };
-    sendRequest("ozon-shelf", payload)
+    sendRequest("ozon-shelf", { text: message.number })
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ success: false, error: error.message }));
 
