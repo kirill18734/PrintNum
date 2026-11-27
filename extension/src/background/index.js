@@ -37,10 +37,12 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendNumberToFlask") {
-    sendRequest("print-number", {
+    const printData = message.data ?? {
       text: message.text ?? message.number,
       barcode: message.barcode,
-    })
+    };
+
+    sendRequest("print-number", printData)
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ success: false, error: error.message }));
 
