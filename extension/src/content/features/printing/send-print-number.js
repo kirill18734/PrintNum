@@ -3,33 +3,28 @@
   const TARGET_PATH = "/api2/address-storage/Movement/put/v2";
   const { subscribe } = window.PrintNum.network;
 
-  async function sendPrintData(address, articleId) {
+  async function sendPrintData(printData) {
     try {
       const response = await chrome.runtime.sendMessage({
         action: "sendNumberToFlask",
-        text: address,
-        barcode: articleId,
+        data: printData,
       });
 
       if (!response || !response.success) {
         console.error(
-          `[PrintNum] Не удалось отправить данные для печати "${address}": ${response?.error || "Неизвестная ошибка"}`,
+          `[PrintNum] Не удалось отправить данные для печати "${printData.text}": ${response?.error || "Неизвестная ошибка"}`,
         );
       }
     } catch (error) {
       console.error(
-        `[PrintNum] Ошибка отправки данных для печати "${address}":`,
+        `[PrintNum] Ошибка отправки данных для печати "${printData.text}":`,
         error,
       );
     }
   }
 
   function handleNetworkResponse(response) {
-    if (
-      String(response.method || "").toUpperCase() !== "POST" ||
-      response.status < 200 ||
-      response.status >= 300
-    ) {
+    if (String(response.method || "").toUpperCase() !== "POST") {
       return;
     }
 
@@ -55,7 +50,12 @@
         return;
       }
 
-      sendPrintData(address, articleId);
+      const printData = {
+        text: address,
+        barcode: articleId,
+      };
+
+      sendPrintData(printData);
     });
   }
 
