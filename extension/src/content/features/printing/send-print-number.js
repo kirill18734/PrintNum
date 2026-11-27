@@ -12,7 +12,7 @@
   async function sendNumber(data) {
     try {
       const response = await chrome.runtime.sendMessage({
-        action: "sendShelfToFlask",
+        action: "sendNumberToFlask",
         number: data,
       });
 
