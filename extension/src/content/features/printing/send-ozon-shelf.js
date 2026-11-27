@@ -38,8 +38,8 @@
       if (!entity?.id || !shelf?.address) return;
 
       sendPrintData({
-        text: entity.id,
-        barcode: shelf.address,
+        text: shelf.address,
+        barcode: entity.id,
       });
     });
   }
