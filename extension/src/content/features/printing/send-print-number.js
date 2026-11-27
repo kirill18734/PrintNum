@@ -1,7 +1,8 @@
 // отправка ячеек на локальный сервер
 (async function () {
-  const { subscribe } = window.PrintNum.network;
   const { PATH } = window.PrintNum.config;
+  const { subscribe } = window.PrintNum.network;
+  const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
 
   const RESPONSE_HANDLERS = {
     [PATH.receivingPutApi]: handleMovementResponse, // раздел "Приемка"
@@ -53,6 +54,7 @@
       text: address,
       barcode: articleId,
     });
+    confirmPlacement();
   }
 
   function handleNetworkResponse({ method, url, data }) {
