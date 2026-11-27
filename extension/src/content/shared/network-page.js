@@ -3,6 +3,24 @@
 (function () {
   const INSTALL_FLAG = "__PRINTNUM_NETWORK_INTERCEPTOR__";
   const MESSAGE_TYPE = "PRINTNUM_NETWORK_RESPONSE";
+  const MOVEMENT_URL = "/api2/address-storage/Movement/put/v2";
+
+  function isValidMovementResponse({ method, url, status, data }) {
+    if (
+      method !== "POST" ||
+      status < 200 ||
+      status >= 300 ||
+      !Array.isArray(data?.articlePositions)
+    ) {
+      return false;
+    }
+
+    try {
+      return new URL(url, location.origin).pathname === MOVEMENT_URL;
+    } catch {
+      return false;
+    }
+  }
 
   if (window[INSTALL_FLAG]) return;
   window[INSTALL_FLAG] = true;
@@ -18,6 +36,8 @@
   }
 
   function publish(payload) {
+    if (!isValidMovementResponse(payload)) return;
+
     try {
       window.postMessage(
         {
