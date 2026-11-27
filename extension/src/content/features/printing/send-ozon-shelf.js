@@ -29,7 +29,7 @@
   }
 
   // Раздел "Остатки на Ozon Полке"
-  function handleMovementResponse(data) {
+  function handleInboundResponse(data) {
     const positions = data?.positions;
     if (!Array.isArray(positions)) return;
 
@@ -45,7 +45,7 @@
   }
 
   // раздел "Перемещение товаров"
-  function handleInboundResponse(data) {}
+  function handleMovementResponse(data) {}
 
   function handleNetworkResponse({ method, url, data }) {
     if (method !== "POST") return;
