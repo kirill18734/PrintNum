@@ -29,6 +29,7 @@
     }
   }
 
+  // раздел "Приемка"
   function handleMovementResponse(data) {
     const positions = data?.articlePositions;
     if (!Array.isArray(positions)) return;
@@ -44,6 +45,7 @@
     });
   }
 
+  // раздел "Выдача"
   function handleInboundResponse(data) {
     const address = data?.addressStoragePosition?.address;
     const articleId = data?.articleId;
