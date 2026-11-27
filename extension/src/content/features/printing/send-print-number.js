@@ -5,8 +5,6 @@
   const { subscribe: subscribeNetwork } = window.PrintNum.network;
   const { runScript: confirmPlacement } = window.PrintNum.confirmPlacement;
 
-  const MOVEMENT_URL = "/api2/address-storage/Movement/put/v2";
-
   let orderObserver = null;
 
   async function sendNumber(data) {
@@ -34,29 +32,7 @@
   }
 
   function handleMovementResponse(response) {
-    if (
-      response.method?.toUpperCase() !== "POST" ||
-      response.status < 200 ||
-      response.status >= 300
-    ) {
-      return;
-    }
-
-    let pathname;
-    try {
-      pathname = new URL(response.url, location.origin).pathname;
-    } catch {
-      return;
-    }
-
-    if (pathname !== MOVEMENT_URL) return;
-
-    const positions = response.data?.articlePositions;
-    if (!Array.isArray(positions)) return;
-
-    positions.forEach((position) => {
-      const { articleId, address } = position || {};
-
+    response.data.articlePositions.forEach(({ articleId, address }) => {
       if (
         (typeof articleId !== "string" && typeof articleId !== "number") ||
         !String(articleId).trim() ||
