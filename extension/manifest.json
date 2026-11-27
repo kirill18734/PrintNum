@@ -30,6 +30,7 @@
         "src/content/shared/dom.js",
         "src/content/shared/api.js",
         "src/content/shared/navigation.js",
+        "src/content/shared/network.js",
         "src/content/shared/keyboard.js",
         "src/content/shared/storage-events.js",
         "src/content/index.js",
@@ -45,6 +46,12 @@
         "src/content/features/navigation/hide-returns.js",
         "src/content/features/banners/hide-banner.js"
       ]
+    },
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": ["src/content/shared/network-page.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ]
 }
