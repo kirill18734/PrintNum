@@ -36,7 +36,7 @@
 
     positions.forEach((position) => {
       const { address, articleId } = position ?? {};
-      if (!address) return;
+      if (!address || !articleId) return;
 
       sendPrintData({
         text: address,
@@ -50,7 +50,7 @@
     const address = data?.addressStoragePosition?.address;
     const articleId = data?.articleId;
 
-    if (!address) return;
+    if (!address || !articleId) return;
 
     sendPrintData({
       text: address,

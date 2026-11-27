@@ -15,7 +15,7 @@ window.PrintNum.featureModeReady = (async function () {
 
     // 1. ПЕРВЫЙ ЗАПУСК: Инициализируем хранилище дефолтными значениями
     if (!isInitialized) {
-      const IS_DEV_MODE = true;
+      const IS_DEV_MODE = false;
       await set_local_storage("isDevMode", IS_DEV_MODE);
       await set_local_storage("isInitialized", true);
 

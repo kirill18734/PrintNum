@@ -1,97 +1,61 @@
-// отправка Ozon Полка на печать при подсветке строки
+// отправка ячеек на локальный сервер
 (async function () {
   const { PATH } = window.PrintNum.config;
-  const { subscribe } = window.PrintNum.navigation;
+  const { subscribe } = window.PrintNum.network;
 
-  let observerPrint = null;
-  let lastProcessedId = null; // Храним ID последней обработанной строки, чтобы не отправлять дубли
+  const RESPONSE_HANDLERS = {
+    [PATH.moveArticleApi]: handleMovementResponse, // Раздел "Остатки на Ozon Полке"
+    [PATH.microFFStockApi]: handleInboundResponse, // раздел "Перемещение товаров"
+  };
 
-  async function sendNumber(shelf) {
+  async function sendPrintData(printData) {
     try {
       const response = await chrome.runtime.sendMessage({
         action: "sendShelfToFlask",
-        number: shelf,
+        data: printData,
       });
+
       if (!response || !response.success) {
         console.error(
-          `Ошибка сервера (через BG): ${response?.error || "Неизвестная ошибка"}`,
+          `[PrintNum] Не удалось отправить данные для печати "${printData.text}": ${response?.error || "Неизвестная ошибка"}`,
         );
-        return false;
       }
-      return true;
     } catch (error) {
       console.error(
-        `Ошибка отправки номера ячейки "${shelf}" через фоновый скрипт: `,
+        `[PrintNum] Ошибка отправки данных для печати "${printData.text}":`,
         error,
       );
-      return false;
     }
   }
 
-  function runScript() {
-    const headers = Array.from(document.querySelectorAll("thead th"));
+  // Раздел "Остатки на Ozon Полке"
+  function handleMovementResponse(data) {
+    const positions = data?.positions;
+    if (!Array.isArray(positions)) return;
 
-    // Находим индексы нужных колонок
-    const newCellIndex = headers.findIndex(
-      (h) => h.textContent?.trim() === "Новая ячейка",
-    );
-    const currentCellIndex = headers.findIndex(
-      (h) => h.textContent?.trim() === "Текущая ячейка",
-    );
+    positions.forEach((position) => {
+      const { entity, shelf } = position ?? {};
+      if (!entity?.id || !shelf?.address) return;
 
-    // Если колонки не найдены, выходим
-    if (newCellIndex === -1 || currentCellIndex === -1) return;
-
-    // Быстрый поиск подсвеченной строки (ищет класс в любом месте списка классов строки)
-    const highlightedRow = document.querySelector(
-      'tbody tr[class*="_highlightedRow_"]',
-    );
-
-    // Если подсвеченной строки сейчас нет на экране, сбрасываем ID и выходим
-    if (!highlightedRow) {
-      lastProcessedId = null;
-      return;
-    }
-
-    const cells = highlightedRow.querySelectorAll("td");
-    const targetCellNew = cells[newCellIndex];
-    const targetCellCurrent = cells[currentCellIndex];
-
-    if (targetCellNew && targetCellCurrent) {
-      const currentId = targetCellCurrent.textContent?.trim() || "";
-      const rawNewValue = targetCellNew.textContent?.trim() || "";
-
-      // Проверяем, изменился ли ID по сравнению с прошлым сканированием и что колонка не пустая
-      if (currentId && currentId !== lastProcessedId && rawNewValue) {
-        lastProcessedId = currentId;
-        sendNumber(rawNewValue);
-      }
-    }
-  }
-
-  function resetState() {
-    if (observerPrint) {
-      observerPrint.disconnect();
-      observerPrint = null;
-    }
-    lastProcessedId = null;
-  }
-
-  function toggleState() {
-    resetState();
-    if (location.pathname !== PATH.shelf) {
-      return;
-    }
-    // Настраиваем observer на отслеживание добавления классов подсветки
-    observerPrint = new MutationObserver(runScript);
-    observerPrint.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["class"], // Реагируем только на изменение классов на странице
+      sendPrintData({
+        text: entity.id,
+        barcode: shelf.address,
+      });
     });
-    runScript();
   }
 
-  subscribe(toggleState);
+  // раздел "Перемещение товаров"
+  function handleInboundResponse(data) {}
+
+  function handleNetworkResponse({ method, url, data }) {
+    if (method !== "POST") return;
+
+    try {
+      const { pathname } = new URL(url, location.origin);
+
+      RESPONSE_HANDLERS[pathname]?.(data);
+    } catch {}
+  }
+
+  subscribe(handleNetworkResponse);
 })();
