@@ -26,6 +26,7 @@ export default function AutoPrint({
   const expand = useAppStore((state) => state.expand);
   const opacity = useAppStore((state) => state.opacity);
   const bold = useAppStore((state) => state.bold);
+  const showBarcode = useAppStore((state) => state.showBarcode);
   const printJobs = useAppStore((state) => state.printJobs);
   const background = useAppStore((state) => state.background);
   const [previewFont, setPreviewFont] = useState<string | undefined>();
@@ -52,6 +53,7 @@ export default function AutoPrint({
   const setExpand = (value: string) => setSetting("expand", value);
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
+  const setShowBarcode = (value: boolean) => setSetting("showBarcode", value);
   const setOpacity = (value: number) => setSetting("opacity", value);
 
   return (
@@ -94,6 +96,8 @@ export default function AutoPrint({
             dataBackgrounds={dataBackgrounds}
             dataFonts={dataFonts}
             setBold={setBold}
+            showBarcode={showBarcode}
+            setShowBarcode={setShowBarcode}
             expand={expand}
             setExpand={setExpand}
             opacity={opacity}
@@ -110,6 +114,7 @@ export default function AutoPrint({
             endLine={endLine}
             expand={expand}
             bold={bold}
+            showBarcode={showBarcode}
             mode="autoprint"
             background={previewBackground ?? background}
             opacity={opacity}
