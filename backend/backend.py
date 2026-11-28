@@ -357,6 +357,18 @@ def print_number_route():
     if not text:
         return "OK"
 
+    barcode = body.get("barcode")
+    if barcode is not None:
+        if not isinstance(barcode, str):
+            return jsonify({"error": "Поле barcode должно быть строкой"}), 400
+
+        barcode = barcode.strip()
+        if len(barcode) > 512:
+            return jsonify({"error": "Поле barcode не должно превышать 512 символов"}), 400
+
+        if not barcode:
+            barcode = None
+
     # Регистрируем задание до проверок, чтобы frontend сразу видел processing.
     job = _register_print_job(text)
 
@@ -387,6 +399,7 @@ def print_number_route():
         with _print_lock:
             printed = print_text(
                 text,
+                barcode=barcode,
                 on_prepared=on_prepared,
             )
 
