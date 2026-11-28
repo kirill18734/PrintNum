@@ -21,7 +21,7 @@
       return true;
     } catch (error) {
       console.error(
-        `Ошибка отправки номера ячейки "${shelf}" через фоновый скрипт: `,
+        `Ошибка отправки номера ячейки "${printData.text}" через фоновый скрипт: `,
         error,
       );
       return false;
