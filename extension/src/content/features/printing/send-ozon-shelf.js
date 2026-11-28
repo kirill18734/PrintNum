@@ -42,12 +42,14 @@
 
     positions.forEach((position) => {
       const { entity, shelf } = position ?? {};
-      if (!entity?.id || !shelf?.address) return;
+      if (!shelf?.address) return;
 
-      sendPrintData({
-        text: shelf.address,
-        barcode: entity.id,
-      });
+      const printData = { text: shelf.address };
+      if (entity?.id !== undefined && entity?.id !== null && entity.id !== "") {
+        printData.barcode = entity.id;
+      }
+
+      sendPrintData(printData);
     });
   }
 
