@@ -4,8 +4,9 @@
   const { subscribe } = window.PrintNum.network;
 
   const RESPONSE_HANDLERS = {
-    [PATH.moveArticleApi]: handleMovementResponse, // Раздел "Остатки на Ozon Полке"
-    [PATH.microFFStockApi]: handleInboundResponse, // раздел "Перемещение товаров"
+    [PATH.prepShipmentApi]: printShipmentLabels, // раздел "Подготовка к отправке"
+    [PATH.moveArticleApi]: printTransferLabels, // раздел "Перемещение товаров"
+    [PATH.microFFStockApi]: printShelfStockLabels, // Раздел "Остатки на Ozon Полке"
   };
 
   async function sendPrintData(printData) {
@@ -28,8 +29,14 @@
     }
   }
 
+  // раздел "Подготовка к отправке"
+  function printShipmentLabels(data) {}
+
+  // раздел "Перемещение товаров"
+  function printTransferLabels(data) {}
+
   // Раздел "Остатки на Ozon Полке"
-  function handleInboundResponse(data) {
+  function printShelfStockLabels(data) {
     const positions = data?.positions;
     if (!Array.isArray(positions)) return;
 
@@ -43,9 +50,6 @@
       });
     });
   }
-
-  // раздел "Перемещение товаров"
-  function handleMovementResponse(data) {}
 
   function handleNetworkResponse({ method, url, data }) {
     if (method !== "POST") return;

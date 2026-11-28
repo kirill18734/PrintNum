@@ -44,6 +44,8 @@
     receivingPutApi: "/api2/address-storage/Movement/put/v2",
     // Раздел "Выдача"
     outboundArticleApi: "/p-api/inbound/Articles/GetReceivedArticleInfo",
+    // Раздел "Подготовка к отправке"
+    prepShipmentApi: "",
     // Раздел "Перемещение товаров"
     moveArticleApi: "",
     // Раздел "Остатки на Ozon Полке"
