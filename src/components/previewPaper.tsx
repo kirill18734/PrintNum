@@ -234,7 +234,11 @@ export default function PreviewPaper({
         />
       )}
 
-      <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
+      <div
+        className={`relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0 ${
+          showBarcode ? (isExpandActive ? "pt-7" : "pt-9") : ""
+        }`}
+      >
         {idNum && (
           <div className="flex justify-end items-center w-full h-[0.5rem] shrink-0">
             <span className="text-[0.6rem]">−47</span>
@@ -245,7 +249,7 @@ export default function PreviewPaper({
           <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
             <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
               <span
-                className={`${isExpandActive ? "text-4xl" : "text-6xl"}
+                className={`${showBarcode ? (isExpandActive ? "text-xl" : "text-4xl") : (isExpandActive ? "text-4xl" : "text-6xl")}
                   ${endLine ? "underline decoration-3" : ""}
                   ${bold ? "font-bold" : ""}`}
               >
@@ -315,7 +319,7 @@ export default function PreviewPaper({
         />
       )}
 
-      <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
+      <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0 pt-7">
         <div className="flex justify-start items-center w-full h-[0.5rem] shrink-0">
           <span className="text-[0.6rem]">{expandNumber}−</span>
         </div>
@@ -323,7 +327,7 @@ export default function PreviewPaper({
         <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
           <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
             <span
-              className={`text-4xl font-bold
+              className={`${showBarcode ? "text-xl" : "text-4xl"} font-bold
                 ${endLine ? "underline decoration-3" : ""}`}
             >
               123{!endLine && "."}
