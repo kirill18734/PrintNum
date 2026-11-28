@@ -1,6 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LabelContentType, TextInputMode } from "@/types/label";
-import { loadBackgroundPreview, loadFontPreview } from "@/services/resources.tauri";
+import {
+  loadBackgroundPreview,
+  loadFontPreview,
+} from "@/services/resources.tauri";
 import { generateCodeImage } from "@/shared/utils/generateCodeImage";
 
 interface PreviewPaperProps {
@@ -35,7 +38,11 @@ interface FittedTextProps {
 }
 
 /** Подбирает максимальный размер шрифта, при котором строка целиком помещается в этикетку. */
-function FittedText({ children, className = "", fontFamilyKey = "" }: FittedTextProps) {
+function FittedText({
+  children,
+  className = "",
+  fontFamilyKey = "",
+}: FittedTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [fontSize, setFontSize] = useState(8);
@@ -63,7 +70,7 @@ function FittedText({ children, className = "", fontFamilyKey = "" }: FittedText
       }
 
       const nextSize = Math.max(4, Math.floor(low * 10) / 10);
-      setFontSize((current) => current === nextSize ? current : nextSize);
+      setFontSize((current) => (current === nextSize ? current : nextSize));
     };
 
     fitText();
@@ -77,7 +84,11 @@ function FittedText({ children, className = "", fontFamilyKey = "" }: FittedText
       <span
         ref={textRef}
         className={`block h-full w-full whitespace-nowrap leading-none ${className}`}
-        style={{ alignContent: "center", fontSize: `${fontSize}px`, textAlign: "center" }}
+        style={{
+          alignContent: "center",
+          fontSize: `${fontSize}px`,
+          textAlign: "center",
+        }}
       >
         {children}
       </span>
@@ -124,14 +135,18 @@ export default function PreviewPaper({
     }
     setBackgroundImage(undefined);
     void loadBackgroundPreview(background)
-      .then((image) => { if (!cancelled) setBackgroundImage(image); })
+      .then((image) => {
+        if (!cancelled) setBackgroundImage(image);
+      })
       .catch((error) => {
         if (!cancelled) {
           setBackgroundImage(undefined);
           console.error("Не удалось загрузить фон для Preview:", error);
         }
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [background, isTextLabel]);
 
   useEffect(() => {
@@ -142,14 +157,18 @@ export default function PreviewPaper({
     }
     setFontBase64(undefined);
     void loadFontPreview(font)
-      .then((item) => { if (!cancelled) setFontBase64(item.base64); })
+      .then((item) => {
+        if (!cancelled) setFontBase64(item.base64);
+      })
       .catch((error) => {
         if (!cancelled) {
           setFontBase64(undefined);
           console.error("Не удалось загрузить шрифт для Preview:", error);
         }
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [font]);
 
   const fontFace = fontBase64
@@ -164,12 +183,11 @@ export default function PreviewPaper({
 
   useEffect(() => {
     const isAutoPrintQr = mode === "autoprint" && showBarcode;
-    const codeType =
-      isAutoPrintQr
-        ? "qr"
-        : mode === "create" && contentType !== "text"
-          ? contentType
-          : null;
+    const codeType = isAutoPrintQr
+      ? "qr"
+      : mode === "create" && contentType !== "text"
+        ? contentType
+        : null;
     const codeContent = isAutoPrintQr ? "123" : content;
 
     if (!codeType || !codeContent.trim()) {
@@ -249,7 +267,7 @@ export default function PreviewPaper({
           <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
             <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
               <span
-                className={`${showBarcode ? (isExpandActive ? "text-xl" : "text-4xl") : (isExpandActive ? "text-4xl" : "text-6xl")}
+                className={`${showBarcode ? (isExpandActive ? "text-xl" : "text-6xl") : isExpandActive ? "text-4xl" : "text-6xl"}
                   ${endLine ? "underline decoration-3" : ""}
                   ${bold ? "font-bold" : ""}`}
               >
@@ -348,7 +366,8 @@ export default function PreviewPaper({
       <div className="flex flex-col items-center gap-1">
         {isExpandActive && mode === "autoprint" && (
           <span className="text-xs text-muted-foreground">
-            Этикетки 1 – {expandNumber - 1 < 1 ? expandNumber : expandNumber - 1}
+            Этикетки 1 –{" "}
+            {expandNumber - 1 < 1 ? expandNumber : expandNumber - 1}
           </span>
         )}
         {label}
