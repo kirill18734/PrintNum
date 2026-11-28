@@ -1,5 +1,7 @@
 import win32ui
 import win32con
+import qrcode
+from PIL import Image, ImageWin
 
 from app.config import load_config
 from app.resources import resource_session
@@ -68,14 +70,30 @@ def prepare_label_data(text, config):
     }
 
 
-def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
-    """Рисует верхний колонтитул."""
+def draw_header(
+    hdc, text, sizes, force_left, font_name="Arial", max_width=None
+):
+    """Рисует верхний колонтитул, при необходимости уменьшая его под QR."""
 
-    font_top = win32ui.CreateFont({
-        "name": font_name,
-        "height": int(sizes["height_px"] * 0.20),
-        "weight": win32con.FW_NORMAL,
-    })
+    font_height = max(1, int(sizes["height_px"] * 0.20))
+
+    while True:
+        font_top = win32ui.CreateFont({
+            "name": font_name,
+            "height": font_height,
+            "weight": win32con.FW_NORMAL,
+        })
+
+        previous_font = hdc.SelectObject(font_top)
+        try:
+            text_w, text_h = hdc.GetTextExtent(text)
+        finally:
+            hdc.SelectObject(previous_font)
+
+        if max_width is None or text_w <= max_width or font_height <= 1:
+            break
+
+        font_height -= 1
 
     previous_font = hdc.SelectObject(font_top)
     try:
@@ -90,6 +108,53 @@ def draw_header(hdc, text, sizes, force_left, font_name="Arial"):
         return y + text_h
     finally:
         hdc.SelectObject(previous_font)
+
+
+def draw_qr_code(hdc, barcode, sizes):
+    """Генерирует QR с обязательной тихой зоной и рисует его справа сверху."""
+
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=1,
+        border=4,
+    )
+    qr.add_data(barcode)
+    qr.make(fit=True)
+
+    image = qr.make_image(
+        fill_color="black",
+        back_color="white",
+    ).convert("RGB")
+
+    max_size = min(
+        int(sizes["height_px"] * 0.70),
+        int(sizes["width_px"] * 0.35),
+    )
+    module_pixels = max_size // image.width
+
+    if module_pixels < 2:
+        raise ValueError(
+            "Содержимое barcode слишком длинное для надёжной печати QR-кода"
+        )
+
+    side = image.width * module_pixels
+    image = image.resize(
+        (side, side),
+        Image.Resampling.NEAREST,
+    )
+
+    x = sizes["width_px"] - sizes["margin_x"] - side
+    y = sizes["margin_y"]
+
+    ImageWin.Dib(image).draw(
+        hdc.GetHandleOutput(),
+        (x, y, x + side, y + side),
+    )
+
+    return {
+        "x": x,
+        "width": side,
+    }
 
 
 
@@ -141,7 +206,9 @@ def draw_main_text(
     previous_font = hdc.SelectObject(final_font)
     try:
         text_w, text_h = hdc.GetTextExtent(text)
-        x = (sizes["width_px"] - text_w) // 2
+        text_left = sizes.get("text_area_left", 0)
+        text_width = sizes.get("text_area_width", sizes["width_px"])
+        x = text_left + (text_width - text_w) // 2
         y = y_start + (available_h - text_h) // 2
         hdc.TextOut(x, y, text)
         return optimal_height
@@ -151,7 +218,7 @@ def draw_main_text(
 
 
 
-def print_text(text, on_prepared=None):
+def print_text(text, barcode=None, on_prepared=None):
     """Главная функция автоматической печати.
 
     on_prepared вызывается после подготовки текста и до отправки этикетки на печать.
@@ -218,6 +285,21 @@ def print_text(text, on_prepared=None):
                 config.get("opacity", 100),
             )
 
+            text_sizes = sizes.copy()
+            qr_enabled = (
+                config.get("showBarcode", False)
+                and isinstance(barcode, str)
+                and bool(barcode.strip())
+            )
+
+            if qr_enabled:
+                qr_area = draw_qr_code(hdc, barcode.strip(), sizes)
+                text_sizes["text_area_left"] = sizes["margin_x"]
+                text_sizes["text_area_width"] = (
+                    qr_area["x"] - sizes["margin_x"] * 2
+                )
+                text_sizes["max_allowed_w"] = text_sizes["text_area_width"]
+
             y_start_center = sizes["margin_y"]
 
             if data["show_header"] and data["header_text"]:
@@ -225,14 +307,19 @@ def print_text(text, on_prepared=None):
                     hdc,
                     text=data["header_text"],
                     sizes=sizes,
-                    force_left=data["force_left_header"],
+                    force_left=(
+                        True if qr_enabled else data["force_left_header"]
+                    ),
                     font_name=font_name,
+                    max_width=(
+                        text_sizes["max_allowed_w"] if qr_enabled else None
+                    ),
                 )
 
             opt_h = draw_main_text(
                 hdc,
                 text=data["main_text"],
-                sizes=sizes,
+                sizes=text_sizes,
                 y_start=y_start_center,
                 is_underlined=data["is_underlined"],
                 is_bold=data["is_bold"],
