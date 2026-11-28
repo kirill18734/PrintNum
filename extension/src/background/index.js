@@ -35,19 +35,18 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
+const ROUTES = {
+  sendNumberToFlask: "print-number",
+  sendShelfToFlask: "ozon-shelf",
+};
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "sendNumberToFlask") {
-    sendRequest("print-number", { text: message.number })
-      .then((result) => sendResponse(result))
-      .catch((error) => sendResponse({ success: false, error: error.message }));
+  const endpoint = ROUTES[message.action];
+  if (!endpoint) return;
 
-    return true;
-  }
-  if (message.action === "sendShelfToFlask") {
-    sendRequest("ozon-shelf", { text: message.number })
-      .then((result) => sendResponse(result))
-      .catch((error) => sendResponse({ success: false, error: error.message }));
+  sendRequest(endpoint, message.data)
+    .then(sendResponse)
+    .catch((error) => sendResponse({ success: false, error: error.message }));
 
-    return true;
-  }
+  return true;
 });

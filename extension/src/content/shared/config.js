@@ -31,7 +31,6 @@
     move: "Переместить",
     confirmPlacement: "Подтвердить размещение",
   };
-
   const PATH = {
     all: "/orders",
     order: "/orders/session",
@@ -39,7 +38,20 @@
     package: "/outbound",
     shelf: "/outbound/selection",
     microFFStock: "/reports/micro-ff-stock",
+
+    // API для печати ячеек
+    // Раздел "Приемка"
+    receivingPutApi: "/api2/address-storage/Movement/put/v2",
+    // Раздел "Выдача"
+    outboundArticleApi: "/p-api/inbound/Articles/GetReceivedArticleInfo",
+    // Раздел "Подготовка к отправке"
+    prepShipmentApi: "",
+    // Раздел "Перемещение товаров"
+    moveArticleApi: "",
+    // Раздел "Остатки на Ozon Полке"
+    microFFStockApi: "/p-api/address-storage/AddressStorageApi/PutEntities",
   };
+
   const cmd = (id, code, name, path, actions, group, isLoop) => ({
     id,
     code,

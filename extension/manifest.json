@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "PrintNum",
+  "name": "PrintNum - Печать Ячеек (Ozon)",
   "description": "Полезные инструменты для turbo-pvz.ozon.ru: печать ячеек, автоскрипты, удобная автоматизация по QR-кодам и другое.",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "icons": {
     "16": "assets/icons/16.png",
     "32": "assets/icons/32.png",
@@ -30,6 +30,7 @@
         "src/content/shared/dom.js",
         "src/content/shared/api.js",
         "src/content/shared/navigation.js",
+        "src/content/shared/network.js",
         "src/content/shared/keyboard.js",
         "src/content/shared/storage-events.js",
         "src/content/index.js",
@@ -40,11 +41,17 @@
         "src/content/features/autoscripts/confirm-placement.js",
         "src/content/features/printing/send-print-number.js",
         "src/content/features/printing/send-ozon-shelf.js",
-        "src/content/features/printing/send-micro-ff-stock.js",
+        "src/content/features/printing/temp-ozon-shelf.js",
         "src/content/features/navigation/hide-menu-notification.js",
         "src/content/features/navigation/hide-returns.js",
         "src/content/features/banners/hide-banner.js"
       ]
+    },
+    {
+      "matches": ["https://turbo-pvz.ozon.ru/*"],
+      "js": ["src/content/shared/network-page.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ]
 }
