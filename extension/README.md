@@ -34,7 +34,7 @@
 
 Локальная установка исходников из этой папки предназначена для разработки и проверки изменений в ветке:
 
-1. Скачайте архив с папкой расширения по [ссылке](https://downgit.github.io/#/home?url=https://github.com/kirill18734/PrintNum/tree/new-extension/extension).
+1. Скачайте архив с папкой расширения по [ссылке](https://downgit.github.io/#/home?url=https://github.com/kirill18734/PrintNum/tree/main/extension).
 2. Распакуйте архив в удобное место на компьютере.
 3. Откройте страницу `chrome://extensions` в браузере.
 4. Включите режим разработчика.
