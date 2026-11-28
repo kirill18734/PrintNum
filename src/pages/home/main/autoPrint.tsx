@@ -49,11 +49,17 @@ export default function AutoPrint({
   const setExcludedTexts = (rules: string[]) =>
     setSetting("excludedTexts", rules);
 
-  const setIdNum = (value: boolean) => setSetting("idNum", value);
+  const setIdNum = (value: boolean) => {
+    if (value) setSetting("showBarcode", false);
+    setSetting("idNum", value);
+  };
   const setExpand = (value: string) => setSetting("expand", value);
   const setEndLine = (value: boolean) => setSetting("endLine", value);
   const setBold = (value: boolean) => setSetting("bold", value);
-  const setShowBarcode = (value: boolean) => setSetting("showBarcode", value);
+  const setShowBarcode = (value: boolean) => {
+    if (value) setSetting("idNum", false);
+    setSetting("showBarcode", value);
+  };
   const setOpacity = (value: number) => setSetting("opacity", value);
 
   return (
