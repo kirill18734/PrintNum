@@ -327,7 +327,7 @@ export default function PreviewPaper({
         <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
           <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
             <span
-              className={`${showBarcode ? "text-xl" : "text-4xl"} font-bold
+              className={`${showBarcode ? "text-sm" : "text-4xl"} font-bold
                 ${endLine ? "underline decoration-3" : ""}`}
             >
               123{!endLine && "."}
