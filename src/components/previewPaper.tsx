@@ -9,6 +9,7 @@ interface PreviewPaperProps {
   expand?: string;
   font?: string;
   bold?: boolean;
+  showBarcode?: boolean;
   opacity?: number;
 
   mode: "autoprint" | "create";
@@ -90,6 +91,7 @@ export default function PreviewPaper({
   expand = "",
   font = "Arial",
   bold = false,
+  showBarcode = false,
 
   mode = "autoprint",
   contentType = "text",
@@ -114,7 +116,6 @@ export default function PreviewPaper({
   const [backgroundImage, setBackgroundImage] = useState<string>();
   const [fontBase64, setFontBase64] = useState<string>();
 
-  // Список доступных ресурсов приходит из backend; здесь читается только выбранный файл.
   useEffect(() => {
     let cancelled = false;
     if (!isTextLabel || !background || background === "Без фона") {
@@ -155,7 +156,6 @@ export default function PreviewPaper({
     ? `@font-face { font-family: ${cssFontFamily}; src: url("data:font/${font.toLowerCase().endsWith(".otf") ? "otf" : "ttf"};base64,${fontBase64}") format("${font.toLowerCase().endsWith(".otf") ? "opentype" : "truetype"}"); font-weight: 400; font-style: normal; }`
     : "";
 
-  // Состояние генерации кода
   const [generatedCode, setGeneratedCode] = useState<GeneratedCode>({
     svg: null,
     error: null,
@@ -163,27 +163,28 @@ export default function PreviewPaper({
   });
 
   useEffect(() => {
-    // Проверяем условия отмены в самом начале
-    if (mode === "autoprint" || contentType === "text" || !content.trim()) {
+    const isAutoPrintQr = mode === "autoprint" && showBarcode;
+    const codeType =
+      isAutoPrintQr
+        ? "qr"
+        : mode === "create" && contentType !== "text"
+          ? contentType
+          : null;
+    const codeContent = isAutoPrintQr ? "123" : content;
+
+    if (!codeType || !codeContent.trim()) {
       setGeneratedCode({ svg: null, error: null, loading: false });
       return;
     }
 
     let cancelled = false;
-
-    // Включаем лоадер одним махом
     setGeneratedCode({ svg: null, error: null, loading: true });
 
     const generateCode = async () => {
       try {
-        const { svg } = await generateCodeImage(contentType, content);
-
+        const { svg } = await generateCodeImage(codeType, codeContent);
         if (!cancelled) {
-          setGeneratedCode({
-            svg,
-            error: null,
-            loading: false,
-          });
+          setGeneratedCode({ svg, error: null, loading: false });
         }
       } catch (error) {
         if (!cancelled) {
@@ -197,13 +198,11 @@ export default function PreviewPaper({
     };
 
     void generateCode();
-
     return () => {
       cancelled = true;
     };
-  }, [mode, content, contentType]);
+  }, [mode, content, contentType, showBarcode]);
 
-  // Общий слой фонового изображения
   const backgroundLayer = backgroundImage && (
     <div
       className="absolute inset-0 z-0 pointer-events-none"
@@ -212,12 +211,11 @@ export default function PreviewPaper({
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        opacity: opacity !== undefined ? opacity / 100 : 0.5, // Преобразуем в диапазон от 0 до 1
+        opacity: opacity !== undefined ? opacity / 100 : 0.5,
       }}
     />
   );
 
-  // Общая разметка этикетки
   const label = (
     <div
       style={fontStyle}
@@ -228,28 +226,33 @@ export default function PreviewPaper({
     >
       {backgroundLayer}
 
-      {/* Содержимое этикетки */}
       <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
-        {/* Номер этикетки */}
         {idNum && (
           <div className="flex justify-end items-center w-full h-[0.5rem] shrink-0">
             <span className="text-[0.6rem]">−47</span>
           </div>
         )}
 
-        {/* Режим автоматической печати */}
         {mode === "autoprint" ? (
-          <div className="flex justify-center items-center leading-none flex-1 min-h-0">
-            <span
-              className={`${isExpandActive ? "text-4xl" : "text-6xl"}
-                ${endLine ? "underline decoration-3" : ""}
-                ${bold ? "font-bold" : ""}`}
-            >
-              123{!endLine && "."}
-            </span>
+          <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
+            <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
+              <span
+                className={`${isExpandActive ? "text-4xl" : "text-6xl"}
+                  ${endLine ? "underline decoration-3" : ""}
+                  ${bold ? "font-bold" : ""}`}
+              >
+                123{!endLine && "."}
+              </span>
+            </div>
+            {showBarcode && generatedCode.svg && (
+              <img
+                src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
+                alt="QR-код товара"
+                className={`block shrink-0 object-contain ${isExpandActive ? "size-5" : "size-8"}`}
+              />
+            )}
           </div>
         ) : contentType === "text" ? (
-          /* Обычный текст: подбираем размер шрифта под фактическую область этикетки. */
           <div className="flex flex-1 min-h-0 w-full items-center justify-center overflow-hidden select-none">
             <FittedText
               fontFamilyKey={font}
@@ -261,7 +264,6 @@ export default function PreviewPaper({
             </FittedText>
           </div>
         ) : (
-          /* Штрихкод / QR / Data Matrix */
           <div className="flex flex-col justify-center items-center flex-1 min-h-0 w-full gap-1">
             {generatedCode.svg ? (
               <img
@@ -284,7 +286,6 @@ export default function PreviewPaper({
               </div>
             )}
 
-            {/* Исходный текст под кодом */}
             {showCodeText && content.trim() && (
               <span className="text-xs text-center text-black shrink-0 max-w-full truncate">
                 {content}
@@ -296,7 +297,6 @@ export default function PreviewPaper({
     </div>
   );
 
-  // Вторая этикетка для режима автоперестановки
   const nextLabel = (
     <div
       style={fontStyle}
@@ -311,13 +311,22 @@ export default function PreviewPaper({
           <span className="text-[0.6rem]">{expandNumber}−</span>
         </div>
 
-        <div className="flex justify-center items-center leading-none flex-1 min-h-0">
-          <span
-            className={`text-4xl font-bold
-              ${endLine ? "underline decoration-3" : ""}`}
-          >
-            123{!endLine && "."}
-          </span>
+        <div className="flex flex-1 min-h-0 w-full items-center justify-center gap-1">
+          <div className="flex min-w-0 flex-1 items-center justify-center leading-none">
+            <span
+              className={`text-4xl font-bold
+                ${endLine ? "underline decoration-3" : ""}`}
+            >
+              123{!endLine && "."}
+            </span>
+          </div>
+          {showBarcode && generatedCode.svg && (
+            <img
+              src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
+              alt="QR-код товара"
+              className="size-5 shrink-0 object-contain"
+            />
+          )}
         </div>
       </div>
     </div>
@@ -336,7 +345,6 @@ export default function PreviewPaper({
             Этикетки 1 – {expandNumber - 1 < 1 ? expandNumber : expandNumber - 1}
           </span>
         )}
-
         {label}
       </div>
 
@@ -345,7 +353,6 @@ export default function PreviewPaper({
           <span className="text-xs text-muted-foreground">
             Этикетки от {expandNumber}
           </span>
-
           {nextLabel}
         </div>
       )}

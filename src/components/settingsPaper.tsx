@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Background from "./background";
 import Font from "./font";
-import { Repeat } from "lucide-react";
+import { QrCode, Repeat } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
@@ -12,6 +12,8 @@ interface SettingsPaperProps {
   setEndLine: (checked: boolean) => void;
   bold: boolean;
   setBold: (checked: boolean) => void;
+  showBarcode: boolean;
+  setShowBarcode: (checked: boolean) => void;
   font: string;
   background: string;
   dataFonts: string[];
@@ -33,6 +35,8 @@ export default function SettingsPaper({
   setEndLine,
   bold,
   setBold,
+  showBarcode,
+  setShowBarcode,
   font,
   dataFonts,
   background,
@@ -102,7 +106,7 @@ export default function SettingsPaper({
         className="flex flex-col items-start justify-center gap-1"
       >
         {/* Форматирование текста */}
-        <div className="grid grid-cols-3 gap-1 w-full">
+        <div className="grid grid-cols-4 gap-1 w-full">
           <Button
             type="button"
             variant={idNum ? "default" : "outline"}
@@ -140,6 +144,19 @@ export default function SettingsPaper({
             onClick={() => setBold(!bold)}
           >
             <span className="font-bold">B</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant={showBarcode ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+            title="qr-код товара"
+            aria-label="QR-код товара"
+            aria-pressed={showBarcode}
+            onClick={() => setShowBarcode(!showBarcode)}
+          >
+            <QrCode aria-hidden="true" className="size-4" />
           </Button>
         </div>
 
