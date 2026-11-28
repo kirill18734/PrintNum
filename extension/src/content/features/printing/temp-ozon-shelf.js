@@ -6,11 +6,11 @@
   let observerPrint = null;
   let lastProcessedId = null; // Храним ID последней обработанной строки, чтобы не отправлять дубли
 
-  async function sendNumber(shelf) {
+  async function sendNumber(printData) {
     try {
       const response = await chrome.runtime.sendMessage({
         action: "sendShelfToFlask",
-        number: shelf,
+        data: printData,
       });
       if (!response || !response.success) {
         console.error(
@@ -64,7 +64,7 @@
       // Проверяем, изменился ли ID по сравнению с прошлым сканированием и что колонка не пустая
       if (currentId && currentId !== lastProcessedId && rawNewValue) {
         lastProcessedId = currentId;
-        sendNumber(rawNewValue);
+        sendNumber({ text: rawNewValue });
       }
     }
   }
