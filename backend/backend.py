@@ -359,10 +359,10 @@ def print_number_route():
 
     barcode = body.get("barcode")
     if barcode is not None:
-        if not isinstance(barcode, str):
-            return jsonify({"error": "Поле barcode должно быть строкой"}), 400
+        # QR-код всегда получает строковое содержимое, даже если
+        # клиент передал число, boolean или другое JSON-значение.
+        barcode = str(barcode).strip()
 
-        barcode = barcode.strip()
         if len(barcode) > 512:
             return jsonify({"error": "Поле barcode не должно превышать 512 символов"}), 400
 
