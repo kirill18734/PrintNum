@@ -12,6 +12,7 @@ export interface AppSettings {
   opacity_manual: number;
   font_manual: string;
   showCodeText: boolean;
+  showBarcode: boolean;
   background: string;
   background_manual: string;
   expand: string;
@@ -39,6 +40,7 @@ export const defaultConfig: AppSettings = {
   expand: "",
   theme: "system",
   themeStyle: "vercel",
+  showBarcode: true,
   excludedTexts: [],
   deletedResources: [],
 };
