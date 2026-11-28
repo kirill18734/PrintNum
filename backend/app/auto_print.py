@@ -126,9 +126,10 @@ def draw_qr_code(hdc, barcode, sizes):
         back_color="white",
     ).convert("RGB")
 
+    # Немного увеличиваем QR, сохраняя его в пределах этикетки.
     max_size = min(
-        int(sizes["height_px"] * 0.70),
-        int(sizes["width_px"] * 0.35),
+        int(sizes["height_px"] * 0.80),
+        int(sizes["width_px"] * 0.40),
     )
     module_pixels = max_size // image.width
 
