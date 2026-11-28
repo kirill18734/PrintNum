@@ -226,6 +226,14 @@ export default function PreviewPaper({
     >
       {backgroundLayer}
 
+      {mode === "autoprint" && showBarcode && generatedCode.svg && (
+        <img
+          src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
+          alt="QR-код товара"
+          className={`absolute top-1 right-1 z-20 block bg-white object-contain ${isExpandActive ? "size-5 p-0.5" : "size-8 p-0.5"}`}
+        />
+      )}
+
       <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
         {idNum && (
           <div className="flex justify-end items-center w-full h-[0.5rem] shrink-0">
@@ -244,13 +252,6 @@ export default function PreviewPaper({
                 123{!endLine && "."}
               </span>
             </div>
-            {showBarcode && generatedCode.svg && (
-              <img
-                src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
-                alt="QR-код товара"
-                className={`block shrink-0 object-contain ${isExpandActive ? "size-5" : "size-8"}`}
-              />
-            )}
           </div>
         ) : contentType === "text" ? (
           <div className="flex flex-1 min-h-0 w-full items-center justify-center overflow-hidden select-none">
@@ -306,6 +307,14 @@ export default function PreviewPaper({
     >
       {backgroundLayer}
 
+      {mode === "autoprint" && showBarcode && generatedCode.svg && (
+        <img
+          src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
+          alt="QR-код товара"
+          className="absolute top-1 right-1 z-20 block size-5 bg-white p-0.5 object-contain"
+        />
+      )}
+
       <div className="relative z-10 flex flex-col justify-center items-center w-full flex-1 min-h-0">
         <div className="flex justify-start items-center w-full h-[0.5rem] shrink-0">
           <span className="text-[0.6rem]">{expandNumber}−</span>
@@ -320,13 +329,6 @@ export default function PreviewPaper({
               123{!endLine && "."}
             </span>
           </div>
-          {showBarcode && generatedCode.svg && (
-            <img
-              src={`data:image/svg+xml,${encodeURIComponent(generatedCode.svg)}`}
-              alt="QR-код товара"
-              className="size-5 shrink-0 object-contain"
-            />
-          )}
         </div>
       </div>
     </div>
