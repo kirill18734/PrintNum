@@ -36,12 +36,14 @@
 
     positions.forEach((position) => {
       const { address, articleId } = position ?? {};
-      if (!address || !articleId) return;
+      if (!address) return;
 
-      sendPrintData({
-        text: address,
-        barcode: articleId,
-      });
+      const printData = { text: address };
+      if (articleId !== undefined && articleId !== null && articleId !== "") {
+        printData.barcode = articleId;
+      }
+
+      sendPrintData(printData);
     });
   }
 
@@ -50,12 +52,14 @@
     const address = data?.addressStoragePosition?.address;
     const articleId = data?.articleId;
 
-    if (!address || !articleId) return;
+    if (!address) return;
 
-    sendPrintData({
-      text: address,
-      barcode: articleId,
-    });
+    const printData = { text: address };
+    if (articleId !== undefined && articleId !== null && articleId !== "") {
+      printData.barcode = articleId;
+    }
+
+    sendPrintData(printData);
     confirmPlacement();
   }
 
